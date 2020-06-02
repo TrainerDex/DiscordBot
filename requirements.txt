@@ -1,0 +1,3 @@
+PogoOCR==0.3.0
+Red-DiscordBot[postgres]>=3.3.8
+trainerdex>=3.0.3
