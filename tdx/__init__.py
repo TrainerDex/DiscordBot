@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = 'JayTurnr'
 __licence__ = 'GNU-GPL'
 __copyright__ = 'Copyright 2020 JayTurnr'
-__version__ = '2.0.0a1'
+__version__ = '1.9.0'
 
 from tdx.core import TrainerDexCore
 from redbot.core.bot import Red
