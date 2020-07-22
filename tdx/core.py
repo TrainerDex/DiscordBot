@@ -197,10 +197,10 @@ class TrainerDexCore(commands.Cog):
                 return
                 
             embed = await self._get_ProfileCard(ctx, trainer)
-            await message.edit(content=f"{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+            await message.edit(content=f"{await self._e(ctx, 'loading')} Checking leaderboard...", embed=embed)
             await embed.add_leaderboard()
             if ctx.guild:
-                await message.edit(content=f"{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+                await message.edit(content=f"{await self._e(ctx, 'loading')} Checking {ctx.guild} leaderboard...", embed=embed)
                 await embed.add_guild_leaderboard()
             await message.edit(content=None, embed=embed)
     
@@ -270,7 +270,7 @@ class TrainerDexCore(commands.Cog):
         await progmessage.edit(embed=embed)
         
         embed = await self._get_ProfileCard(ctx, trainer)
-        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking leaderboard...", embed=embed)
         await embed.add_leaderboard()
         await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking {ctx.guild} leaderboard...", embed=embed)
         await embed.add_guild_leaderboard()
