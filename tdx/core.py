@@ -1,22 +1,28 @@
+import datetime
 import logging
 import os
 import discord
+import humanize
+from typing import Union
+import requests
 
 from redbot.core import checks, commands, Config
-from trainerdex.client import Client, Trainer
+from tdx.converters import TeamConverter, DateConverter
+import trainerdex
 
 log = logging.getLogger("red.tdx.core")
 POGOOCR_TOKEN_PATH = os.path.join(os.path.dirname(__file__), 'data/key.json')
+
 
 class TrainerDexCore(commands.Cog):
     """TrainerDex Core Functionality"""
     
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=8124637339) # TrainerDex on a T9 keyboard
+        self.config = Config.get_conf(self, identifier=8124637339)  # TrainerDex on a T9 keyboard
         self.client: Client = None
         
-        assert os.path.isfile(POGOOCR_TOKEN_PATH) # Looks for a Google Cloud Token
+        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
         
         self.global_defaults = {
             'embed_footer': 'Provided with ❤️ by TrainerDex',
@@ -28,18 +34,21 @@ class TrainerDexCore(commands.Cog):
             'emoji_warning': "⚠️",
             'emoji_notice': "⚠️",
             'emoji_loading': "<a:loading:471298325904359434>",
+            'assign_roles_on_join': True,
+            'set_nickname_on_join': True,
+            'set_nickname_on_update': True,
         }
         
         self.config.register_global(**self.global_defaults)
         self.config.register_guild(**self.guild_defaults)
     
     async def initialize(self) -> None:
-        await self._creat_client()
+        await self._create_client()
     
-    async def _creat_client(self) -> None:
+    async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
         token = await self._get_token()
-        self.client = Client(token=token)
+        self.client = trainerdex.Client(token=token, identifier='ts_social_discord')
     
     async def _get_token(self) -> str:
         """Get TrainerDex token"""
@@ -49,15 +58,37 @@ class TrainerDexCore(commands.Cog):
             log.warning("No valid token found")
         return token
     
-    class BaseCard(discord.Embed):
+    async def get_trainer(self, value: Union[discord.Member, discord.User, str, int] = None):
+        """Returns a Trainer object for a given discord, trainer username or account id
         
+        Search is done in the order of username > discord > account, if you specify more than one, it will ONLY search the first one.
+        """
+        
+        if isinstance(value, str):
+            return self.client.get_trainer_from_username(value)
+        elif isinstance(value, (discord.Member, discord.User)):
+            try:
+                return self.client.get_discord_user(uid=[str(value.id)])[0].owner().trainer()[0]
+            except IndexError:
+                return None
+        elif isinstance(value, int):
+            return self.client.get_user(account)[0].owner().trainer()[0]
+        
+    async def _get_emoji(self, ctx, emoji: str) -> str:
+        """Returns the default or set emoji based on context"""
+        
+        if f'emoji_{emoji}' not in self.guild_defaults:
+            raise ValueError
+        
+        if ctx.guild:
+            return await getattr(self.config.guild(ctx.guild), f'emoji_{emoji}')()
+        return self.guild_defaults.get(f'emoji_{emoji}')
+    _e = _get_emoji
+    
+    class BaseCard(discord.Embed):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
-            # Set default colour
-            try:
-                self.colour = kwargs['colour']
-            except KeyError:
-                self.colour = kwargs.get('color', 13252437)
+            self.colour = kwargs.get('colour', kwargs.get('color', 13252437))
             
             self._author = {
                 'name': 'TrainerDex',
@@ -75,10 +106,7 @@ class TrainerDexCore(commands.Cog):
             
             notice = await self._parent.config.notice()
             if notice:
-                if self._ctx.guild:
-                    emoji = await self._parent.config.guild(self._ctx.guild).emoji_notice()
-                else:
-                    emoji = self._parent.guild_defaults.get("emoji_notice")
+                emoji = await self._parent._e(self._ctx, 'notice')
                 self._notice = f"{emoji} {notice}"
                 
                 if self.description:
@@ -87,76 +115,163 @@ class TrainerDexCore(commands.Cog):
                     self.description = self._notice
             return self
     
-    async def _get_BaseCard(self, ctx, **kwargs):
+    async def _get_BaseCard(self, ctx, **kwargs) -> BaseCard:
         return await self.BaseCard(**kwargs).build_card(self, ctx)
     
     class ProfileCard(BaseCard):
-        
-        def __init__(self, trainer: Trainer, **kwargs):
+        def __init__(self, trainer: trainerdex.Trainer, **kwargs):
             super().__init__(**kwargs)
             self._trainer = trainer
-            self.colour = self._trainer.team.colour.get('hex', self.colour)
-            self.title = '{nickname} | TL{level}'.format(nickname=self._trainer.nickname, level=self._trainer.level.level)
+            self.colour = int(self._trainer.team().colour.replace("#", ""), 16)
+            self.title = '{nickname} | TL{level}'.format(nickname=self._trainer.username, level=self._trainer.level.level)
             self.url = 'https://www.trainerdex.co.uk/profile?id={}'.format(self._trainer.id)
-            self.timestamp = max(self._trainer.last_modified, max(self._trainer.updates, key=lambda x: x.update_time).update_time)
+            if self._trainer.update:
+                self.timestamp = self._trainer.update.update_time
         
         async def build_card(self, parent, ctx):
             await super().build_card(parent, ctx)
-            self.add_field(name='Team', value=self._trainer.team.name)
+            self.add_field(name='Team', value=self._trainer.team().name)
             self.add_field(name='Level', value=self._trainer.level.level)
-            self.add_field(name='Total XP', value="{:,}".format(self._trainer.get_current_stat('total_xp')))
+            def check_xp(x):
+                if x.xp is None:
+                    return 0
+                return x.xp
+            self.add_field(name='Total XP', value="{:,}".format(max(self._trainer.updates(), key=check_xp).xp))
             return self
         
-        async def add_leaderboards(self):
+        async def add_guild_leaderboard(self):
             if self._ctx.guild:
-                guild_leaderboard = self._parent.client.get_discord_leaderboard(self._ctx.guild.id)
-                if self._trainer in guild_leaderboard:
+                try:
+                    guild_leaderboard = self._parent.client.get_discord_leaderboard(self._ctx.guild.id)
+                except requests.exceptions.HTTPError as e:
+                    log.error(e)
+                else:
+                    try:
+                        guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
+                        self.insert_field_at(
+                            index = 0,
+                            name = '{guild} Leaderboard'.format(guild=self._ctx.guild.name),
+                            value = str(guild_leaderboard),
+                        )
+                    except LookupError:
+                        pass
+        
+        async def add_leaderboard(self):
+            try:
+                leaderboard = self._parent.client.get_worldwide_leaderboard()
+            except requests.exceptions.HTTPError as e:
+                log.error(e)
+                return
+            else:
+                try:
+                    leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
                     self.insert_field_at(
                         index = 0,
-                        name = '{guild} Leaderboard'.format(guild=self._ctx.guild.name),
-                        value = str(list(guild_leaderboard.filter_trainers([self._trainer.id]))[0].position),
+                        name = 'Global Leaderboard',
+                        value = str(leaderboard),
                     )
-            
-            leaderboard = self._parent.client.get_worldwide_leaderboard()
-            if self._trainer in leaderboard:
-                self.insert_field_at(
-                    index = 0,
-                    name = 'Global Leaderboard',
-                    value = str(list(leaderboard.filter_trainers([self._trainer.id]))[0].position),
-                )
+                except LookupError:
+                    pass
     
-    async def _get_ProfileCard(self, ctx, trainer: Trainer, **kwargs):
+    async def _get_ProfileCard(self, ctx, trainer: trainerdex.Trainer, **kwargs) -> ProfileCard:
         return await self.ProfileCard(trainer, **kwargs).build_card(self, ctx)
     
-    async def _get_emoji(self, ctx, emoji: str):
-        """Returns the default or set emoji based on context"""
-        
-        if f'emoji_{emoji}' not in self.guild_defaults:
-            raise NotFoundError
-        
-        if ctx.guild:
-            return await getattr(self.config.guild(ctx.guild), f'emoji_{emoji}')()
-        return self.guild_defaults.get(f'emoji_{emoji}')
+    @commands.group(name='profile')
+    async def profile(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('Hi!')
     
-    @commands.command()
-    async def whois(self, ctx, trainer: str):
-        emoji_loading = await self._get_emoji(ctx, 'loading')
-        emoji_failure = await self._get_emoji(ctx, 'failure')
-        emoji_warning = await self._get_emoji(ctx, 'warning')
+    @profile.command(name='lookup', aliases=["whois", "find"])
+    async def profile__lookup(self, ctx, trainer: Union[discord.Member, str]):
+        """Find a profile given a username."""
         
-        message = await ctx.send('{} Searching for profile...'.format(emoji_loading))
-        trainer = self.client.search_trainer(trainer)
+        async with ctx.typing():
+            message = await ctx.send(f"{await self._e(ctx, 'loading')} Searching for profile...")
+            
+            trainer = await self.get_trainer(trainer)
+            
+            if trainer:
+                await message.edit(content=f"{await self._e(ctx, 'loading')} Found profile. Loading...")
+            else:
+                await message.edit(content=f"{await self._e(ctx, 'failure')} Profile not found.")
+                return
+                
+            embed = await self._get_ProfileCard(ctx, trainer)
+            await message.edit(content=f"{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+            await embed.add_leaderboard()
+            if ctx.guild:
+                await message.edit(content=f"{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+                await embed.add_guild_leaderboard()
+            await message.edit(content=None, embed=embed)
+    
+    @profile.command(name='create', alias=['register', 'approve', 'verify'])
+    async def profile__create(self, ctx, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None):  # , start_date: DateConverter = None):
+        assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
+        set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
+        
+        def message_in_channel_by_author(message: discord.Message):
+            return message.author == ctx.author and message.channel == ctx.channel
+        
+        while nickname is None:
+            await ctx.send(f"What is the in-game username of {mention}?")
+            msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
+            nickname = msg.content
+        
+        while team is None:
+            await ctx.send(f"What team is {nickname} in?")
+            msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
+            team = await TeamConverter().convert(ctx, msg.content)
+        
+        while (total_xp is None) or (total_xp <= 100):
+            await ctx.send(f"What is {nickname}'s Total XP?")
+            msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
+            try:
+                total_xp = int(msg.content.replace(',', '').replace('.', ''))
+            except ValueError:
+                await ctx.send(f"Please only enter the Total XP as a whole number")
+        
+        # while start_date is None:
+        #     await ctx.send(f"What is {nickname}'s Start Date? (Format: YYYY-MM-DD)")
+        #     msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
+        #     start_date = await DateConverter().convert(ctx, msg.content)
+        
+        log.debug(f"Attempting to add {nickname} to database, checking if they already exist")
+        
+        progmessage = await ctx.send(f"{await self._e(ctx, 'loading')} Checking for user to database")
+        
+        trainer = None
+        trainer = await self.get_trainer(nickname)
+        if trainer is None:
+            trainer = await self.get_trainer(mention)
         
         if trainer:
-            await message.edit(content='{} Found profile. Loading...'.format(emoji_loading))
+            log.debug("We found a trainer: {trainer.username}")
+            await progmessage.edit(content=f"{await self._e(ctx, 'loading')} A record already exists in the database for this trainer.")
+            def check_xp(x):
+                if x.xp is None:
+                    return 0
+                return x.xp
+            set_xp = (total_xp > max(trainer.updates(), key=check_xp).xp)
         else:
-            await message.edit(content='{} Profile not found.'.format(emoji_failure))
-            
+            log.debug("No Trainer Found, creating")
+            await progmessage.edit(content=f"{await self._e(ctx, 'loading')} Creating {nickname}")
+            user = self.client.create_user(username=username)
+            discorduser = self.client.import_discord_user(uid=str(mention.id), user=user.id)
+            trainer = self.client.create_trainer(username=nickname, team=team.id, account=user.id, verified=True)
+            await progmessage.edit(content=f"{await self._e(ctx, 'success')} Created {trainer.username}.")
+            set_xp = True
+        
+        if set_xp:
+            await progmessage.edit(content=f"{await self._e(ctx, 'loading')} Setting Total XP for {trainer.username} to {total_xp}.")
+            update = self.client.create_update(trainer, time_updated=ctx.message.created_at, xp=total_xp)
+        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Loading profile...")
+        trainer = self.client.get_trainer(trainer.id)
         embed = await self._get_ProfileCard(ctx, trainer)
-        await message.edit(content='{} Checking leaderboards...'.format(emoji_loading), embed=embed)
-        try:
-            await embed.add_leaderboards()
-        except Exception as e:
-            await message.edit(content='{} Error in leaderboard.'.format(emoji_warning), embed=embed)
-            raise e
-        await message.edit(content=None, embed=embed)
+        await progmessage.edit(embed=embed)
+        
+        embed = await self._get_ProfileCard(ctx, trainer)
+        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking leaderboards...", embed=embed)
+        await embed.add_leaderboard()
+        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking {ctx.guild} leaderboard...", embed=embed)
+        await embed.add_guild_leaderboard()
+        await message.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.", embed=embed)
