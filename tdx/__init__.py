@@ -14,8 +14,10 @@ __licence__ = 'GNU-GPL'
 __copyright__ = 'Copyright 2020 JayTurnr'
 __version__ = '1.9.0'
 
-from tdx.core import TrainerDexCore
 from redbot.core.bot import Red
+
+from tdx.core import TrainerDexCore
+
 
 async def setup(bot: Red) -> None:
     cog = TrainerDexCore(bot)

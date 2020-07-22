@@ -1,14 +1,16 @@
 import datetime
+import humanize
 import logging
 import os
-import discord
-import humanize
-from typing import Union
 import requests
+from typing import Union
 
+import discord
 from redbot.core import checks, commands, Config
-from tdx.converters import TeamConverter, DateConverter
+from redbot.core.bot import Red
+
 import trainerdex
+from tdx.converters import DateConverter, TeamConverter
 
 log = logging.getLogger("red.tdx.core")
 POGOOCR_TOKEN_PATH = os.path.join(os.path.dirname(__file__), 'data/key.json')
@@ -17,10 +19,10 @@ POGOOCR_TOKEN_PATH = os.path.join(os.path.dirname(__file__), 'data/key.json')
 class TrainerDexCore(commands.Cog):
     """TrainerDex Core Functionality"""
     
-    def __init__(self, bot) -> None:
+    def __init__(self, bot: Red) -> None:
         self.bot = bot
         self.config = Config.get_conf(self, identifier=8124637339)  # TrainerDex on a T9 keyboard
-        self.client: Client = None
+        self.client = None
         
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
         
@@ -58,12 +60,7 @@ class TrainerDexCore(commands.Cog):
             log.warning("No valid token found")
         return token
     
-    async def get_trainer(self, value: Union[discord.Member, discord.User, str, int] = None):
-        """Returns a Trainer object for a given discord, trainer username or account id
-        
-        Search is done in the order of username > discord > account, if you specify more than one, it will ONLY search the first one.
-        """
-        
+    async def get_trainer(self, value: Union[discord.Member, discord.User, str, int] = None) -> Trainer:
         if isinstance(value, str):
             return self.client.get_trainer_from_username(value)
         elif isinstance(value, (discord.Member, discord.User)):
@@ -74,9 +71,7 @@ class TrainerDexCore(commands.Cog):
         elif isinstance(value, int):
             return self.client.get_user(account)[0].owner().trainer()[0]
         
-    async def _get_emoji(self, ctx, emoji: str) -> str:
-        """Returns the default or set emoji based on context"""
-        
+    async def _get_emoji(self, ctx: discord.Context, emoji: str) -> str:
         if f'emoji_{emoji}' not in self.guild_defaults:
             raise ValueError
         
@@ -86,7 +81,7 @@ class TrainerDexCore(commands.Cog):
     _e = _get_emoji
     
     class BaseCard(discord.Embed):
-        def __init__(self, **kwargs):
+        def __init__(self, **kwargs) -> None:
             super().__init__(**kwargs)
             self.colour = kwargs.get('colour', kwargs.get('color', 13252437))
             
@@ -96,7 +91,7 @@ class TrainerDexCore(commands.Cog):
                 'icon_url': 'https://www.trainerdex.co.uk/static/img/android-desktop.png',
             }
         
-        async def build_card(self, parent, ctx):
+        async def build_card(self, parent, ctx: discord.Context) -> discord.Embed:
             self._parent = parent
             self._ctx = ctx
             
@@ -115,7 +110,7 @@ class TrainerDexCore(commands.Cog):
                     self.description = self._notice
             return self
     
-    async def _get_BaseCard(self, ctx, **kwargs) -> BaseCard:
+    async def _get_BaseCard(self, ctx: discord.Context, **kwargs) -> BaseCard:
         return await self.BaseCard(**kwargs).build_card(self, ctx)
     
     class ProfileCard(BaseCard):
@@ -128,7 +123,7 @@ class TrainerDexCore(commands.Cog):
             if self._trainer.update:
                 self.timestamp = self._trainer.update.update_time
         
-        async def build_card(self, parent, ctx):
+        async def build_card(self, parent, ctx: discord.Context) -> discord.Embed:
             await super().build_card(parent, ctx)
             self.add_field(name='Team', value=self._trainer.team().name)
             self.add_field(name='Level', value=self._trainer.level.level)
@@ -139,7 +134,7 @@ class TrainerDexCore(commands.Cog):
             self.add_field(name='Total XP', value="{:,}".format(max(self._trainer.updates(), key=check_xp).xp))
             return self
         
-        async def add_guild_leaderboard(self):
+        async def add_guild_leaderboard(self) -> None:
             if self._ctx.guild:
                 try:
                     guild_leaderboard = self._parent.client.get_discord_leaderboard(self._ctx.guild.id)
@@ -156,7 +151,7 @@ class TrainerDexCore(commands.Cog):
                     except LookupError:
                         pass
         
-        async def add_leaderboard(self):
+        async def add_leaderboard(self) -> None:
             try:
                 leaderboard = self._parent.client.get_worldwide_leaderboard()
             except requests.exceptions.HTTPError as e:
@@ -173,16 +168,16 @@ class TrainerDexCore(commands.Cog):
                 except LookupError:
                     pass
     
-    async def _get_ProfileCard(self, ctx, trainer: trainerdex.Trainer, **kwargs) -> ProfileCard:
+    async def _get_ProfileCard(self, ctx: discord.Context, trainer: trainerdex.Trainer, **kwargs) -> ProfileCard:
         return await self.ProfileCard(trainer, **kwargs).build_card(self, ctx)
     
     @commands.group(name='profile')
-    async def profile(self, ctx):
+    async def profile(self, ctx: discord.Context) -> None:
         if ctx.invoked_subcommand is None:
             await ctx.send('Hi!')
     
     @profile.command(name='lookup', aliases=["whois", "find"])
-    async def profile__lookup(self, ctx, trainer: Union[discord.Member, str]):
+    async def profile__lookup(self, ctx: discord.Context, trainer: Union[discord.Member, str]) -> None:
         """Find a profile given a username."""
         
         async with ctx.typing():
@@ -205,7 +200,7 @@ class TrainerDexCore(commands.Cog):
             await message.edit(content=None, embed=embed)
     
     @profile.command(name='create', alias=['register', 'approve', 'verify'])
-    async def profile__create(self, ctx, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None):  # , start_date: DateConverter = None):
+    async def profile__create(self, ctx: discord.Context, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
         
@@ -229,11 +224,6 @@ class TrainerDexCore(commands.Cog):
                 total_xp = int(msg.content.replace(',', '').replace('.', ''))
             except ValueError:
                 await ctx.send(f"Please only enter the Total XP as a whole number")
-        
-        # while start_date is None:
-        #     await ctx.send(f"What is {nickname}'s Start Date? (Format: YYYY-MM-DD)")
-        #     msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
-        #     start_date = await DateConverter().convert(ctx, msg.content)
         
         log.debug(f"Attempting to add {nickname} to database, checking if they already exist")
         
