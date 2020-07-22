@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 from dateutil.parser import parse, ParserError
 
 from discord.ext import commands

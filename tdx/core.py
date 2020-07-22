@@ -60,7 +60,7 @@ class TrainerDexCore(commands.Cog):
             log.warning("No valid token found")
         return token
     
-    async def get_trainer(self, value: Union[discord.Member, discord.User, str, int] = None) -> Trainer:
+    async def get_trainer(self, value: Union[discord.Member, discord.User, str, int] = None) -> trainerdex.Trainer:
         if isinstance(value, str):
             return self.client.get_trainer_from_username(value)
         elif isinstance(value, (discord.Member, discord.User)):
@@ -69,7 +69,7 @@ class TrainerDexCore(commands.Cog):
             except IndexError:
                 return None
         elif isinstance(value, int):
-            return self.client.get_user(account)[0].owner().trainer()[0]
+            return self.client.get_user(value)[0].owner().trainer()[0]
         
     async def _get_emoji(self, ctx: discord.Context, emoji: str) -> str:
         if f'emoji_{emoji}' not in self.guild_defaults:
@@ -245,7 +245,7 @@ class TrainerDexCore(commands.Cog):
         else:
             log.debug("No Trainer Found, creating")
             await progmessage.edit(content=f"{await self._e(ctx, 'loading')} Creating {nickname}")
-            user = self.client.create_user(username=username)
+            user = self.client.create_user(username=nickname)
             discorduser = self.client.import_discord_user(uid=str(mention.id), user=user.id)
             trainer = self.client.create_trainer(username=nickname, team=team.id, account=user.id, verified=True)
             await progmessage.edit(content=f"{await self._e(ctx, 'success')} Created {trainer.username}.")
@@ -264,4 +264,4 @@ class TrainerDexCore(commands.Cog):
         await embed.add_leaderboard()
         await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.\n{await self._e(ctx, 'loading')} Checking {ctx.guild} leaderboard...", embed=embed)
         await embed.add_guild_leaderboard()
-        await message.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.", embed=embed)
+        await progmessage.edit(content=f"{await self._e(ctx, 'success')} Successfully added {mention.mention} as {trainer.username}.", embed=embed)
