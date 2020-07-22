@@ -206,7 +206,7 @@ class TrainerDexCore(commands.Cog):
                 await embed.add_guild_leaderboard()
             await message.edit(content=None, embed=embed)
     
-    @profile.command(name='create', alias=['register', 'approve', 'verify'])
+    @profile.command(name='create', aliases=['register', 'approve', 'verify'])
     async def profile__create(self, ctx: commands.Context, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
@@ -302,11 +302,11 @@ class TrainerDexCore(commands.Cog):
         await embed.add_guild_leaderboard()
         await message.edit(content=f"Successfully added {mention.mention} as {trainer.username}.", embed=embed)
     
-    @commands.group(name='tdxset', alias=['config'])
+    @commands.group(name='tdxset', aliases=['config'])
     async def settings(self, ctx: commands.Context) -> None:
         pass
     
-    @settings.group(name='guild', alias=['server'])
+    @settings.group(name='guild', aliases=['server'])
     async def settings__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
             settings = await self.config.guild(ctx.guild).all()
