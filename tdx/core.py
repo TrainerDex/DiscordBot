@@ -3,7 +3,7 @@ import os
 from typing import Union
 
 import discord
-from redbot.core import commands, Config
+from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
@@ -147,6 +147,7 @@ class TrainerDex(commands.Cog):
             await message.edit(content=None, embed=embed)
     
     @profile.command(name='create', aliases=['register', 'approve', 'verify'])
+    @checks.mod_or_permissions(manage_roles=True)
     async def profile__create(self, ctx: commands.Context, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
@@ -179,8 +180,14 @@ class TrainerDex(commands.Cog):
         
         if assign_roles:
             async with ctx.typing():
-                roles_to_add_on_join=[ctx.guild.get_role(x) for x in await self.config.guild(ctx.guild).roles_to_assign_on_approval()['add']]
-                roles_to_remove_on_join=[ctx.guild.get_role(x) for x in await self.config.guild(ctx.guild).roles_to_assign_on_approval()['remove']]
+                roles_to_assign_on_approval = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
+                roles_to_add_on_join=[ctx.guild.get_role(x) for x in roles_to_assign_on_approval['add']]
+                if team:
+                    if team.id>0:
+                        team_role = await getattr(self.config.guild(ctx.guild), ['', 'mystic_role', 'valor_role', 'instinct_role'][team.id])()
+                        if team_role:
+                            roles_to_add_on_join.append(ctx.guild.get_role(team_role))
+                roles_to_remove_on_join=[ctx.guild.get_role(x) for x in roles_to_assign_on_approval['remove']]
                 member_edit_dict['roles'] = [x for x in (roles_to_add_on_join+mention.roles) if x not in roles_to_remove_on_join]
         
         if set_nickname:
@@ -190,7 +197,7 @@ class TrainerDex(commands.Cog):
         async with ctx.typing():
             if member_edit_dict:
                 await message.edit(content=loading(_("Setting {roles_and_or_nick} for {user}")).format(
-                    roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                    roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                     user=mention.mention,
                 ))
                 try:
@@ -202,13 +209,13 @@ class TrainerDex(commands.Cog):
                         _("{roles_and_or_nick} could not be set.")+ \
                         "\n{e}"
                     ).format(
-                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                         e=e,
                     ))
                 else:
                     await message.edit(content=_("{user} has been approved! {roles_and_or_nick} had been set.").format(
                         user=mention.mention,
-                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                     ))
                 message = await ctx.send(loading(''))
         
