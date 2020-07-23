@@ -185,7 +185,7 @@ class TrainerDex(commands.Cog):
                     if team.id>0:
                         team_role = await getattr(self.config.guild(ctx.guild), ['mystic_role', 'valor_role', 'instinct_role'][team.id])()
                         if team_role:
-                            roles_to_add_on_join.append(team_role)
+                            roles_to_add_on_join.append(ctx.guild.get_role(team_role))
                 roles_to_remove_on_join=[ctx.guild.get_role(x) for x in roles_to_assign_on_approval['remove']]
                 member_edit_dict['roles'] = [x for x in (roles_to_add_on_join+mention.roles) if x not in roles_to_remove_on_join]
         
