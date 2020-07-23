@@ -4,7 +4,7 @@ import requests
 
 import discord
 from redbot.core import commands
-from redbot.core.i18n import Translator, cog_i18n
+from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting
 
 import humanize
@@ -55,7 +55,7 @@ class ProfileCard(BaseCard):
         super().__init__(**kwargs)
         self._trainer = trainer
         self.colour = int(self._trainer.team().colour.replace("#", ""), 16)
-        self.title = _("{nickname} | TL{level}").format(nickname=self._trainer.username, level=self._trainer.level.level)
+        self.title = _("{nickname} | Level {level}").format(nickname=self._trainer.username, level=self._trainer.level.level)
         self.url = 'https://www.trainerdex.co.uk/profile?id={}'.format(self._trainer.id)
         if self._trainer.update:
             self.timestamp = self._trainer.update.update_time
