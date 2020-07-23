@@ -1,6 +1,7 @@
 import datetime
 import logging
 import requests
+from typing import Union
 
 import discord
 from redbot.core import commands
@@ -9,15 +10,11 @@ from redbot.core.utils import chat_formatting
 
 import humanize
 import trainerdex
+from tdx.utils import check_xp
 from dateutil.relativedelta import relativedelta, MO
 
 log = logging.getLogger("red.tdx.embeds")
 _ = Translator("TrainerDex", __file__)
-
-def check_xp(x: trainerdex.Update) -> int:
-    if x.xp is None:
-        return 0
-    return x.xp
 
 
 class BaseCard(discord.Embed):
@@ -31,9 +28,17 @@ class BaseCard(discord.Embed):
             'icon_url': 'https://www.trainerdex.co.uk/static/img/android-desktop.png',
         }
     
-    async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
+    async def build_card(self, parent, ctx: Union[commands.Context, discord.Message]) -> discord.Embed:
         self._parent = parent
-        self._ctx = ctx
+        
+        if isinstance(ctx, commands.Context):
+            self._message = ctx.message
+            self._channel = ctx.channel
+            self._guild = ctx.guild
+        elif isinstance(ctx, discord.Message):
+            self._message = ctx
+            self._channel = ctx.channel
+            self._guild = ctx.channel.guild
         
         self._footer = {
             'text': await self._parent.config.embed_footer()
@@ -68,9 +73,9 @@ class ProfileCard(BaseCard):
         return self
     
     async def add_guild_leaderboard(self) -> None:
-        if self._ctx.guild:
+        if self._guild:
             try:
-                guild_leaderboard = self._parent.client.get_discord_leaderboard(self._ctx.guild.id)
+                guild_leaderboard = self._parent.client.get_discord_leaderboard(self._guild.id)
             except requests.exceptions.HTTPError as e:
                 log.error(e)
             else:
@@ -78,7 +83,7 @@ class ProfileCard(BaseCard):
                     guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
                     self.insert_field_at(
                         index = 0,
-                        name = _("{guild} Leaderboard").format(guild=self._ctx.guild.name),
+                        name = _("{guild} Leaderboard").format(guild=self._guild.name),
                         value = str(guild_leaderboard),
                     )
                 except LookupError:

@@ -9,8 +9,10 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting
 
 import trainerdex
+import PogoOCR
 from tdx.converters import DateConverter, TeamConverter
 from tdx.embeds import BaseCard, ProfileCard, UpdatedProfileCard
+from  tdx.utils import check_xp, contact_us_on_twitter
 
 log = logging.getLogger("red.tdx.core")
 POGOOCR_TOKEN_PATH = os.path.join(os.path.dirname(__file__), 'data/key.json')
@@ -31,9 +33,9 @@ def loading(text: str) -> str:
 class TrainerDexCore(commands.Cog):
     """TrainerDex Core Functionality"""
     
-    def __init__(self, bot: Red) -> None:
+    def __init__(self, bot: Red, config: Config) -> None:
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=8124637339)  # TrainerDex on a T9 keyboard
+        self.config = config
         self.client = None
         
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
@@ -63,7 +65,7 @@ class TrainerDexCore(commands.Cog):
             except IndexError:
                 return None
         elif isinstance(value, int):
-            return self.client.get_user(value)[0].owner().trainer()[0]
+            return self.client.get_trainer(value)
     
     async def build_BaseCard(self, ctx: commands.Context, **kwargs) -> BaseCard:
         return await BaseCard(**kwargs).build_card(self, ctx)
@@ -73,6 +75,47 @@ class TrainerDexCore(commands.Cog):
     
     async def build_UpdatedProfileCard(self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs) -> UpdatedProfileCard:
         return await UpdatedProfileCard(trainer, **kwargs).build_card(self, ctx)
+    
+    @commands.Cog.listener('on_message')
+    async def check_screenshot(self, source_message: discord.Message) -> None:
+        if source_message.author.bot:
+            return
+        
+        profile_ocr = await self.config.channel_from_id(source_message.channel.id).profile_ocr()
+        if not profile_ocr:
+            return
+        
+        if len(source_message.attachments) != 1:
+            return
+        
+        trainer = await self.get_trainer(source_message.author)
+        if not trainer:
+            return
+        
+        async with source_message.channel.typing():
+            message = await source_message.channel.send(loading(_("That's a nice image you have there, let's see..."))+"\n"+chat_formatting.info(_("Please refrain from posting non-profile images in this channel. If your image doesn't scan, please try a new image. Image processing isn't free.")))
+            ocr = PogoOCR.ProfileSelf(POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url)
+            ocr.get_text()
+            if ocr.total_xp:
+                text = loading(_("{user}, we're sure your XP is {xp}. Just processing that now...")).format(
+                    user=source_message.author.mention,
+                    xp=ocr.total_xp,
+                )
+                await message.edit(content=text+'\n\n'+contact_us_on_twitter())
+                if max(trainer.updates(), key=check_xp).xp > ocr.total_xp:
+                    await message.edit(content=chat_formatting.warning((_("You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."))+'\n\n'+contact_us_on_twitter()).format(xp=chat_formatting.humanize_number(ocr.total_xp)))
+                    return
+                elif max(trainer.updates(), key=check_xp).xp == ocr.total_xp:
+                    text = chat_formatting.warning(_("You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."))
+                else:
+                    update = self.client.create_update(trainer.id, ocr.total_xp)
+                    text = _("✅ Success")
+                    trainer = await self.get_trainer(trainer.id)
+                
+                await message.edit(content=text + '\n' + loading(_("Loading output...")))
+                embed = await self.build_UpdatedProfileCard(source_message, trainer)
+                await message.edit(content=text, embed=embed)
+                return
     
     @commands.group(name='profile')
     async def profile(self, ctx: commands.Context) -> None:
@@ -181,10 +224,6 @@ class TrainerDexCore(commands.Cog):
         if trainer:
             log.debug("We found a trainer: {trainer.username}")
             await message.edit(content=loading(_("A record already exists in the database for this trainer.")))
-            def check_xp(x):
-                if x.xp is None:
-                    return 0
-                return x.xp
             set_xp = (total_xp > max(trainer.updates(), key=check_xp).xp)
         else:
             log.debug("No Trainer Found, creating")
