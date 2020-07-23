@@ -196,7 +196,7 @@ class TrainerDex(commands.Cog):
         async with ctx.typing():
             if member_edit_dict:
                 await message.edit(content=loading(_("Setting {roles_and_or_nick} for {user}")).format(
-                    roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                    roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                     user=mention.mention,
                 ))
                 try:
@@ -208,13 +208,13 @@ class TrainerDex(commands.Cog):
                         _("{roles_and_or_nick} could not be set.")+ \
                         "\n{e}"
                     ).format(
-                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                         e=e,
                     ))
                 else:
                     await message.edit(content=_("{user} has been approved! {roles_and_or_nick} had been set.").format(
                         user=mention.mention,
-                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
                     ))
                 message = await ctx.send(loading(''))
         
