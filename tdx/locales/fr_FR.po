@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-07-23 12:24+0100\n"
-"PO-Revision-Date: 2020-07-23 12:25\n"
+"PO-Revision-Date: 2020-07-23 12:36\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -27,15 +27,15 @@ msgstr ""
 
 #: tdx/converters.py:18 tdx/converters.py:28
 msgid "Teamless"
-msgstr ""
+msgstr "Sans-équipe"
 
 #: tdx/converters.py:18
 msgid "No Team"
-msgstr ""
+msgstr "Pas d’équipe"
 
 #: tdx/converters.py:18
 msgid "Team Harmony"
-msgstr ""
+msgstr "Harmonie d’équipe"
 
 #: tdx/converters.py:19
 msgid "Blue"
@@ -43,11 +43,11 @@ msgstr ""
 
 #: tdx/converters.py:19
 msgid "Mystic"
-msgstr ""
+msgstr "Sagesse"
 
 #: tdx/converters.py:19 tdx/converters.py:30
 msgid "Team Mystic"
-msgstr ""
+msgstr "Sagesse"
 
 #: tdx/converters.py:20
 msgid "Red"
@@ -55,11 +55,11 @@ msgstr ""
 
 #: tdx/converters.py:20
 msgid "Valor"
-msgstr ""
+msgstr "Bravoure"
 
 #: tdx/converters.py:20 tdx/converters.py:32
 msgid "Team Valor"
-msgstr ""
+msgstr "Bravoure"
 
 #: tdx/converters.py:21
 msgid "Yellow"
@@ -67,11 +67,11 @@ msgstr ""
 
 #: tdx/converters.py:21
 msgid "Instinct"
-msgstr ""
+msgstr "Intuition"
 
 #: tdx/converters.py:21 tdx/converters.py:34
 msgid "Team Instinct"
-msgstr ""
+msgstr "Intuition"
 
 #: tdx/core.py:83 tdx/core.py:240
 #, docstring
