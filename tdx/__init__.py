@@ -33,7 +33,7 @@ async def setup(bot: Red) -> None:
     
     config.register_global(**{
         'embed_footer': 'Provided with ❤️ by TrainerDex',
-        'notice': chat_formatting.bold("Goals are disabled for now.")+" They're in the middle of being rewritten and I think you'll very much like what I've done with them.\n"+chat_formatting.italics("Sorry for the inconvenience"),
+        'notice': chat_formatting.bold("Leaderboards are disabled for now.")+" There's a weird bug. I'm working on it.\n"+chat_formatting.italics("Sorry for the inconvenience"),
     })
     config.register_guild(**{
         'assign_roles_on_join': True,

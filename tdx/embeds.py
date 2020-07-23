@@ -73,38 +73,40 @@ class ProfileCard(BaseCard):
         return self
     
     async def add_guild_leaderboard(self) -> None:
-        if self._guild:
-            try:
-                guild_leaderboard = self._parent.client.get_discord_leaderboard(self._guild.id)
-            except requests.exceptions.HTTPError as e:
-                log.error(e)
-            else:
-                try:
-                    guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
-                    self.insert_field_at(
-                        index = 0,
-                        name = _("{guild} Leaderboard").format(guild=self._guild.name),
-                        value = str(guild_leaderboard),
-                    )
-                except LookupError:
-                    pass
+        return
+        # if self._guild:
+            # try:
+                # guild_leaderboard = self._parent.client.get_discord_leaderboard(self._guild.id)
+            # except requests.exceptions.HTTPError as e:
+                # log.error(e)
+            # else:
+                # try:
+                    # guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
+                    # self.insert_field_at(
+                        # index = 0,
+                        # name = _("{guild} Leaderboard").format(guild=self._guild.name),
+                        # value = str(guild_leaderboard),
+                    # )
+                # except LookupError:
+                    # pass
     
     async def add_leaderboard(self) -> None:
-        try:
-            leaderboard = self._parent.client.get_worldwide_leaderboard()
-        except requests.exceptions.HTTPError as e:
-            log.error(e)
-            return
-        else:
-            try:
-                leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
-                self.insert_field_at(
-                    index = 0,
-                    name = _("Global Leaderboard"),
-                    value = str(leaderboard),
-                )
-            except LookupError:
-                pass
+        return
+        # try:
+            # leaderboard = self._parent.client.get_worldwide_leaderboard()
+        # except requests.exceptions.HTTPError as e:
+            # log.error(e)
+            # return
+        # else:
+            # try:
+                # leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
+                # self.insert_field_at(
+                    # index = 0,
+                    # name = _("Global Leaderboard"),
+                    # value = str(leaderboard),
+                # )
+            # except LookupError:
+                # pass
 
 
 class UpdatedProfileCard(ProfileCard):
