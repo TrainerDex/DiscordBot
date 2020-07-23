@@ -3,7 +3,7 @@ import os
 from typing import Union
 
 import discord
-from redbot.core import commands, Config
+from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
@@ -147,6 +147,7 @@ class TrainerDex(commands.Cog):
             await message.edit(content=None, embed=embed)
     
     @profile.command(name='create', aliases=['register', 'approve', 'verify'])
+    @checks.mod_or_permissions(assign_roles=True)
     async def profile__create(self, ctx: commands.Context, mention: discord.Member, nickname: str = None, team: TeamConverter = None, total_xp: int = None) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
