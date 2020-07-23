@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-07-23 12:24+0100\n"
-"PO-Revision-Date: 2020-07-23 12:36\n"
+"POT-Creation-Date: 2020-07-23 13:49+0100\n"
+"PO-Revision-Date: 2020-07-23 13:27\n"
 "Last-Translator: \n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -163,7 +163,7 @@ msgid "Loading profile..."
 msgstr ""
 
 #: tdx/embeds.py:58
-msgid "{nickname} | TL{level}"
+msgid "{nickname} | Level {level}"
 msgstr ""
 
 #: tdx/embeds.py:65
