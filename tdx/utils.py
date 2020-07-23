@@ -1,5 +1,5 @@
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting
+from redbot.core.utils import chat_formatting as cf
 
 import trainerdex
 
@@ -11,4 +11,4 @@ def check_xp(x: trainerdex.Update) -> int:
     return x.xp
 
 def contact_us_on_twitter() -> str:
-    return chat_formatting.info(_("If that doesn't look right, please contact us on Twitter. {twitter_handle}")).format(twitter_handle='@TrainerDexApp')
+    return cf.info(_("If that doesn't look right, please contact us on Twitter. {twitter_handle}")).format(twitter_handle='@TrainerDexApp')

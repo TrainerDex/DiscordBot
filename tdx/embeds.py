@@ -6,7 +6,7 @@ from typing import Union
 import discord
 from redbot.core import commands
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting
+from redbot.core.utils import chat_formatting as cf
 
 import humanize
 import trainerdex
@@ -46,7 +46,7 @@ class BaseCard(discord.Embed):
         
         notice = await self._parent.config.notice()
         if notice:
-            notice = chat_formatting.info(notice)
+            notice = cf.info(notice)
             
             if self.description:
                 self.description = "{}\n\n{}".format(notice, self.description)
@@ -69,7 +69,7 @@ class ProfileCard(BaseCard):
         await super().build_card(parent, ctx)
         self.add_field(name=_("Team"), value=self._trainer.team().name)
         self.add_field(name=_("Level"), value=self._trainer.level.level)
-        self.add_field(name=_("Total XP"), value=chat_formatting.humanize_number(max(self._trainer.updates(), key=check_xp).xp))
+        self.add_field(name=_("Total XP"), value=cf.humanize_number(max(self._trainer.updates(), key=check_xp).xp))
         return self
     
     async def add_guild_leaderboard(self) -> None:
@@ -117,10 +117,10 @@ class UpdatedProfileCard(ProfileCard):
         except ValueError:
             if self._trainer.start_date:
                 self._beta = trainerdex.Update({'uuid': None, 'update_time': self._trainer.start_date.isoformat(), 'xp': 0})
-                self.description = chat_formatting.info(_("No data old enough found, using actual start date."))
+                self.description = cf.info(_("No data old enough found, using actual start date."))
             else:
                 self._beta = trainerdex.Update({'uuid': None, 'update_time': datetime.date(2016, 7, 14).isoformat(), 'xp': 0})
-                self.description = chat_formatting.info(_("No data old enough found, using assumed start date."))
+                self.description = cf.info(_("No data old enough found, using assumed start date."))
             
         self.timestamp = self._alpha.update_time
     
@@ -128,7 +128,7 @@ class UpdatedProfileCard(ProfileCard):
         await super().build_card(parent, ctx)
         stat_delta = self._alpha.xp - self._beta.xp
         time_delta = self._alpha.update_time - self._beta.update_time
-        self.add_field(name=_("XP Gain"), value=_("{gain} over {time}").format(gain=chat_formatting.humanize_number(stat_delta), time=humanize.naturaldelta(time_delta)))
+        self.add_field(name=_("XP Gain"), value=_("{gain} over {time}").format(gain=cf.humanize_number(stat_delta), time=humanize.naturaldelta(time_delta)))
         days = round(time_delta.total_seconds()/86400)
-        self.add_field(name=_("Daily XP Gain"), value=_("{gain}/day").format(gain=chat_formatting.humanize_number(round(stat_delta/days))))
+        self.add_field(name=_("Daily XP Gain"), value=_("{gain}/day").format(gain=cf.humanize_number(round(stat_delta/days))))
         return self

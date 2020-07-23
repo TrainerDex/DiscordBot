@@ -6,7 +6,7 @@ import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting
+from redbot.core.utils import chat_formatting as cf
 
 import trainerdex
 import PogoOCR
@@ -93,7 +93,7 @@ class TrainerDexCore(commands.Cog):
             return
         
         async with source_message.channel.typing():
-            message = await source_message.channel.send(loading(_("That's a nice image you have there, let's see..."))+"\n"+chat_formatting.info(_("Please refrain from posting non-profile images in this channel. If your image doesn't scan, please try a new image. Image processing isn't free.")))
+            message = await source_message.channel.send(loading(_("That's a nice image you have there, let's see..."))+"\n"+cf.info(_("Please refrain from posting non-profile images in this channel. If your image doesn't scan, please try a new image. Image processing isn't free.")))
             ocr = PogoOCR.ProfileSelf(POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url)
             ocr.get_text()
             if ocr.total_xp:
@@ -103,10 +103,10 @@ class TrainerDexCore(commands.Cog):
                 )
                 await message.edit(content=text+'\n\n'+contact_us_on_twitter())
                 if max(trainer.updates(), key=check_xp).xp > ocr.total_xp:
-                    await message.edit(content=chat_formatting.warning((_("You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."))+'\n\n'+contact_us_on_twitter()).format(xp=chat_formatting.humanize_number(ocr.total_xp)))
+                    await message.edit(content=cf.warning((_("You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."))+'\n\n'+contact_us_on_twitter()).format(xp=cf.humanize_number(ocr.total_xp)))
                     return
                 elif max(trainer.updates(), key=check_xp).xp == ocr.total_xp:
-                    text = chat_formatting.warning(_("You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."))
+                    text = cf.warning(_("You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."))
                 else:
                     update = self.client.create_update(trainer.id, ocr.total_xp)
                     text = _("✅ Success")
@@ -135,7 +135,7 @@ class TrainerDexCore(commands.Cog):
             if trainer:
                 await message.edit(content=loading(_("Found profile. Loading...")))
             else:
-                await message.edit(content=chat_formatting.warning(_("Profile not found.")))
+                await message.edit(content=cf.warning(_("Profile not found.")))
                 return
                 
             embed = await self.build_ProfileCard(ctx, trainer)
@@ -155,17 +155,17 @@ class TrainerDexCore(commands.Cog):
             return message.author == ctx.author and message.channel == ctx.channel
         
         while nickname is None:
-            await ctx.send(chat_formatting.question(_("What is the in-game username of {mention}?")).format(mention=mention))
+            await ctx.send(cf.question(_("What is the in-game username of {mention}?")).format(mention=mention))
             msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
             nickname = msg.content
         
         while team is None:
-            await ctx.send(chat_formatting.question(_("What team is {nickname} in?")).format(nickname=nickname))
+            await ctx.send(cf.question(_("What team is {nickname} in?")).format(nickname=nickname))
             msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
             team = await TeamConverter().convert(ctx, msg.content)
         
         while (total_xp is None) or (total_xp <= 100):
-            await ctx.send(chat_formatting.question(_("What is {nickname}'s Total XP?")).format(nickname=nickname))
+            await ctx.send(cf.question(_("What is {nickname}'s Total XP?")).format(nickname=nickname))
             msg = await self.bot.wait_for('message', check=message_in_channel_by_author)
             try:
                 total_xp = int(msg.content.replace(',', '').replace('.', ''))
@@ -190,25 +190,25 @@ class TrainerDexCore(commands.Cog):
         async with ctx.typing():
             if member_edit_dict:
                 await message.edit(content=loading(_("Setting {roles_and_or_nick} for {user}")).format(
-                    roles_and_or_nick=chat_formatting.humanize_list(member_edit_dict.keys()),
+                    roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
                     user=mention.mention,
                 ))
                 try:
                     await mention.edit(reason=_("Approval via TrainerDex"), **member_edit_dict)
                 except discord.errors.Forbidden as e:
-                    await message.edit(content=chat_formatting.error(
+                    await message.edit(content=cf.error(
                         mention.mention+ \
                         ": "+ \
                         _("{roles_and_or_nick} could not be set.")+ \
                         "\n{e}"
                     ).format(
-                        roles_and_or_nick=chat_formatting.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
                         e=e,
                     ))
                 else:
                     await message.edit(content=_("{user} has been approved! {roles_and_or_nick} had been set.").format(
                         user=mention.mention,
-                        roles_and_or_nick=chat_formatting.humanize_list(member_edit_dict.keys()),
+                        roles_and_or_nick=cf.humanize_list(member_edit_dict.keys()),
                     ))
                 message = await ctx.send(loading(''))
         
@@ -290,7 +290,7 @@ class TrainerDexCore(commands.Cog):
             if trainer:
                 await message.edit(content=loading(_("Found profile. Loading...")))
             else:
-                await message.edit(content=chat_formatting.warning(_("Profile not found.")))
+                await message.edit(content=cf.warning(_("Profile not found.")))
                 return
                 
             embed = await self.build_UpdatedProfileCard(ctx, trainer)

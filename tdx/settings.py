@@ -5,7 +5,7 @@ import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting
+from redbot.core.utils import chat_formatting as cf
 
 import trainerdex
 
@@ -28,7 +28,7 @@ class TrainerDexSettings(commands.Cog):
         if ctx.invoked_subcommand is None:
             settings = await self.config.guild(ctx.guild).all()
             settings = json.dumps(settings, indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(settings, 'json'))
+            await ctx.send(cf.box(settings, 'json'))
     
     @settings__guild.command(name='assign_roles_on_join')
     async def settings__guild__assign_roles_on_join(self, ctx: commands.Context, value: bool = None) -> None:
@@ -93,7 +93,7 @@ class TrainerDexSettings(commands.Cog):
                 await ctx.tick()
                 value = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
                 value = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(chat_formatting.box(value, 'json'))
+                await ctx.send(cf.box(value, 'json'))
         elif action == 'remove':
             if roles:
                 roles_to_assign_on_approval['remove'] = [x.id for x in ctx.message.role_mentions]
@@ -101,12 +101,12 @@ class TrainerDexSettings(commands.Cog):
                 await ctx.tick()
                 value = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
                 value = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(chat_formatting.box(value, 'json'))
+                await ctx.send(cf.box(value, 'json'))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
             value = json.dumps(value, indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(value, 'json'))
+            await ctx.send(cf.box(value, 'json'))
         
     @settings__guild.command(name='mystic_role')
     async def settings__guild__mystic_role(self, ctx: commands.Context, value: discord.Role = None) -> None:
@@ -157,7 +157,7 @@ class TrainerDexSettings(commands.Cog):
         if ctx.invoked_subcommand is None:
             settings = await self.config.channel(ctx.channel).all()
             settings = json.dumps(settings, indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(settings, 'json'))
+            await ctx.send(cf.box(settings, 'json'))
         
     @settings__channel.command(name='profile_ocr')
     async def settings__channel__profile_ocr(self, ctx: commands.Context, value: bool = None) -> None:
