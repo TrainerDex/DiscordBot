@@ -4,11 +4,13 @@ import logging
 import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
+from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting
 
 import trainerdex
 
 log = logging.getLogger("red.tdx.settings")
+_ = Translator("TrainerDex", __file__)
 
 class TrainerDexSettings(commands.Cog):
     """TrainerDex Settings Cog"""
@@ -61,11 +63,11 @@ class TrainerDexSettings(commands.Cog):
         if value:
             await self.config.guild(ctx.guild).assign_roles_on_join.set(value)
             await ctx.tick()
-            await ctx.send(f"`guild.assign_roles_on_join` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.assign_roles_on_join', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).assign_roles_on_join()
-            await ctx.send(f"`guild.assign_roles_on_join` is {value}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.assign_roles_on_join', value=value))
         
     @settings__guild.command(name='set_nickname_on_join')
     async def settings__guild__set_nickname_on_join(self, ctx: commands.Context, value: bool = None) -> None:
@@ -76,11 +78,11 @@ class TrainerDexSettings(commands.Cog):
         if value:
             await self.config.guild(ctx.guild).set_nickname_on_join.set(value)
             await ctx.tick()
-            await ctx.send(f"`guild.set_nickname_on_join` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.set_nickname_on_join', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).set_nickname_on_join()
-            await ctx.send(f"`guild.set_nickname_on_join` is {value}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.set_nickname_on_join', value=value))
         
     @settings__guild.command(name='set_nickname_on_update')
     async def settings__guild__set_nickname_on_update(self, ctx: commands.Context, value: bool = None) -> None:
@@ -91,11 +93,11 @@ class TrainerDexSettings(commands.Cog):
         if value:
             await self.config.guild(ctx.guild).set_nickname_on_update.set(value)
             await ctx.tick()
-            await ctx.send(f"`guild.set_nickname_on_update` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.set_nickname_on_update', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).set_nickname_on_update()
-            await ctx.send(f"`guild.set_nickname_on_update` is {value}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.set_nickname_on_update', value=value))
         
     @settings__guild.command(name='roles_to_assign_on_approval')
     async def settings__guild__roles_to_assign_on_approval(self, ctx: commands.Context, action: str = None, roles: discord.Role = None) -> None:
@@ -135,41 +137,41 @@ class TrainerDexSettings(commands.Cog):
         if value:
             await self.config.guild(ctx.guild).mystic_role.set(value.id)
             await ctx.tick()
-            await ctx.send(f"`guild.mystic_role` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.mystic_role', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).mystic_role()
-            await ctx.send(f"`guild.mystic_role` is {ctx.guild.get_role(value)}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.mystic_role', value=ctx.guild.get_role(value)))
         
     @settings__guild.command(name='valor_role')
     async def settings__guild__valor_role(self, ctx: commands.Context, value: discord.Role = None) -> None:
         if value:
             await self.config.guild(ctx.guild).valor_role.set(value.id)
             await ctx.tick()
-            await ctx.send(f"`guild.valor_role` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.valor_role', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).valor_role()
-            await ctx.send(f"`guild.valor_role` is {ctx.guild.get_role(value)}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.valor_role', value=ctx.guild.get_role(value)))
         
     @settings__guild.command(name='instinct_role')
     async def settings__guild__instinct_role(self, ctx: commands.Context, value: discord.Role = None) -> None:
         if value:
             await self.config.guild(ctx.guild).instinct_role.set(value.id)
             await ctx.tick()
-            await ctx.send(f"`guild.instinct_role` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.instinct_role', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).instinct_role()
-            await ctx.send(f"`guild.instinct_role` is {ctx.guild.get_role(value)}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.instinct_role', value=ctx.guild.get_role(value)))
         
     @settings__guild.command(name='tl40_role')
     async def settings__guild__tl40_role(self, ctx: commands.Context, value: discord.Role = None) -> None:
         if value:
             await self.config.guild(ctx.guild).tl40_role.set(value.id)
             await ctx.tick()
-            await ctx.send(f"`guild.tl40_role` set to {value}")
+            await ctx.send(_("`{key}` set to {value}").format(key='guild.tl40_role', value=value))
         else:
             await ctx.send_help()
             value = await self.config.guild(ctx.guild).tl40_role()
-            await ctx.send(f"`guild.tl40_role` is {ctx.guild.get_role(value)}")
+            await ctx.send(_("`{key}` is {value}").format(key='guild.tl40_role', value=ctx.guild.get_role(value)))
