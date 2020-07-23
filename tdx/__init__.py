@@ -17,9 +17,11 @@ __version__ = '1.9.0'
 from redbot.core.bot import Red
 
 from tdx.core import TrainerDexCore
+from tdx.settings import TrainerDexSettings
 
 
 async def setup(bot: Red) -> None:
+    bot.add_cog(TrainerDexSettings(bot))
     cog = TrainerDexCore(bot)
     await cog.initialize()
     bot.add_cog(cog)
