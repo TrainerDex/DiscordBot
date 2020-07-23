@@ -94,7 +94,7 @@ class Settings(commands.Cog):
         elif action == 'remove':
             if roles:
                 roles_to_assign_on_approval['remove'] = [x.id for x in ctx.message.role_mentions]
-                await self.config.guild(ctx.guild).set_nickname_on_update.set(roles_to_assign_on_approval)
+                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(roles_to_assign_on_approval)
                 await ctx.tick()
                 value = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
                 value = json.dumps(value, indent=2, ensure_ascii=False)
