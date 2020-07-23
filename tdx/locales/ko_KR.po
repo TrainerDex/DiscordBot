@@ -1,0 +1,260 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: trainerdex\n"
+"POT-Creation-Date: 2020-07-23 12:24+0100\n"
+"PO-Revision-Date: 2020-07-23 12:25\n"
+"Last-Translator: \n"
+"Language-Team: Korean\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: redgettext 3.3\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: trainerdex\n"
+"X-Crowdin-Project-ID: 413192\n"
+"X-Crowdin-Language: ko\n"
+"X-Crowdin-File: /v1.9/tdx/locales/messages.pot\n"
+"X-Crowdin-File-ID: 8\n"
+"Language: ko_KR\n"
+
+#: tdx/converters.py:18
+msgid "Gray"
+msgstr ""
+
+#: tdx/converters.py:18
+msgid "Green"
+msgstr ""
+
+#: tdx/converters.py:18 tdx/converters.py:28
+msgid "Teamless"
+msgstr ""
+
+#: tdx/converters.py:18
+msgid "No Team"
+msgstr ""
+
+#: tdx/converters.py:18
+msgid "Team Harmony"
+msgstr ""
+
+#: tdx/converters.py:19
+msgid "Blue"
+msgstr ""
+
+#: tdx/converters.py:19
+msgid "Mystic"
+msgstr ""
+
+#: tdx/converters.py:19 tdx/converters.py:30
+msgid "Team Mystic"
+msgstr ""
+
+#: tdx/converters.py:20
+msgid "Red"
+msgstr ""
+
+#: tdx/converters.py:20
+msgid "Valor"
+msgstr ""
+
+#: tdx/converters.py:20 tdx/converters.py:32
+msgid "Team Valor"
+msgstr ""
+
+#: tdx/converters.py:21
+msgid "Yellow"
+msgstr ""
+
+#: tdx/converters.py:21
+msgid "Instinct"
+msgstr ""
+
+#: tdx/converters.py:21 tdx/converters.py:34
+msgid "Team Instinct"
+msgstr ""
+
+#: tdx/core.py:83 tdx/core.py:240
+#, docstring
+msgid "Find a profile given a username."
+msgstr ""
+
+#: tdx/core.py:86 tdx/core.py:243
+msgid "Searching for profile..."
+msgstr ""
+
+#: tdx/core.py:93 tdx/core.py:252
+msgid "Found profile. Loading..."
+msgstr ""
+
+#: tdx/core.py:95 tdx/core.py:254
+msgid "Profile not found."
+msgstr ""
+
+#: tdx/core.py:99 tdx/core.py:217 tdx/core.py:258
+msgid "Checking leaderboard..."
+msgstr ""
+
+#: tdx/core.py:102 tdx/core.py:226 tdx/core.py:261
+msgid "Checking {guild} leaderboard..."
+msgstr ""
+
+#: tdx/core.py:115
+msgid "What is the in-game username of {mention}?"
+msgstr ""
+
+#: tdx/core.py:120
+msgid "What team is {nickname} in?"
+msgstr ""
+
+#: tdx/core.py:125
+msgid "What is {nickname}'s Total XP?"
+msgstr ""
+
+#: tdx/core.py:130
+msgid "Please only enter the Total XP as a whole number"
+msgstr ""
+
+#: tdx/core.py:133
+msgid "Let's go..."
+msgstr ""
+
+#: tdx/core.py:149
+msgid "Setting {roles_and_or_nick} for {user}"
+msgstr ""
+
+#: tdx/core.py:154
+msgid "Approval via TrainerDex"
+msgstr ""
+
+#: tdx/core.py:159
+msgid "{roles_and_or_nick} could not be set."
+msgstr ""
+
+#: tdx/core.py:166
+msgid "{user} has been approved! {roles_and_or_nick} had been set."
+msgstr ""
+
+#: tdx/core.py:174
+msgid "Checking for user to database"
+msgstr ""
+
+#: tdx/core.py:183
+msgid "A record already exists in the database for this trainer."
+msgstr ""
+
+#: tdx/core.py:191
+msgid "Creating {user}"
+msgstr ""
+
+#: tdx/core.py:195
+msgid "Created {user}"
+msgstr ""
+
+#: tdx/core.py:199
+msgid "Setting Total XP for {user} to {total_xp}."
+msgstr ""
+
+#: tdx/core.py:205 tdx/core.py:215 tdx/core.py:224 tdx/core.py:233
+msgid "Successfully added {user} as {trainer}."
+msgstr ""
+
+#: tdx/core.py:207
+msgid "Loading profile..."
+msgstr ""
+
+#: tdx/embeds.py:58
+msgid "{nickname} | TL{level}"
+msgstr ""
+
+#: tdx/embeds.py:65
+msgid "Team"
+msgstr ""
+
+#: tdx/embeds.py:66
+msgid "Level"
+msgstr ""
+
+#: tdx/embeds.py:67
+msgid "Total XP"
+msgstr ""
+
+#: tdx/embeds.py:81
+msgid "{guild} Leaderboard"
+msgstr ""
+
+#: tdx/embeds.py:98
+msgid "Global Leaderboard"
+msgstr ""
+
+#: tdx/embeds.py:115
+msgid "No data old enough found, using actual start date."
+msgstr ""
+
+#: tdx/embeds.py:118
+msgid "No data old enough found, using assumed start date."
+msgstr ""
+
+#: tdx/embeds.py:126
+msgid "XP Gain"
+msgstr ""
+
+#: tdx/embeds.py:126
+msgid "{gain} over {time}"
+msgstr ""
+
+#: tdx/embeds.py:128
+msgid "Daily XP Gain"
+msgstr ""
+
+#: tdx/embeds.py:128
+msgid "{gain}/day"
+msgstr ""
+
+#: tdx/settings.py:59
+#, docstring
+msgid "Modify the roles of members when they're approved.\n"
+"        \n"
+"        This is useful for granting users access to the rest of the server.\n"
+"        "
+msgstr ""
+
+#: tdx/settings.py:66 tdx/settings.py:81 tdx/settings.py:96
+#: tdx/settings.py:140 tdx/settings.py:151 tdx/settings.py:162
+#: tdx/settings.py:173
+msgid "`{key}` set to {value}"
+msgstr ""
+
+#: tdx/settings.py:70 tdx/settings.py:85 tdx/settings.py:100
+#: tdx/settings.py:144 tdx/settings.py:155 tdx/settings.py:166
+#: tdx/settings.py:177
+msgid "`{key}` is {value}"
+msgstr ""
+
+#: tdx/settings.py:74
+#, docstring
+msgid "Modify the nickname of members when they're approved.\n"
+"        \n"
+"        This is useful for ensuring players can be easily identified.\n"
+"        "
+msgstr ""
+
+#: tdx/settings.py:89
+#, docstring
+msgid "Modify the nickname of members when they update their Total XP.\n"
+"        \n"
+"        This is useful for setting levels in their name.\n"
+"        "
+msgstr ""
+
+#: tdx/settings.py:104
+#, docstring
+msgid "Which roles to add/remove to a user on approval\n"
+"        \n"
+"        Usage:\n"
+"            [p]tdxset guild roles_to_assign_on_approval add @Verified, @Trainer ...\n"
+"                Assign these roles to users when they are approved\n"
+"            [p]tdxset guild roles_to_assign_on_approval remove @Guest\n"
+"                Remove these roles from users when they are approved\n"
+"        "
+msgstr ""
+
