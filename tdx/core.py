@@ -30,7 +30,7 @@ def loading(text: str) -> str:
     """
     return "<a:loading:471298325904359434> {}".format(text)
 
-class TrainerDexCore(commands.Cog):
+class TrainerDex(commands.Cog):
     """TrainerDex Core Functionality"""
     
     def __init__(self, bot: Red, config: Config) -> None:

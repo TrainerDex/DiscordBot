@@ -18,8 +18,9 @@ from redbot.core import Config
 from redbot.core.bot import Red
 from redbot.core.utils import chat_formatting
 
-from tdx.core import TrainerDexCore
-from tdx.settings import TrainerDexSettings
+from tdx.core import TrainerDex
+from tdx.settings import Settings
+from tdx.quickstart import QuickStart
 
 
 async def setup(bot: Red) -> None:
@@ -50,7 +51,8 @@ async def setup(bot: Red) -> None:
         'post_leaderboard': False,
     })
     
-    bot.add_cog(TrainerDexSettings(bot, config))
-    cog = TrainerDexCore(bot, config)
+    bot.add_cog(Settings(bot, config))
+    bot.add_cog(QuickStart(bot, config))
+    cog = TrainerDex(bot, config)
     await cog.initialize()
     bot.add_cog(cog)

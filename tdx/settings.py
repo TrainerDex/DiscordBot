@@ -11,9 +11,7 @@ from redbot.core.utils import chat_formatting as cf
 log = logging.getLogger("red.tdx.settings")
 _ = Translator("TrainerDex", __file__)
 
-class TrainerDexSettings(commands.Cog):
-    """TrainerDex Settings Cog"""
-    
+class Settings(commands.Cog):
     def __init__(self, bot: Red, config: Config) -> None:
         self.bot = bot
         self.config = config
