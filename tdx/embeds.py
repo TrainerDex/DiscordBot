@@ -4,6 +4,7 @@ import requests
 
 import discord
 from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils import chat_formatting
 
 import humanize
@@ -11,6 +12,7 @@ import trainerdex
 from dateutil.relativedelta import relativedelta, MO
 
 log = logging.getLogger("red.tdx.embeds")
+_ = Translator("TrainerDex", __file__)
 
 def check_xp(x: trainerdex.Update) -> int:
     if x.xp is None:
@@ -53,16 +55,16 @@ class ProfileCard(BaseCard):
         super().__init__(**kwargs)
         self._trainer = trainer
         self.colour = int(self._trainer.team().colour.replace("#", ""), 16)
-        self.title = '{nickname} | TL{level}'.format(nickname=self._trainer.username, level=self._trainer.level.level)
+        self.title = _("{nickname} | TL{level}").format(nickname=self._trainer.username, level=self._trainer.level.level)
         self.url = 'https://www.trainerdex.co.uk/profile?id={}'.format(self._trainer.id)
         if self._trainer.update:
             self.timestamp = self._trainer.update.update_time
     
     async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
         await super().build_card(parent, ctx)
-        self.add_field(name='Team', value=self._trainer.team().name)
-        self.add_field(name='Level', value=self._trainer.level.level)
-        self.add_field(name='Total XP', value=chat_formatting.humanize_number(max(self._trainer.updates(), key=check_xp).xp))
+        self.add_field(name=_("Team"), value=self._trainer.team().name)
+        self.add_field(name=_("Level"), value=self._trainer.level.level)
+        self.add_field(name=_("Total XP"), value=chat_formatting.humanize_number(max(self._trainer.updates(), key=check_xp).xp))
         return self
     
     async def add_guild_leaderboard(self) -> None:
@@ -76,7 +78,7 @@ class ProfileCard(BaseCard):
                     guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
                     self.insert_field_at(
                         index = 0,
-                        name = '{guild} Leaderboard'.format(guild=self._ctx.guild.name),
+                        name = _("{guild} Leaderboard").format(guild=self._ctx.guild.name),
                         value = str(guild_leaderboard),
                     )
                 except LookupError:
@@ -93,7 +95,7 @@ class ProfileCard(BaseCard):
                 leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
                 self.insert_field_at(
                     index = 0,
-                    name = 'Global Leaderboard',
+                    name = _("Global Leaderboard"),
                     value = str(leaderboard),
                 )
             except LookupError:
@@ -110,10 +112,10 @@ class UpdatedProfileCard(ProfileCard):
         except ValueError:
             if self._trainer.start_date:
                 self._beta = trainerdex.Update({'uuid': None, 'update_time': self._trainer.start_date.isoformat(), 'xp': 0})
-                self.description = chat_formatting.info("No data old enough found, using actual start date.")
+                self.description = chat_formatting.info(_("No data old enough found, using actual start date."))
             else:
                 self._beta = trainerdex.Update({'uuid': None, 'update_time': datetime.date(2016, 7, 14).isoformat(), 'xp': 0})
-                self.description = chat_formatting.info("No data old enough found, using assumed start date.")
+                self.description = chat_formatting.info(_("No data old enough found, using assumed start date."))
             
         self.timestamp = self._alpha.update_time
     
@@ -121,9 +123,7 @@ class UpdatedProfileCard(ProfileCard):
         await super().build_card(parent, ctx)
         stat_delta = self._alpha.xp - self._beta.xp
         time_delta = self._alpha.update_time - self._beta.update_time
-        self.add_field(name='XP Gain', value=f"{chat_formatting.humanize_number(stat_delta)} over {humanize.naturaldelta(time_delta)}")
+        self.add_field(name=_("XP Gain"), value=_("{gain} over {time}").format(gain=chat_formatting.humanize_number(stat_delta), time=humanize.naturaldelta(time_delta)))
         days = round(time_delta.total_seconds()/86400)
-        self.add_field(name='Daily XP Gain', value=f"{chat_formatting.humanize_number(round(stat_delta/days))}/day")
+        self.add_field(name=_("Daily XP Gain"), value=_("{gain}/day").format(gain=chat_formatting.humanize_number(round(stat_delta/days))))
         return self
-        
-        
