@@ -1,17 +1,20 @@
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-07-23 12:24+0100\n"
-"PO-Revision-Date: 2020-07-23 12:25+0100\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2020-07-23 12:25\n"
+"Last-Translator: \n"
+"Language-Team: English, United Kingdom\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: redgettext 3.3\n"
-"X-Generator: Poedit 2.3.1\n"
-"Last-Translator: Jay Turner <jaynicholasturner@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: trainerdex\n"
+"X-Crowdin-Project-ID: 413192\n"
+"X-Crowdin-Language: en-GB\n"
+"X-Crowdin-File: /v1.9/tdx/locales/messages.pot\n"
+"X-Crowdin-File-ID: 8\n"
 "Language: en_GB\n"
 
 #: tdx/converters.py:18
@@ -71,6 +74,7 @@ msgid "Team Instinct"
 msgstr ""
 
 #: tdx/core.py:83 tdx/core.py:240
+#, docstring
 msgid "Find a profile given a username."
 msgstr ""
 
@@ -207,15 +211,16 @@ msgid "{gain}/day"
 msgstr ""
 
 #: tdx/settings.py:59
-msgid ""
-"Modify the roles of members when they're approved.\n"
+#, docstring
+msgid "Modify the roles of members when they're approved.\n"
 "        \n"
 "        This is useful for granting users access to the rest of the server.\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:66 tdx/settings.py:81 tdx/settings.py:96 tdx/settings.py:140
-#: tdx/settings.py:151 tdx/settings.py:162 tdx/settings.py:173
+#: tdx/settings.py:66 tdx/settings.py:81 tdx/settings.py:96
+#: tdx/settings.py:140 tdx/settings.py:151 tdx/settings.py:162
+#: tdx/settings.py:173
 msgid "`{key}` set to {value}"
 msgstr ""
 
@@ -226,30 +231,30 @@ msgid "`{key}` is {value}"
 msgstr ""
 
 #: tdx/settings.py:74
-msgid ""
-"Modify the nickname of members when they're approved.\n"
+#, docstring
+msgid "Modify the nickname of members when they're approved.\n"
 "        \n"
 "        This is useful for ensuring players can be easily identified.\n"
 "        "
 msgstr ""
 
 #: tdx/settings.py:89
-msgid ""
-"Modify the nickname of members when they update their Total XP.\n"
+#, docstring
+msgid "Modify the nickname of members when they update their Total XP.\n"
 "        \n"
 "        This is useful for setting levels in their name.\n"
 "        "
 msgstr ""
 
 #: tdx/settings.py:104
-msgid ""
-"Which roles to add/remove to a user on approval\n"
+#, docstring
+msgid "Which roles to add/remove to a user on approval\n"
 "        \n"
 "        Usage:\n"
-"            [p]tdxset guild roles_to_assign_on_approval add @Verified, "
-"@Trainer ...\n"
+"            [p]tdxset guild roles_to_assign_on_approval add @Verified, @Trainer ...\n"
 "                Assign these roles to users when they are approved\n"
 "            [p]tdxset guild roles_to_assign_on_approval remove @Guest\n"
 "                Remove these roles from users when they are approved\n"
 "        "
 msgstr ""
+
