@@ -10,7 +10,7 @@ from redbot.core.utils import chat_formatting as cf
 
 import trainerdex
 import PogoOCR
-from tdx.converters import DateConverter, TeamConverter
+from tdx.converters import TeamConverter
 from tdx.embeds import BaseCard, ProfileCard, UpdatedProfileCard
 from  tdx.utils import check_xp, contact_us_on_twitter
 

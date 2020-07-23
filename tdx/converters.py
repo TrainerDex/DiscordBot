@@ -4,9 +4,9 @@ from discord.ext import commands
 
 from dateutil.parser import parse, ParserError
 from redbot.core.i18n import Translator
-from trainerdex import get_team
 
 _ = Translator("TrainerDex", __file__)
+
 
 class Team:
     def __init__(self, id: int, name: str, colour: str):
@@ -32,11 +32,3 @@ class TeamConverter(commands.Converter):
             return Team(0, _("Team Valor"), '#ff0000')
         elif argument.lower() in team_search_values[3]:
             return Team(0, _("Team Instinct"), '#fff600')
-
-
-class DateConverter(commands.Converter):
-    async def convert(self, ctx, argument: str) -> datetime.date:
-        try:
-            return parse(argument).date()
-        except ParserError:
-            return None

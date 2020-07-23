@@ -7,7 +7,6 @@ from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
-import trainerdex
 
 log = logging.getLogger("red.tdx.settings")
 _ = Translator("TrainerDex", __file__)
