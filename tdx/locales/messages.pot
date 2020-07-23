@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-07-23 19:23+0100\n"
+"POT-Creation-Date: 2020-07-24 00:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,59 +11,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: redgettext 3.3\n"
 
-#: tdx/converters.py:18
-msgid "Gray"
-msgstr ""
-
-#: tdx/converters.py:18
-msgid "Green"
-msgstr ""
-
-#: tdx/converters.py:18 tdx/converters.py:28
+#: tdx/converters.py:28
 msgid "Teamless"
 msgstr ""
 
-#: tdx/converters.py:18
-msgid "No Team"
-msgstr ""
-
-#: tdx/converters.py:18
-msgid "Team Harmony"
-msgstr ""
-
-#: tdx/converters.py:19
-msgid "Blue"
-msgstr ""
-
-#: tdx/converters.py:19
-msgid "Mystic"
-msgstr ""
-
-#: tdx/converters.py:19 tdx/converters.py:30
+#: tdx/converters.py:30
 msgid "Team Mystic"
 msgstr ""
 
-#: tdx/converters.py:20
-msgid "Red"
-msgstr ""
-
-#: tdx/converters.py:20
-msgid "Valor"
-msgstr ""
-
-#: tdx/converters.py:20 tdx/converters.py:32
+#: tdx/converters.py:32
 msgid "Team Valor"
 msgstr ""
 
-#: tdx/converters.py:21
-msgid "Yellow"
-msgstr ""
-
-#: tdx/converters.py:21
-msgid "Instinct"
-msgstr ""
-
-#: tdx/converters.py:21 tdx/converters.py:34
+#: tdx/converters.py:34
 msgid "Team Instinct"
 msgstr ""
 
@@ -101,92 +61,92 @@ msgstr ""
 msgid "Loading output..."
 msgstr ""
 
-#: tdx/core.py:126 tdx/core.py:279
+#: tdx/core.py:126 tdx/core.py:286
 #, docstring
 msgid "Find a profile given a username."
 msgstr ""
 
-#: tdx/core.py:129 tdx/core.py:282
+#: tdx/core.py:129 tdx/core.py:289
 msgid "Searching for profile..."
 msgstr ""
 
-#: tdx/core.py:136 tdx/core.py:291
+#: tdx/core.py:136 tdx/core.py:298
 msgid "Found profile. Loading..."
 msgstr ""
 
-#: tdx/core.py:138 tdx/core.py:293
+#: tdx/core.py:138 tdx/core.py:300
 msgid "Profile not found."
 msgstr ""
 
-#: tdx/core.py:142 tdx/core.py:256 tdx/core.py:297
+#: tdx/core.py:142 tdx/core.py:263 tdx/core.py:304
 msgid "Checking leaderboard..."
 msgstr ""
 
-#: tdx/core.py:145 tdx/core.py:265 tdx/core.py:300
+#: tdx/core.py:145 tdx/core.py:272 tdx/core.py:307
 msgid "Checking {guild} leaderboard..."
 msgstr ""
 
-#: tdx/core.py:158
+#: tdx/core.py:159
 msgid "What is the in-game username of {mention}?"
 msgstr ""
 
-#: tdx/core.py:163
+#: tdx/core.py:164
 msgid "What team is {nickname} in?"
 msgstr ""
 
-#: tdx/core.py:168
+#: tdx/core.py:169
 msgid "What is {nickname}'s Total XP?"
 msgstr ""
 
-#: tdx/core.py:173
+#: tdx/core.py:174
 msgid "Please only enter the Total XP as a whole number"
 msgstr ""
 
-#: tdx/core.py:176
+#: tdx/core.py:177
 msgid "Let's go..."
 msgstr ""
 
-#: tdx/core.py:192
+#: tdx/core.py:199
 msgid "Setting {roles_and_or_nick} for {user}"
 msgstr ""
 
-#: tdx/core.py:197
+#: tdx/core.py:204
 msgid "Approval via TrainerDex"
 msgstr ""
 
-#: tdx/core.py:202
+#: tdx/core.py:209
 msgid "{roles_and_or_nick} could not be set."
 msgstr ""
 
-#: tdx/core.py:209
+#: tdx/core.py:216
 msgid "{user} has been approved! {roles_and_or_nick} had been set."
 msgstr ""
 
-#: tdx/core.py:217
+#: tdx/core.py:224
 msgid "Checking for user to database"
 msgstr ""
 
-#: tdx/core.py:226
+#: tdx/core.py:233
 msgid "A record already exists in the database for this trainer."
 msgstr ""
 
-#: tdx/core.py:230
+#: tdx/core.py:237
 msgid "Creating {user}"
 msgstr ""
 
-#: tdx/core.py:234
+#: tdx/core.py:241
 msgid "Created {user}"
 msgstr ""
 
-#: tdx/core.py:238
+#: tdx/core.py:245
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr ""
 
-#: tdx/core.py:244 tdx/core.py:254 tdx/core.py:263 tdx/core.py:272
+#: tdx/core.py:251 tdx/core.py:261 tdx/core.py:270 tdx/core.py:279
 msgid "Successfully added {user} as {trainer}."
 msgstr ""
 
-#: tdx/core.py:246
+#: tdx/core.py:253
 msgid "Loading profile..."
 msgstr ""
 
@@ -206,39 +166,67 @@ msgstr ""
 msgid "Total XP"
 msgstr ""
 
-#: tdx/embeds.py:86
-msgid "{guild} Leaderboard"
-msgstr ""
-
-#: tdx/embeds.py:103
-msgid "Global Leaderboard"
-msgstr ""
-
-#: tdx/embeds.py:120
+#: tdx/embeds.py:122
 msgid "No data old enough found, using actual start date."
 msgstr ""
 
-#: tdx/embeds.py:123
+#: tdx/embeds.py:125
 msgid "No data old enough found, using assumed start date."
 msgstr ""
 
-#: tdx/embeds.py:131
+#: tdx/embeds.py:133
 msgid "XP Gain"
 msgstr ""
 
-#: tdx/embeds.py:131
+#: tdx/embeds.py:133
 msgid "{gain} over {time}"
 msgstr ""
 
-#: tdx/embeds.py:133
+#: tdx/embeds.py:135
 msgid "Daily XP Gain"
 msgstr ""
 
-#: tdx/embeds.py:133
+#: tdx/embeds.py:135
 msgid "{gain}/day"
 msgstr ""
 
-#: tdx/settings.py:35
+#: tdx/quickstart.py:21
+msgid "Looking for team roles..."
+msgstr ""
+
+#: tdx/quickstart.py:24
+msgid "Mystic"
+msgstr ""
+
+#: tdx/quickstart.py:29 tdx/quickstart.py:37 tdx/quickstart.py:45
+#: tdx/quickstart.py:55 tdx/settings.py:39 tdx/settings.py:54
+#: tdx/settings.py:69 tdx/settings.py:113 tdx/settings.py:124
+#: tdx/settings.py:135 tdx/settings.py:146 tdx/settings.py:165
+#: tdx/settings.py:177
+msgid "`{key}` set to {value}"
+msgstr ""
+
+#: tdx/quickstart.py:32
+msgid "Valor"
+msgstr ""
+
+#: tdx/quickstart.py:40
+msgid "Instinct"
+msgstr ""
+
+#: tdx/quickstart.py:47
+msgid "Looking for TL40 role..."
+msgstr ""
+
+#: tdx/quickstart.py:50
+msgid "Level 40"
+msgstr ""
+
+#: tdx/quickstart.py:57
+msgid "That's it for now."
+msgstr ""
+
+#: tdx/settings.py:32
 #, docstring
 msgid ""
 "Modify the roles of members when they're approved.\n"
@@ -247,19 +235,13 @@ msgid ""
 "        "
 msgstr ""
 
-#: tdx/settings.py:42 tdx/settings.py:57 tdx/settings.py:72
-#: tdx/settings.py:116 tdx/settings.py:127 tdx/settings.py:138
-#: tdx/settings.py:149 tdx/settings.py:168 tdx/settings.py:180
-msgid "`{key}` set to {value}"
-msgstr ""
-
-#: tdx/settings.py:46 tdx/settings.py:61 tdx/settings.py:76
-#: tdx/settings.py:120 tdx/settings.py:131 tdx/settings.py:142
-#: tdx/settings.py:153 tdx/settings.py:172 tdx/settings.py:184
+#: tdx/settings.py:43 tdx/settings.py:58 tdx/settings.py:73
+#: tdx/settings.py:117 tdx/settings.py:128 tdx/settings.py:139
+#: tdx/settings.py:150 tdx/settings.py:169 tdx/settings.py:181
 msgid "`{key}` is {value}"
 msgstr ""
 
-#: tdx/settings.py:50
+#: tdx/settings.py:47
 #, docstring
 msgid ""
 "Modify the nickname of members when they're approved.\n"
@@ -268,7 +250,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: tdx/settings.py:65
+#: tdx/settings.py:62
 #, docstring
 msgid ""
 "Modify the nickname of members when they update their Total XP.\n"
@@ -277,7 +259,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: tdx/settings.py:80
+#: tdx/settings.py:77
 #, docstring
 msgid ""
 "Which roles to add/remove to a user on approval\n"
@@ -290,12 +272,12 @@ msgid ""
 "        "
 msgstr ""
 
-#: tdx/settings.py:164
+#: tdx/settings.py:161
 #, docstring
 msgid "Set if this channel should accept OCR commands."
 msgstr ""
 
-#: tdx/settings.py:176
+#: tdx/settings.py:173
 #, docstring
 msgid ""
 "Set if this channel should accept generic notices from TrainerDex - this "
