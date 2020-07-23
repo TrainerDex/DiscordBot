@@ -1,8 +1,8 @@
 import datetime
-from dateutil.parser import parse, ParserError
 
 from discord.ext import commands
 
+from dateutil.parser import parse, ParserError
 from trainerdex import get_team
 from trainerdex.utils import TeamTuple
 

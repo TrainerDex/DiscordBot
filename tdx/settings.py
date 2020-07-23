@@ -19,7 +19,7 @@ class TrainerDexSettings(commands.Cog):
         
         self.global_defaults = {
             'embed_footer': 'Provided with ❤️ by TrainerDex',
-            'notice': None,
+            'notice': chat_formatting.bold("Goals are disabled for now.")+" They're in the middle of being rewritten and I think you'll very much like what I've done with them.\n"+chat_formatting.italics("Sorry for the inconvenience"),
         }
         self.guild_defaults = {
             'assign_roles_on_join': True,

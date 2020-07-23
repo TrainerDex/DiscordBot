@@ -1,6 +1,5 @@
 import logging
 import os
-import requests
 from typing import Union
 
 import discord
@@ -10,6 +9,7 @@ from redbot.core.utils import chat_formatting
 
 import trainerdex
 from tdx.converters import DateConverter, TeamConverter
+from tdx.embeds import BaseCard, ProfileCard, UpdatedProfileCard
 
 log = logging.getLogger("red.tdx.core")
 POGOOCR_TOKEN_PATH = os.path.join(os.path.dirname(__file__), 'data/key.json')
@@ -63,107 +63,28 @@ class TrainerDexCore(commands.Cog):
         elif isinstance(value, int):
             return self.client.get_user(value)[0].owner().trainer()[0]
     
-    class BaseCard(discord.Embed):
-        def __init__(self, **kwargs) -> None:
-            super().__init__(**kwargs)
-            self.colour = kwargs.get('colour', kwargs.get('color', 13252437))
-            
-            self._author = {
-                'name': 'TrainerDex',
-                'url': 'https://www.trainerdex.co.uk/',
-                'icon_url': 'https://www.trainerdex.co.uk/static/img/android-desktop.png',
-            }
-        
-        async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
-            self._parent = parent
-            self._ctx = ctx
-            
-            self._footer = {
-                'text': await self._parent.config.embed_footer()
-            }
-            
-            notice = await self._parent.config.notice()
-            if notice:
-                notice = chat_formatting.info(notice)
-                
-                if self.description:
-                    self.description = "{}\n\n{}".format(notice, self.description)
-                else:
-                    self.description = notice
-            return self
+    async def build_BaseCard(self, ctx: commands.Context, **kwargs) -> BaseCard:
+        return await BaseCard(**kwargs).build_card(self, ctx)
     
-    async def _get_BaseCard(self, ctx: commands.Context, **kwargs) -> BaseCard:
-        return await self.BaseCard(**kwargs).build_card(self, ctx)
+    async def build_ProfileCard(self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs) -> ProfileCard:
+        return await ProfileCard(trainer, **kwargs).build_card(self, ctx)
     
-    class ProfileCard(BaseCard):
-        def __init__(self, trainer: trainerdex.Trainer, **kwargs):
-            super().__init__(**kwargs)
-            self._trainer = trainer
-            self.colour = int(self._trainer.team().colour.replace("#", ""), 16)
-            self.title = '{nickname} | TL{level}'.format(nickname=self._trainer.username, level=self._trainer.level.level)
-            self.url = 'https://www.trainerdex.co.uk/profile?id={}'.format(self._trainer.id)
-            if self._trainer.update:
-                self.timestamp = self._trainer.update.update_time
-        
-        async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
-            await super().build_card(parent, ctx)
-            self.add_field(name='Team', value=self._trainer.team().name)
-            self.add_field(name='Level', value=self._trainer.level.level)
-            def check_xp(x):
-                if x.xp is None:
-                    return 0
-                return x.xp
-            self.add_field(name='Total XP', value="{:,}".format(max(self._trainer.updates(), key=check_xp).xp))
-            return self
-        
-        async def add_guild_leaderboard(self) -> None:
-            if self._ctx.guild:
-                try:
-                    guild_leaderboard = self._parent.client.get_discord_leaderboard(self._ctx.guild.id)
-                except requests.exceptions.HTTPError as e:
-                    log.error(e)
-                else:
-                    try:
-                        guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
-                        self.insert_field_at(
-                            index = 0,
-                            name = '{guild} Leaderboard'.format(guild=self._ctx.guild.name),
-                            value = str(guild_leaderboard),
-                        )
-                    except LookupError:
-                        pass
-        
-        async def add_leaderboard(self) -> None:
-            try:
-                leaderboard = self._parent.client.get_worldwide_leaderboard()
-            except requests.exceptions.HTTPError as e:
-                log.error(e)
-                return
-            else:
-                try:
-                    leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
-                    self.insert_field_at(
-                        index = 0,
-                        name = 'Global Leaderboard',
-                        value = str(leaderboard),
-                    )
-                except LookupError:
-                    pass
-    
-    async def _get_ProfileCard(self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs) -> ProfileCard:
-        return await self.ProfileCard(trainer, **kwargs).build_card(self, ctx)
+    async def build_UpdatedProfileCard(self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs) -> UpdatedProfileCard:
+        return await UpdatedProfileCard(trainer, **kwargs).build_card(self, ctx)
     
     @commands.group(name='profile')
     async def profile(self, ctx: commands.Context) -> None:
         pass
     
     @profile.command(name='lookup', aliases=["whois", "find"])
-    async def profile__lookup(self, ctx: commands.Context, trainer: Union[discord.Member, str]) -> None:
+    async def profile__lookup(self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None) -> None:
         """Find a profile given a username."""
         
         async with ctx.typing():
             message = await ctx.send(loading("Searching for profile..."))
             
+            if trainer is None:
+                trainer = ctx.author
             trainer = await self.get_trainer(trainer)
             
             if trainer:
@@ -172,7 +93,7 @@ class TrainerDexCore(commands.Cog):
                 await message.edit(content=chat_formatting.warning(" Profile not found."))
                 return
                 
-            embed = await self._get_ProfileCard(ctx, trainer)
+            embed = await self.build_ProfileCard(ctx, trainer)
             await message.edit(content=loading("Checking leaderboard..."), embed=embed)
             await embed.add_leaderboard()
             if ctx.guild:
@@ -232,9 +153,6 @@ class TrainerDexCore(commands.Cog):
                     await message.edit(content=f"{mention.mention} has been approved! {chat_formatting.humanize_list(member_edit_dict.keys())} has been set.")
                 message = await ctx.send(loading(''))
         
-        
-        
-        
         log.debug(f"Attempting to add {nickname} to database, checking if they already exist")
         
         await message.edit(content=loading("Checking for user to database"))
@@ -266,12 +184,39 @@ class TrainerDexCore(commands.Cog):
             update = self.client.create_update(trainer, time_updated=ctx.message.created_at, xp=total_xp)
         await message.edit(content=f"Successfully added {mention.mention} as {trainer.username}.\n"+loading("Loading profile..."))
         trainer = self.client.get_trainer(trainer.id)
-        embed = await self._get_ProfileCard(ctx, trainer)
+        embed = await self.build_ProfileCard(ctx, trainer)
         await message.edit(embed=embed)
         
-        embed = await self._get_ProfileCard(ctx, trainer)
+        embed = await self.build_ProfileCard(ctx, trainer)
         await message.edit(content=f"Successfully added {mention.mention} as {trainer.username}.\n"+loading("Checking leaderboard..."), embed=embed)
         await embed.add_leaderboard()
         await message.edit(content=f"Successfully added {mention.mention} as {trainer.username}.\n"+loading("Checking {ctx.guild} leaderboard..."), embed=embed)
         await embed.add_guild_leaderboard()
         await message.edit(content=f"Successfully added {mention.mention} as {trainer.username}.", embed=embed)
+    
+    @commands.command(name='progress')
+    async def progress(self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None) -> None:
+        """Find a profile given a username."""
+        
+        async with ctx.typing():
+            message = await ctx.send(loading("Searching for profile..."))
+            
+            print(trainer, type(trainer))
+            if trainer is None:
+                trainer = ctx.author
+                print(trainer, type(trainer))
+            trainer = await self.get_trainer(trainer)
+            
+            if trainer:
+                await message.edit(content=loading("Found profile. Loading..."))
+            else:
+                await message.edit(content=chat_formatting.warning(" Profile not found."))
+                return
+                
+            embed = await self.build_UpdatedProfileCard(ctx, trainer)
+            await message.edit(content=loading("Checking leaderboard..."), embed=embed)
+            await embed.add_leaderboard()
+            if ctx.guild:
+                await message.edit(content=loading(f"Checking {ctx.guild} leaderboard..."), embed=embed)
+                await embed.add_guild_leaderboard()
+            await message.edit(content=None, embed=embed)
