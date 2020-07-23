@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-07-23 12:24+0100\n"
-"PO-Revision-Date: 2020-07-23 12:39\n"
+"PO-Revision-Date: 2020-07-23 12:36\n"
 "Last-Translator: \n"
-"Language-Team: English, United Kingdom\n"
+"Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,42 +12,42 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: trainerdex\n"
 "X-Crowdin-Project-ID: 413192\n"
-"X-Crowdin-Language: en-GB\n"
+"X-Crowdin-Language: it\n"
 "X-Crowdin-File: /v1.9/tdx/locales/messages.pot\n"
 "X-Crowdin-File-ID: 8\n"
-"Language: en_GB\n"
+"Language: it_IT\n"
 
 #: tdx/converters.py:18
 msgid "Gray"
-msgstr "Grey"
+msgstr ""
 
 #: tdx/converters.py:18
 msgid "Green"
-msgstr "Green"
+msgstr ""
 
 #: tdx/converters.py:18 tdx/converters.py:28
 msgid "Teamless"
-msgstr "Teamless"
+msgstr ""
 
 #: tdx/converters.py:18
 msgid "No Team"
-msgstr "No Team"
+msgstr ""
 
 #: tdx/converters.py:18
 msgid "Team Harmony"
-msgstr "Team Harmony"
+msgstr ""
 
 #: tdx/converters.py:19
 msgid "Blue"
-msgstr "Blue"
+msgstr ""
 
 #: tdx/converters.py:19
 msgid "Mystic"
-msgstr "Mystic"
+msgstr ""
 
 #: tdx/converters.py:19 tdx/converters.py:30
 msgid "Team Mystic"
-msgstr "Team Mystic"
+msgstr ""
 
 #: tdx/converters.py:20
 msgid "Red"
@@ -55,11 +55,11 @@ msgstr ""
 
 #: tdx/converters.py:20
 msgid "Valor"
-msgstr "Valor"
+msgstr ""
 
 #: tdx/converters.py:20 tdx/converters.py:32
 msgid "Team Valor"
-msgstr "Team Valor"
+msgstr ""
 
 #: tdx/converters.py:21
 msgid "Yellow"
@@ -67,11 +67,11 @@ msgstr ""
 
 #: tdx/converters.py:21
 msgid "Instinct"
-msgstr "Instinct"
+msgstr ""
 
 #: tdx/converters.py:21 tdx/converters.py:34
 msgid "Team Instinct"
-msgstr "Team Instinct"
+msgstr ""
 
 #: tdx/core.py:83 tdx/core.py:240
 #, docstring
