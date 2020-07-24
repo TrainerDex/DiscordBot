@@ -1,3 +1,6 @@
+## Versioning
+We're using CalVer for versioning with the `YYYY.0W` format! I think we'll aim for Wednesday releases but that's tbd
+
 ## Style
 This is largely copied from Cog-Creators/Red-DiscordBot. I might change things eventually but this 'just works' for now.
 

@@ -4,15 +4,15 @@ Official TrainerDex Discord Bot
 
 TrainerDex cog for Red-DiscordBot 3
 
-:copyright: (c) 2020 JayTurnr
+:copyright: (c) 2020 TrainerDex/TurnrDev
 :licence: GNU-GPL3, see LICENSE for more details
 
 """
 
-__author__ = "JayTurnr"
+__author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
-__copyright__ = "Copyright 2020 JayTurnr"
-__version__ = "1.9.0"
+__copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
+__version__ = "2020.30"
 
 from redbot.core import Config
 from redbot.core.bot import Red
