@@ -9,10 +9,10 @@ TrainerDex cog for Red-DiscordBot 3
 
 """
 
-__author__ = 'JayTurnr'
-__licence__ = 'GNU-GPL'
-__copyright__ = 'Copyright 2020 JayTurnr'
-__version__ = '1.9.0'
+__author__ = "JayTurnr"
+__licence__ = "GNU-GPL"
+__copyright__ = "Copyright 2020 JayTurnr"
+__version__ = "1.9.0"
 
 from redbot.core import Config
 from redbot.core.bot import Red
@@ -26,31 +26,35 @@ from tdx.quickstart import QuickStart
 async def setup(bot: Red) -> None:
     config = Config.get_conf(
         None,
-        cog_name='trainerdex',
+        cog_name="trainerdex",
         identifier=8124637339,  # TrainerDex on a T9 keyboard
         force_registration=True,
     )
-    
-    config.register_global(**{
-        'embed_footer': 'Provided with ❤️ by TrainerDex',
-        'notice': chat_formatting.bold("Leaderboards are disabled for now.")+" There's a weird bug. I'm working on it.\n"+chat_formatting.italics("Sorry for the inconvenience"),
-    })
-    config.register_guild(**{
-        'assign_roles_on_join': True,
-        'set_nickname_on_join': True,
-        'set_nickname_on_update': True,
-        'roles_to_assign_on_approval': {'add': [], 'remove': []},
-        'mystic_role': None,
-        'valor_role': None,
-        'instinct_role': None,
-        'tl40_role': None,
-    })
-    config.register_channel(**{
-        'profile_ocr': False,
-        'notices': False,
-        'post_leaderboard': False,
-    })
-    
+
+    config.register_global(
+        **{
+            "embed_footer": "Provided with ❤️ by TrainerDex",
+            "notice": chat_formatting.bold("Leaderboards are disabled for now.")
+            + " There's a weird bug. I'm working on it.\n"
+            + chat_formatting.italics("Sorry for the inconvenience"),
+        }
+    )
+    config.register_guild(
+        **{
+            "assign_roles_on_join": True,
+            "set_nickname_on_join": True,
+            "set_nickname_on_update": True,
+            "roles_to_assign_on_approval": {"add": [], "remove": []},
+            "mystic_role": None,
+            "valor_role": None,
+            "instinct_role": None,
+            "tl40_role": None,
+        }
+    )
+    config.register_channel(
+        **{"profile_ocr": False, "notices": False, "post_leaderboard": False,}
+    )
+
     bot.add_cog(Settings(bot, config))
     bot.add_cog(QuickStart(bot, config))
     cog = TrainerDex(bot, config)

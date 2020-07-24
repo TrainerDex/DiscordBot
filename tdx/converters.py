@@ -14,8 +14,9 @@ class Team:
         self.name = name
         self.colour = colour
 
+
 team_search_values = [
-    ['Gray', 'Green', 'Teamless', 'No Team', 'Team Harmony'],
+    ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
     ["Blue", "Mystic", "Team Mystic"],
     ["Red", "Valor", "Team Valor"],
     ["Yellow", "Instinct", "Team Instinct"],
@@ -25,10 +26,10 @@ team_search_values = [
 class TeamConverter(commands.Converter):
     async def convert(self, ctx, argument: str) -> Team:
         if argument.lower() in [x.lower() for x in team_search_values[0]]:
-            return Team(0, _("Teamless"), '#929292')
+            return Team(0, _("Teamless"), "#929292")
         elif argument.lower() in [x.lower() for x in team_search_values[1]]:
-            return Team(1, _("Team Mystic"), '#0005ff')
+            return Team(1, _("Team Mystic"), "#0005ff")
         elif argument.lower() in [x.lower() for x in team_search_values[2]]:
-            return Team(2, _("Team Valor"), '#ff0000')
+            return Team(2, _("Team Valor"), "#ff0000")
         elif argument.lower() in [x.lower() for x in team_search_values[3]]:
-            return Team(3, _("Team Instinct"), '#fff600')
+            return Team(3, _("Team Instinct"), "#fff600")
