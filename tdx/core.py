@@ -10,7 +10,7 @@ from redbot.core.utils import chat_formatting as cf
 
 import trainerdex
 import PogoOCR
-from tdx.converters import TeamConverter
+from tdx import converters
 from tdx.embeds import BaseCard, ProfileCard
 from tdx.utils import check_xp, contact_us_on_twitter
 
@@ -57,19 +57,6 @@ class TrainerDex(commands.Cog):
             log.warning("No valid token found")
         return token
 
-    async def get_trainer(
-        self, value: Union[discord.Member, discord.User, str, int] = None
-    ) -> trainerdex.Trainer:
-        if isinstance(value, str):
-            return self.client.get_trainer_from_username(value)
-        elif isinstance(value, (discord.Member, discord.User)):
-            try:
-                return self.client.get_discord_user(uid=[str(value.id)])[0].owner().trainer()[0]
-            except IndexError:
-                return None
-        elif isinstance(value, int):
-            return self.client.get_trainer(value)
-
     async def build_BaseCard(self, ctx: commands.Context, **kwargs) -> BaseCard:
         return await BaseCard(**kwargs).build_card(self, ctx)
 
@@ -90,7 +77,7 @@ class TrainerDex(commands.Cog):
         if len(source_message.attachments) != 1:
             return
 
-        trainer = await self.get_trainer(source_message.author)
+        trainer = await converters.TrainerConverter().convert(ctx, source_message.author)
         if not trainer:
             return
 
@@ -135,7 +122,7 @@ class TrainerDex(commands.Cog):
                 else:
                     update = self.client.create_update(trainer.id, ocr.total_xp)
                     text = _("✅ Success")
-                    trainer = await self.get_trainer(trainer.id)
+                    trainer = await converters.TrainerConverter().convert(ctx, trainer.id)
 
                 await message.edit(content=text + "\n" + loading(_("Loading output...")))
                 embed = await self.build_UpdatedProfileCard(source_message, trainer)
@@ -148,7 +135,7 @@ class TrainerDex(commands.Cog):
 
     @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
     async def profile__lookup(
-        self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None,
+        self, ctx: commands.Context, trainer: converters.TrainerConverter = None,
     ) -> None:
         """Find a profile given a username."""
 
@@ -156,8 +143,8 @@ class TrainerDex(commands.Cog):
             message = await ctx.send(loading(_("Searching for profile...")))
 
             if trainer is None:
-                trainer = ctx.author
-            trainer = await self.get_trainer(trainer)
+                print("No trainer")
+                trainer = await converters.TrainerConverter().convert(ctx, ctx.author)
 
             if trainer:
                 await message.edit(content=loading(_("Found profile. Loading...")))
@@ -185,7 +172,7 @@ class TrainerDex(commands.Cog):
         ctx: commands.Context,
         mention: discord.Member,
         nickname: str = None,
-        team: TeamConverter = None,
+        team: converters.TeamConverter = None,
         total_xp: int = None,
     ) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
@@ -206,7 +193,7 @@ class TrainerDex(commands.Cog):
         while team is None:
             await ctx.send(cf.question(_("What team is {nickname} in?")).format(nickname=nickname))
             msg = await self.bot.wait_for("message", check=message_in_channel_by_author)
-            team = await TeamConverter().convert(ctx, msg.content)
+            team = await converters.TeamConverter().convert(ctx, msg.content)
 
         while (total_xp is None) or (total_xp <= 100):
             await ctx.send(
@@ -288,9 +275,9 @@ class TrainerDex(commands.Cog):
         await message.edit(content=loading(_("Checking for user to database")))
 
         trainer = None
-        trainer = await self.get_trainer(nickname)
+        trainer = await converters.TrainerConverter().convert(ctx, nickname)
         if trainer is None:
-            trainer = await self.get_trainer(mention)
+            trainer = await converters.TrainerConverter().convert(ctx, mention)
 
         if trainer:
             log.debug("We found a trainer: {trainer.username}")
