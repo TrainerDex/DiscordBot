@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Dict
 
 import discord
 from redbot.core import commands, Config
@@ -8,22 +9,22 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 
-log = logging.getLogger("red.tdx.settings")
+log: logging.Logger = logging.getLogger("red.tdx.settings")
 _ = Translator("TrainerDex", __file__)
 
 
 class QuickStart(commands.Cog):
     def __init__(self, bot: Red, config: Config) -> None:
-        self.bot = bot
-        self.config = config
+        self.bot: Red = bot
+        self.config: Config = config
 
     @commands.command(name="quickstart")
     async def quickstart(self, ctx: commands.Context) -> None:
         await ctx.send(_("Looking for team roles..."))
 
         try:
-            mystic_role = min(
-                [x for x in ctx.guild.roles if _("Mystic").lower() in x.name.lower()]
+            mystic_role: discord.Role = min(
+                [x for x in ctx.guild.roles if _("Mystic").casefold() in x.name.casefold()]
             )
         except ValueError:
             mystic_role = None
@@ -34,7 +35,9 @@ class QuickStart(commands.Cog):
             )
 
         try:
-            valor_role = min([x for x in ctx.guild.roles if _("Valor").lower() in x.name.lower()])
+            valor_role: discord.Role = min(
+                [x for x in ctx.guild.roles if _("Valor").casefold() in x.name.casefold()]
+            )
         except ValueError:
             valor_role = None
         if valor_role:
@@ -44,8 +47,8 @@ class QuickStart(commands.Cog):
             )
 
         try:
-            instinct_role = min(
-                [x for x in ctx.guild.roles if _("Instinct").lower() in x.name.lower()]
+            instinct_role: discord.Role = min(
+                [x for x in ctx.guild.roles if _("Instinct").casefold() in x.name.casefold()]
             )
         except ValueError:
             instinct_role = None
@@ -60,8 +63,8 @@ class QuickStart(commands.Cog):
         await ctx.send(_("Looking for TL40 role..."))
 
         try:
-            tl40_role = min(
-                [x for x in ctx.guild.roles if _("Level 40").lower() in x.name.lower()]
+            tl40_role: discord.Role = min(
+                [x for x in ctx.guild.roles if _("Level 40").casefold() in x.name.casefold()]
             )
         except ValueError:
             tl40_role = None
@@ -73,6 +76,6 @@ class QuickStart(commands.Cog):
 
         await ctx.send(_("That's it for now."))
 
-        settings = await self.config.guild(ctx.guild).all()
-        settings = json.dumps(settings, indent=2, ensure_ascii=False)
+        settings: Dict = await self.config.guild(ctx.guild).all()
+        settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
         await ctx.send(cf.box(settings, "json"))

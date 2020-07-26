@@ -15,14 +15,14 @@ _ = Translator("TrainerDex", __file__)
 
 class NicknameConverter(commands.Converter):
     async def convert(self, ctx, argument: str) -> str:
-        result = re.match(r"[A-Za-z0-9]{3,15}$", argument)
-        if result is None:
+        match: Union[re.Match, None] = re.match(r"[A-Za-z0-9]{3,15}$", argument)
+        if match is None:
             raise commands.BadArgument(
                 _(
                     "{} is not a valid Pokemon Go username. A Pokemon Go username is 3-15 letters or numbers long."
                 ).format(argument)
             )
-        return result
+        return argument
 
 
 class TrainerConverter(commands.Converter):
@@ -36,10 +36,10 @@ class TrainerConverter(commands.Converter):
     async def convert(self, ctx, argument) -> trainerdex.Trainer:
         if isinstance(argument, (discord.User, discord.Member)):
             match = None
-            mention = argument
+            mention: Union[discord.User, discord.Member] = argument
         else:
             try:
-                match = await NicknameConverter.convert(ctx, argument)
+                match: str = await NicknameConverter.convert(ctx, argument)
             except commands.BadArgument:
                 match = None
             mention = None
@@ -49,14 +49,16 @@ class TrainerConverter(commands.Converter):
             # check if mention
             if mention is None:
                 try:
-                    mention = await commands.converter.UserConverter().convert(ctx, argument)
+                    mention: discord.User = await commands.converter.UserConverter().convert(
+                        ctx, argument
+                    )
                 except commands.BadArgument:
                     result = None
                     mention = None
 
             if mention:
                 try:
-                    result = (
+                    result: trainerdex.Trainer = (
                         trainerdex.Client()
                         .get_discord_user(uid=[str(mention.id)])[0]
                         .owner()
@@ -65,7 +67,7 @@ class TrainerConverter(commands.Converter):
                 except IndexError:
                     result = None
         else:
-            result = trainerdex.Client().get_trainer_from_username(argument)
+            result: trainerdex.Trainer = trainerdex.Client().get_trainer_from_username(argument)
 
         if result is None:
             raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
@@ -105,15 +107,15 @@ class TeamConverter(commands.Converter):
     async def convert(self, ctx, argument: str) -> Faction:
         if argument.isnumeric():
             if int(argument) < len(self.teams):
-                result = Faction(**self.teams[int(argument)])
+                result: Faction = Faction(**self.teams[int(argument)])
             else:
                 result = None
         else:
-            options = [
+            options: List[Dict[str, Union[int, str]]] = [
                 x for x in self.teams if argument.casefold() in map(str.casefold, x.get("lookups"))
             ]
             if len(options) == 1:
-                result = Faction(**options[0])
+                result: Faction = Faction(**options[0])
             else:
                 result = None
 

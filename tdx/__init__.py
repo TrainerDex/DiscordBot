@@ -14,7 +14,7 @@ __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
 __version__ = "2020.30"
 
-from redbot.core import Config
+from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.utils import chat_formatting
 
@@ -24,7 +24,7 @@ from tdx.quickstart import QuickStart
 
 
 async def setup(bot: Red) -> None:
-    config = Config.get_conf(
+    config: Config = Config.get_conf(
         None,
         cog_name="trainerdex",
         identifier=8124637339,  # TrainerDex on a T9 keyboard
@@ -52,11 +52,11 @@ async def setup(bot: Red) -> None:
         }
     )
     config.register_channel(
-        **{"profile_ocr": False, "notices": False, "post_leaderboard": False,}
+        **{"profile_ocr": False, "post_leaderboard": False,}
     )
 
     bot.add_cog(Settings(bot, config))
     bot.add_cog(QuickStart(bot, config))
-    cog = TrainerDex(bot, config)
+    cog: commands.Cog = TrainerDex(bot, config)
     await cog.initialize()
     bot.add_cog(cog)
