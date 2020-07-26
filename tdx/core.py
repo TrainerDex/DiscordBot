@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Union
+from typing import Union, Optional
 
 import discord
 from redbot.core import checks, commands, Config
@@ -172,8 +172,8 @@ class TrainerDex(commands.Cog):
         ctx: commands.Context,
         mention: discord.Member,
         nickname: str = None,
-        team: converters.TeamConverter = None,
-        total_xp: int = None,
+        team: Optional[converters.TeamConverter] = None,
+        total_xp: Optional[int] = None,
     ) -> None:
         assign_roles = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname = await self.config.guild(ctx.guild).set_nickname_on_join()
@@ -182,28 +182,42 @@ class TrainerDex(commands.Cog):
             return message.author == ctx.author and message.channel == ctx.channel
 
         while nickname is None:
-            await ctx.send(
-                cf.question(_("What is the in-game username of {mention}?")).format(
-                    mention=mention
-                )
+            question_text = cf.question(_("What is the in-game username of {mention}?")).format(
+                mention=mention
             )
-            msg = await self.bot.wait_for("message", check=message_in_channel_by_author)
+            question_message = await ctx.send(question_text)
+            answer = await self.bot.wait_for("message", check=message_in_channel_by_author)
             nickname = msg.content
+            if nickname:
+                answer_text = nickname
+                await question_message.edit(content=f"{question_text} {answer_text}")
 
         while team is None:
-            await ctx.send(cf.question(_("What team is {nickname} in?")).format(nickname=nickname))
-            msg = await self.bot.wait_for("message", check=message_in_channel_by_author)
-            team = await converters.TeamConverter().convert(ctx, msg.content)
-
-        while (total_xp is None) or (total_xp <= 100):
-            await ctx.send(
-                cf.question(_("What is {nickname}'s Total XP?")).format(nickname=nickname)
-            )
-            msg = await self.bot.wait_for("message", check=message_in_channel_by_author)
+            question_text = cf.question(_("What team is {nickname} in?")).format(nickname=nickname)
+            question_message = await ctx.send(question_text)
+            answer = await self.bot.wait_for("message", check=message_in_channel_by_author)
             try:
-                total_xp = int(msg.content.replace(",", "").replace(".", ""))
+                team = await converters.TeamConverter().convert(ctx, answer.content)
+            except commands.BadArgument as e:
+                await ctx.send(e)
+            else:
+                answer_text = team
+                await question_message.edit(content=f"{question_text} {answer_text}")
+
+        MINIMUM_XP_CAP = 100
+        while (total_xp is None) or (total_xp <= MINIMUM_XP_CAP):
+            question_text = cf.question(
+                _("What is {nickname}'s Total XP? (as a whole number)")
+            ).format(nickname=nickname)
+            question_message = await ctx.send(question_text)
+            answer = await self.bot.wait_for("message", check=message_in_channel_by_author)
+            try:
+                total_xp = int(answer.content.replace(",", "").replace(".", ""))
             except ValueError:
-                await ctx.send(_("Please only enter the Total XP as a whole number"))
+                total_xp = None
+            else:
+                answer_text = cf.humanize_number(total_xp)
+                await question_message.edit(content=f"{question_text} {answer_text}")
 
         message = await ctx.send(loading(_("Let's go...")))
 

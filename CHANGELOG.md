@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 - Moved translations to a submodule for Crowdin support
 - Merged `[p]progress` and `[p]profile lookup` commands
+- Converted `get_trainer` to a `discord.commands.Converter` known as `tdx.converters.TrainerConverter`
+- Hardened `tdx.converters.TeamConverter` and changed the interface of the return
 
 ## [2020.30] - 2020-07-25
 ### Added
