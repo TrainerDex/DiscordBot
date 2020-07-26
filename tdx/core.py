@@ -171,7 +171,7 @@ class TrainerDex(commands.Cog):
         self,
         ctx: commands.Context,
         mention: discord.Member,
-        nickname: str = None,
+        nickname: Optional[converters.NicknameConverter] = None,
         team: Optional[converters.TeamConverter] = None,
         total_xp: Optional[int] = None,
     ) -> None:
@@ -187,8 +187,11 @@ class TrainerDex(commands.Cog):
             )
             question_message = await ctx.send(question_text)
             answer = await self.bot.wait_for("message", check=message_in_channel_by_author)
-            nickname = msg.content
-            if nickname:
+            try:
+                nickname = await converters.NicknameConverter().convert(ctx, answer.content)
+            except commands.BadArgument as e:
+                await ctx.send(e)
+            else:
                 answer_text = nickname
                 await question_message.edit(content=f"{question_text} {answer_text}")
 

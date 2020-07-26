@@ -13,6 +13,16 @@ from tdx.models import Faction
 _ = Translator("TrainerDex", __file__)
 
 
+class NicknameConverter(commands.Converter):
+    async def convert(self, ctx, argument: str) -> str:
+        result = re.match(r"[A-Za-z0-9]{3,15}$", argument)
+        if result is None:
+            raise commands.BadArgument(
+                _(
+                    "{} is not a valid Pokemon Go username. A Pokemon Go username is 3-15 letters or numbers long."
+                ).format(argument)
+            )
+        return result
 
 
 class TrainerConverter(commands.Converter):
@@ -28,7 +38,10 @@ class TrainerConverter(commands.Converter):
             match = None
             mention = argument
         else:
-            match = re.match(r"[A-Za-z0-9]{3,15}$", argument)
+            try:
+                match = await NicknameConverter.convert(ctx, argument)
+            except commands.BadArgument:
+                match = None
             mention = None
 
         if match is None:
