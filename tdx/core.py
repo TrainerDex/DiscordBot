@@ -11,7 +11,7 @@ from redbot.core.utils import chat_formatting as cf
 import trainerdex
 import PogoOCR
 from tdx.converters import TeamConverter
-from tdx.embeds import BaseCard, ProfileCard, UpdatedProfileCard
+from tdx.embeds import BaseCard, ProfileCard
 from tdx.utils import check_xp, contact_us_on_twitter
 
 log = logging.getLogger("red.tdx.core")
@@ -77,11 +77,6 @@ class TrainerDex(commands.Cog):
         self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs
     ) -> ProfileCard:
         return await ProfileCard(trainer, **kwargs).build_card(self, ctx)
-
-    async def build_UpdatedProfileCard(
-        self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs
-    ) -> UpdatedProfileCard:
-        return await UpdatedProfileCard(trainer, **kwargs).build_card(self, ctx)
 
     @commands.Cog.listener("on_message")
     async def check_screenshot(self, source_message: discord.Message) -> None:
@@ -151,9 +146,9 @@ class TrainerDex(commands.Cog):
     async def profile(self, ctx: commands.Context) -> None:
         pass
 
-    @profile.command(name="lookup", aliases=["whois", "find"])
+    @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
     async def profile__lookup(
-        self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None
+        self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None,
     ) -> None:
         """Find a profile given a username."""
 
@@ -171,6 +166,8 @@ class TrainerDex(commands.Cog):
                 return
 
             embed = await self.build_ProfileCard(ctx, trainer)
+            await message.edit(content=loading(_("Checking progress...")), embed=embed)
+            await embed.show_progress()
             await message.edit(content=loading(_("Checking leaderboard...")), embed=embed)
             await embed.add_leaderboard()
             if ctx.guild:
@@ -356,35 +353,3 @@ class TrainerDex(commands.Cog):
             ),
             embed=embed,
         )
-
-    @commands.command(name="progress")
-    async def progress(
-        self, ctx: commands.Context, trainer: Union[discord.User, discord.Member, str] = None
-    ) -> None:
-        """Find a profile given a username."""
-
-        async with ctx.typing():
-            message = await ctx.send(loading(_("Searching for profile...")))
-
-            print(trainer, type(trainer))
-            if trainer is None:
-                trainer = ctx.author
-                print(trainer, type(trainer))
-            trainer = await self.get_trainer(trainer)
-
-            if trainer:
-                await message.edit(content=loading(_("Found profile. Loading...")))
-            else:
-                await message.edit(content=cf.warning(_("Profile not found.")))
-                return
-
-            embed = await self.build_UpdatedProfileCard(ctx, trainer)
-            await message.edit(content=loading(_("Checking leaderboard...")), embed=embed)
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await message.edit(
-                    content=loading(_("Checking {guild} leaderboard...").format(guild=ctx.guild)),
-                    embed=embed,
-                )
-                await embed.add_guild_leaderboard()
-            await message.edit(content=None, embed=embed)

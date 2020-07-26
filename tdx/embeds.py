@@ -113,10 +113,7 @@ class ProfileCard(BaseCard):
         # except LookupError:
         # pass
 
-
-class UpdatedProfileCard(ProfileCard):
-    def __init__(self, trainer: trainerdex.Trainer, **kwargs):
-        super().__init__(trainer, **kwargs)
+    async def show_progress(self) -> None:
         self._alpha = max(self._trainer.updates(), key=check_xp)
         try:
             _updates_before_monday = [
@@ -128,29 +125,26 @@ class UpdatedProfileCard(ProfileCard):
             ]
             self._beta = max(_updates_before_monday, key=check_xp)
         except ValueError:
-            if self._trainer.start_date:
-                self._beta = trainerdex.Update(
-                    {"uuid": None, "update_time": self._trainer.start_date.isoformat(), "xp": 0}
-                )
-                self.description = cf.info(_("No data old enough found, using actual start date."))
-            else:
-                self._beta = trainerdex.Update(
-                    {"uuid": None, "update_time": datetime.date(2016, 7, 14).isoformat(), "xp": 0}
-                )
-                self.description = cf.info(
-                    _("No data old enough found, using assumed start date.")
-                )
+            self._beta = trainerdex.Update(
+                {
+                    "uuid": None,
+                    "update_time": getattr(
+                        self._trainer, "start_date", datetime.date(2016, 7, 14)
+                    ).isoformat(),
+                    "xp": 0,
+                }
+            )
+            self.description = cf.info(_("No data old enough found, using start date."))
 
         self.timestamp = self._alpha.update_time
-
-    async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
-        await super().build_card(parent, ctx)
         stat_delta = self._alpha.xp - self._beta.xp
         time_delta = self._alpha.update_time - self._beta.update_time
         self.add_field(
             name=_("XP Gain"),
-            value=_("{gain} over {time}").format(
-                gain=cf.humanize_number(stat_delta), time=humanize.naturaldelta(time_delta)
+            value=_("{gain} over {time} (since {earlier_date})").format(
+                gain=cf.humanize_number(stat_delta),
+                time=humanize.naturaldelta(time_delta),
+                earlier_date=self._beta.update_time,
             ),
         )
         days = round(time_delta.total_seconds() / 86400)
@@ -158,4 +152,3 @@ class UpdatedProfileCard(ProfileCard):
             name=_("Daily XP Gain"),
             value=_("{gain}/day").format(gain=cf.humanize_number(round(stat_delta / days))),
         )
-        return self
