@@ -77,7 +77,7 @@ class TrainerDex(commands.Cog):
         if len(source_message.attachments) != 1:
             return
 
-        trainer = await converters.TrainerConverter().convert(ctx, source_message.author)
+        trainer = await converters.TrainerConverter().convert(None, source_message.author)
         if not trainer:
             return
 
@@ -122,7 +122,7 @@ class TrainerDex(commands.Cog):
                 else:
                     update = self.client.create_update(trainer.id, ocr.total_xp)
                     text = _("✅ Success")
-                    trainer = await converters.TrainerConverter().convert(ctx, trainer.id)
+                    trainer = self.client.get_trainer(trainer.id)
 
                 await message.edit(content=text + "\n" + loading(_("Loading output...")))
                 embed = await self.build_UpdatedProfileCard(source_message, trainer)
