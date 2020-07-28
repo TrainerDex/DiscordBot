@@ -20,7 +20,6 @@ from redbot.core.utils import chat_formatting
 
 from tdx.core import TrainerDex
 from tdx.settings import Settings
-from tdx.quickstart import QuickStart
 
 
 async def setup(bot: Red) -> None:
@@ -53,7 +52,6 @@ async def setup(bot: Red) -> None:
     )
 
     bot.add_cog(Settings(bot, config))
-    bot.add_cog(QuickStart(bot, config))
     cog: commands.Cog = TrainerDex(bot, config)
     await cog.initialize()
     bot.add_cog(cog)
