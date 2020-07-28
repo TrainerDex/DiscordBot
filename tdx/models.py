@@ -1,12 +1,12 @@
 from typing import List
 
-from discord.colour import Colour
+import discord
 
 import trainerdex
 
 
 class Faction:
-    def __init__(self, id: int, verbose_name: str, colour: Colour, lookups: List[str]):
+    def __init__(self, id: int, verbose_name: str, colour: discord.Colour, lookups: List[str]):
         self.id: int = id
         self.verbose_name: str = verbose_name
         self.colour: discord.Colour = colour

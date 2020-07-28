@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import Union
+from typing import Dict, List, Union
 
 import discord
 from discord.ext import commands

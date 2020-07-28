@@ -1,7 +1,7 @@
 import datetime
 import logging
 import requests
-from typing import Dict, Union, Optional, NoReturn
+from typing import Dict, List, Union, Optional, NoReturn
 
 import discord
 from discord.embeds import EmptyEmbed
