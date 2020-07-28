@@ -33,7 +33,7 @@ class Settings(commands.Cog):
         if mystic_role:
             await getattr(self.config.guild(ctx.guild), "mystic_role").set(mystic_role.id)
             await ctx.send(
-                _("`{key}` set to {value}").format(key="mystic_role", value=mystic_role.mention)
+                _("`{key}` set to {value}").format(key="mystic_role", value=mystic_role)
             )
 
         try:
@@ -44,9 +44,7 @@ class Settings(commands.Cog):
             valor_role = None
         if valor_role:
             await getattr(self.config.guild(ctx.guild), "valor_role").set(valor_role.id)
-            await ctx.send(
-                _("`{key}` set to {value}").format(key="valor_role", value=valor_role.mention)
-            )
+            await ctx.send(_("`{key}` set to {value}").format(key="valor_role", value=valor_role))
 
         try:
             instinct_role: discord.Role = min(
@@ -57,24 +55,25 @@ class Settings(commands.Cog):
         if instinct_role:
             await getattr(self.config.guild(ctx.guild), "instinct_role").set(instinct_role.id)
             await ctx.send(
-                _("`{key}` set to {value}").format(
-                    key="instinct_role", value=instinct_role.mention
-                )
+                _("`{key}` set to {value}").format(key="instinct_role", value=instinct_role)
             )
 
         await ctx.send(_("Looking for TL40 role..."))
 
         try:
             tl40_role: discord.Role = min(
-                [x for x in ctx.guild.roles if _("Level 40").casefold() in x.name.casefold()]
+                [
+                    x
+                    for x in ctx.guild.roles
+                    if (_("Level 40").casefold() in x.name.casefold())
+                    or ("tl40".casefold() in x.name.casefold())
+                ]
             )
         except ValueError:
             tl40_role = None
         if tl40_role:
             await getattr(self.config.guild(ctx.guild), "tl40_role").set(tl40_role.id)
-            await ctx.send(
-                _("`{key}` set to {value}").format(key="tl40_role", value=tl40_role.mention)
-            )
+            await ctx.send(_("`{key}` set to {value}").format(key="tl40_role", value=tl40_role))
 
         await ctx.send(_("That's it for now."))
 
