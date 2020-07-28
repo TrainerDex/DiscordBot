@@ -211,13 +211,13 @@ class TrainerDex(commands.Cog):
             )
             if nickname:
                 answer_text: str = nickname
-                await question_message.edit(content=f"{q.message.content}\n{answer_text}")
+                await q.message.edit(content=f"{q.message.content}\n{answer_text}")
             else:
                 await ctx.send(nickname.e)
                 nickname = None
 
         while team is None:
-            q = QuestionMessage(ctx, _("What team is {nickname} in?"))
+            q = QuestionMessage(ctx, _("What team is {nickname} in?").format(nickname=nickname))
             await q.ask(self.bot)
             if q.exit:
                 return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
@@ -243,7 +243,7 @@ class TrainerDex(commands.Cog):
 
             total_xp = q.result
             answer_text: str = cf.humanize_number(total_xp)
-            await question_message.edit(content=f"{q.message.content}\n{answer_text}")
+            await q.message.edit(content=f"{q.message.content}\n{answer_text}")
 
         message: discord.Message = await ctx.send(loading(_("Let's go...")))
 
