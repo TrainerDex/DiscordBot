@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import discord
 from discord.ext import commands
@@ -13,9 +13,38 @@ from tdx.models import Faction
 _ = Translator("TrainerDex", __file__)
 
 
+class SafeConvertException:
+    def __init__(self, **kwargs):
+        self.e = kwargs.get("e")
+
+    def __bool__(self):
+        return False
+
+    def __repr__(self):
+        return "SafeConvertEmpty"
+
+    def __eq__(self, other):
+        if other is None:
+            return True
+        if isinstance(other, SafeConvertException):
+            return self.e == other.e
+
+
+async def safe_convert(converter, ctx, argument) -> Union[Any, SafeConvertException]:
+    """Convenience method for returning `SafeConvertException` if the conversion failed"""
+    try:
+        return await converter().convert(ctx, argument)
+    except commands.BadArgument as e:
+        return SafeConvertException(e=e)
+
+
 class NicknameConverter(commands.Converter):
+    @property
+    def regex(self):
+        return r"[A-Za-z0-9]{3,15}$"
+
     async def convert(self, ctx, argument: str) -> str:
-        match: Union[re.Match, None] = re.match(r"[A-Za-z0-9]{3,15}$", argument)
+        match: Union[re.Match, None] = re.match(self.regex, argument)
         if match is None:
             raise commands.BadArgument(
                 _(
@@ -39,7 +68,7 @@ class TrainerConverter(commands.Converter):
             mention: Union[discord.User, discord.Member] = argument
         else:
             try:
-                match: str = await NicknameConverter.convert(ctx, argument)
+                match: str = await NicknameConverter().convert(ctx, argument)
             except commands.BadArgument:
                 match = None
             mention = None

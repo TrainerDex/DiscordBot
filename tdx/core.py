@@ -6,14 +6,14 @@ import discord
 from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
+from redbot.core.utils import chat_formatting as cf, predicates
 
 import trainerdex
 import PogoOCR
 from tdx import converters
 from tdx.embeds import BaseCard, ProfileCard
 from tdx.models import Faction
-from tdx.utils import check_xp, contact_us_on_twitter
+from tdx.utils import check_xp, contact_us_on_twitter, QuestionMessage
 
 log: logging.Logger = logging.getLogger("red.tdx.core")
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -21,7 +21,7 @@ _ = Translator("TrainerDex", __file__)
 
 
 def loading(text: str) -> str:
-    """Get text prefixed with an loading emoji.
+    """Get text prefixed with a loading emoji if the bot has access to it.
     
     Returns
     -------
@@ -29,7 +29,22 @@ def loading(text: str) -> str:
     The new message.
     
     """
-    return "<a:loading:471298325904359434> {}".format(text)
+
+    emoji = "<a:loading:471298325904359434>"
+    return f"{emoji} {text}"
+
+
+def success(text: str) -> str:
+    """Get text prefixed with a white checkmark.
+    
+    Returns
+    -------
+    str
+    The new message.
+    
+    """
+    emoji = "\N{WHITE HEAVY CHECK MARK}"
+    return f"{emoji} {text}"
 
 
 class TrainerDex(commands.Cog):
@@ -76,6 +91,9 @@ class TrainerDex(commands.Cog):
             None, source_message.author
         )
         if not trainer:
+            await source_message.channel.send(
+                "{message.author.mention} Trainer not found!", delete_after=5
+            )
             return
 
         async with source_message.channel.typing():
@@ -168,60 +186,64 @@ class TrainerDex(commands.Cog):
         team: Optional[converters.TeamConverter] = None,
         total_xp: Optional[int] = None,
     ) -> None:
+        """Get or create a profile in TrainerDex
+        
+        If `guild.assign_roles_on_join` and/or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
+        
+        If a trainer already exists for this profile, it will update the Total XP is needed.
+        
+        The command may ask you a few questions. To exit out, say `[p]cancel`.
+        
+        """
         assign_roles: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
 
-        def message_in_channel_by_author(message: discord.Message):
-            return message.author == ctx.author and message.channel == ctx.channel
-
         while nickname is None:
-            question_text: str = cf.question(
-                _("What is the in-game username of {mention}?")
-            ).format(mention=mention)
-            question_message: discord.Message = await ctx.send(question_text)
-            answer: discord.Message = await self.bot.wait_for(
-                "message", check=message_in_channel_by_author
+            q = QuestionMessage(
+                ctx, _("What is the in-game username of {mention}?").format(mention=mention)
             )
-            try:
-                nickname: str = await converters.NicknameConverter().convert(ctx, answer.content)
-            except commands.BadArgument as e:
-                await ctx.send(e)
-            else:
+            await q.ask(self.bot)
+            if q.exit:
+                return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+
+            nickname: str = await converters.safe_convert(
+                converters.NicknameConverter, ctx, q.answer
+            )
+            if nickname:
                 answer_text: str = nickname
-                await question_message.edit(content=f"{question_text} {answer_text}")
+                await question_message.edit(content=f"{q.message.content}\n{answer_text}")
+            else:
+                await ctx.send(nickname.e)
+                nickname = None
 
         while team is None:
-            question_text: str = cf.question(_("What team is {nickname} in?")).format(
-                nickname=nickname
-            )
-            question_message: discord.Message = await ctx.send(question_text)
-            answer: discord.Message = await self.bot.wait_for(
-                "message", check=message_in_channel_by_author
-            )
-            try:
-                team: Faction = await converters.TeamConverter().convert(ctx, answer.content)
-            except commands.BadArgument as e:
-                await ctx.send(e)
-            else:
-                answer_text: str = team
-                await question_message.edit(content=f"{question_text} {answer_text}")
+            q = QuestionMessage(ctx, _("What team is {nickname} in?"))
+            await q.ask(self.bot)
+            if q.exit:
+                return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
-        MINIMUM_XP_CAP: Final = 100
-        while (total_xp is None) or (total_xp <= MINIMUM_XP_CAP):
-            question_text: str = cf.question(
-                _("What is {nickname}'s Total XP? (as a whole number)")
-            ).format(nickname=nickname)
-            question_message: discord.Message = await ctx.send(question_text)
-            answer: discord.Message = await self.bot.wait_for(
-                "message", check=message_in_channel_by_author
-            )
-            try:
-                total_xp: Optional[int] = int(answer.content.replace(",", "").replace(".", ""))
-            except ValueError:
-                total_xp: Optional[int] = None
+            team: Faction = await converters.safe_convert(converters.TeamConverter, ctx, q.answer)
+            if team:
+                answer_text: str = team
+                await q.message.edit(content=f"{q.message.content}\n{answer_text}")
             else:
-                answer_text: str = cf.humanize_number(total_xp)
-                await question_message.edit(content=f"{question_text} {answer_text}")
+                await ctx.send(team.e)
+                team = None
+
+        MINIMUM_XP_CAP = 100
+        while (total_xp is None) or (total_xp <= MINIMUM_XP_CAP):
+            q = QuestionMessage(
+                ctx,
+                _("What is {nickname}'s Total XP? (as a whole number)").format(nickname=nickname),
+                check=predicates.MessagePredicate.valid_int(ctx),
+            )
+            await q.ask(self.bot)
+            if q.exit:
+                return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+
+            total_xp = q.result
+            answer_text: str = cf.humanize_number(total_xp)
+            await question_message.edit(content=f"{q.message.content}\n{answer_text}")
 
         message: discord.Message = await ctx.send(loading(_("Let's go...")))
 
@@ -229,63 +251,118 @@ class TrainerDex(commands.Cog):
 
         if assign_roles:
             async with ctx.typing():
-                roles_to_assign_on_approval: List[int] = await self.config.guild(
-                    ctx.guild
-                ).roles_to_assign_on_approval()
-                roles_to_add_on_join: List[discord.Role] = [
-                    ctx.guild.get_role(x) for x in roles_to_assign_on_approval["add"]
-                ]
-                if team:
-                    if team.id > 0:
-                        team_role: Optional[int] = await getattr(
-                            self.config.guild(ctx.guild),
-                            ["", "mystic_role", "valor_role", "instinct_role"][team.id],
-                        )()
-                        if team_role:
-                            roles_to_add_on_join.append(ctx.guild.get_role(team_role))
-                roles_to_remove_on_join: List[discord.Role] = [
-                    ctx.guild.get_role(x) for x in roles_to_assign_on_approval["remove"]
-                ]
-                member_edit_dict["roles"]: List[discord.Role] = [
-                    x
-                    for x in (roles_to_add_on_join + mention.roles)
-                    if x not in roles_to_remove_on_join
-                ]
+                roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
+                roles["add"] = [ctx.guild.get_role(x) for x in roles["add"]]
+                if team.id > 0:
+                    team_role = await getattr(
+                        self.config.guild(ctx.guild),
+                        ["", "mystic_role", "valor_role", "instinct_role"][team.id],
+                    )()
+                    if team_role:
+                        roles["add"].append(ctx.guild.get_role(team_role))
+
+                if roles["add"]:
+                    await message.edit(
+                        content=loading(_("Adding roles ({roles}) to {user}")).format(
+                            roles=cf.humanize_list(roles["add"]), user=mention.mention,
+                        )
+                    )
+
+                    try:
+                        mention.add_roles(roles["add"], reason=_("Approval via TrainerDex"))
+                    except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
+                        roles_added = False
+                        roles_added_error = e
+                    else:
+                        await message.edit(
+                            content=success(_("Added roles ({roles}) to {user}")).format(
+                                roles=cf.humanize_list(roles["add"]), user=mention.mention,
+                            )
+                        )
+                        roles_added = len(roles["add"])
+
+                roles["remove"] = [ctx.guild.get_role(x) for x in roles["remove"]]
+                if roles["remove"]:
+                    await message.edit(
+                        content=loading(_("Removing roles ({roles}) from {user}")).format(
+                            roles=cf.humanize_list(roles["remove"]), user=mention.mention,
+                        )
+                    )
+
+                    try:
+                        mention.remove_roles(roles["remove"], reason=_("Approval via TrainerDex"))
+                    except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
+                        roles_removed = False
+                        roles_removed_error = e
+                    else:
+                        await message.edit(
+                            content=success(_("Removed roles ({roles}) from {user}")).format(
+                                roles=cf.humanize_list(roles["remove"]), user=mention.mention,
+                            )
+                        )
+                        roles_removed = len(roles["remove"])
 
         if set_nickname:
             async with ctx.typing():
-                member_edit_dict["nick"]: str = nickname
-
-        async with ctx.typing():
-            if member_edit_dict:
                 await message.edit(
-                    content=loading(_("Setting {roles_and_or_nick} for {user}")).format(
-                        roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
-                        user=mention.mention,
+                    content=loading(_("Changing {user}'s nick to {nickname}")).format(
+                        user=mention.mention, nickname=nickname
                     )
                 )
+
                 try:
-                    await mention.edit(reason=_("Approval via TrainerDex"), **member_edit_dict)
-                except discord.errors.Forbidden as e:
-                    await message.edit(
-                        content=cf.error(
-                            mention.mention
-                            + ": "
-                            + _("{roles_and_or_nick} could not be set.")
-                            + "\n{e}"
-                        ).format(
-                            roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())), e=e,
-                        )
-                    )
+                    await mention.edit(nick=nickname)
+                except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
+                    nick_set = False
+                    nick_set_error = e
                 else:
                     await message.edit(
-                        content=_(
-                            "{user} has been approved! {roles_and_or_nick} had been set."
-                        ).format(
-                            user=mention.mention,
-                            roles_and_or_nick=cf.humanize_list(list(member_edit_dict.keys())),
+                        content=success(_("Changed {user}'s nick to {nickname}")).format(
+                            user=mention.mention, nickname=nickname
                         )
                     )
+                    nick_set = True
+
+        async with ctx.typing():
+            if assign_roles or set_nickname:
+                approval_message = success(_("{user} has been approved!\n")).format(
+                    user=mention.mention
+                )
+
+            if assign_roles:
+                if roles["add"]:
+                    if roles_added:
+                        approval_message += success(_("{count} role(s) added.\n")).format(
+                            count=roles_added
+                        )
+                    else:
+                        approval_message += cf.error(
+                            _("Some roles could not be added. ({roles})\n")
+                        ).format(roles=cf.humanize_list(roles["add"]))
+                        approval_message += f"`{roles_added_error}`\n"
+
+                if roles["remove"]:
+                    if roles_removed:
+                        approval_message += success(_("{count} role(s) removed.\n")).format(
+                            count=roles_removed
+                        )
+                    else:
+                        approval_message += cf.error(
+                            _("Some roles could not be removed. ({roles})\n")
+                        ).format(roles=cf.humanize_list(roles["remove"]))
+                        approval_message += f"`{roles_removed_error}`\n"
+
+            if set_nickname:
+                if nick_set:
+                    approval_message += success(_("User nickname set.\n"))
+                else:
+                    approval_message += cf.error(
+                        _("User nickname could not be set. (`{nickname}`)\n")
+                    ).format(nickname=nickname)
+                    approval_message += f"`{nick_set_error}`\n"
+
+            if assign_roles or set_nickname:
+                await message.edit(content=approval_message)
                 message: discord.Message = await ctx.send(loading(""))
 
         log.debug(f"Attempting to add {nickname} to database, checking if they already exist")
@@ -334,7 +411,7 @@ class TrainerDex(commands.Cog):
             )
         await message.edit(
             content=(
-                _("Successfully added {user} as {trainer}.")
+                success(_("Successfully added {user} as {trainer}."))
                 + "\n"
                 + loading(_("Loading profile..."))
             ).format(
@@ -344,7 +421,7 @@ class TrainerDex(commands.Cog):
         trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
         embed: discord.Embed = await ProfileCard(ctx, trainer)
         await message.edit(
-            content=_("Successfully added {user} as {trainer}.").format(
+            content=success(_("Successfully added {user} as {trainer}.")).format(
                 user=mention.mention, trainer=trainer.username,
             ),
             embed=embed,
