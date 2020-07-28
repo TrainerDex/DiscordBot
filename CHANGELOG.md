@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Merged `[p]progress` and `[p]profile lookup` commands
 - Converted `get_trainer` to a `discord.commands.Converter` known as `tdx.converters.TrainerConverter`
 - Hardened `tdx.converters.TeamConverter` and changed the interface of the return
+- Fixed DivideByZero bug (#11)
+- BaseCard it's descendants are now async - call `await ProfileCard(**kwargs)` instead of `await ProfileCard(**kwargs).build_card(**kwargs)`
 
 ## [2020.30] - 2020-07-25
 ### Added

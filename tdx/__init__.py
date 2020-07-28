@@ -25,10 +25,7 @@ from tdx.quickstart import QuickStart
 
 async def setup(bot: Red) -> None:
     config: Config = Config.get_conf(
-        None,
-        cog_name="trainerdex",
-        identifier=8124637339,  # TrainerDex on a T9 keyboard
-        force_registration=True,
+        None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
     )
 
     config.register_global(

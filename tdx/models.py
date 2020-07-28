@@ -2,6 +2,8 @@ from typing import List
 
 from discord.colour import Colour
 
+import trainerdex
+
 
 class Faction:
     def __init__(self, id: int, verbose_name: str, colour: Colour, lookups: List[str]):
@@ -16,3 +18,18 @@ class Faction:
 
 
 Team = Faction
+
+
+class UserData:
+    def __init__(self, **kwargs):
+        self.trainer: trainerdex.Trainer = kwargs.get("trainer", None)
+        self.team: Faction = kwargs.get("team", None)
+        self.updates: List[trainerdex.Update] = kwargs.get("updates", None)
+        self.update: trainerdex.Update = kwargs.get("update", None)
+
+    @property
+    def level(self):
+        if self.update:
+            return self.update.level()
+        else:
+            return self.trainer.level()

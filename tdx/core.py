@@ -58,14 +58,6 @@ class TrainerDex(commands.Cog):
             log.warning("No valid token found")
         return token
 
-    async def build_BaseCard(self, ctx: commands.Context, **kwargs) -> BaseCard:
-        return await BaseCard(**kwargs).build_card(self, ctx)
-
-    async def build_ProfileCard(
-        self, ctx: commands.Context, trainer: trainerdex.Trainer, **kwargs
-    ) -> ProfileCard:
-        return await ProfileCard(trainer, **kwargs).build_card(self, ctx)
-
     @commands.Cog.listener("on_message")
     async def check_screenshot(self, source_message: discord.Message) -> None:
         if source_message.author.bot:
@@ -132,7 +124,7 @@ class TrainerDex(commands.Cog):
                     trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
 
                 await message.edit(content=text + "\n" + loading(_("Loading output...")))
-                embed: discord.Embed = await self.build_ProfileCard(source_message, trainer)
+                embed: discord.Embed = await ProfileCard(source_message, trainer)
                 await message.edit(content=text, embed=embed)
                 return
 
@@ -161,7 +153,7 @@ class TrainerDex(commands.Cog):
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
 
-            embed: discord.Embed = await self.build_ProfileCard(ctx, trainer)
+            embed: discord.Embed = await ProfileCard(ctx, trainer)
             await message.edit(content=loading(_("Checking progress...")), embed=embed)
             await embed.show_progress()
             await message.edit(content=None, embed=embed)
@@ -350,7 +342,7 @@ class TrainerDex(commands.Cog):
             )
         )
         trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
-        embed: discord.Embed = await self.build_ProfileCard(ctx, trainer)
+        embed: discord.Embed = await ProfileCard(ctx, trainer)
         await message.edit(
             content=_("Successfully added {user} as {trainer}.").format(
                 user=mention.mention, trainer=trainer.username,

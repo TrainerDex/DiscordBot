@@ -105,7 +105,7 @@ class TeamConverter(commands.Converter):
         ]
 
     async def convert(self, ctx, argument: str) -> Faction:
-        if argument.isnumeric():
+        if isinstance(argument, int) or argument.isnumeric():
             if int(argument) < len(self.teams):
                 result: Faction = Faction(**self.teams[int(argument)])
             else:
