@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Start of `quickstart` commands
 - Added `tdx.converters.NicknameConverter`
+- Basic leaderboard command
 
 ### Changed
 - Moved translations to a submodule for Crowdin support

@@ -1,5 +1,6 @@
+humanize
+httpx
 PogoOCR==0.3.1
+python-dateutil
 Red-DiscordBot[postgres]==3.3.10
 trainerdex==2.2.0
-python-dateutil
-humanize

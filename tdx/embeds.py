@@ -62,7 +62,7 @@ class BaseCard(discord.Embed):
 
         # Default _author
         self._footer: Dict[str, str] = {
-            "name": await config.embed_footer(),
+            "text": await config.embed_footer(),
             "icon_url": "https://www.trainerdex.co.uk/static/img/android-desktop.png",
         }
 
