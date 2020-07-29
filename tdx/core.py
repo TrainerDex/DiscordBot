@@ -150,6 +150,56 @@ class TrainerDex(commands.Cog):
     async def profile(self, ctx: commands.Context) -> None:
         pass
 
+    @commands.command(name="leaderboard", aliases=["lb"])
+    async def leaderboard(self, ctx: commands.Context, limit: int = 100) -> None:
+        """Limited to top 100 results by default, but can be overiden
+        
+        Example:
+            `[p]leaderboard`
+            Returns 100 results
+            
+            `[p]leaderboard 250`
+            Returns 250 results
+        """
+
+        from tdx.leaderboard import Leaderboard
+        from itertools import islice, takewhile, repeat
+        from redbot.core.utils import menus
+
+        message = await ctx.send(loading("Downloading lb..."))
+        lb = await Leaderboard(limit=limit)
+        await message.edit(content=loading("Processing results!"))
+        results = []
+        base_embed = await BaseCard(ctx, title="Leaderboard")
+        working_embed = base_embed.copy()
+        PAGE_LEN = 15
+        async for x in lb:
+            print("len(working_embed.fields)", len(working_embed.fields))
+            if len(working_embed.fields) < PAGE_LEN:
+                working_embed.add_field(
+                    name="{} {}".format(x.position, x.username),
+                    value=cf.humanize_number(x.total_xp),
+                    inline=False,
+                )
+            if len(working_embed.fields) == PAGE_LEN:
+                results.append(working_embed)
+                print("len(results)", len(results))
+                await message.edit(
+                    content=loading(
+                        "Processing results ({pages} pages)".format(pages=len(results))
+                    )
+                )
+                working_embed = base_embed.copy()
+        if len(working_embed.fields) > 0:
+            results.append(working_embed)
+        print("len(results)", len(results))
+        await message.edit(content=loading("Rendering results!"))
+        c = menus.DEFAULT_CONTROLS if len(results) > 1 else {"\N{CROSS MARK}": menus.close_menu}
+        menus.start_adding_reactions(message, c.keys())
+        await menus.menu(
+            ctx, results, c, message=message,
+        )
+
     @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
     async def profile__lookup(
         self, ctx: commands.Context, trainer: converters.TrainerConverter = None,
