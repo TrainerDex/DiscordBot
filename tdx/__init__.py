@@ -14,6 +14,7 @@ __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
 __version__ = "2020.30"
 
+import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.utils import chat_formatting
@@ -55,3 +56,4 @@ async def setup(bot: Red) -> None:
     cog: commands.Cog = TrainerDex(bot, config)
     await cog.initialize()
     bot.add_cog(cog)
+    await bot.change_presence(activity=discord.Game(name=__version__))
