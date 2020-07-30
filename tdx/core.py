@@ -171,19 +171,6 @@ class TrainerDex(commands.Cog):
 
         await ctx.tick()
 
-        if ctx.channel.permissions_for(ctx.me).external_emojis:
-            menu_controls = (
-                {
-                    self.PREV_EMOJI: menus.prev_page,
-                    "❌": menus.close_menu,
-                    self.NEXT_EMOJI: menus.next_page,
-                }
-                if len(results) > 1
-                else {"❌": menus.close_menu}
-            )
-        else:
-            menu_controls = menu.DEFAULT_CONTROLS if len(results) > 1 else {"❌": menus.close_menu}
-
         message = await ctx.send(
             loading(_("{tag} Downloading global leaderboard...")).format(tag=ctx.author.mention)
         )
@@ -192,7 +179,7 @@ class TrainerDex(commands.Cog):
             content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
         )
         embeds = []
-        working_embed = base_embed.copy()
+        working_embed = BASE_EMBED.copy()
 
         async for entry in leaderboard:
             """If embed at field limit, append to embeds list and start a fresh embed"""
@@ -209,7 +196,7 @@ class TrainerDex(commands.Cog):
                         tag=ctx.author.mention, pages=len(embeds)
                     )
                 )
-                working_embed = base_embed.copy()
+                working_embed = BASE_EMBED.copy()
         if len(working_embed.fields) > 0:
             embeds.append(working_embed)
         await message.edit(
@@ -218,6 +205,19 @@ class TrainerDex(commands.Cog):
             ).format(tag=ctx.author.mention, prev=self.PREV_EMOJI, next=self.NEXT_EMOJI)
         )
         await ctx.message.delete()
+
+        if ctx.channel.permissions_for(ctx.me).external_emojis:
+            menu_controls = (
+                {
+                    self.PREV_EMOJI: menus.prev_page,
+                    "❌": menus.close_menu,
+                    self.NEXT_EMOJI: menus.next_page,
+                }
+                if len(embeds) > 1
+                else {"❌": menus.close_menu}
+            )
+        else:
+            menu_controls = menus.DEFAULT_CONTROLS if len(embeds) > 1 else {"❌": menus.close_menu}
 
         menus.start_adding_reactions(message, menu_controls.keys())
         await menus.menu(
