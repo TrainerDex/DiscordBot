@@ -1,18 +1,20 @@
 import logging
 import os
+from itertools import islice, takewhile, repeat
 from typing import Dict, Final, List, Optional, Union
 
 import discord
 from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf, predicates
+from redbot.core.utils import chat_formatting as cf, menus, predicates
 
 import trainerdex
 import PogoOCR
 from tdx import converters
 from tdx.embeds import BaseCard, ProfileCard
 from tdx.models import Faction
+from tdx.leaderboard import Leaderboard
 from tdx.utils import check_xp, contact_us_on_twitter, QuestionMessage
 
 log: logging.Logger = logging.getLogger("red.tdx.core")
@@ -54,6 +56,8 @@ class TrainerDex(commands.Cog):
         self.bot: Red = bot
         self.config: Config = config
         self.client: Optional[trainerdex.Client] = None
+        self.PREV_EMOJI = self.bot.get_emoji(729769958652772505)
+        self.NEXT_EMOJI = self.bot.get_emoji(729770058099982347)
 
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
 
@@ -162,42 +166,62 @@ class TrainerDex(commands.Cog):
             Returns 250 results
         """
 
-        from tdx.leaderboard import Leaderboard
-        from itertools import islice, takewhile, repeat
-        from redbot.core.utils import menus
-
-        message = await ctx.send(loading("Downloading lb..."))
-        lb = await Leaderboard(limit=limit)
-        await message.edit(content=loading("Processing results!"))
-        results = []
-        base_embed = await BaseCard(ctx, title="Leaderboard")
-        working_embed = base_embed.copy()
+        BASE_EMBED = await BaseCard(ctx, title=_("Global Leaderboard"))
         PAGE_LEN = 15
-        async for x in lb:
-            print("len(working_embed.fields)", len(working_embed.fields))
+
+        await ctx.tick()
+
+        if ctx.channel.permissions_for(ctx.me).external_emojis:
+            menu_controls = (
+                {
+                    self.PREV_EMOJI: menus.prev_page,
+                    "❌": menus.close_menu,
+                    self.NEXT_EMOJI: menus.next_page,
+                }
+                if len(results) > 1
+                else {"❌": menus.close_menu}
+            )
+        else:
+            menu_controls = menu.DEFAULT_CONTROLS if len(results) > 1 else {"❌": menus.close_menu}
+
+        message = await ctx.send(
+            loading(_("{tag} Downloading global leaderboard...")).format(tag=ctx.author.mention)
+        )
+        leaderboard = await Leaderboard(limit=limit)
+        await message.edit(
+            content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
+        )
+        embeds = []
+        working_embed = base_embed.copy()
+
+        async for entry in leaderboard:
+            """If embed at field limit, append to embeds list and start a fresh embed"""
             if len(working_embed.fields) < PAGE_LEN:
                 working_embed.add_field(
-                    name="{} {}".format(x.position, x.username),
-                    value=cf.humanize_number(x.total_xp),
+                    name="{} {}".format(entry.position, entry.username),
+                    value=cf.humanize_number(entry.total_xp),
                     inline=False,
                 )
             if len(working_embed.fields) == PAGE_LEN:
-                results.append(working_embed)
-                print("len(results)", len(results))
+                embeds.append(working_embed)
                 await message.edit(
-                    content=loading(
-                        "Processing results ({pages} pages)".format(pages=len(results))
+                    content=loading(_("{tag} Processing results ({pages} pages)")).format(
+                        tag=ctx.author.mention, pages=len(embeds)
                     )
                 )
                 working_embed = base_embed.copy()
         if len(working_embed.fields) > 0:
-            results.append(working_embed)
-        print("len(results)", len(results))
-        await message.edit(content=loading("Rendering results!"))
-        c = menus.DEFAULT_CONTROLS if len(results) > 1 else {"\N{CROSS MARK}": menus.close_menu}
-        menus.start_adding_reactions(message, c.keys())
+            embeds.append(working_embed)
+        await message.edit(
+            content=_(
+                "{tag}: React ❌ to close the leaderboard. Navigate by reacting {prev} or {next}."
+            ).format(tag=ctx.author.mention, prev=self.PREV_EMOJI, next=self.NEXT_EMOJI)
+        )
+        await ctx.message.delete()
+
+        menus.start_adding_reactions(message, menu_controls.keys())
         await menus.menu(
-            ctx, results, c, message=message,
+            ctx, embeds, menu_controls, message=message,
         )
 
     @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
@@ -210,7 +234,6 @@ class TrainerDex(commands.Cog):
             message: discord.Message = await ctx.send(loading(_("Searching for profile...")))
 
             if trainer is None:
-                print("No trainer")
                 trainer: trainerdex.Trainer = await converters.TrainerConverter().convert(
                     ctx, ctx.author
                 )
