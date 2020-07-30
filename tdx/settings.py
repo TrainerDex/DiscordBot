@@ -22,7 +22,8 @@ class Settings(commands.Cog):
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
-        await ctx.send(_("Looking for team roles..."))
+        await ctx.tick()
+        message = await ctx.send(_("Looking for team roles..."))
 
         try:
             mystic_role: discord.Role = min(
@@ -33,7 +34,8 @@ class Settings(commands.Cog):
         if mystic_role:
             await getattr(self.config.guild(ctx.guild), "mystic_role").set(mystic_role.id)
             await ctx.send(
-                _("`{key}` set to {value}").format(key="mystic_role", value=mystic_role)
+                _("`{key}` set to {value}").format(key="mystic_role", value=mystic_role),
+                delete_after=30,
             )
 
         try:
@@ -44,7 +46,10 @@ class Settings(commands.Cog):
             valor_role = None
         if valor_role:
             await getattr(self.config.guild(ctx.guild), "valor_role").set(valor_role.id)
-            await ctx.send(_("`{key}` set to {value}").format(key="valor_role", value=valor_role))
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="valor_role", value=valor_role),
+                delete_after=30,
+            )
 
         try:
             instinct_role: discord.Role = min(
@@ -55,10 +60,11 @@ class Settings(commands.Cog):
         if instinct_role:
             await getattr(self.config.guild(ctx.guild), "instinct_role").set(instinct_role.id)
             await ctx.send(
-                _("`{key}` set to {value}").format(key="instinct_role", value=instinct_role)
+                _("`{key}` set to {value}").format(key="instinct_role", value=instinct_role),
+                delete_after=30,
             )
 
-        await ctx.send(_("Looking for TL40 role..."))
+        await message.edit(content=_("Looking for TL40 role..."))
 
         try:
             tl40_role: discord.Role = min(
@@ -73,9 +79,12 @@ class Settings(commands.Cog):
             tl40_role = None
         if tl40_role:
             await getattr(self.config.guild(ctx.guild), "tl40_role").set(tl40_role.id)
-            await ctx.send(_("`{key}` set to {value}").format(key="tl40_role", value=tl40_role))
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="tl40_role", value=tl40_role),
+                delete_after=30,
+            )
 
-        await ctx.send(_("That's it for now."))
+        await message.delete()
 
         settings: Dict = await self.config.guild(ctx.guild).all()
         settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
@@ -106,7 +115,8 @@ class Settings(commands.Cog):
             await self.config.guild(ctx.guild).assign_roles_on_join.set(value)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="guild.assign_roles_on_join", value=value)
+                _("`{key}` set to {value}").format(key="guild.assign_roles_on_join", value=value),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
@@ -127,7 +137,8 @@ class Settings(commands.Cog):
             await self.config.guild(ctx.guild).set_nickname_on_join.set(value)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="guild.set_nickname_on_join", value=value)
+                _("`{key}` set to {value}").format(key="guild.set_nickname_on_join", value=value),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
@@ -148,7 +159,10 @@ class Settings(commands.Cog):
             await self.config.guild(ctx.guild).set_nickname_on_update.set(value)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="guild.set_nickname_on_update", value=value)
+                _("`{key}` set to {value}").format(
+                    key="guild.set_nickname_on_update", value=value
+                ),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
@@ -181,7 +195,7 @@ class Settings(commands.Cog):
                     ctx.guild
                 ).roles_to_assign_on_approval()
                 value: str = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(cf.box(value, "json"))
+                await ctx.send(cf.box(value, "json"), delete_after=30)
         elif action == "remove":
             if roles:
                 roledict["remove"]: List[int] = [x.id for x in ctx.message.role_mentions]
@@ -191,7 +205,7 @@ class Settings(commands.Cog):
                     ctx.guild
                 ).roles_to_assign_on_approval()
                 value: str = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(cf.box(value, "json"))
+                await ctx.send(cf.box(value, "json"), delete_after=30)
         else:
             await ctx.send_help()
             value: Dict[str, List[int]] = await self.config.guild(
@@ -208,7 +222,8 @@ class Settings(commands.Cog):
             await self.config.guild(ctx.guild).mystic_role.set(value.id)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="guild.mystic_role", value=value)
+                _("`{key}` set to {value}").format(key="guild.mystic_role", value=value),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
@@ -226,7 +241,10 @@ class Settings(commands.Cog):
         if value is not None:
             await self.config.guild(ctx.guild).valor_role.set(value.id)
             await ctx.tick()
-            await ctx.send(_("`{key}` set to {value}").format(key="guild.valor_role", value=value))
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="guild.valor_role", value=value),
+                delete_after=30,
+            )
         else:
             await ctx.send_help()
             value: int = await self.config.guild(ctx.guild).valor_role()
@@ -244,7 +262,8 @@ class Settings(commands.Cog):
             await self.config.guild(ctx.guild).instinct_role.set(value.id)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="guild.instinct_role", value=value)
+                _("`{key}` set to {value}").format(key="guild.instinct_role", value=value),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
@@ -262,7 +281,10 @@ class Settings(commands.Cog):
         if value is not None:
             await self.config.guild(ctx.guild).tl40_role.set(value.id)
             await ctx.tick()
-            await ctx.send(_("`{key}` set to {value}").format(key="guild.tl40_role", value=value))
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="guild.tl40_role", value=value),
+                delete_after=30,
+            )
         else:
             await ctx.send_help()
             value: int = await self.config.guild(ctx.guild).tl40_role()
@@ -292,7 +314,8 @@ class Settings(commands.Cog):
             await ctx.send(
                 _("`{key}` set to {value}").format(
                     key=f"channel[{ctx.channel.id}].profile_ocr", value=value
-                )
+                ),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
