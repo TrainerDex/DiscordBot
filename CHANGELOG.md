@@ -21,6 +21,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fixed `[p]profile create` loop lock issue (#12)
 - Handled errors when we're unable to edit a `discord.Member`
 
+### [2020.31.1] - 2020-07-31
+#### Changed
+- Fixed a bug on formatting role names on `[p]approve`
+
 ## [2020.30] - 2020-07-25
 ### Added
 - Profile lookup command
