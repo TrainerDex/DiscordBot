@@ -25,7 +25,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 - Fixed a bug on formatting role names on `[p]approve`
 
-### [2020.31.2] - 2020-07-31
+### [2020.31.2] - 2020-07-31 [YANKED]
+#### Changed
+- ~~Fixed a bug where roles weren't changed as `add_roles` wasn't awaited~~
+
+### [2020.31.3] - 2020-07-31
 #### Changed
 - Fixed a bug where roles weren't changed as `add_roles` wasn't awaited
 
