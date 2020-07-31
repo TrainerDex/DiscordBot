@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [2020.31] - 2020-07-31
+## [2020.31] - 2020-07-31 [YANKED]
 ### Added
 - Start of `quickstart` commands
 - Added `tdx.converters.NicknameConverter`
@@ -21,9 +21,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fixed `[p]profile create` loop lock issue (#12)
 - Handled errors when we're unable to edit a `discord.Member`
 
-### [2020.31.1] - 2020-07-31
+### [2020.31.1] - 2020-07-31 [YANKED]
 #### Changed
 - Fixed a bug on formatting role names on `[p]approve`
+
+### [2020.31.2] - 2020-07-31
+#### Changed
+- Fixed a bug where roles weren't changed as `add_roles` wasn't awaited
 
 ## [2020.30] - 2020-07-25
 ### Added
