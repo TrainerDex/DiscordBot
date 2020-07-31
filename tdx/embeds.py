@@ -1,134 +1,177 @@
 import datetime
 import logging
 import requests
-from typing import Union
+from typing import Dict, List, Union, Optional, NoReturn
 
 import discord
-from redbot.core import commands
+from discord.embeds import EmptyEmbed
+from redbot.core import commands, Config
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import humanize
 import trainerdex
+from tdx import converters
+from tdx.models import UserData
 from tdx.utils import check_xp
 from dateutil.relativedelta import relativedelta, MO
+from dateutil.rrule import rrule, WEEKLY
+from dateutil.tz import UTC
 
-log = logging.getLogger("red.tdx.embeds")
+log: logging.Logger = logging.getLogger("red.tdx.embeds")
 _ = Translator("TrainerDex", __file__)
+config = Config.get_conf(
+    None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
+)
 
 
 class BaseCard(discord.Embed):
-    def __init__(self, **kwargs) -> None:
+    async def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        await instance.__init__(*args, **kwargs)
+        return instance
+
+    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs) -> None:
         super().__init__(**kwargs)
-        self.colour = kwargs.get('colour', kwargs.get('color', 13252437))
-        
-        self._author = {
-            'name': 'TrainerDex',
-            'url': 'https://www.trainerdex.co.uk/',
-            'icon_url': 'https://www.trainerdex.co.uk/static/img/android-desktop.png',
-        }
-    
-    async def build_card(self, parent, ctx: Union[commands.Context, discord.Message]) -> discord.Embed:
-        self._parent = parent
-        
-        if isinstance(ctx, commands.Context):
-            self._message = ctx.message
-            self._channel = ctx.channel
-            self._guild = ctx.guild
-        elif isinstance(ctx, discord.Message):
-            self._message = ctx
-            self._channel = ctx.channel
-            self._guild = ctx.channel.guild
-        
-        self._footer = {
-            'text': await self._parent.config.embed_footer()
-        }
-        
-        notice = await self._parent.config.notice()
+        # Set default colour to TrainerDex brand colour
+        try:
+            colour: Union[discord.Colour, int] = kwargs["colour"]
+        except KeyError:
+            colour: Union[discord.Colour, int] = kwargs.get("color", 13252437)
+        self.colour: Union[discord.Colour, int] = colour
+        self.title: str = kwargs.get("title", EmptyEmbed)
+        self.type: str = kwargs.get("type", "rich")
+        self.url: str = kwargs.get("url", EmptyEmbed)
+        self.description: str = kwargs.get("description", EmptyEmbed)
+
+        notice: str = await config.notice()
         if notice:
-            notice = cf.info(notice)
-            
+            notice: str = cf.info(notice)
+
             if self.description:
-                self.description = "{}\n\n{}".format(notice, self.description)
+                self.description: str = "{}\n\n{}".format(notice, self.description)
             else:
-                self.description = notice
+                self.description: str = notice
+
+        try:
+            timestamp = kwargs["timestamp"]
+        except KeyError:
+            pass
+        else:
+            self.timestamp = timestamp
+
+        # Default _author
+        self._footer: Dict[str, str] = {
+            "text": await config.embed_footer(),
+            "icon_url": "https://www.trainerdex.co.uk/static/img/android-desktop.png",
+        }
+
+        # Default _author
+        self._author: Dict[str, str] = {
+            "name": "TrainerDex",
+            "url": "https://www.trainerdex.co.uk/",
+            "icon_url": "https://www.trainerdex.co.uk/static/img/android-desktop.png",
+        }
+
+        if isinstance(ctx, commands.Context):
+            self._message: discord.Message = ctx.message
+            self._channel: discord.TextChannel = ctx.channel
+            self._guild: discord.Guild = ctx.guild
+        elif isinstance(ctx, discord.Message):
+            self._message: discord.Message = ctx
+            self._channel: discord.TextChannel = ctx.channel
+            self._guild: discord.Guild = ctx.channel.guild
+
         return self
 
 
 class ProfileCard(BaseCard):
-    def __init__(self, trainer: trainerdex.Trainer, **kwargs):
-        super().__init__(**kwargs)
-        self._trainer = trainer
-        self.colour = int(self._trainer.team().colour.replace("#", ""), 16)
-        self.title = _("{nickname} | Level {level}").format(nickname=self._trainer.username, level=self._trainer.level.level)
-        self.url = 'https://www.trainerdex.co.uk/profile?id={}'.format(self._trainer.id)
-        if self._trainer.update:
-            self.timestamp = self._trainer.update.update_time
-    
-    async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
-        await super().build_card(parent, ctx)
-        self.add_field(name=_("Team"), value=self._trainer.team().name)
-        self.add_field(name=_("Level"), value=self._trainer.level.level)
-        self.add_field(name=_("Total XP"), value=cf.humanize_number(max(self._trainer.updates(), key=check_xp).xp))
-        return self
-    
-    async def add_guild_leaderboard(self) -> None:
-        if self._guild:
-            try:
-                guild_leaderboard = self._parent.client.get_discord_leaderboard(self._guild.id)
-            except requests.exceptions.HTTPError as e:
-                log.error(e)
-            else:
-                try:
-                    guild_leaderboard = guild_leaderboard.filter_trainers([self._trainer.id])[0].position
-                    self.insert_field_at(
-                        index = 0,
-                        name = _("{guild} Leaderboard").format(guild=self._guild.name),
-                        value = str(guild_leaderboard),
-                    )
-                except LookupError:
-                    pass
-    
-    async def add_leaderboard(self) -> None:
-        try:
-            leaderboard = self._parent.client.get_worldwide_leaderboard()
-        except requests.exceptions.HTTPError as e:
-            log.error(e)
-            return
-        else:
-            try:
-                leaderboard = leaderboard.filter_trainers([self._trainer.id])[0].position
-                self.insert_field_at(
-                    index = 0,
-                    name = _("Global Leaderboard"),
-                    value = str(leaderboard),
-                )
-            except LookupError:
-                pass
+    async def __init__(
+        self, ctx: Union[commands.Context, discord.Message], trainer: trainerdex.Trainer, **kwargs,
+    ):
+        await super().__init__(ctx, **kwargs)
 
+        self.user_data = UserData(
+            **{
+                "trainer": trainer,
+                "team": await converters.TeamConverter().convert(ctx, trainer._get.get("faction")),
+                "updates": trainer.updates(),
+            }
+        )
 
-class UpdatedProfileCard(ProfileCard):
-    def __init__(self, trainer: trainerdex.Trainer, **kwargs):
-        super().__init__(trainer, **kwargs)
-        self._alpha = max(self._trainer.updates(), key=check_xp)
         try:
-            _updates_before_monday = [x for x in self._trainer.updates() if x.update_time < self._alpha.update_time+relativedelta(weekday=MO(-1), hour=12, minute=0, second=0, microsecond=0)]
-            self._beta = max(_updates_before_monday, key=check_xp)
+            self.user_data.update = max(self.user_data.updates, key=check_xp)
         except ValueError:
-            if self._trainer.start_date:
-                self._beta = trainerdex.Update({'uuid': None, 'update_time': self._trainer.start_date.isoformat(), 'xp': 0})
-                self.description = cf.info(_("No data old enough found, using actual start date."))
-            else:
-                self._beta = trainerdex.Update({'uuid': None, 'update_time': datetime.date(2016, 7, 14).isoformat(), 'xp': 0})
-                self.description = cf.info(_("No data old enough found, using assumed start date."))
-            
-        self.timestamp = self._alpha.update_time
-    
-    async def build_card(self, parent, ctx: commands.Context) -> discord.Embed:
-        await super().build_card(parent, ctx)
-        stat_delta = self._alpha.xp - self._beta.xp
-        time_delta = self._alpha.update_time - self._beta.update_time
-        self.add_field(name=_("XP Gain"), value=_("{gain} over {time}").format(gain=cf.humanize_number(stat_delta), time=humanize.naturaldelta(time_delta)))
-        days = round(time_delta.total_seconds()/86400)
-        self.add_field(name=_("Daily XP Gain"), value=_("{gain}/day").format(gain=cf.humanize_number(round(stat_delta/days))))
+            log.warning("No updates found for user {user}".format(user=self.user_data.trainer))
+
+        self.colour: Union[discord.Colour, int] = self.user_data.team.colour
+        self.title: str = _("{nickname} | Level {level}").format(
+            nickname=self.user_data.trainer.username, level=self.user_data.level.level,
+        )
+        self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(
+            self.user_data.trainer.id
+        )
+        if self.user_data.update:
+            self.timestamp: datetime.datetime = self.user_data.update.update_time
+
+        self.add_field(name=_("Team"), value=self.user_data.team)
+        self.add_field(name=_("Level"), value=self.user_data.level.level)
+        self.add_field(
+            name=_("Total XP"), value=cf.humanize_number(self.user_data.update.xp),
+        )
         return self
+
+    async def add_guild_leaderboard(self) -> NoReturn:
+        raise NotImplementedError
+
+    async def add_leaderboard(self) -> NoReturn:
+        raise NotImplementedError
+
+    async def show_progress(self) -> None:
+        if self.user_data.update is None:
+            return
+
+        this_update = self.user_data.update
+        RRULE = rrule(
+            WEEKLY, dtstart=datetime.datetime(2020, 6, 9, 12, 0, tzinfo=UTC), byweekday=MO
+        )
+        current_period = (
+            RRULE.before(self.user_data.update.update_time, inc=True),
+            RRULE.after(self.user_data.update.update_time),
+        )
+        previous_period = (RRULE.before(current_period[0]), current_period[0])
+
+        queryset: List[trainerdex.Update] = [
+            x
+            for x in self.user_data.updates
+            if (x.update_time < previous_period[1]) and (x.xp is not None)
+        ]
+        if queryset:
+            last_update: trainerdex.Update = max(queryset, key=check_xp)
+        else:
+            last_update: trainerdex.Update = trainerdex.Update(
+                {
+                    "uuid": None,
+                    "update_time": getattr(
+                        self._trainer, "start_date", datetime.date(2016, 7, 14)
+                    ).isoformat(),
+                    "xp": 0,
+                }
+            )
+            self.description: str = cf.info(_("No data old enough found, using start date."))
+
+        stat_delta: int = this_update.xp - last_update.xp
+        time_delta: datetime.timedelta = this_update.update_time - last_update.update_time
+        self.add_field(
+            name=_("XP Gain"),
+            value=_("{gain} over {time} (since {earlier_date})").format(
+                gain=cf.humanize_number(stat_delta),
+                time=humanize.naturaldelta(time_delta),
+                earlier_date=humanize.naturaldate(last_update.update_time),
+            ),
+        )
+        days: int = round(time_delta.total_seconds() / 86400)
+        self.add_field(
+            name=_("Daily XP Gain"),
+            value=_("{gain}/day").format(gain=cf.humanize_number(round(stat_delta / days))),
+        )

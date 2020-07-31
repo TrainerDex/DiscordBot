@@ -1,0 +1,3 @@
+[submodule "tdx/locales"]
+	path = tdx/locales
+	url = git@github.com:TrainerDex/Translations.git
