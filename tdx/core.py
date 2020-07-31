@@ -343,7 +343,7 @@ class TrainerDex(commands.Cog):
                     )
 
                     try:
-                        mention.add_roles(roles["add"], reason=_("Approval via TrainerDex"))
+                        await mention.add_roles(roles["add"], reason=_("Approval via TrainerDex"))
                     except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
                         roles_added = False
                         roles_added_error = e
@@ -366,7 +366,9 @@ class TrainerDex(commands.Cog):
                     )
 
                     try:
-                        mention.remove_roles(roles["remove"], reason=_("Approval via TrainerDex"))
+                        await mention.remove_roles(
+                            roles["remove"], reason=_("Approval via TrainerDex")
+                        )
                     except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
                         roles_removed = False
                         roles_removed_error = e
