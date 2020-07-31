@@ -337,7 +337,8 @@ class TrainerDex(commands.Cog):
                 if roles["add"]:
                     await message.edit(
                         content=loading(_("Adding roles ({roles}) to {user}")).format(
-                            roles=cf.humanize_list(roles["add"]), user=mention.mention,
+                            roles=cf.humanize_list([str(x) for x in roles["add"]]),
+                            user=mention.mention,
                         )
                     )
 
@@ -349,7 +350,8 @@ class TrainerDex(commands.Cog):
                     else:
                         await message.edit(
                             content=success(_("Added roles ({roles}) to {user}")).format(
-                                roles=cf.humanize_list(roles["add"]), user=mention.mention,
+                                roles=cf.humanize_list([str(x) for x in roles["add"]]),
+                                user=mention.mention,
                             )
                         )
                         roles_added = len(roles["add"])
@@ -358,7 +360,8 @@ class TrainerDex(commands.Cog):
                 if roles["remove"]:
                     await message.edit(
                         content=loading(_("Removing roles ({roles}) from {user}")).format(
-                            roles=cf.humanize_list(roles["remove"]), user=mention.mention,
+                            roles=cf.humanize_list([str(x) for x in roles["remove"]]),
+                            user=mention.mention,
                         )
                     )
 
@@ -370,7 +373,8 @@ class TrainerDex(commands.Cog):
                     else:
                         await message.edit(
                             content=success(_("Removed roles ({roles}) from {user}")).format(
-                                roles=cf.humanize_list(roles["remove"]), user=mention.mention,
+                                roles=cf.humanize_list([str(x) for x in roles["remove"]]),
+                                user=mention.mention,
                             )
                         )
                         roles_removed = len(roles["remove"])
