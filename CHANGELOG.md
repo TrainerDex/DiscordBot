@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
 ## [Unreleased]
+### Changed
+- Fixed a bug on generating progress if no data old enough found
 
 ## [2020.31] - 2020-07-31 [YANKED]
 ### Added

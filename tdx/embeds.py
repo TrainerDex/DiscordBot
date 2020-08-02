@@ -149,12 +149,12 @@ class ProfileCard(BaseCard):
         if queryset:
             last_update: trainerdex.Update = max(queryset, key=check_xp)
         else:
+            if not self.user_data.trainer.start_date:
+                return
             last_update: trainerdex.Update = trainerdex.Update(
                 {
                     "uuid": None,
-                    "update_time": getattr(
-                        self._trainer, "start_date", datetime.date(2016, 7, 14)
-                    ).isoformat(),
+                    "update_time": getattr(self.user_data.trainer, "start_date").isoformat(),
                     "xp": 0,
                 }
             )
