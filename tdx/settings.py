@@ -108,7 +108,7 @@ class Settings(commands.Cog):
         self, ctx: commands.Context, value: bool = None
     ) -> None:
         """Modify the roles of members when they're approved.
-        
+
         This is useful for granting users access to the rest of the server.
         """
         if value is not None:
@@ -130,7 +130,7 @@ class Settings(commands.Cog):
         self, ctx: commands.Context, value: bool = None
     ) -> None:
         """Modify the nickname of members when they're approved.
-        
+
         This is useful for ensuring players can be easily identified.
         """
         if value is not None:
@@ -152,7 +152,7 @@ class Settings(commands.Cog):
         self, ctx: commands.Context, value: bool = None
     ) -> None:
         """Modify the nickname of members when they update their Total XP.
-        
+
         This is useful for setting levels in their name.
         """
         if value is not None:
@@ -176,7 +176,7 @@ class Settings(commands.Cog):
         self, ctx: commands.Context, action: str = None, roles: discord.Role = None
     ) -> None:
         """Which roles to add/remove to a user on approval
-        
+
         Usage:
             [p]tdxset guild roles_to_assign_on_approval add @Verified, @Trainer ...
                 Assign these roles to users when they are approved

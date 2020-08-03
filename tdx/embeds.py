@@ -1,7 +1,6 @@
 import datetime
 import logging
-import requests
-from typing import Dict, List, Union, Optional, NoReturn
+from typing import Dict, List, Union, NoReturn
 
 import discord
 from discord.embeds import EmptyEmbed
@@ -14,7 +13,7 @@ import trainerdex
 from tdx import converters
 from tdx.models import UserData
 from tdx.utils import check_xp
-from dateutil.relativedelta import relativedelta, MO
+from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY
 from dateutil.tz import UTC
 

@@ -1,7 +1,6 @@
 import logging
 import os
-from itertools import islice, takewhile, repeat
-from typing import Dict, Final, List, Optional, Union
+from typing import Dict, Final, Optional
 
 import discord
 from redbot.core import checks, commands, Config
@@ -24,12 +23,12 @@ _ = Translator("TrainerDex", __file__)
 
 def loading(text: str) -> str:
     """Get text prefixed with a loading emoji if the bot has access to it.
-    
+
     Returns
     -------
     str
     The new message.
-    
+
     """
 
     emoji = "<a:loading:471298325904359434>"
@@ -38,12 +37,12 @@ def loading(text: str) -> str:
 
 def success(text: str) -> str:
     """Get text prefixed with a white checkmark.
-    
+
     Returns
     -------
     str
     The new message.
-    
+
     """
     emoji = "\N{WHITE HEAVY CHECK MARK}"
     return f"{emoji} {text}"
@@ -157,11 +156,11 @@ class TrainerDex(commands.Cog):
     @commands.command(name="leaderboard", aliases=["lb"])
     async def leaderboard(self, ctx: commands.Context, limit: int = 100) -> None:
         """Limited to top 100 results by default, but can be overiden
-        
+
         Example:
             `[p]leaderboard`
             Returns 100 results
-            
+
             `[p]leaderboard 250`
             Returns 250 results
         """
@@ -260,13 +259,13 @@ class TrainerDex(commands.Cog):
         total_xp: Optional[int] = None,
     ) -> None:
         """Get or create a profile in TrainerDex
-        
+
         If `guild.assign_roles_on_join` and/or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
-        
+
         If a trainer already exists for this profile, it will update the Total XP is needed.
-        
+
         The command may ask you a few questions. To exit out, say `[p]cancel`.
-        
+
         """
         assign_roles: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
@@ -319,8 +318,6 @@ class TrainerDex(commands.Cog):
             await q.message.edit(content=f"{q.message.content}\n{answer_text}")
 
         message: discord.Message = await ctx.send(loading(_("Let's go...")))
-
-        member_edit_dict: Dict = {}
 
         if assign_roles:
             async with ctx.typing():
@@ -470,9 +467,7 @@ class TrainerDex(commands.Cog):
             log.debug("No Trainer Found, creating")
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
             user: trainerdex.User = self.client.create_user(username=nickname)
-            discorduser: trainerdex.DiscordUser = self.client.import_discord_user(
-                uid=str(mention.id), user=user.id
-            )
+            self.client.import_discord_user(uid=str(mention.id), user=user.id)
             trainer: trainerdex.Trainer = self.client.create_trainer(
                 username=nickname, team=team.id, account=user.id, verified=True
             )
@@ -485,9 +480,7 @@ class TrainerDex(commands.Cog):
                     user=trainer.username, total_xp=total_xp,
                 )
             )
-            update: trainerdex.Update = self.client.create_update(
-                trainer, time_updated=ctx.message.created_at, xp=total_xp
-            )
+            self.client.create_update(trainer, time_updated=ctx.message.created_at, xp=total_xp)
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))

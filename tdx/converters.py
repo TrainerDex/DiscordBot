@@ -1,11 +1,9 @@
-import datetime
 import re
 from typing import Any, Dict, List, Union
 
 import discord
 from discord.ext import commands
 
-from dateutil.parser import parse, ParserError
 from redbot.core.i18n import Translator
 import trainerdex
 from tdx.models import Faction
@@ -56,7 +54,7 @@ class NicknameConverter(commands.Converter):
 
 class TrainerConverter(commands.Converter):
     """Converts to a :class:`~trainerdex.Trainer`.
-    
+
     The lookup strategy is as follows (in order):
     1. Lookup by nickname.
     2. Lookup by Discord User
