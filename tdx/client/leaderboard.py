@@ -1,8 +1,6 @@
 import datetime
 from typing import List
 
-import httpx
-import trainerdex
 from dateutil.parser import parse, ParserError
 from discord.utils import maybe_coroutine
 from tdx.converters import TeamConverter
@@ -10,20 +8,16 @@ from tdx.models import Faction
 
 
 class LeaderboardEntry:
-    async def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
-        await instance.__init__(*args, **kwargs)
-        return instance
-
-    async def __init__(self, **kwargs):
+    def __init__(self, conn, **kwargs):
+        self.http = conn
         self.data = kwargs
         self._trainer = None
         self._faction = None
         self._user = None
 
     @property
-    def level(self) -> trainerdex.utils.LevelTuple:
-        return trainerdex.utils.level_parser(level=self.data.get("level", 1))
+    def level(self) -> int:
+        return self.data.get("level", 1)
 
     @property
     def position(self) -> int:
@@ -33,21 +27,32 @@ class LeaderboardEntry:
     def trainer_id(self) -> int:
         return self.data.get("id", None)
 
-    async def trainer(self) -> trainerdex.Trainer:
+    @property
+    def trainer(self) -> int:
+        return self._trainer
+
+    async def get_trainer(self):
         if self._trainer:
             return self._trainer
-
-        async with httpx.AsyncClient() as client:
-            r = await client.get(
-                f"https://www.trainerdex.co.uk/api/v1/trainers/{self.trainer_id}/"
-            )
-        print(r.request.method, r.url, r.status_code)
-        self._trainer = trainerdex.Trainer(r.json())
-        return self._trainer
+        raise NotImplementedError
+        #
+        #
+        #
+        # self._trainer = trainerdex.Trainer(r.json())
+        # return self._trainer
 
     @property
     def username(self) -> str:
-        return self.data.get("username", None)
+        return self.data.get("username")
+
+    @property
+    def faction_id(self) -> int:
+        dummy_faction = {"id": 0}
+        return self.data.get("faction", dummy_faction).get("id")
+
+    @property
+    def faction(self) -> int:
+        return self._faction
 
     async def faction(self) -> Faction:
         if self._faction:
@@ -60,44 +65,21 @@ class LeaderboardEntry:
 
     @property
     def total_xp(self) -> int:
-        return self.data.get("total_xp", None)
-
-    xp = total_xp
+        return self.data.get("total_xp")
 
     @property
     def last_updated(self) -> datetime.datetime:
         try:
-            return parse(self.data.get("total_xp", None))
+            return parse(self.data.get("last_updated"))
         except (TypeError, ParserError):
             return None
 
-    @property
-    def user_id(self) -> int:
-        return self.data.get("user_id", None)
 
-    async def user(self) -> trainerdex.User:
-        if self._user:
-            return self._user
-
-        async with httpx.AsyncClient() as client:
-            r = await client.get(f"https://www.trainerdex.co.uk/api/v1/users/{self.trainer_id}/")
-        print(r.request.method, r.url, r.status_code)
-        self._user = trainerdex.User(r.json())
-        return self._user
-
-
-class Leaderboard:
-    async def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
-        async with httpx.AsyncClient() as client:
-            r = await client.get("https://www.trainerdex.co.uk/api/v1/leaderboard/", timeout=60)
-        print(r.request.method, r.url, r.status_code)
-        limit = kwargs.get("limit", 1000)
-        instance.__init__(entries=r.json()[:limit])
-        return instance
-
-    def __init__(self, entries):
-        self._entries = entries
+class BaseLeaderboard:
+    def __init__(self, conn, data):
+        self._entries = data
+        self.title = None
+        self.http = conn
         self.i = 0
 
     def __aiter__(self):
@@ -108,12 +90,24 @@ class Leaderboard:
         if i >= len(self._entries):
             raise StopAsyncIteration
         self.i += 1
-        return await LeaderboardEntry(**self._entries[i])
+        return LeaderboardEntry(self.http, **self._entries[i])
 
-    async def __getitem__(self, key) -> List[LeaderboardEntry]:
-        return [await LeaderboardEntry(**x) for x in self._entries if x.get("position") == key]
+    def __len__(self):
+        return len(self._entries)
 
-    async def filter(self, predicate):
+    def __getitem__(self, key) -> List[LeaderboardEntry]:
+        """Retrieves a list of :class:`.LeaderboardEntry` in a position.
+
+        .. note::
+
+            There can be multiple :class:`.LeaderboardEntry` for a position.
+            This happens when they both have the same stat.
+        """
+        return [
+            LeaderboardEntry(self.http, **x) for x in self._entries if x.get("position") == key
+        ]
+
+    def filter(self, predicate):
         """Filter the iterable with an (optionally async) predicate.
 
         Parameters
@@ -135,7 +129,7 @@ class Leaderboard:
         >>> iterator = Leaderboard()
         >>> async for i in iterator.filter(predicate):
         ...     print(i)
-        
+
 
         >>> from redbot.core.utils import AsyncIter
         >>> def predicate(value):
@@ -146,7 +140,7 @@ class Leaderboard:
 
         """
         for x in self._entries:
-            xx = await LeaderboardEntry(**x)
+            xx = LeaderboardEntry(self.http, **x)
             if predicate(xx):
                 yield xx
 
@@ -179,3 +173,16 @@ class Leaderboard:
             ret = await maybe_coroutine(predicate, elem)
             if ret:
                 return elem
+
+
+class Leaderboard(BaseLeaderboard):
+    def __init__(self, conn, data):
+        super().__init__(conn, data)
+        self.title = "Global Leaderboard"
+
+
+class GuildLeaderboard(BaseLeaderboard):
+    def __init__(self, conn, data):
+        super().__init__(conn, data)
+        self._entries = data.get("leaderboard")
+        self.title = data.get("title")

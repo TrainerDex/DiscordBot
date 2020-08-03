@@ -17,7 +17,7 @@ from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY
 from dateutil.tz import UTC
 
-log: logging.Logger = logging.getLogger("red.tdx.embeds")
+log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 config = Config.get_conf(
     None, cog_name="trainerdex", identifier=8124637339, force_registration=True,

@@ -16,7 +16,7 @@ from tdx.models import Faction
 from tdx.leaderboard import Leaderboard
 from tdx.utils import check_xp, contact_us_on_twitter, QuestionMessage
 
-log: logging.Logger = logging.getLogger("red.tdx.core")
+log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
 

@@ -3,21 +3,13 @@ from typing import List
 import discord
 
 import trainerdex
+from tdx.client.faction import Faction as BaseFaction
 
 
-class Faction:
-    def __init__(self, id: int, verbose_name: str, colour: discord.Colour, lookups: List[str]):
-        self.id: int = id
-        self.verbose_name: str = verbose_name
-        self.colour: discord.Colour = colour
-        self.color: discord.Colour = self.colour
+class Faction(BaseFaction):
+    def _update(self, **data):
+        super()._update(data)
         self.lookups: List[str] = lookups
-
-    def __str__(self):
-        return self.verbose_name
-
-
-Team = Faction
 
 
 class UserData:

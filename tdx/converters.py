@@ -134,7 +134,8 @@ class TeamConverter(commands.Converter):
     async def convert(self, ctx, argument: str) -> Faction:
         if isinstance(argument, int) or argument.isnumeric():
             if int(argument) < len(self.teams):
-                result: Faction = Faction(**self.teams[int(argument)])
+                result = Faction(int(argument))
+                result._update(self.teams[int(argument)])  # Ensures team names are translated
             else:
                 result = None
         else:
