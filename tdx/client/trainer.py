@@ -1,36 +1,24 @@
 import re
+from typing import Dict, Union
 
-from dateutil.parser import parse, ParserError
+from dateutil.parser import parse
 
-from tdx.client.user import User
+from tdx.client import abc
 from tdx.client.faction import Faction
+from tdx.client.update import PartialUpdate, Update
+from tdx.client.utils import con
+
+odt = con(parse)
 
 
-class Trainer(User):
-    def _update(self, data):
-        # If data has key '__user_data' it will be the response from the v1 user api, should be jerry rigged into data
-        if data.get("__user_data"):
-            super()._update(data.get("__user_data"))
-        else:
-            self.id = int(data.get("owner"))
-            self.username = data.get("username")
-            self.first_name = None
-            self.old_id = int(data.get("id"))
-
-        try:
-            self.last_modified = parse(data.get("last_modified"))
-        except (TypeError, ParserError):
-            self.last_modified = None
-
+class Trainer(abc.BaseClass):
+    def _update(self, data: Dict[str, Union[str, int]]) -> None:
+        self.id = int(data.get("owner"))
+        self.username = data.get("username")
+        self.old_id = int(data.get("id"))
+        self.last_modified = odt(data.get("last_modified"))
         self.nickname = data.get("username")
-
-        try:
-            start_date = parse(data.get("start_date"))
-        except (TypeError, ParserError):
-            self.start_date = None
-        else:
-            self.start_date = start_date.date()
-
+        self.start_date = odt(data.get("start_date")).date() if data.get("start_date") else None
         self.faction = data.get("faction")
         self.trainer_code = data.get("trainer_code")
         self.is_banned = data.get("is_banned", False)
@@ -39,10 +27,14 @@ class Trainer(User):
         self._updates = data.get("updates")
 
     @property
-    def team(self):
+    def team(self) -> Faction:
         return Faction(self.faction)
 
-    async def edit(self, **options):
+    @property
+    def updates(self):
+        return tuple(PartialUpdate(self.http, x) for x in self._updates)
+
+    async def edit(self, **options) -> None:
         """|coro|
 
         Edits the current trainer
@@ -69,7 +61,6 @@ class Trainer(User):
         HTTPException
             Editing your profile failed.
         """
-
         if isinstance(options.get("faction"), Faction):
             options["faction"] = options["faction"].id
 
@@ -80,3 +71,13 @@ class Trainer(User):
 
         new_data = self.http.edit_trainer(self.old_id, **options)
         self._update(new_data)
+
+    async def post(self, **options) -> Update:
+        """|coro|
+
+        Posts an update on the current trainer
+
+        .. note::
+            This will refresh the Trainer instance too
+        """
+        pass

@@ -22,3 +22,4 @@ from .faction import Faction
 from .trainer import Trainer
 from .update import Update
 from .user import User
+from tdx.client.socialconnection import SocialConnection

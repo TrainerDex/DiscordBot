@@ -1,98 +1,60 @@
-import datetime
-from typing import List
+from typing import Callable, Dict, List, Iterator, Optional, Union
 
-from dateutil.parser import parse, ParserError
-from discord.utils import maybe_coroutine
-from tdx.converters import TeamConverter
-from tdx.models import Faction
+from dateutil.parser import parse
+from tdx.client import abc
+from tdx.client.http import HTTPClient
+from tdx.client.faction import Faction
+from tdx.client.trainer import Trainer
+from tdx.client.utils import con, maybe_coroutine
 
 
-class LeaderboardEntry:
-    def __init__(self, conn, **kwargs):
-        self.http = conn
-        self.data = kwargs
+class LeaderboardEntry(abc.BaseClass):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
+        super().__init__(conn, data)
         self._trainer = None
-        self._faction = None
-        self._user = None
+
+    def _update(self, data: Dict[str, Union[str, int]]) -> None:
+        self.level = data.get("level", 1)
+        self.position = data.get("position", None)
+        self._trainer_id = data.get("id", None)
+        self.username = data.get("username")
+        self._faction = data.get("faction", {"id": 0, "name_en": "No Team"})
+        self.total_xp = data.get("total_xp", 0)
+        self.last_updated = con(parse, data.get("last_updated"))
+        self._user_id = data.get("user_id", None)
 
     @property
-    def level(self) -> int:
-        return self.data.get("level", 1)
+    def faction(self) -> Faction:
+        return Faction(self._faction.get("id"))
 
-    @property
-    def position(self) -> int:
-        return self.data.get("position", None)
-
-    @property
-    def trainer_id(self) -> int:
-        return self.data.get("id", None)
-
-    @property
-    def trainer(self) -> int:
-        return self._trainer
-
-    async def get_trainer(self):
+    async def trainer(self) -> Trainer:
         if self._trainer:
             return self._trainer
-        raise NotImplementedError
-        #
-        #
-        #
-        # self._trainer = trainerdex.Trainer(r.json())
-        # return self._trainer
 
-    @property
-    def username(self) -> str:
-        return self.data.get("username")
+        data = await self.http.get_trainer(self._trainer_id)
+        self._trainer = Trainer(data=data, conn=self.http)
 
-    @property
-    def faction_id(self) -> int:
-        dummy_faction = {"id": 0}
-        return self.data.get("faction", dummy_faction).get("id")
-
-    @property
-    def faction(self) -> int:
-        return self._faction
-
-    async def faction(self) -> Faction:
-        if self._faction:
-            return self._faction
-
-        self._faction = await TeamConverter().convert(
-            None, self.data.get("faction", {"id": 0, "name_en": "No Team"}).get("id")
-        )
-        return self._faction
-
-    @property
-    def total_xp(self) -> int:
-        return self.data.get("total_xp")
-
-    @property
-    def last_updated(self) -> datetime.datetime:
-        try:
-            return parse(self.data.get("last_updated"))
-        except (TypeError, ParserError):
-            return None
+        return self._trainer
 
 
 class BaseLeaderboard:
-    def __init__(self, conn, data):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
+        self.http = conn
         self._entries = data
         self.title = None
-        self.http = conn
         self.i = 0
 
     def __aiter__(self):
         return self
 
-    async def __anext__(self):
+    async def __anext__(self) -> LeaderboardEntry:
         i = self.i
         if i >= len(self._entries):
             raise StopAsyncIteration
         self.i += 1
         return LeaderboardEntry(self.http, **self._entries[i])
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._entries)
 
     def __getitem__(self, key) -> List[LeaderboardEntry]:
@@ -107,7 +69,7 @@ class BaseLeaderboard:
             LeaderboardEntry(self.http, **x) for x in self._entries if x.get("position") == key
         ]
 
-    def filter(self, predicate):
+    def filter(self, predicate) -> Iterator[LeaderboardEntry]:
         """Filter the iterable with an (optionally async) predicate.
 
         Parameters
@@ -144,7 +106,9 @@ class BaseLeaderboard:
             if predicate(xx):
                 yield xx
 
-    async def find(self, predicate, default=None):
+    async def find(
+        self, predicate: Callable, default: Optional[LeaderboardEntry] = None
+    ) -> LeaderboardEntry:
         """Calls ``predicate`` over items in iterable and return first value to match.
 
         Parameters
@@ -176,13 +140,13 @@ class BaseLeaderboard:
 
 
 class Leaderboard(BaseLeaderboard):
-    def __init__(self, conn, data):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
         super().__init__(conn, data)
         self.title = "Global Leaderboard"
 
 
 class GuildLeaderboard(BaseLeaderboard):
-    def __init__(self, conn, data):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
         super().__init__(conn, data)
         self._entries = data.get("leaderboard")
         self.title = data.get("title")

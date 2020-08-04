@@ -8,7 +8,7 @@ from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, menus, predicates
 
-import trainerdex
+import tdx.client as trainerdex
 import PogoOCR
 from tdx import converters
 from tdx.embeds import BaseCard, ProfileCard
@@ -54,7 +54,7 @@ class TrainerDex(commands.Cog):
     def __init__(self, bot: Red, config: Config) -> None:
         self.bot: Red = bot
         self.config: Config = config
-        self.client: Optional[trainerdex.Client] = None
+        self.client = None
         self.PREV_EMOJI = self.bot.get_emoji(729769958652772505)
         self.NEXT_EMOJI = self.bot.get_emoji(729770058099982347)
 
@@ -66,7 +66,7 @@ class TrainerDex(commands.Cog):
     async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
         token = await self._get_token()
-        self.client = trainerdex.Client(token=token, identifier="ts_social_discord")
+        self.client = trainerdex.Client(token=token)
 
     async def _get_token(self) -> str:
         """Get TrainerDex token"""

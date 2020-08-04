@@ -5,7 +5,8 @@ import discord
 from discord.ext import commands
 
 from redbot.core.i18n import Translator
-import trainerdex
+from tdx.client.client import Client
+from tdx.client.trainer import Trainer
 from tdx.models import Faction
 
 _ = Translator("TrainerDex", __file__)
@@ -53,14 +54,14 @@ class NicknameConverter(commands.Converter):
 
 
 class TrainerConverter(commands.Converter):
-    """Converts to a :class:`~trainerdex.Trainer`.
+    """Converts to a :class:`tdx.client.Trainer`.
 
     The lookup strategy is as follows (in order):
     1. Lookup by nickname.
     2. Lookup by Discord User
     """
 
-    async def convert(self, ctx, argument) -> trainerdex.Trainer:
+    async def convert(self, ctx, argument) -> Trainer:
         if isinstance(argument, (discord.User, discord.Member)):
             match = None
             mention: Union[discord.User, discord.Member] = argument
@@ -84,17 +85,13 @@ class TrainerConverter(commands.Converter):
                     mention = None
 
             if mention:
-                try:
-                    result: trainerdex.Trainer = (
-                        trainerdex.Client()
-                        .get_discord_user(uid=[str(mention.id)])[0]
-                        .owner()
-                        .trainer()[0]
-                    )
-                except IndexError:
+                socialconnections = Client().get_social_connections("discord", str(mention.id))
+                if socialconnections:
+                    result = await socialconnections[0].trainer()
+                else:
                     result = None
         else:
-            result: trainerdex.Trainer = trainerdex.Client().get_trainer_from_username(argument)
+            result: Trainer = Client().search_trainer(argument)
 
         if result is None:
             raise commands.BadArgument(_("Trainer `{}` not found").format(argument))

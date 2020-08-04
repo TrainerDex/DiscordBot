@@ -1,0 +1,12 @@
+from typing import Dict, Union
+
+from tdx.client.http import HTTPClient
+
+
+class BaseClass:
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
+        self.http = conn
+        self._update(data)
+
+    def _update(self, data: Dict[str, Union[str, int]]) -> None:
+        raise NotImplementedError

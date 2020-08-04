@@ -2,19 +2,118 @@ import asyncio
 import json
 import logging
 import sys
-from typing import Optional
+from typing import Dict, Iterable, List, Optional, Union
 from urllib.parse import quote as _uriquote
+from uuid import UUID
 
 import aiohttp
-import discord
+from discord.errors import HTTPException, Forbidden, NotFound
 
-import tdx.__version__
-import tdx.client.__version__
+import tdx as bot
+import tdx.client as client
 
 log: logging.Logger = logging.getLogger(__name__)
 
+# this translates the API v2 field names to API v1 field names
+# this is so we can program the rest of the bot as if we're using API v2
+UPDATE_KEYS_ENUM_OUT = {
+    "uuid": "uuid",
+    "trainer": "trainer",
+    "update_time": "update_time",
+    "submission_date": None,
+    "data_source": "data_source",
+    "total_xp": "total_xp",
+    "pokedex_total_caught": "pokedex_caught",
+    "pokedex_total_seen": "pokedex_seen",
+    "pokedex_gen1": "badge_pokedex_entries",
+    "pokedex_gen2": "badge_pokedex_entries_gen2",
+    "pokedex_gen3": "badge_pokedex_entries_gen3",
+    "pokedex_gen4": "badge_pokedex_entries_gen4",
+    "pokedex_gen5": "badge_pokedex_entries_gen5",
+    "pokedex_gen6": "badge_pokedex_entries_gen6",
+    "pokedex_gen7": "badge_pokedex_entries_gen7",
+    "pokedex_gen8": "badge_pokedex_entries_gen8",
+    "travel_km": "badge_travel_km",
+    "capture_total": "badge_capture_total",
+    "evolved_total": "badge_evolved_total",
+    "hatched_total": "badge_hatched_total",
+    "pokestops_visited": "badge_pokestops_visited",
+    "big_magikarp": "badge_big_magikarp",
+    "battle_attack_won": "badge_battle_attack_won",
+    "battle_training_won": "badge_battle_training_won",
+    "small_rattata": "badge_small_rattata",
+    "pikachu": "badge_pikachu",
+    "unown": "badge_unown",
+    "raid_battle_won": "badge_raid_battle_won",
+    "legendary_battle_won": "badge_legendary_battle_won",
+    "berries_fed": "badge_berries_fed",
+    "hours_defended": "badge_hours_defended",
+    "challenge_quests": "badge_challenge_quests",
+    "max_level_friends": "badge_max_level_friends",
+    "trading": "badge_trading",
+    "trading_distance": "badge_trading_distance",
+    "great_league": "badge_great_league",
+    "ultra_league": "badge_ultra_league",
+    "master_league": "badge_master_league",
+    "photobomb": "badge_photobomb",
+    "pokemon_purified": "badge_pokemon_purified",
+    "rocket_grunts_defeated": "badge_photobombadge_rocket_grunts_defeated",
+    "buddy_best": None,
+    "wayfarer": None,
+    "type_normal": "badge_type_normal",
+    "type_fighting": "badge_type_fighting",
+    "type_flying": "badge_type_flying",
+    "type_poison": "badge_type_poison",
+    "type_ground": "badge_type_ground",
+    "type_rock": "badge_type_rock",
+    "type_bug": "badge_type_bug",
+    "type_ghost": "badge_type_ghost",
+    "type_steel": "badge_type_steel",
+    "type_fire": "badge_type_fire",
+    "type_water": "badge_type_water",
+    "type_grass": "badge_type_grass",
+    "type_electric": "badge_type_electric",
+    "type_psychic": "badge_type_psychic",
+    "type_ice": "badge_type_ice",
+    "type_dragon": "badge_type_dragon",
+    "type_dark": "badge_type_dark",
+    "type_fairy": "badge_type_fairy",
+    "gymbadges_total": "gymbadges_total",
+    "gymbadges_gold": "gymbadges_gold",
+    "stardust": "pokemon_info_stardust",
+}
+UPDATE_KEYS_ENUM_IN = {v: k for k, v in UPDATE_KEYS_ENUM_OUT.items() if v is not None}
+UPDATE_KEYS_READ_ONLY = ("uuid", "trainer")
 
-async def json_or_text(response):
+TRAINER_KEYS_ENUM_OUT = {
+    "old_id": "id",
+    "id": "owner",
+    "nickname": "username",
+    "start_date": "start_date",
+    "faction": "faction",
+    "trainer_code": "trainer_code",
+    "is_banned": "currently_cheats",
+    "is_verified": "verified",
+    "last_modified": "last_modified",
+    "is_visible": "statistics",
+}
+TRAINER_KEYS_ENUM_IN = {
+    "id": "old_id",
+    "owner": "id",
+    "username": "nickname",
+    "start_date": "start_date",
+    "faction": "faction",
+    "trainer_code": "trainer_code",
+    "currently_cheats": "is_banned",
+    "last_modified": "last_modified",
+    "update_set": "updates",
+    "verified": "is_verified",
+    "statistics": "is_visible",
+}
+TRAINER_KEYS_READ_ONLY = ("id", "owner", "username", "currently_cheats")
+
+
+async def json_or_text(response: aiohttp.web.Response) -> Union[Dict, str]:
     text = await response.text(encoding="utf-8")
     if response.headers.get("content-type") == "application/json":
         return json.loads(text)
@@ -24,7 +123,7 @@ async def json_or_text(response):
 class Route:
     BASE = "https://www.trainerdex.co.uk/api/v1"
 
-    def __init__(self, method: str, path: str, **parameters):
+    def __init__(self, method: str, path: str, **parameters) -> None:
         self.path = path
         self.method = method
         url = self.BASE + self.path
@@ -41,115 +140,23 @@ class HTTPClient:
 
     SUCCESS_LOG = "{method} {url} has received {text}"
     REQUEST_LOG = "{method} {url} with {json} has returned {status}"
-    # this translates the API v2 field names to API v1 field names
-    # this is so we can program the rest of the bot as if we're using API v2
-    UPDATE_KEYS_ENUM_OUT = {
-        "uuid": "uuid",
-        "trainer": "trainer",
-        "update_time": "update_time",
-        "submission_date": None,
-        "data_source": "data_source",
-        "total_xp": "total_xp",
-        "pokedex_total_caught": "pokedex_caught",
-        "pokedex_total_seen": "pokedex_seen",
-        "pokedex_gen1": "badge_pokedex_entries",
-        "pokedex_gen2": "badge_pokedex_entries_gen2",
-        "pokedex_gen3": "badge_pokedex_entries_gen3",
-        "pokedex_gen4": "badge_pokedex_entries_gen4",
-        "pokedex_gen5": "badge_pokedex_entries_gen5",
-        "pokedex_gen6": "badge_pokedex_entries_gen6",
-        "pokedex_gen7": "badge_pokedex_entries_gen7",
-        "pokedex_gen8": "badge_pokedex_entries_gen8",
-        "travel_km": "badge_travel_km",
-        "capture_total": "badge_capture_total",
-        "evolved_total": "badge_evolved_total",
-        "hatched_total": "badge_hatched_total",
-        "pokestops_visited": "badge_pokestops_visited",
-        "big_magikarp": "badge_big_magikarp",
-        "battle_attack_won": "badge_battle_attack_won",
-        "battle_training_won": "badge_battle_training_won",
-        "small_rattata": "badge_small_rattata",
-        "pikachu": "badge_pikachu",
-        "unown": "badge_unown",
-        "raid_battle_won": "badge_raid_battle_won",
-        "legendary_battle_won": "badge_legendary_battle_won",
-        "berries_fed": "badge_berries_fed",
-        "hours_defended": "badge_hours_defended",
-        "challenge_quests": "badge_challenge_quests",
-        "max_level_friends": "badge_max_level_friends",
-        "trading": "badge_trading",
-        "trading_distance": "badge_trading_distance",
-        "great_league": "badge_great_league",
-        "ultra_league": "badge_ultra_league",
-        "master_league": "badge_master_league",
-        "photobomb": "badge_photobomb",
-        "pokemon_purified": "badge_pokemon_purified",
-        "rocket_grunts_defeated": "badge_photobombadge_rocket_grunts_defeated",  # lol yes theres a typo on the API
-        "buddy_best": None,
-        "wayfarer": None,
-        "type_normal": "badge_type_normal",
-        "type_fighting": "badge_type_fighting",
-        "type_flying": "badge_type_flying",
-        "type_poison": "badge_type_poison",
-        "type_ground": "badge_type_ground",
-        "type_rock": "badge_type_rock",
-        "type_bug": "badge_type_bug",
-        "type_ghost": "badge_type_ghost",
-        "type_steel": "badge_type_steel",
-        "type_fire": "badge_type_fire",
-        "type_water": "badge_type_water",
-        "type_grass": "badge_type_grass",
-        "type_electric": "badge_type_electric",
-        "type_psychic": "badge_type_psychic",
-        "type_ice": "badge_type_ice",
-        "type_dragon": "badge_type_dragon",
-        "type_dark": "badge_type_dark",
-        "type_fairy": "badge_type_fairy",
-        "gymbadges_total": "gymbadges_total",
-        "gymbadges_gold": "gymbadges_gold",
-        "stardust": "pokemon_info_stardust",
-    }
-    UPDATE_KEYS_ENUM_IN = {v: k for k, v in UPDATE_KEYS_ENUM if v is not None}
-    UPDATE_KEYS_READ_ONLY = ("uuid", "trainer")
 
-    TRAINER_KEYS_ENUM_OUT = {
-        "old_id": "id",
-        "id": "owner",
-        "nickname": "username",
-        "start_date": "start_date",
-        "faction": "faction",
-        "trainer_code": "trainer_code",
-        "is_banned": "currently_cheats",
-        "is_verified": "verified",
-        "last_modified": "last_modified",
-        "is_visible": "statistics",
-    }
-    TRAINER_KEYS_ENUM_IN = {
-        "id": "old_id",
-        "owner": "id",
-        "username": "nickname",
-        "start_date": "start_date",
-        "faction": "faction",
-        "trainer_code": "trainer_code",
-        "currently_cheats": "is_banned",
-        "last_modified": "last_modified",
-        "update_set": "updates",
-        "verified": "is_verified",
-        "statistics": "is_visible",
-    }
-    TRAINER_KEYS_READ_ONLY = ("id", "owner", "username", "currently_cheats")
-
-    def __init__(self, token: str = None, loop=None):
+    def __init__(self, token: str = None, loop=None) -> None:
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self.session = aiohttp.ClientSession()
         self.token = None
 
-        user_agent = "DiscordBot (https://github.com/TrainerDex/DiscordBot {0}) TrainerDex.py (https://github.com/TrainerDex/DiscordBot {1}) Python/{2[0]}.{3[1]} aiohttp/{4}"
+        user_agent = (
+            "DiscordBot (https://github.com/TrainerDex/DiscordBot {0}) "
+            "TrainerDex.py (https://github.com/TrainerDex/DiscordBot {1}) "
+            "Python/{2[0]}.{2[1]} "
+            "aiohttp/{3}"
+        )
         self.user_agent = user_agent.format(
-            tdx.__version__, tdx.client.__version__, sys.version_info, aiohttp.__version__
+            bot.__version__, client.__version__, sys.version_info, aiohttp.__version__
         )
 
-    async def request(self, route: Route, **kwargs):
+    async def request(self, route: Route, **kwargs) -> Union[Dict, str]:
         method = route.method
         url = route.url
 
@@ -203,7 +210,7 @@ class HTTPClient:
 
     # Update management
 
-    def get_update(self, trainer_id, update_uuid):
+    def get_update(self, trainer_id: int, update_uuid: Union[str, UUID]) -> Dict:
         r = Route(
             "GET",
             "/trainers/{trainer_id}/updates/{update_uuid}",
@@ -213,18 +220,18 @@ class HTTPClient:
 
         return self.request(r)
 
-    def create_update(self, trainer_id, **kwargs):
+    def create_update(self, trainer_id: int, **kwargs) -> Dict:
         r = Route("POST", "/trainers/{trainer_id}/updates", trainer_id=trainer_id)
 
         payload = {
             UPDATE_KEYS_ENUM_OUT.get(k): v
             for k, v in kwargs.items()
-            if (UPDATE_KEYS_ENUM_OUT.get(k) is not None) and (k is not "uuid")
+            if (UPDATE_KEYS_ENUM_OUT.get(k) is not None) and (k != "uuid")
         }
 
         return self.request(r, json=payload)
 
-    def edit_update(self, trainer_id, update_uuid, **kwargs):
+    def edit_update(self, trainer_id: int, update_uuid: Union[str, UUID], **kwargs) -> Dict:
         r = Route(
             "POST",
             "/trainers/{trainer_id}/updates/{update_uuid}",
@@ -243,24 +250,29 @@ class HTTPClient:
 
     # Trainer management
 
-    def get_trainer(self, trainer_id):
+    def get_trainer(self, trainer_id: int) -> Dict:
         r = Route("GET", "/trainers/{trainer_id}", trainer_id=trainer_id)
 
         return self.request(r)
 
-    def create_trainer(self, **kwargs):
+    def get_trainers(self) -> List[Dict]:
+        r = Route("GET", "/trainers")
+
+        return self.request(r)
+
+    def create_trainer(self, **kwargs) -> Dict:
         r = Route("POST", "/trainers")
 
         payload = {
             TRAINER_KEYS_ENUM_OUT.get(k): v
             for k, v in kwargs.items()
             if (TRAINER_KEYS_ENUM_OUT.get(k) is not None)
-            and (TRAINER_KEYS_ENUM_OUT.get(k) is not "id")
+            and (TRAINER_KEYS_ENUM_OUT.get(k) != "id")
         }
 
         return self.request(r, json=payload)
 
-    def edit_trainer(self, trainer_id, **kwargs):
+    def edit_trainer(self, trainer_id: int, **kwargs) -> Dict:
         r = Route("PATCH", "/trainers/{trainer_id}", trainer_id=trainer_id)
 
         payload = {
@@ -272,17 +284,17 @@ class HTTPClient:
 
         return self.request(r, json=payload)
 
-    def get_user(self, user_id):
+    def get_user(self, user_id: int) -> Dict:
         r = Route("GET", "/users/{user_id}", user_id=user_id)
 
         return self.request(r)
 
-    def get_users(self):
+    def get_users(self) -> List[Dict]:
         r = Route("GET", "/users")
 
         return self.request(r)
 
-    def create_user(self, username: str, first_name: str = None):
+    def create_user(self, username: str, first_name: Optional[str] = None) -> Dict:
         r = Route("POST", "/users")
 
         payload = {"username": username}
@@ -292,7 +304,7 @@ class HTTPClient:
 
         return self.request(r, json=payload)
 
-    def edit_user(self, user_id, username: str, first_name: str = None):
+    def edit_user(self, user_id, username: str, first_name: Optional[str] = None) -> Dict:
         r = Route("PATCH", "/users/{user_id}", user_id=user_id)
 
         payload = {"username": username}
@@ -302,12 +314,34 @@ class HTTPClient:
 
         return self.request(r, json=payload)
 
+    def get_social_connections(self, provider: str, uid: Union[str, Iterable[str]]) -> List[Dict]:
+        r = Route("GET", "/users/social/")
+
+        params = {"provider": provider}
+        if isinstance(uid, str):
+            uid = (uid,)
+        params["uid"] = ",".join(uid)
+
+        return self.request(r, params=params)
+
+    def create_social_connection(
+        self, user: int, provider: str, uid: str, extra_data: Optional[Dict] = None
+    ) -> Dict:
+        r = Route("PUT", "/users/social/")
+
+        payload = {"user": user, "provider": provider, "uid": uid}
+
+        if extra_data:
+            payload["extra_data"] = extra_data
+
+        return self.request(r, json=payload)
+
     # Leaderboard requests
 
-    def get_leaderboard(self, guild_id: Optional[int] = None, **options):
+    def get_leaderboard(self, guild_id: Optional[int] = None, **options) -> Dict:
         if isinstance(guild_id, int):
             r = Route("GET", "/leaderboard/discord/{guild_id}", guild_id=guild_id)
         else:
-            r = Route("GET", "/leaderboard", channel_id=channel_id)
+            r = Route("GET", "/leaderboard")
 
         return self.request(r)

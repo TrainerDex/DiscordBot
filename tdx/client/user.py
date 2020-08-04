@@ -1,10 +1,26 @@
-class User:
-    def __init__(self, conn, data):
-        self.http = conn
-        self._update(data)
+from typing import Dict, Union
 
-    def _update(self, data):
+from tdx.client import abc
+from tdx.client.http import HTTPClient
+from tdx.client.trainer import Trainer
+
+
+class User(abc.BaseClass):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
+        super().__init__(conn, data)
+        self._trainer = None
+
+    def _update(self, data: Dict[str, Union[str, int]]) -> None:
         self.id = int(data.get("id"))
         self.username = data.get("username")
         self.first_name = data.get("first_name")
         self.old_id = int(data.get("trainer"))
+
+    async def trainer(self) -> Trainer:
+        if self._trainer:
+            return self._trainer
+
+        data = await self.http.get_trainer(self.old_id)
+        self._trainer = Trainer(data=data, conn=self.http)
+
+        return self._trainer
