@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 from uuid import UUID
 from typing import Dict, Union
@@ -21,7 +22,7 @@ class BaseUpdate(abc.BaseClass):
             return self._trainer
 
         # have to import Trainer late to prevent circular imports
-        from tdx.client import Trainer
+        from tdx.client.trainer import Trainer
 
         data = await self.http.get_trainer(self._trainer_id)
         self._trainer = Trainer(data=data, conn=self.http)
@@ -93,6 +94,31 @@ class Update(BaseUpdate):
         self.gymbadges_total = data.get("gymbadges_total")
         self.gymbadges_gold = data.get("gymbadges_gold")
         self.stardust = data.get("stardust")
+
+    async def refresh_from_api(self) -> None:
+        data = await self.http.get_update(self.uuid)
+        self._update(data)
+
+    async def edit(self, **options) -> None:
+        """|coro|
+
+        Edits the current trainer
+
+        .. note::
+            Changing UUIDs is forever unsupported
+        """
+
+        if isinstance(options.get("update_time"), datetime.datetime):
+            options["update_time"] = options["update_time"].isoformat()
+
+        if isinstance(options.get("submission_date"), datetime.datetime):
+            options["submission_date"] = options["submission_date"].isoformat()
+
+        if isinstance(options.get("travel_km"), (float, Decimal)):
+            options["travel_km"] = str(options["travel_km"])
+
+        new_data = self.http.edit_update(self._trainer_id, self.uuid, **options)
+        self._update(new_data)
 
 
 class PartialUpdate(BaseUpdate):

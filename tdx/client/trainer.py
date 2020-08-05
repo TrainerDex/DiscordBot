@@ -1,3 +1,4 @@
+import datetime
 import re
 from typing import Dict, Union
 
@@ -25,6 +26,7 @@ class Trainer(abc.BaseClass):
         self.is_verified = data.get("is_verified")
         self.is_visible = data.get("is_visible")
         self._updates = data.get("updates")
+        self._user = data.get("_user")
 
     @property
     def team(self) -> Faction:
@@ -33,6 +35,22 @@ class Trainer(abc.BaseClass):
     @property
     def updates(self):
         return tuple(PartialUpdate(self.http, x) for x in self._updates)
+
+    async def user(self):
+        if self._user:
+            return self._user
+
+        # have to import User late to prevent circular imports
+        from tdx.client.user import User
+
+        data = await self.http.get_user(self.id)
+        self._user = User(data=data, conn=self.http)
+
+        return self._user
+
+    async def refresh_from_api(self) -> None:
+        data = await self.http.get_trainer(self._trainer_id)
+        self._update(data)
 
     async def edit(self, **options) -> None:
         """|coro|
@@ -61,6 +79,10 @@ class Trainer(abc.BaseClass):
         HTTPException
             Editing your profile failed.
         """
+
+        if isinstance(options.get("start_date"), Faction):
+            options["start_date"] = options["start_date"].isoformat()
+
         if isinstance(options.get("faction"), Faction):
             options["faction"] = options["faction"].id
 
@@ -80,4 +102,13 @@ class Trainer(abc.BaseClass):
         .. note::
             This will refresh the Trainer instance too
         """
-        pass
+        API_VER = 1
+        if API_VER == 1:
+            trainer_id = self.old_id
+        else:
+            trainer_id = self.id
+
+        data = await self.http.create_update(trainer_id, **options)
+        result = Update(data=data, conn=self.http)
+        await self.refresh_from_api()
+        return result

@@ -1,8 +1,10 @@
 import asyncio
+import datetime
 import logging
-from typing import Iterable, List, Union
+from typing import Iterable, List, Union, Optional
 from uuid import UUID
 
+from tdx.client.faction import Faction
 from tdx.client.http import HTTPClient
 from tdx.client.trainer import Trainer
 from tdx.client.user import User
@@ -21,6 +23,42 @@ class Client:
     async def get_trainer(self, trainer_id: int) -> Trainer:
         data = await self.http.get_trainer(trainer_id)
         return Trainer(data=data, conn=self.http)
+
+    async def create_trainer(
+        self,
+        username: str,
+        faction: Union[int, Faction],
+        start_date: Optional[datetime.date] = None,
+        trainer_code: Optional[str] = None,
+        is_banned: bool = False,
+        is_verified: bool = True,
+        is_visible: bool = True,
+        first_name: Optional[str] = None,
+        user: Optional[User] = None,
+    ) -> Trainer:
+        """Creates Trainer
+
+        If :parameter:`user` is None, it will create a user. This is the default behavour!
+        """
+        if user is None:
+            u_params = {"username": username, "first_name": first_name}
+            u_data = await self.http.create_user(**u_params)
+            user = User(data=u_data, conn=self.http)
+
+        assert isinstance(user, User)
+
+        t_params = {
+            "id": user.id,
+            "nickname": username,
+            "start_date": start_date.isoformat() if start_date else None,
+            "trainer_code": trainer_code,
+            "is_banned": is_banned,
+            "is_verified": is_verified,
+            "is_visible": is_visible,
+        }
+        t_data = await self.http.create_trainer(**t_params)
+        t_data["_user"] = User
+        return Trainer(data=t_data, conn=self.http)
 
     async def get_trainers(self) -> Iterable[Trainer]:
         data = await self.http.get_trainers()

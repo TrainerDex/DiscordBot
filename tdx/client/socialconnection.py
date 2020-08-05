@@ -35,6 +35,10 @@ class SocialConnection(abc.BaseClass):
 
         return self._trainer
 
+    async def refresh_from_api(self) -> None:
+        data = await self.http.get_social_connections(self.provider, self.uid)
+        self._update(data[0])
+
     def get_discord_user(self, client):
         """Returns discord.User object, if possible
 

@@ -460,17 +460,22 @@ class TrainerDex(commands.Cog):
         if trainer:
             log.debug("We found a trainer: {trainer.username}")
             await message.edit(
-                content=loading(_("A record already exists in the database for this trainer."))
+                content=loading(
+                    _(
+                        "A record already exists in the database for this trainer. Updating details..."
+                    )
+                )
             )
+            await trainer.edit(faction=team.id, is_verified=True)
             set_xp: bool = total_xp > max(trainer.updates(), key=check_xp).xp
         else:
             log.debug("No Trainer Found, creating")
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
-            user: trainerdex.User = self.client.create_user(username=nickname)
-            self.client.import_discord_user(uid=str(mention.id), user=user.id)
-            trainer: trainerdex.Trainer = self.client.create_trainer(
-                username=nickname, team=team.id, account=user.id, verified=True
+            trainer: trainerdex.Trainer = await self.client.create_trainer(
+                username=nickname, faction=team.id, is_verified=True
             )
+            user = await trainer.user()
+            await user.add_discord(mention)
             await message.edit(content=loading(_("Created {user}")).format(user=nickname))
             set_xp: bool = True
 

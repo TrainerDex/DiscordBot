@@ -10,3 +10,6 @@ class BaseClass:
 
     def _update(self, data: Dict[str, Union[str, int]]) -> None:
         raise NotImplementedError
+
+    async def refresh_from_api(self) -> None:
+        raise NotImplementedError
