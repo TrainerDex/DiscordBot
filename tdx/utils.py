@@ -18,6 +18,39 @@ def contact_us_on_twitter() -> str:
     ).format(twitter_handle="@TrainerDexApp")
 
 
+def append_twitter(text: str) -> str:
+    return "{original_message}\n\n{twitter}".format(
+        original_message=text, twitter=contact_us_on_twitter()
+    )
+
+
+def loading(text: str) -> str:
+    """Get text prefixed with a loading emoji if the bot has access to it.
+
+    Returns
+    -------
+    str
+    The new message.
+
+    """
+
+    emoji = "<a:loading:471298325904359434>"
+    return f"{emoji} {text}"
+
+
+def success(text: str) -> str:
+    """Get text prefixed with a white checkmark.
+
+    Returns
+    -------
+    str
+    The new message.
+
+    """
+    emoji = "\N{WHITE HEAVY CHECK MARK}"
+    return f"{emoji} {text}"
+
+
 class QuestionMessage:
     def __init__(self, ctx, question: str, check=None):
         self._ctx = ctx

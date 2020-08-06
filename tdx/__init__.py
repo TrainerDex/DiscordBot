@@ -31,9 +31,9 @@ async def setup(bot: Red) -> None:
     config.register_global(
         **{
             "embed_footer": "Provided with ❤️ by TrainerDex",
-            "notice": chat_formatting.bold("Leaderboards are disabled for now.")
-            + " There's a weird bug. I'm working on it.\n"
-            + chat_formatting.italics("Sorry for the inconvenience"),
+            "notice": chat_formatting.bold("Leaderboards are coming soon.")
+            + " The weird bug is fixed. I’m working reimplementing in the bot.\n"
+            + chat_formatting.italics("They’ll be back next week."),
         }
     )
     config.register_guild(
@@ -48,9 +48,7 @@ async def setup(bot: Red) -> None:
             "tl40_role": None,
         }
     )
-    config.register_channel(
-        **{"profile_ocr": False, "post_leaderboard": False,}
-    )
+    config.register_channel(**{"profile_ocr": False, "post_leaderboard": False})
 
     bot.add_cog(Settings(bot, config))
     cog: commands.Cog = TrainerDex(bot, config)

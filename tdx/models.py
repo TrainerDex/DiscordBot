@@ -1,7 +1,5 @@
 from typing import List
 
-import discord
-
 import trainerdex
 from tdx.client.faction import Faction as BaseFaction
 
@@ -9,7 +7,7 @@ from tdx.client.faction import Faction as BaseFaction
 class Faction(BaseFaction):
     def _update(self, **data):
         super()._update(data)
-        self.lookups: List[str] = lookups
+        self.lookups: List[str] = data.get("lookups")
 
 
 class UserData:

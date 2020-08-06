@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, Final, Optional
+from typing import Final, Optional
 
 import discord
 from redbot.core import checks, commands, Config
@@ -14,38 +14,11 @@ from tdx import converters
 from tdx.embeds import BaseCard, ProfileCard
 from tdx.models import Faction
 from tdx.leaderboard import Leaderboard
-from tdx.utils import check_xp, contact_us_on_twitter, QuestionMessage
+from tdx.utils import check_xp, append_twitter, loading, success, QuestionMessage
 
 log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
-
-
-def loading(text: str) -> str:
-    """Get text prefixed with a loading emoji if the bot has access to it.
-
-    Returns
-    -------
-    str
-    The new message.
-
-    """
-
-    emoji = "<a:loading:471298325904359434>"
-    return f"{emoji} {text}"
-
-
-def success(text: str) -> str:
-    """Get text prefixed with a white checkmark.
-
-    Returns
-    -------
-    str
-    The new message.
-
-    """
-    emoji = "\N{WHITE HEAVY CHECK MARK}"
-    return f"{emoji} {text}"
 
 
 class TrainerDex(commands.Cog):
@@ -101,11 +74,14 @@ class TrainerDex(commands.Cog):
 
         async with source_message.channel.typing():
             message: discord.Message = await source_message.channel.send(
-                loading(_("That's a nice image you have there, let's see..."))
+                loading(_("That's a nice image you have there, let's see…"))
                 + "\n"
                 + cf.info(
                     _(
-                        "Please refrain from posting non-profile images in this channel. If your image doesn't scan, please try a new image. Image processing isn't free."
+                        "We use Google Vision API to read your images. "
+                        "Please ensure that the ‘Total XP’ field is visible. "
+                        "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                        "Posting the same image again, will likely cause another failure."
                     )
                 )
             )
@@ -114,40 +90,56 @@ class TrainerDex(commands.Cog):
             )
             ocr.get_text()
             if ocr.total_xp:
-                text: str = loading(
-                    _("{user}, we're sure your XP is {xp}. Just processing that now...")
-                ).format(
-                    user=source_message.author.mention, xp=ocr.total_xp,
+                await message.edit(
+                    content=append_twitter(
+                        loading(
+                            _("{user}, we're sure your XP is {xp}. Just processing that now…")
+                        ).format(
+                            user=source_message.author.mention, xp=ocr.total_xp,
+                        )
+                    )
                 )
-                await message.edit(content=text + "\n\n" + contact_us_on_twitter())
                 if max(trainer.updates(), key=check_xp).xp > ocr.total_xp:
                     await message.edit(
-                        content=cf.warning(
-                            (
+                        content=append_twitter(
+                            cf.warning(
                                 _(
-                                    "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
+                                    "You've previously set your XP to higher than what you're trying to set it to. "
+                                    "It's currently set to {xp}."
                                 )
                             )
-                            + "\n\n"
-                            + contact_us_on_twitter()
                         ).format(xp=cf.humanize_number(ocr.total_xp))
                     )
                     return
                 elif max(trainer.updates(), key=check_xp).xp == ocr.total_xp:
                     text: str = cf.warning(
                         _(
-                            "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
+                            "You've already set your XP to this figure. "
+                            "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                         )
                     )
                 else:
                     update: trainerdex.Update = self.client.create_update(trainer.id, ocr.total_xp)
-                    text: str = _("✅ Success")
+                    text: str = success(_("Success"))
                     trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
 
-                await message.edit(content=text + "\n" + loading(_("Loading output...")))
+                await message.edit(content=text + "\n" + loading(_("Loading output…")))
                 embed: discord.Embed = await ProfileCard(source_message, trainer)
                 await message.edit(content=text, embed=embed)
                 return
+            else:
+                await message.edit(
+                    content=cf.error(_("I could not find Total XP in your image. "))
+                    + "\n"
+                    + cf.info(
+                        _(
+                            "We use Google Vision API to read your images. "
+                            "Please ensure that the ‘Total XP’ field is visible. "
+                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                            "Posting the same image again, will likely cause another failure."
+                        )
+                    )
+                )
 
     @commands.group(name="profile")
     async def profile(self, ctx: commands.Context) -> None:
@@ -171,7 +163,7 @@ class TrainerDex(commands.Cog):
         await ctx.tick()
 
         message = await ctx.send(
-            loading(_("{tag} Downloading global leaderboard...")).format(tag=ctx.author.mention)
+            loading(_("{tag} Downloading global leaderboard…")).format(tag=ctx.author.mention)
         )
         leaderboard = await Leaderboard(limit=limit)
         await message.edit(
@@ -230,7 +222,7 @@ class TrainerDex(commands.Cog):
         """Find a profile given a username."""
 
         async with ctx.typing():
-            message: discord.Message = await ctx.send(loading(_("Searching for profile...")))
+            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
 
             if trainer is None:
                 trainer: trainerdex.Trainer = await converters.TrainerConverter().convert(
@@ -238,13 +230,13 @@ class TrainerDex(commands.Cog):
                 )
 
             if trainer:
-                await message.edit(content=loading(_("Found profile. Loading...")))
+                await message.edit(content=loading(_("Found profile. Loading…")))
             else:
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
 
             embed: discord.Embed = await ProfileCard(ctx, trainer)
-            await message.edit(content=loading(_("Checking progress...")), embed=embed)
+            await message.edit(content=loading(_("Checking progress…")), embed=embed)
             await embed.show_progress()
             await message.edit(content=None, embed=embed)
 
@@ -260,7 +252,7 @@ class TrainerDex(commands.Cog):
     ) -> None:
         """Get or create a profile in TrainerDex
 
-        If `guild.assign_roles_on_join` and/or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
+        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
 
         If a trainer already exists for this profile, it will update the Total XP is needed.
 
@@ -306,7 +298,7 @@ class TrainerDex(commands.Cog):
         while (total_xp is None) or (total_xp <= MINIMUM_XP_CAP):
             q = QuestionMessage(
                 ctx,
-                _("What is {nickname}'s Total XP? (as a whole number)").format(nickname=nickname),
+                _("What is {nickname}‘s Total XP? (as a whole number)").format(nickname=nickname),
                 check=predicates.MessagePredicate.valid_int(ctx),
             )
             await q.ask(self.bot)
@@ -317,7 +309,7 @@ class TrainerDex(commands.Cog):
             answer_text: str = cf.humanize_number(total_xp)
             await q.message.edit(content=f"{q.message.content}\n{answer_text}")
 
-        message: discord.Message = await ctx.send(loading(_("Let's go...")))
+        message: discord.Message = await ctx.send(loading(_("Let's go…")))
 
         if assign_roles:
             async with ctx.typing():
@@ -340,7 +332,12 @@ class TrainerDex(commands.Cog):
                     )
 
                     try:
-                        await mention.add_roles(*roles["add"], reason=_("Approval via TrainerDex"))
+                        await mention.add_roles(
+                            *roles["add"],
+                            reason=_("{mod} ran the command `{command}`").format(
+                                mod=ctx.author, command=ctx.invoked_with
+                            ),
+                        )
                     except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
                         roles_added = False
                         roles_added_error = e
@@ -364,7 +361,10 @@ class TrainerDex(commands.Cog):
 
                     try:
                         await mention.remove_roles(
-                            *roles["remove"], reason=_("Approval via TrainerDex")
+                            *roles["remove"],
+                            reason=_("{mod} ran the command `{command}`").format(
+                                mod=ctx.author, command=ctx.invoked_with
+                            ),
                         )
                     except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
                         roles_removed = False
@@ -381,19 +381,24 @@ class TrainerDex(commands.Cog):
         if set_nickname:
             async with ctx.typing():
                 await message.edit(
-                    content=loading(_("Changing {user}'s nick to {nickname}")).format(
+                    content=loading(_("Changing {user}‘s nick to {nickname}")).format(
                         user=mention.mention, nickname=nickname
                     )
                 )
 
                 try:
-                    await mention.edit(nick=nickname)
+                    await mention.edit(
+                        nick=nickname,
+                        reason=_("{mod} ran the command `{command}`").format(
+                            mod=ctx.author, command=ctx.invoked_with
+                        ),
+                    )
                 except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
                     nick_set = False
                     nick_set_error = e
                 else:
                     await message.edit(
-                        content=success(_("Changed {user}'s nick to {nickname}")).format(
+                        content=success(_("Changed {user}‘s nick to {nickname}")).format(
                             user=mention.mention, nickname=nickname
                         )
                     )
@@ -461,9 +466,7 @@ class TrainerDex(commands.Cog):
             log.debug("We found a trainer: {trainer.username}")
             await message.edit(
                 content=loading(
-                    _(
-                        "A record already exists in the database for this trainer. Updating details..."
-                    )
+                    _("An existing record was found for {trainer.username}. Updating details…")
                 )
             )
             await trainer.edit(faction=team.id, is_verified=True)
@@ -490,7 +493,7 @@ class TrainerDex(commands.Cog):
             content=(
                 success(_("Successfully added {user} as {trainer}."))
                 + "\n"
-                + loading(_("Loading profile..."))
+                + loading(_("Loading profile…"))
             ).format(
                 user=mention.mention, trainer=trainer.username,
             )

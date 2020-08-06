@@ -101,7 +101,7 @@ class ProfileCard(BaseCard):
         try:
             self.user_data.update = max(self.user_data.updates, key=check_xp)
         except ValueError:
-            log.warning("No updates found for user {user}".format(user=self.user_data.trainer))
+            log.warning("No updates found for {user}".format(user=self.user_data.trainer))
 
         self.colour: Union[discord.Colour, int] = self.user_data.team.colour
         self.title: str = _("{nickname} | Level {level}").format(
