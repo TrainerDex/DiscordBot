@@ -8,12 +8,9 @@ from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, menus, predicates
 
-import tdx.client as trainerdex
 import PogoOCR
-from tdx import converters
+from tdx import converters, client
 from tdx.embeds import BaseCard, ProfileCard
-from tdx.models import Faction
-from tdx.leaderboard import Leaderboard
 from tdx.utils import check_xp, append_twitter, loading, success, QuestionMessage
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -39,7 +36,7 @@ class TrainerDex(commands.Cog):
     async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
         token = await self._get_token()
-        self.client = trainerdex.Client(token=token)
+        self.client = client.Client(token=token)
 
     async def _get_token(self) -> str:
         """Get TrainerDex token"""
@@ -63,10 +60,16 @@ class TrainerDex(commands.Cog):
         if len(source_message.attachments) != 1:
             return
 
-        trainer: trainerdex.Trainer = await converters.TrainerConverter().convert(
-            None, source_message.author
+        await source_message.add_reaction(self.bot.get_emoji(471298325904359434))
+
+        trainer: client.Trainer = await converters.TrainerConverter().convert(
+            None, source_message.author, cli=self.client
         )
         if not trainer:
+            await source_message.remove_reaction(
+                self.bot.get_emoji(471298325904359434), self.bot.user
+            )
+            await source_message.add_reaction("\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}")
             await source_message.channel.send(
                 "{message.author.mention} Trainer not found!", delete_after=5
             )
@@ -99,7 +102,7 @@ class TrainerDex(commands.Cog):
                         )
                     )
                 )
-                if max(trainer.updates(), key=check_xp).xp > ocr.total_xp:
+                if max(trainer.updates, key=check_xp).total_xp > ocr.total_xp:
                     await message.edit(
                         content=append_twitter(
                             cf.warning(
@@ -110,23 +113,37 @@ class TrainerDex(commands.Cog):
                             )
                         ).format(xp=cf.humanize_number(ocr.total_xp))
                     )
+                    await source_message.remove_reaction(
+                        self.bot.get_emoji(471298325904359434), self.bot.user
+                    )
+                    await source_message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                     return
-                elif max(trainer.updates(), key=check_xp).xp == ocr.total_xp:
+                elif max(trainer.updates, key=check_xp).total_xp == ocr.total_xp:
                     text: str = cf.warning(
                         _(
                             "You've already set your XP to this figure. "
                             "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                         )
                     )
+                    await source_message.remove_reaction(
+                        self.bot.get_emoji(471298325904359434), self.bot.user
+                    )
+                    await source_message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                 else:
-                    update: trainerdex.Update = self.client.create_update(trainer.id, ocr.total_xp)
-                    text: str = success(_("Success"))
-                    trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
+                    await trainer.post(total_xp=ocr.total_xp)
+                    await source_message.remove_reaction(
+                        self.bot.get_emoji(471298325904359434), self.bot.user
+                    )
+                    await source_message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                    text = None
 
-                await message.edit(content=text + "\n" + loading(_("Loading output…")))
+                await message.edit(
+                    content="\n".join(
+                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                    )
+                )
                 embed: discord.Embed = await ProfileCard(source_message, trainer)
                 await message.edit(content=text, embed=embed)
-                return
             else:
                 await message.edit(
                     content=cf.error(_("I could not find Total XP in your image. "))
@@ -140,6 +157,10 @@ class TrainerDex(commands.Cog):
                         )
                     )
                 )
+                await source_message.remove_reaction(
+                    self.bot.get_emoji(471298325904359434), self.bot.user
+                )
+                await source_message.add_reaction("\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}")
 
     @commands.group(name="profile")
     async def profile(self, ctx: commands.Context) -> None:
@@ -165,7 +186,7 @@ class TrainerDex(commands.Cog):
         message = await ctx.send(
             loading(_("{tag} Downloading global leaderboard…")).format(tag=ctx.author.mention)
         )
-        leaderboard = await Leaderboard(limit=limit)
+        leaderboard = await self.client.get_leaderboard()
         await message.edit(
             content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
         )
@@ -225,8 +246,8 @@ class TrainerDex(commands.Cog):
             message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
 
             if trainer is None:
-                trainer: trainerdex.Trainer = await converters.TrainerConverter().convert(
-                    ctx, ctx.author
+                trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
                 )
 
             if trainer:
@@ -286,7 +307,9 @@ class TrainerDex(commands.Cog):
             if q.exit:
                 return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
-            team: Faction = await converters.safe_convert(converters.TeamConverter, ctx, q.answer)
+            team: client.Faction = await converters.safe_convert(
+                converters.TeamConverter, ctx, q.answer
+            )
             if team:
                 answer_text: str = team
                 await q.message.edit(content=f"{q.message.content}\n{answer_text}")
@@ -451,30 +474,41 @@ class TrainerDex(commands.Cog):
         await message.edit(content=loading(_("Checking for user to database")))
 
         try:
-            trainer: Optional[trainerdex.Trainer] = await converters.TrainerConverter().convert(
-                ctx, nickname
+            trainer: client.Trainer = await converters.TrainerConverter().convert(
+                ctx, nickname, cli=self.client
             )
         except commands.BadArgument:
             try:
-                trainer: Optional[
-                    trainerdex.Trainer
-                ] = await converters.TrainerConverter().convert(ctx, mention)
+                trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    ctx, mention, cli=self.client
+                )
             except commands.BadArgument:
                 trainer = None
 
-        if trainer:
+        if trainer is not None:
             log.debug("We found a trainer: {trainer.username}")
             await message.edit(
                 content=loading(
-                    _("An existing record was found for {trainer.username}. Updating details…")
+                    _("An existing record was found for {user}. Updating details…").format(
+                        user=trainer.username
+                    )
                 )
             )
+
+            # Edit the trainer instance with the new team and set is_verified
+            # Chances are, is_verified might have been False and this will fix that.
             await trainer.edit(faction=team.id, is_verified=True)
-            set_xp: bool = total_xp > max(trainer.updates(), key=check_xp).xp
+
+            # Check if it's a good idea to update the stats
+            set_xp = (
+                (total_xp > max(trainer.updates, key=check_xp).total_xp)
+                if trainer.updates
+                else True
+            )
         else:
-            log.debug("No Trainer Found, creating")
+            log.debug(f"{nickname}: No user found, creating profile")
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
-            trainer: trainerdex.Trainer = await self.client.create_trainer(
+            trainer: client.Trainer = await self.client.create_trainer(
                 username=nickname, faction=team.id, is_verified=True
             )
             user = await trainer.user()
@@ -488,7 +522,7 @@ class TrainerDex(commands.Cog):
                     user=trainer.username, total_xp=total_xp,
                 )
             )
-            self.client.create_update(trainer, time_updated=ctx.message.created_at, xp=total_xp)
+            await trainer.post(update_time=ctx.message.created_at, total_xp=total_xp)
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))
@@ -498,7 +532,6 @@ class TrainerDex(commands.Cog):
                 user=mention.mention, trainer=trainer.username,
             )
         )
-        trainer: trainerdex.Trainer = self.client.get_trainer(trainer.id)
         embed: discord.Embed = await ProfileCard(ctx, trainer)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(

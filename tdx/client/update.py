@@ -6,16 +6,68 @@ from typing import Dict, Union
 from dateutil.parser import parse
 
 from tdx.client import abc
-from tdx.client.http import HTTPClient
+from tdx.client.http import HTTPClient, UPDATE_KEYS_ENUM_IN
 from tdx.client.utils import con
 
 odt = con(parse)
+
+
+def get_level(xp: int) -> int:
+    levels = {
+        1: (0, 1000),
+        2: (1000, 3000),
+        3: (3000, 6000),
+        4: (6000, 10000),
+        5: (10000, 15000),
+        6: (15000, 21000),
+        7: (21000, 28000),
+        8: (28000, 36000),
+        9: (36000, 45000),
+        10: (45000, 55000),
+        11: (55000, 65000),
+        12: (65000, 75000),
+        13: (75000, 85000),
+        14: (85000, 100000),
+        15: (100000, 120000),
+        16: (120000, 140000),
+        17: (140000, 160000),
+        18: (160000, 185000),
+        19: (185000, 210000),
+        20: (210000, 260000),
+        21: (260000, 335000),
+        22: (335000, 435000),
+        23: (435000, 560000),
+        24: (560000, 710000),
+        25: (710000, 900000),
+        26: (900000, 1100000),
+        27: (1100000, 1350000),
+        28: (1350000, 1650000),
+        29: (1650000, 2000000),
+        30: (2000000, 2500000),
+        31: (2500000, 3000000),
+        32: (3000000, 3750000),
+        33: (3750000, 4750000),
+        34: (4750000, 6000000),
+        35: (6000000, 7500000),
+        36: (7500000, 9500000),
+        37: (9500000, 12000000),
+        38: (12000000, 15000000),
+        39: (15000000, 20000000),
+        40: (20000000, float("inf")),
+    }
+    return [k for k, v in levels.items() if v[0] <= xp < v[1]][0]
 
 
 class BaseUpdate(abc.BaseClass):
     def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]], trainer=None) -> None:
         super().__init__(conn, data)
         self._trainer = trainer
+
+    @property
+    def level(self) -> int:
+        xp = getattr(self, "total_xp", None)
+        if xp:
+            return get_level(xp)
 
     async def trainer(self):
         if self._trainer:
@@ -32,6 +84,11 @@ class BaseUpdate(abc.BaseClass):
 
 class Update(BaseUpdate):
     def _update(self, data: Dict[str, Union[str, int]]) -> None:
+        data = {
+            UPDATE_KEYS_ENUM_IN.get(k): v
+            for k, v in data.items()
+            if (UPDATE_KEYS_ENUM_IN.get(k) is not None)
+        }
         self.uuid = UUID(data.get("uuid"))
         self._trainer_id = data.get("trainer")
         self.update_time = odt(data.get("update_time"))
@@ -117,12 +174,17 @@ class Update(BaseUpdate):
         if isinstance(options.get("travel_km"), (float, Decimal)):
             options["travel_km"] = str(options["travel_km"])
 
-        new_data = self.http.edit_update(self._trainer_id, self.uuid, **options)
+        new_data = await self.http.edit_update(self._trainer_id, self.uuid, **options)
         self._update(new_data)
 
 
 class PartialUpdate(BaseUpdate):
     def _update(self, data):
+        data = {
+            UPDATE_KEYS_ENUM_IN.get(k): v
+            for k, v in data.items()
+            if (UPDATE_KEYS_ENUM_IN.get(k) is not None)
+        }
         self.uuid = UUID(data.get("uuid"))
         self._trainer_id = data.get("trainer")
         self.update_time = odt(data.get("update_time"))

@@ -9,9 +9,7 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import humanize
-import trainerdex
-from tdx import converters
-from tdx.models import UserData
+from tdx import client
 from tdx.utils import check_xp
 from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY
@@ -81,44 +79,36 @@ class BaseCard(discord.Embed):
             self._channel: discord.TextChannel = ctx.channel
             self._guild: discord.Guild = ctx.channel.guild
 
-        return self
-
 
 class ProfileCard(BaseCard):
     async def __init__(
-        self, ctx: Union[commands.Context, discord.Message], trainer: trainerdex.Trainer, **kwargs,
+        self, ctx: Union[commands.Context, discord.Message], trainer: client.Trainer, **kwargs,
     ):
         await super().__init__(ctx, **kwargs)
 
-        self.user_data = UserData(
-            **{
-                "trainer": trainer,
-                "team": await converters.TeamConverter().convert(ctx, trainer._get.get("faction")),
-                "updates": trainer.updates(),
-            }
-        )
+        self.trainer = trainer
 
         try:
-            self.user_data.update = max(self.user_data.updates, key=check_xp)
+            self.update = max(self.trainer.updates, key=check_xp)
         except ValueError:
-            log.warning("No updates found for {user}".format(user=self.user_data.trainer))
+            log.warning("No updates found for {user}".format(user=self.trainer))
 
-        self.colour: Union[discord.Colour, int] = self.user_data.team.colour
+        self.colour: int = self.trainer.team.colour
         self.title: str = _("{nickname} | Level {level}").format(
-            nickname=self.user_data.trainer.username, level=self.user_data.level.level,
+            nickname=self.trainer.username, level=self.trainer.level,
         )
-        self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(
-            self.user_data.trainer.id
-        )
-        if self.user_data.update:
-            self.timestamp: datetime.datetime = self.user_data.update.update_time
+        self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(self.trainer.old_id)
+        if self.trainer.latest_update:
+            self.timestamp = self.trainer.latest_update.update_time
 
-        self.add_field(name=_("Team"), value=self.user_data.team)
-        self.add_field(name=_("Level"), value=self.user_data.level.level)
+        self.add_field(name=_("Team"), value=self.trainer.team)
+        self.add_field(name=_("Level"), value=self.trainer.level)
         self.add_field(
-            name=_("Total XP"), value=cf.humanize_number(self.user_data.update.xp),
+            name=_("Total XP"), value=cf.humanize_number(self.trainer.latest_update.total_xp),
         )
-        return self
+        self.set_thumbnail(
+            url=f"https://trainerdex.co.uk/static/img/faction/{self.trainer.team.id}.png"
+        )
 
     async def add_guild_leaderboard(self) -> NoReturn:
         raise NotImplementedError
@@ -127,40 +117,44 @@ class ProfileCard(BaseCard):
         raise NotImplementedError
 
     async def show_progress(self) -> None:
-        if self.user_data.update is None:
+        this_update: client.Update = self.trainer.latest_update
+
+        if this_update is None:
             return
 
-        this_update = self.user_data.update
         RRULE = rrule(
             WEEKLY, dtstart=datetime.datetime(2020, 6, 9, 12, 0, tzinfo=UTC), byweekday=MO
         )
+
         current_period = (
-            RRULE.before(self.user_data.update.update_time, inc=True),
-            RRULE.after(self.user_data.update.update_time),
+            RRULE.before(this_update.update_time, inc=True),
+            RRULE.after(this_update.update_time),
         )
         previous_period = (RRULE.before(current_period[0]), current_period[0])
 
-        queryset: List[trainerdex.Update] = [
+        queryset: List[client.PartialUpdate] = [
             x
-            for x in self.user_data.updates
-            if (x.update_time < previous_period[1]) and (x.xp is not None)
+            for x in self.trainer.updates
+            if (x.update_time < previous_period[1]) and (x.total_xp is not None)
         ]
+
         if queryset:
-            last_update: trainerdex.Update = max(queryset, key=check_xp)
+            last_update: client.PartialUpdate = max(queryset, key=check_xp)
         else:
-            if not self.user_data.trainer.start_date:
+            if not self.trainer.start_date:
                 return
-            last_update: trainerdex.Update = trainerdex.Update(
+            last_update: client.PartialUpdate = client.PartialUpdate(
                 {
                     "uuid": None,
-                    "update_time": getattr(self.user_data.trainer, "start_date").isoformat(),
-                    "xp": 0,
+                    "trainer": self.trainer.old_id,
+                    "update_time": getattr(self.trainer, "start_date").isoformat(),
+                    "total_xp": 0,
                 }
             )
-            self.description: str = cf.info(_("No data old enough found, using start date."))
+            self.description = cf.info(_("No data old enough found, using start date."))
 
-        stat_delta: int = this_update.xp - last_update.xp
-        time_delta: datetime.timedelta = this_update.update_time - last_update.update_time
+        stat_delta = this_update.total_xp - last_update.total_xp
+        time_delta = this_update.update_time - last_update.update_time
         self.add_field(
             name=_("XP Gain"),
             value=_("{gain} over {time} (since {earlier_date})").format(

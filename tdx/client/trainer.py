@@ -1,10 +1,10 @@
-import datetime
 import re
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from dateutil.parser import parse
 
 from tdx.client import abc
+from tdx.client.http import HTTPClient, TRAINER_KEYS_ENUM_IN
 from tdx.client.faction import Faction
 from tdx.client.update import PartialUpdate, Update
 from tdx.client.utils import con
@@ -13,12 +13,20 @@ odt = con(parse)
 
 
 class Trainer(abc.BaseClass):
+    def __init__(self, conn: HTTPClient, data: Dict[str, Union[str, int]]) -> None:
+        super().__init__(conn, data)
+
     def _update(self, data: Dict[str, Union[str, int]]) -> None:
-        self.id = int(data.get("owner"))
-        self.username = data.get("username")
-        self.old_id = int(data.get("id"))
+        data = {
+            TRAINER_KEYS_ENUM_IN.get(k): v
+            for k, v in data.items()
+            if (TRAINER_KEYS_ENUM_IN.get(k) is not None)
+        }
+        self.id = int(data.get("id"))
+        self.username = data.get("nickname")
+        self.old_id = int(data.get("old_id"))
         self.last_modified = odt(data.get("last_modified"))
-        self.nickname = data.get("username")
+        self.nickname = data.get("nickname")
         self.start_date = odt(data.get("start_date")).date() if data.get("start_date") else None
         self.faction = data.get("faction")
         self.trainer_code = data.get("trainer_code")
@@ -33,8 +41,17 @@ class Trainer(abc.BaseClass):
         return Faction(self.faction)
 
     @property
-    def updates(self):
-        return tuple(PartialUpdate(self.http, x) for x in self._updates)
+    def updates(self) -> List[PartialUpdate]:
+        return [PartialUpdate(self.http, x) for x in self._updates]
+
+    @property
+    def latest_update(self) -> Update:
+        if self.updates:
+            return max(self.updates, key=lambda x: x.update_time)
+
+    @property
+    def level(self) -> int:
+        return self.latest_update.level if self.latest_update else None
 
     async def user(self):
         if self._user:
@@ -49,7 +66,7 @@ class Trainer(abc.BaseClass):
         return self._user
 
     async def refresh_from_api(self) -> None:
-        data = await self.http.get_trainer(self._trainer_id)
+        data = await self.http.get_trainer(self.old_id)
         self._update(data)
 
     async def edit(self, **options) -> None:
@@ -91,7 +108,7 @@ class Trainer(abc.BaseClass):
                 r"\s+", "", str(options["trainer_code"]), flags=re.UNICODE
             )
 
-        new_data = self.http.edit_trainer(self.old_id, **options)
+        new_data = await self.http.edit_trainer(self.old_id, **options)
         self._update(new_data)
 
     async def post(self, **options) -> Update:
@@ -109,6 +126,6 @@ class Trainer(abc.BaseClass):
             trainer_id = self.id
 
         data = await self.http.create_update(trainer_id, **options)
-        result = Update(data=data, conn=self.http)
+        result = Update(data=data[0], conn=self.http)
         await self.refresh_from_api()
         return result

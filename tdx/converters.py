@@ -5,9 +5,7 @@ import discord
 from discord.ext import commands
 
 from redbot.core.i18n import Translator
-from tdx.client.client import Client
-from tdx.client.trainer import Trainer
-from tdx.models import Faction
+from tdx import client
 
 _ = Translator("TrainerDex", __file__)
 
@@ -62,86 +60,53 @@ class TrainerConverter(commands.Converter):
     2. Lookup by Discord User
     """
 
-    async def convert(self, ctx, argument) -> Trainer:
-        if isinstance(argument, (discord.User, discord.Member)):
-            match = None
-            mention: Union[discord.User, discord.Member] = argument
-        else:
-            try:
-                match: str = await NicknameConverter().convert(ctx, argument)
-            except commands.BadArgument:
-                match = None
-            mention = None
+    async def convert(self, ctx, argument, cli=client.Client()) -> client.Trainer:
 
-        if match is None:
-            # not a Valid Pogo name
-            # check if mention
-            if mention is None:
+        if isinstance(argument, str):
+            is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
+            is_mention = await safe_convert(commands.converter.UserConverter, ctx, argument)
+            if is_valid_nickname:
                 try:
-                    mention: discord.User = await commands.converter.UserConverter().convert(
-                        ctx, argument
-                    )
-                except commands.BadArgument:
-                    result = None
-                    mention = None
+                    return await cli.search_trainer(argument)
+                except IndexError:
+                    pass
+                mention = None
 
-            if mention:
-                socialconnections = Client().get_social_connections("discord", str(mention.id))
-                if socialconnections:
-                    result = await socialconnections[0].trainer()
-                else:
-                    result = None
-        else:
-            result: Trainer = Client().search_trainer(argument)
+            if is_mention:
+                mention = is_mention
+        elif isinstance(argument, (discord.User, discord.Member)):
+            mention = argument
 
-        if result is None:
-            raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
+        if mention:
+            socialconnections = await cli.get_social_connections("discord", str(mention.id))
+            if socialconnections:
+                return await socialconnections[0].trainer()
 
-        return result
+        raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
 
 
 class TeamConverter(commands.Converter):
     def __init__(self):
-        self.teams = [
-            {
-                "id": 0,
-                "verbose_name": _("Teamless"),
-                "colour": 9605778,
-                "lookups": ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
-            },
-            {
-                "id": 1,
-                "verbose_name": _("Mystic"),
-                "colour": 1535,
-                "lookups": ["Blue", "Mystic", "Team Mystic"],
-            },
-            {
-                "id": 2,
-                "verbose_name": _("Valor"),
-                "colour": 16711680,
-                "lookups": ["Red", "Valor", "Team Valor"],
-            },
-            {
-                "id": 3,
-                "verbose_name": _("Instinct"),
-                "colour": 16774656,
-                "lookups": ["Yellow", "Instinct", "Team Instinct"],
-            },
-        ]
+        self.teams = {
+            0: ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
+            1: ["Blue", "Mystic", "Team Mystic"],
+            2: ["Red", "Valor", "Team Valor"],
+            3: ["Yellow", "Instinct", "Team Instinct"],
+        }
 
-    async def convert(self, ctx, argument: str) -> Faction:
+    async def convert(self, ctx, argument: str) -> client.Faction:
         if isinstance(argument, int) or argument.isnumeric():
-            if int(argument) < len(self.teams):
-                result = Faction(int(argument))
+            if int(argument) in self.teams.keys():
+                result = client.Faction(int(argument))
                 result._update(self.teams[int(argument)])  # Ensures team names are translated
             else:
                 result = None
         else:
-            options: List[Dict[str, Union[int, str]]] = [
-                x for x in self.teams if argument.casefold() in map(str.casefold, x.get("lookups"))
+            options = [
+                k for k, v in self.teams.items() if argument.casefold() in map(str.casefold, v)
             ]
             if len(options) == 1:
-                result: Faction = Faction(**options[0])
+                result: client.Faction = client.Faction(options[0])
             else:
                 result = None
 

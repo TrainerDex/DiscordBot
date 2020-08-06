@@ -7,9 +7,9 @@ _ = Translator("TrainerDex", __file__)
 
 
 def check_xp(x: trainerdex.Update) -> int:
-    if x.xp is None:
+    if x.total_xp is None:
         return 0
-    return x.xp
+    return x.total_xp
 
 
 def contact_us_on_twitter() -> str:

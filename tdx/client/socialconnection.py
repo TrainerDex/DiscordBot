@@ -3,7 +3,6 @@ from typing import Dict, Union
 
 from tdx.client import abc
 from tdx.client.trainer import Trainer
-from tdx.client.user import User
 from tdx.client.utils import con
 
 
@@ -17,9 +16,11 @@ class SocialConnection(abc.BaseClass):
         self._trainer_id = data.get("trainer")
         self._trainer = None
 
-    async def user(self) -> User:
+    async def user(self):
         if self._user:
             return self._user
+
+        from tdx.client.user import User
 
         data = await self.http.get_user(self._user_id)
         self._user = User(data=data, conn=self.http)

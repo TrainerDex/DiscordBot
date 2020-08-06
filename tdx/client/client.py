@@ -62,7 +62,7 @@ class Client:
 
     async def get_trainers(self) -> Iterable[Trainer]:
         data = await self.http.get_trainers()
-        return tuple(Trainer(data=x, conn=self.http) for x in data)
+        return [Trainer(data=x, conn=self.http) for x in data]
 
     async def get_user(self, user_id: int) -> User:
         data = await self.http.get_user(user_id)
@@ -117,10 +117,9 @@ class Client:
 
         """
 
-        queryset = self.get_trainers()
-        queryset = [x for x in queryset if x.username.casefold() == nickname.casefold()]
+        queryset = await self.http.get_trainers(q=nickname)
 
         if len(queryset) == 1:
-            return Trainer(self.client, **queryset[0])
+            return Trainer(data=queryset[0], conn=self.http)
         else:
             raise IndexError

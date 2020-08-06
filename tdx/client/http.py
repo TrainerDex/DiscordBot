@@ -81,6 +81,7 @@ UPDATE_KEYS_ENUM_OUT = {
     "gymbadges_total": "gymbadges_total",
     "gymbadges_gold": "gymbadges_gold",
     "stardust": "pokemon_info_stardust",
+    "modified_extra_fields": "modified_extra_fields",
 }
 UPDATE_KEYS_ENUM_IN = {v: k for k, v in UPDATE_KEYS_ENUM_OUT.items() if v is not None}
 UPDATE_KEYS_READ_ONLY = ("uuid", "trainer")
@@ -144,7 +145,7 @@ class HTTPClient:
     def __init__(self, token: str = None, loop=None) -> None:
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self.session = aiohttp.ClientSession()
-        self.token = None
+        self.token = token
 
         user_agent = (
             "DiscordBot (https://github.com/TrainerDex/DiscordBot {0}) "
@@ -191,7 +192,7 @@ class HTTPClient:
                         continue
 
                     # Error, don't retry
-                    if r.status in {403, 423}:
+                    if r.status in {401, 403, 423}:
                         raise Forbidden(r, data)
                     elif r.status == 404:
                         raise NotFound(r, data)
@@ -255,10 +256,10 @@ class HTTPClient:
 
         return self.request(r)
 
-    def get_trainers(self) -> List[Dict]:
+    def get_trainers(self, **kwargs) -> List[Dict]:
         r = Route("GET", "/trainers")
 
-        return self.request(r)
+        return self.request(r, params=kwargs)
 
     def create_trainer(self, **kwargs) -> Dict:
         r = Route("POST", "/trainers")
