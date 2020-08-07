@@ -599,7 +599,7 @@ class TrainerDex(commands.Cog):
                 )
             )
             await trainer.post(
-                stats={"total_xp": total_xp()},
+                stats={"total_xp": total_xp},
                 data_source="ss_ocr",
                 update_time=ctx.message.created_at,
             )
