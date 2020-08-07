@@ -110,7 +110,8 @@ class ProfileCard(BaseCard):
         self.add_field(name=_("Level"), value=self.trainer.level)
         if self.latest_update.travel_km:
             self.add_field(
-                name=_("Distance Walked"), value=cf.humanize_number(self.latest_update.travel_km),
+                name=_("Distance Walked"),
+                value=cf.humanize_number(self.latest_update.travel_km) + " km",
             )
         if self.latest_update.capture_total:
             self.add_field(
