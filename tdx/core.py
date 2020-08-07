@@ -495,7 +495,7 @@ class TrainerDex(commands.Cog):
                 await message.edit(content=approval_message)
                 message: discord.Message = await ctx.send(loading(""))
 
-        log.debug(f"Attempting to add {nickname} to database, checking if they already exist")
+        log.info(f"Attempting to add {nickname} to database, checking if they already exist")
 
         await message.edit(content=loading(_("Checking for user to database")))
 
@@ -512,7 +512,7 @@ class TrainerDex(commands.Cog):
                 trainer = None
 
         if trainer is not None:
-            log.debug("We found a trainer: {trainer.username}")
+            log.info("We found a trainer: {trainer.username}")
             await message.edit(
                 content=loading(
                     _("An existing record was found for {user}. Updating details…").format(
@@ -532,7 +532,7 @@ class TrainerDex(commands.Cog):
                 else True
             )
         else:
-            log.debug(f"{nickname}: No user found, creating profile")
+            log.info(f"{nickname}: No user found, creating profile")
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
             trainer: client.Trainer = await self.client.create_trainer(
                 username=nickname, faction=team.id, is_verified=True

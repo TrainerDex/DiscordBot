@@ -179,7 +179,7 @@ class HTTPClient:
         for tries in range(5):
             try:
                 async with self.session.request(method, url, **kwargs) as r:
-                    log.debug(
+                    log.info(
                         "{0} {1} with {2} has returned {3}".format(
                             method, url, kwargs.get("data"), r.status
                         )

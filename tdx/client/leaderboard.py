@@ -66,7 +66,9 @@ class BaseLeaderboard:
             This happens when they both have the same stat.
         """
         return [
-            LeaderboardEntry(self.http, **x) for x in self._entries if x.get("position") == key
+            LeaderboardEntry(conn=self.http, data=x)
+            for x in self._entries
+            if x.get("position") == key
         ]
 
     def filter(self, predicate) -> Iterator[LeaderboardEntry]:
@@ -102,7 +104,7 @@ class BaseLeaderboard:
 
         """
         for x in self._entries:
-            xx = LeaderboardEntry(self.http, **x)
+            xx = LeaderboardEntry(conn=self.http, data=x)
             if predicate(xx):
                 yield xx
 

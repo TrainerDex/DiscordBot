@@ -22,7 +22,7 @@ class Client:
 
     async def get_trainer(self, trainer_id: int) -> Trainer:
         data = await self.http.get_trainer(trainer_id)
-        return Trainer(data=data, conn=self.http)
+        return Trainer(conn=self.http, data=data)
 
     async def create_trainer(
         self,
@@ -43,7 +43,7 @@ class Client:
         if user is None:
             u_params = {"username": username, "first_name": first_name}
             u_data = await self.http.create_user(**u_params)
-            user = User(data=u_data, conn=self.http)
+            user = User(conn=self.http, data=u_data)
 
         assert isinstance(user, User)
 
@@ -58,29 +58,29 @@ class Client:
         }
         t_data = await self.http.create_trainer(**t_params)
         t_data["_user"] = User
-        return Trainer(data=t_data, conn=self.http)
+        return Trainer(conn=self.http, data=t_data)
 
     async def get_trainers(self) -> Iterable[Trainer]:
         data = await self.http.get_trainers()
-        return [Trainer(data=x, conn=self.http) for x in data]
+        return [Trainer(conn=self.http, data=x) for x in data]
 
     async def get_user(self, user_id: int) -> User:
         data = await self.http.get_user(user_id)
-        return User(data=data, conn=self.http)
+        return User(conn=self.http, data=data)
 
     async def get_users(self) -> Iterable[User]:
         data = await self.http.get_users()
-        return tuple(User(data=x, conn=self.http) for x in data)
+        return tuple(User(conn=self.http, data=x) for x in data)
 
     async def get_update(self, update_uuid: Union[str, UUID]) -> Update:
         data = await self.http.get_update(update_uuid)
-        return Update(data=data, conn=self.http)
+        return Update(conn=self.http, data=data)
 
     async def get_social_connections(
         self, provider: str, uid: Union[str, Iterable[str]]
     ) -> List[SocialConnection]:
         data = await self.http.get_social_connections(provider, uid)
-        return [SocialConnection(data=x, conn=self.http) for x in data]
+        return [SocialConnection(conn=self.http, data=x) for x in data]
 
     async def get_leaderboard(self, guild=None) -> Union[GuildLeaderboard, Leaderboard]:
         if guild is not None:
@@ -93,7 +93,7 @@ class Client:
             guild_id = None
             leaderboard_class = Leaderboard
         data = await self.http.get_leaderboard(guild_id=guild_id)
-        return leaderboard_class(data=data, conn=self.http)
+        return leaderboard_class(conn=self.http, data=data)
 
     async def search_trainer(self, nickname: str) -> Trainer:
         """Searches for a trainer with a certain nickname
@@ -120,6 +120,6 @@ class Client:
         queryset = await self.http.get_trainers(q=nickname)
 
         if len(queryset) == 1:
-            return Trainer(data=queryset[0], conn=self.http)
+            return Trainer(conn=self.http, data=queryset[0])
         else:
             raise IndexError
