@@ -1,21 +1,20 @@
 import datetime
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 import discord
+from dateutil.parser import parse
 from discord.ext import commands
 
-from dateutil.parser import parse, ParserError
 from redbot.core.i18n import Translator
-import trainerdex
-from tdx.models import Faction
+from . import client
 
 _ = Translator("TrainerDex", __file__)
 
 
-class SafeConvertException:
-    def __init__(self, **kwargs):
-        self.e = kwargs.get("e")
+class SafeConvertObject:
+    def __init__(self, e):
+        self.e = e
 
     def __bool__(self):
         return False
@@ -26,16 +25,16 @@ class SafeConvertException:
     def __eq__(self, other):
         if other is None:
             return True
-        if isinstance(other, SafeConvertException):
+        if isinstance(other, SafeConvertObject):
             return self.e == other.e
 
 
-async def safe_convert(converter, ctx, argument) -> Union[Any, SafeConvertException]:
+async def safe_convert(converter, ctx, argument) -> Union[Any, SafeConvertObject]:
     """Convenience method for returning `SafeConvertException` if the conversion failed"""
     try:
         return await converter().convert(ctx, argument)
     except commands.BadArgument as e:
-        return SafeConvertException(e=e)
+        return SafeConvertObject(e=e)
 
 
 class NicknameConverter(commands.Converter):
@@ -48,103 +47,68 @@ class NicknameConverter(commands.Converter):
         if match is None:
             raise commands.BadArgument(
                 _(
-                    "{} is not a valid Pokemon Go username. A Pokemon Go username is 3-15 letters or numbers long."
+                    "{} is not a valid Pokemon Go username. "
+                    "A Pokemon Go username is 3-15 letters or numbers long."
                 ).format(argument)
             )
         return argument
 
 
 class TrainerConverter(commands.Converter):
-    """Converts to a :class:`~trainerdex.Trainer`.
-    
+    """Converts to a :class:`tdx.client.Trainer`.
+
     The lookup strategy is as follows (in order):
     1. Lookup by nickname.
     2. Lookup by Discord User
     """
 
-    async def convert(self, ctx, argument) -> trainerdex.Trainer:
-        if isinstance(argument, (discord.User, discord.Member)):
-            match = None
-            mention: Union[discord.User, discord.Member] = argument
-        else:
-            try:
-                match: str = await NicknameConverter().convert(ctx, argument)
-            except commands.BadArgument:
-                match = None
-            mention = None
+    async def convert(self, ctx, argument, cli=client.Client()) -> client.Trainer:
 
-        if match is None:
-            # not a Valid Pogo name
-            # check if mention
-            if mention is None:
+        if isinstance(argument, str):
+            is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
+            is_mention = await safe_convert(commands.converter.UserConverter, ctx, argument)
+            if is_valid_nickname:
                 try:
-                    mention: discord.User = await commands.converter.UserConverter().convert(
-                        ctx, argument
-                    )
-                except commands.BadArgument:
-                    result = None
-                    mention = None
-
-            if mention:
-                try:
-                    result: trainerdex.Trainer = (
-                        trainerdex.Client()
-                        .get_discord_user(uid=[str(mention.id)])[0]
-                        .owner()
-                        .trainer()[0]
-                    )
+                    return await cli.search_trainer(argument)
                 except IndexError:
-                    result = None
-        else:
-            result: trainerdex.Trainer = trainerdex.Client().get_trainer_from_username(argument)
+                    pass
+                mention = None
 
-        if result is None:
-            raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
+            if is_mention:
+                mention = is_mention
+        elif isinstance(argument, (discord.User, discord.Member)):
+            mention = argument
 
-        return result
+        if mention:
+            socialconnections = await cli.get_social_connections("discord", str(mention.id))
+            if socialconnections:
+                return await socialconnections[0].trainer()
+
+        raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
 
 
 class TeamConverter(commands.Converter):
     def __init__(self):
-        self.teams = [
-            {
-                "id": 0,
-                "verbose_name": _("Teamless"),
-                "colour": 9605778,
-                "lookups": ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
-            },
-            {
-                "id": 1,
-                "verbose_name": _("Mystic"),
-                "colour": 1535,
-                "lookups": ["Blue", "Mystic", "Team Mystic"],
-            },
-            {
-                "id": 2,
-                "verbose_name": _("Valor"),
-                "colour": 16711680,
-                "lookups": ["Red", "Valor", "Team Valor"],
-            },
-            {
-                "id": 3,
-                "verbose_name": _("Instinct"),
-                "colour": 16774656,
-                "lookups": ["Yellow", "Instinct", "Team Instinct"],
-            },
-        ]
+        self.teams = {
+            0: ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
+            1: ["Blue", "Mystic", "Team Mystic"],
+            2: ["Red", "Valor", "Team Valor"],
+            3: ["Yellow", "Instinct", "Team Instinct"],
+        }
 
-    async def convert(self, ctx, argument: str) -> Faction:
+    async def convert(self, ctx, argument: str) -> client.Faction:
         if isinstance(argument, int) or argument.isnumeric():
-            if int(argument) < len(self.teams):
-                result: Faction = Faction(**self.teams[int(argument)])
+            if int(argument) in self.teams.keys():
+                result = client.Faction(int(argument))
+                result._update(self.teams[int(argument)])  # Ensures team names are translated
             else:
                 result = None
         else:
-            options: List[Dict[str, Union[int, str]]] = [
-                x for x in self.teams if argument.casefold() in map(str.casefold, x.get("lookups"))
+            options = [
+                k for k, v in self.teams.items() if argument.casefold() in map(str.casefold, v)
             ]
             if len(options) == 1:
-                result: Faction = Faction(**options[0])
+                result: client.Faction = client.Faction(options[0])
             else:
                 result = None
 
@@ -152,3 +116,13 @@ class TeamConverter(commands.Converter):
             raise commands.BadArgument(_("Faction `{}` not found").format(argument))
 
         return result
+
+
+class DatetimeConverter(commands.Converter):
+    async def convert(self, ctx, argument: str) -> datetime.datetime:
+        return parse(argument)
+
+
+class DateConverter(DatetimeConverter):
+    async def convert(self, ctx, argument: str) -> datetime.date:
+        return await super().convert(ctx, argument).date()

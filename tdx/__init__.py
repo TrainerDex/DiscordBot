@@ -12,15 +12,14 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.31.3"
+__version__ = "2020.32.0"
 
 import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
-from redbot.core.utils import chat_formatting
 
-from tdx.core import TrainerDex
-from tdx.settings import Settings
+from .core import TrainerDex
+from .settings import Settings
 
 
 async def setup(bot: Red) -> None:
@@ -31,9 +30,7 @@ async def setup(bot: Red) -> None:
     config.register_global(
         **{
             "embed_footer": "Provided with ❤️ by TrainerDex",
-            "notice": chat_formatting.bold("Leaderboards are disabled for now.")
-            + " There's a weird bug. I'm working on it.\n"
-            + chat_formatting.italics("Sorry for the inconvenience"),
+            "notice": "**Leaderboards are coming back** on August 14th.\n",
         }
     )
     config.register_guild(
@@ -46,11 +43,10 @@ async def setup(bot: Red) -> None:
             "valor_role": None,
             "instinct_role": None,
             "tl40_role": None,
+            "introduction_note": None,
         }
     )
-    config.register_channel(
-        **{"profile_ocr": False, "post_leaderboard": False,}
-    )
+    config.register_channel(**{"profile_ocr": False, "post_leaderboard": False})
 
     bot.add_cog(Settings(bot, config))
     cog: commands.Cog = TrainerDex(bot, config)
