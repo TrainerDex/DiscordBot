@@ -148,6 +148,12 @@ class TrainerDex(commands.Cog):
                         await source_message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                         text = None
 
+                    if source_message.guild and not trainer.is_visible:
+                        await message.edit(_("Sending in DMs"))
+                        message = await source_message.author.send(
+                            content=loading(_("Loading output…"))
+                        )
+
                     await message.edit(
                         content="\n".join(
                             [x for x in [text, loading(_("Loading output…"))] if x is not None]
@@ -278,13 +284,27 @@ class TrainerDex(commands.Cog):
         async with ctx.typing():
             message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
 
+            self_profile = False
             if trainer is None:
                 trainer: client.Trainer = await converters.TrainerConverter().convert(
                     ctx, ctx.author, cli=self.client
                 )
+                self_profile = True
 
             if trainer:
-                await message.edit(content=loading(_("Found profile. Loading…")))
+                if trainer.is_visible:
+                    await message.edit(content=loading(_("Found profile. Loading…")))
+                elif self_profile:
+                    if ctx.guild:
+                        await message.edit(content=_("Sending in DMs"))
+                        message = await ctx.author.send(
+                            content=loading(_("Found profile. Loading…"))
+                        )
+                    else:
+                        await message.edit(content=loading(_("Found profile. Loading…")))
+                else:
+                    await message.edit(content=loading(_("Profile deactivated or hidden.")))
+                    return
             else:
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
