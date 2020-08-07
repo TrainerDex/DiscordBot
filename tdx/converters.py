@@ -1,18 +1,20 @@
+import datetime
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 import discord
+from dateutil.parser import parse
 from discord.ext import commands
 
 from redbot.core.i18n import Translator
-from tdx import client
+from . import client
 
 _ = Translator("TrainerDex", __file__)
 
 
-class SafeConvertException:
-    def __init__(self, **kwargs):
-        self.e = kwargs.get("e")
+class SafeConvertObject:
+    def __init__(self, e):
+        self.e = e
 
     def __bool__(self):
         return False
@@ -23,16 +25,16 @@ class SafeConvertException:
     def __eq__(self, other):
         if other is None:
             return True
-        if isinstance(other, SafeConvertException):
+        if isinstance(other, SafeConvertObject):
             return self.e == other.e
 
 
-async def safe_convert(converter, ctx, argument) -> Union[Any, SafeConvertException]:
+async def safe_convert(converter, ctx, argument) -> Union[Any, SafeConvertObject]:
     """Convenience method for returning `SafeConvertException` if the conversion failed"""
     try:
         return await converter().convert(ctx, argument)
     except commands.BadArgument as e:
-        return SafeConvertException(e=e)
+        return SafeConvertObject(e=e)
 
 
 class NicknameConverter(commands.Converter):
@@ -114,3 +116,13 @@ class TeamConverter(commands.Converter):
             raise commands.BadArgument(_("Faction `{}` not found").format(argument))
 
         return result
+
+
+class DatetimeConverter(commands.Converter):
+    async def convert(self, ctx, argument: str) -> datetime.datetime:
+        return parse(argument)
+
+
+class DateConverter(DatetimeConverter):
+    async def convert(self, ctx, argument: str) -> datetime.date:
+        return await super().convert(ctx, argument).date()

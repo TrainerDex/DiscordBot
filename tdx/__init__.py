@@ -19,8 +19,8 @@ from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.utils import chat_formatting
 
-from tdx.core import TrainerDex
-from tdx.settings import Settings
+from .core import TrainerDex
+from .settings import Settings
 
 
 async def setup(bot: Red) -> None:

@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 from typing import Final, Optional
@@ -9,9 +10,9 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, menus, predicates
 
 import PogoOCR
-from tdx import converters, client
-from tdx.embeds import BaseCard, ProfileCard
-from tdx.utils import check_xp, append_twitter, loading, success, QuestionMessage
+from . import converters, client
+from .embeds import BaseCard, ProfileCard
+from .utils import check_xp, append_twitter, loading, success, QuestionMessage
 
 log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -569,3 +570,66 @@ class TrainerDex(commands.Cog):
             ),
             embed=embed,
         )
+
+    @profile.group(name="edit")
+    async def profile__edit(self, ctx: commands.Context) -> None:
+        """Edit various aspects about your profile"""
+        pass
+
+    @profile__edit.command(name="start_date")
+    async def profile__edit__start_date(
+        self, ctx: commands.Context, value: Optional[converters.DateConverter] = None
+    ) -> None:
+        """Set the Start Date on your profile
+
+        This is the date you started playing Pokemon Go and is just under Total XP
+        """
+        async with ctx.typing():
+            try:
+                trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except commands.BadArgument:
+                await ctx.send(cf.error("No profile found."))
+
+        if value is not None:
+            async with ctx.typing():
+                await trainer.edit(start_date=value)
+                await ctx.tick()
+                await ctx.send(
+                    _("`{key}` set to {value}").format(key="trainer.start_date", value=value),
+                    delete_after=30,
+                )
+        else:
+            await ctx.send_help()
+            value: datetime.date = trainer.start_date
+            await ctx.send(_("`{key}` is {value}").format(key="trainer.start_date", value=value))
+
+    @profile__edit.command(name="visible")
+    async def profile__edit__visible(
+        self, ctx: commands.Context, value: Optional[bool] = None
+    ) -> None:
+        """Set if you should appear in Leaderboards
+
+        Hide or show yourself on leaderboards at will!
+        """
+        async with ctx.typing():
+            try:
+                trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except commands.BadArgument:
+                await ctx.send(cf.error("No profile found."))
+
+        if value is not None:
+            async with ctx.typing():
+                await trainer.edit(is_visible=value)
+                await ctx.tick()
+                await ctx.send(
+                    _("`{key}` set to {value}").format(key="trainer.is_visible", value=value),
+                    delete_after=30,
+                )
+        else:
+            await ctx.send_help()
+            value: datetime.date = trainer.is_visible
+            await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))

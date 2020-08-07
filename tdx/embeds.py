@@ -9,8 +9,8 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import humanize
-from tdx import client
-from tdx.utils import check_xp
+from . import client
+from .utils import check_xp
 from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY
 from dateutil.tz import UTC
@@ -106,26 +106,36 @@ class ProfileCard(BaseCard):
             url=f"https://trainerdex.co.uk/static/img/faction/{self.trainer.team.id}.png"
         )
 
+        if self.trainer.trainer_code:
+            self.description = _("**Trainer Code**: `{code}`").format(
+                code=self.trainer.trainer_code
+            )
+
         self.add_field(name=_("Team"), value=self.trainer.team)
         self.add_field(name=_("Level"), value=self.trainer.level)
         if self.latest_update.travel_km:
             self.add_field(
                 name=_("Distance Walked"),
                 value=cf.humanize_number(self.latest_update.travel_km) + " km",
+                inline=False,
             )
         if self.latest_update.capture_total:
             self.add_field(
                 name=_("Pokémon Caught"),
                 value=cf.humanize_number(self.latest_update.capture_total),
+                inline=False,
             )
         if self.latest_update.pokestops_visited:
             self.add_field(
                 name=_("PokéStops Visited"),
                 value=cf.humanize_number(self.latest_update.pokestops_visited),
+                inline=False,
             )
         if self.latest_update.total_xp:
             self.add_field(
-                name=_("Total XP"), value=cf.humanize_number(self.latest_update.total_xp),
+                name=_("Total XP"),
+                value=cf.humanize_number(self.latest_update.total_xp),
+                inline=False,
             )
 
     async def add_guild_leaderboard(self) -> NoReturn:
@@ -158,31 +168,142 @@ class ProfileCard(BaseCard):
 
         if queryset:
             last_update: client.PartialUpdate = max(queryset, key=check_xp)
+            last_update: client.Update = await last_update.upgrade()
         else:
             if not self.trainer.start_date:
                 return
-            last_update: client.PartialUpdate = client.PartialUpdate(
+            last_update: client.Update = client.Update(
                 {
                     "uuid": None,
                     "trainer": self.trainer.old_id,
                     "update_time": getattr(self.trainer, "start_date").isoformat(),
+                    "travel_km": 0,
+                    "capture_total": 0,
+                    "pokestops_visited": 0,
                     "total_xp": 0,
                 }
             )
-            self.description = cf.info(_("No data old enough found, using start date."))
+            data_inacuracy_notice = cf.info(_("No data old enough found, using start date."))
+            if self.description:
+                self.description = "\n".join([self.description, data_inacuracy_notice])
+            else:
+                self.description = data_inacuracy_notice
 
-        stat_delta = this_update.total_xp - last_update.total_xp
         time_delta = this_update.update_time - last_update.update_time
+        days: int = max(round(time_delta.total_seconds() / 86400), 1)
+
+        self.clear_fields()
+        self.add_field(name=_("Team"), value=self.trainer.team)
+        self.add_field(name=_("Level"), value=self.trainer.level)
         self.add_field(
-            name=_("Total XP Gain"),
-            value=_("{gain} over {time} (since {earlier_date})").format(
-                gain=cf.humanize_number(stat_delta),
-                time=humanize.naturaldelta(time_delta),
-                earlier_date=humanize.naturaldate(last_update.update_time),
+            name=_("Timedelta"),
+            value="{then} ⇒ {now} (+{delta})".format(
+                then=humanize.naturaldate(last_update.update_time),
+                now=humanize.naturaldate(this_update.update_time),
+                delta=humanize.naturaldelta(time_delta),
             ),
+            inline=False,
         )
-        days: int = round(time_delta.total_seconds() / 86400)
-        self.add_field(
-            name=_("Daily XP Gain"),
-            value=_("{gain}/day").format(gain=cf.humanize_number(round(stat_delta / days))),
-        )
+        if this_update.travel_km:
+            if last_update.travel_km:
+                self.add_field(
+                    name=_("Distance Walked"),
+                    value="{then} km ⇒ {now} km (+{delta} km)".format(
+                        then=cf.humanize_number(last_update.travel_km),
+                        now=cf.humanize_number(this_update.travel_km),
+                        delta=cf.humanize_number(this_update.travel_km - last_update.travel_km),
+                    ),
+                )
+                self.add_field(
+                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Distance Walked")),
+                    value=_("{gain}/day").format(
+                        gain=cf.humanize_number(
+                            round((this_update.travel_km - last_update.travel_km) / days)
+                        )
+                    ),
+                )
+            else:
+                self.add_field(
+                    name=_("Distance Walked"),
+                    value=cf.humanize_number(self.latest_update.travel_km) + " km",
+                    inline=False,
+                )
+        if self.latest_update.capture_total:
+            if last_update.capture_total:
+                self.add_field(
+                    name=_("Pokémon Caught"),
+                    value="{then} ⇒ {now} (+{delta})".format(
+                        then=cf.humanize_number(last_update.capture_total),
+                        now=cf.humanize_number(this_update.capture_total),
+                        delta=cf.humanize_number(
+                            this_update.capture_total - last_update.capture_total
+                        ),
+                    ),
+                )
+                self.add_field(
+                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Pokémon Caught")),
+                    value=_("{gain}/day").format(
+                        gain=cf.humanize_number(
+                            round((this_update.capture_total - last_update.capture_total) / days)
+                        )
+                    ),
+                )
+            else:
+                self.add_field(
+                    name=_("Pokémon Caught"),
+                    value=cf.humanize_number(self.latest_update.capture_total),
+                    inline=False,
+                )
+        if self.latest_update.pokestops_visited:
+            if last_update.pokestops_visited:
+                self.add_field(
+                    name=_("PokéStops Visited"),
+                    value="{then} ⇒ {now} (+{delta})".format(
+                        then=cf.humanize_number(last_update.pokestops_visited),
+                        now=cf.humanize_number(this_update.pokestops_visited),
+                        delta=cf.humanize_number(
+                            this_update.pokestops_visited - last_update.pokestops_visited
+                        ),
+                    ),
+                )
+                self.add_field(
+                    name=_("Daily Gain ({stat_name})").format(stat_name=_("PokéStops Visited")),
+                    value=_("{gain}/day").format(
+                        gain=cf.humanize_number(
+                            round(
+                                (this_update.pokestops_visited - last_update.pokestops_visited)
+                                / days
+                            )
+                        )
+                    ),
+                )
+            else:
+                self.add_field(
+                    name=_("PokéStops Visited"),
+                    value=cf.humanize_number(self.latest_update.pokestops_visited),
+                    inline=False,
+                )
+        if self.latest_update.total_xp:
+            if last_update.total_xp:
+                self.add_field(
+                    name=_("Total XP"),
+                    value="{then} ⇒ {now} (+{delta})".format(
+                        then=cf.humanize_number(last_update.total_xp),
+                        now=cf.humanize_number(this_update.total_xp),
+                        delta=cf.humanize_number(this_update.total_xp - last_update.total_xp),
+                    ),
+                )
+                self.add_field(
+                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Total XP")),
+                    value=_("{gain}/day").format(
+                        gain=cf.humanize_number(
+                            round((this_update.total_xp - last_update.total_xp) / days)
+                        )
+                    ),
+                )
+            else:
+                self.add_field(
+                    name=_("Total XP"),
+                    value=cf.humanize_number(self.latest_update.total_xp),
+                    inline=False,
+                )
