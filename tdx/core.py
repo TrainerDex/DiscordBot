@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from typing import Final, Optional
@@ -110,17 +109,7 @@ class TrainerDex(commands.Cog):
                                     "{user}, we found the following stats:\n"
                                     "{stats}\nJust processing that now…"
                                 )
-                            ).format(
-                                user=source_message.author.mention,
-                                stats=cf.box(
-                                    json.dumps(
-                                        {k: float(v) for k, v in data_found.items()},
-                                        indent=2,
-                                        ensure_ascii=False,
-                                    ),
-                                    "json",
-                                ),
-                            )
+                            ).format(user=source_message.author.mention, stats=cf.box(data_found))
                         )
                     )
 
