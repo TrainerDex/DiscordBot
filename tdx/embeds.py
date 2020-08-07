@@ -156,7 +156,7 @@ class ProfileCard(BaseCard):
             return
 
         RRULE = rrule(
-            WEEKLY, dtstart=datetime.datetime(2020, 6, 9, 12, 0, tzinfo=UTC), byweekday=MO
+            WEEKLY, dtstart=datetime.datetime(2016, 7, 4, 12, 0, tzinfo=UTC), byweekday=MO
         )
 
         current_period = (
@@ -178,7 +178,8 @@ class ProfileCard(BaseCard):
             if not self.trainer.start_date:
                 return
             last_update: client.Update = client.Update(
-                {
+                conn=None,
+                data={
                     "uuid": None,
                     "trainer": self.trainer.old_id,
                     "update_time": getattr(self.trainer, "start_date").isoformat(),
@@ -186,7 +187,7 @@ class ProfileCard(BaseCard):
                     "capture_total": 0,
                     "pokestops_visited": 0,
                     "total_xp": 0,
-                }
+                },
             )
             data_inacuracy_notice = cf.info(_("No data old enough found, using start date."))
             if self.description:

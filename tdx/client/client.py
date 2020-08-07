@@ -50,6 +50,7 @@ class Client:
         t_params = {
             "id": user.id,
             "nickname": username,
+            "faction": faction.id if isinstance(faction, Faction) else faction,
             "start_date": start_date.isoformat() if start_date else None,
             "trainer_code": trainer_code,
             "is_banned": is_banned,
