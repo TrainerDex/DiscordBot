@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 from typing import Final, Optional
@@ -12,7 +13,7 @@ from redbot.core.utils import chat_formatting as cf, menus, predicates
 import PogoOCR
 from . import converters, client
 from .embeds import BaseCard, ProfileCard
-from .utils import check_xp, append_twitter, loading, success, QuestionMessage
+from .utils import check_xp, append_twitter, loading, success, QuestionMessage, introduction_notes
 
 log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -203,7 +204,29 @@ class TrainerDex(commands.Cog):
 
     @commands.group(name="profile")
     async def profile(self, ctx: commands.Context) -> None:
-        pass
+        """Profile commands: This is a group command and does nothing on it's own"""
+        if ctx.invoked_subcommand is None:
+            async with ctx.typing():
+                try:
+                    trainer = await converters.TrainerConverter().convert(
+                        ctx, ctx.author, cli=self.client
+                    )
+                except commands.BadArgument:
+                    await ctx.send(cf.error("No profile found."))
+                    return
+
+            data = {
+                "nickname": trainer.nickname,
+                "start_date": trainer.start_date.isoformat(),
+                "faction": trainer.faction,
+                "trainer_code": trainer.trainer_code,
+                "is_banned": trainer.is_banned,
+                "is_verified": trainer.is_verified,
+                "is_visible": trainer.is_visible,
+                "updates__len": len(trainer._updates),
+            }
+            data: str = json.dumps(data, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(data, "json"))
 
     @commands.command(name="leaderboard", aliases=["lb"])
     async def leaderboard(self, ctx: commands.Context, limit: int = 100) -> None:
@@ -580,6 +603,17 @@ class TrainerDex(commands.Cog):
                 data_source="ss_ocr",
                 update_time=ctx.message.created_at,
             )
+        else:
+            await message.edit(
+                content=loading(_("Won't set Total XP for {user}.")).format(user=trainer.username)
+            )
+
+        custom_message: str = await self.config.guild(ctx.guild).introduction_note()
+        notes = introduction_notes(ctx, mention, trainer, additional_message=custom_message)
+
+        dm_message = await mention.send(notes[0])
+        if len(notes) == 2:
+            await mention.send(notes[1])
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))
@@ -590,6 +624,7 @@ class TrainerDex(commands.Cog):
             )
         )
         embed: discord.Embed = await ProfileCard(ctx, trainer)
+        await dm_message.edit(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
                 user=mention.mention, trainer=trainer.username,

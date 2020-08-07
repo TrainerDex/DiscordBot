@@ -44,6 +44,7 @@ async def setup(bot: Red) -> None:
             "valor_role": None,
             "instinct_role": None,
             "tl40_role": None,
+            "introduction_note": None,
         }
     )
     config.register_channel(**{"profile_ocr": False, "post_leaderboard": False})

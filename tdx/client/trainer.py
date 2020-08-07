@@ -34,7 +34,7 @@ class Trainer(abc.BaseClass):
         self.is_banned = data.get("is_banned", False)
         self.is_verified = data.get("is_verified")
         self.is_visible = data.get("is_visible")
-        self._updates = data.get("updates")
+        self._updates = data.get("updates", [])
         self._user = data.get("_user")
 
     @property

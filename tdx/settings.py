@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import discord
 from redbot.core import checks, commands, Config
@@ -105,7 +105,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="assign_roles_on_join")
     async def settings__guild__assign_roles_on_join(
-        self, ctx: commands.Context, value: bool = None
+        self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the roles of members when they're approved.
 
@@ -127,7 +127,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="set_nickname_on_join")
     async def settings__guild__set_nickname_on_join(
-        self, ctx: commands.Context, value: bool = None
+        self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the nickname of members when they're approved.
 
@@ -149,7 +149,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="set_nickname_on_update")
     async def settings__guild__set_nickname_on_update(
-        self, ctx: commands.Context, value: bool = None
+        self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the nickname of members when they update their Total XP.
 
@@ -173,7 +173,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="roles_to_assign_on_approval")
     async def settings__guild__roles_to_assign_on_approval(
-        self, ctx: commands.Context, action: str = None, roles: discord.Role = None
+        self, ctx: commands.Context, action: str = None, roles: Optional[List[discord.Role]] = None
     ) -> None:
         """Which roles to add/remove to a user on approval
 
@@ -216,7 +216,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="mystic_role")
     async def settings__guild__mystic_role(
-        self, ctx: commands.Context, value: discord.Role = None
+        self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).mystic_role.set(value.id)
@@ -236,7 +236,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="valor_role")
     async def settings__guild__valor_role(
-        self, ctx: commands.Context, value: discord.Role = None
+        self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).valor_role.set(value.id)
@@ -256,7 +256,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="instinct_role")
     async def settings__guild__instinct_role(
-        self, ctx: commands.Context, value: discord.Role = None
+        self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).instinct_role.set(value.id)
@@ -276,7 +276,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="tl40_role")
     async def settings__guild__tl40_role(
-        self, ctx: commands.Context, value: discord.Role = None
+        self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).tl40_role.set(value.id)
@@ -292,6 +292,30 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(
                     key="guild.tl40_role", value=ctx.guild.get_role(value)
                 )
+            )
+
+    @settings__guild.command(name="introduction_note")
+    async def settings__guild__introduction_note(
+        self, ctx: commands.Context, value: Optional[str] = None
+    ) -> None:
+        """Send a note to a member upon running `profile create` (aka, `approve`)
+
+        Set value to `None` to empty it
+        """
+        if value is not None:
+            if value == "None":
+                value = None
+            await self.config.guild(ctx.guild).introduction_note.set(value)
+            await ctx.tick()
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="guild.introduction_note", value=value),
+                delete_after=30,
+            )
+        else:
+            await ctx.send_help()
+            value: str = await self.config.guild(ctx.guild).introduction_note()
+            await ctx.send(
+                _("`{key}` is {value}").format(key="guild.introduction_note", value=value)
             )
 
     @settings.group(name="channel")
