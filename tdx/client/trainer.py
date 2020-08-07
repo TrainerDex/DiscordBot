@@ -1,3 +1,4 @@
+import datetime
 import re
 from typing import Dict, List, Union
 
@@ -111,7 +112,13 @@ class Trainer(abc.BaseClass):
         new_data = await self.http.edit_trainer(self.old_id, **options)
         self._update(new_data)
 
-    async def post(self, **options) -> Update:
+    async def post(
+        self,
+        data_source: str,
+        stats: Dict,
+        update_time: datetime.datetime = None,
+        submission_date: datetime.datetime = None,
+    ) -> Update:
         """|coro|
 
         Posts an update on the current trainer
@@ -125,7 +132,13 @@ class Trainer(abc.BaseClass):
         else:
             trainer_id = self.id
 
-        data = await self.http.create_update(trainer_id, **options)
-        result = Update(data=data[0], conn=self.http)
+        options = {"trainer": trainer_id, "data_source": data_source}
+        if update_time:
+            options["update_time"] = update_time
+        if submission_date:
+            options["submission_date"] = submission_date
+
+        data = await self.http.create_update(trainer_id, {**options, **stats})
+        result = Update(data=data, conn=self.http)
         await self.refresh_from_api()
         return result

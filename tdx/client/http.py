@@ -1,7 +1,9 @@
 import asyncio
+import datetime
 import json
 import logging
 import sys
+from decimal import Decimal
 from typing import Dict, Iterable, List, Optional, Union
 from urllib.parse import quote as _uriquote
 from uuid import UUID
@@ -168,6 +170,10 @@ class HTTPClient:
         if self.token is not None:
             headers["Authorization"] = "Token " + self.token
 
+        if "json" in kwargs:
+            headers["Content-Type"] = "application/json"
+            kwargs["data"] = json.dumps(kwargs.pop("json"), ensure_ascii=True)
+
         kwargs["headers"] = headers
 
         for tries in range(5):
@@ -214,15 +220,15 @@ class HTTPClient:
     def get_update(self, trainer_id: int, update_uuid: Union[str, UUID]) -> Dict:
         r = Route(
             "GET",
-            "/trainers/{trainer_id}/updates/{update_uuid}",
+            "/trainers/{trainer_id}/updates/{update_uuid}/",
             trainer_id=trainer_id,
             update_uuid=update_uuid,
         )
 
         return self.request(r)
 
-    def create_update(self, trainer_id: int, **kwargs) -> Dict:
-        r = Route("POST", "/trainers/{trainer_id}/updates", trainer_id=trainer_id)
+    def create_update(self, trainer_id: int, kwargs) -> Dict:
+        r = Route("POST", "/trainers/{trainer_id}/updates/", trainer_id=trainer_id)
 
         payload = {
             UPDATE_KEYS_ENUM_OUT.get(k): v
@@ -230,12 +236,18 @@ class HTTPClient:
             if (UPDATE_KEYS_ENUM_OUT.get(k) is not None) and (k != "uuid")
         }
 
+        for k, v in payload.items():
+            if isinstance(v, Decimal):
+                payload[k] = str(v)
+            elif isinstance(v, (datetime.date, datetime.datetime)):
+                payload[k] = v.isoformat()
+
         return self.request(r, json=payload)
 
     def edit_update(self, trainer_id: int, update_uuid: Union[str, UUID], **kwargs) -> Dict:
         r = Route(
             "POST",
-            "/trainers/{trainer_id}/updates/{update_uuid}",
+            "/trainers/{trainer_id}/updates/{update_uuid}/",
             trainer_id=trainer_id,
             update_uuid=update_uuid,
         )
@@ -247,22 +259,28 @@ class HTTPClient:
             and (UPDATE_KEYS_ENUM_OUT.get(k) not in UPDATE_KEYS_READ_ONLY)
         }
 
+        for k, v in payload.items():
+            if isinstance(v, Decimal):
+                payload[k] = str(v)
+            elif isinstance(v, (datetime.date, datetime.datetime)):
+                payload[k] = v.isoformat()
+
         return self.request(r, json=payload)
 
     # Trainer management
 
     def get_trainer(self, trainer_id: int) -> Dict:
-        r = Route("GET", "/trainers/{trainer_id}", trainer_id=trainer_id)
+        r = Route("GET", "/trainers/{trainer_id}/", trainer_id=trainer_id)
 
         return self.request(r)
 
     def get_trainers(self, **kwargs) -> List[Dict]:
-        r = Route("GET", "/trainers")
+        r = Route("GET", "/trainers/")
 
         return self.request(r, params=kwargs)
 
     def create_trainer(self, **kwargs) -> Dict:
-        r = Route("POST", "/trainers")
+        r = Route("POST", "/trainers/")
 
         payload = {
             TRAINER_KEYS_ENUM_OUT.get(k): v
@@ -271,10 +289,16 @@ class HTTPClient:
             and (TRAINER_KEYS_ENUM_OUT.get(k) != "id")
         }
 
+        for k, v in payload.items():
+            if isinstance(v, Decimal):
+                payload[k] = str(v)
+            elif isinstance(v, (datetime.date, datetime.datetime)):
+                payload[k] = v.isoformat()
+
         return self.request(r, json=payload)
 
     def edit_trainer(self, trainer_id: int, **kwargs) -> Dict:
-        r = Route("PATCH", "/trainers/{trainer_id}", trainer_id=trainer_id)
+        r = Route("PATCH", "/trainers/{trainer_id}/", trainer_id=trainer_id)
 
         payload = {
             TRAINER_KEYS_ENUM_OUT.get(k): v
@@ -283,20 +307,26 @@ class HTTPClient:
             and (TRAINER_KEYS_ENUM_OUT.get(k) not in TRAINER_KEYS_READ_ONLY)
         }
 
+        for k, v in payload.items():
+            if isinstance(v, Decimal):
+                payload[k] = str(v)
+            elif isinstance(v, (datetime.date, datetime.datetime)):
+                payload[k] = v.isoformat()
+
         return self.request(r, json=payload)
 
     def get_user(self, user_id: int) -> Dict:
-        r = Route("GET", "/users/{user_id}", user_id=user_id)
+        r = Route("GET", "/users/{user_id}/", user_id=user_id)
 
         return self.request(r)
 
     def get_users(self) -> List[Dict]:
-        r = Route("GET", "/users")
+        r = Route("GET", "/users/")
 
         return self.request(r)
 
     def create_user(self, username: str, first_name: Optional[str] = None) -> Dict:
-        r = Route("POST", "/users")
+        r = Route("POST", "/users/")
 
         payload = {"username": username}
 
@@ -306,7 +336,7 @@ class HTTPClient:
         return self.request(r, json=payload)
 
     def edit_user(self, user_id, username: str, first_name: Optional[str] = None) -> Dict:
-        r = Route("PATCH", "/users/{user_id}", user_id=user_id)
+        r = Route("PATCH", "/users/{user_id}/", user_id=user_id)
 
         payload = {"username": username}
 
@@ -341,8 +371,8 @@ class HTTPClient:
 
     def get_leaderboard(self, guild_id: Optional[int] = None, **options) -> Dict:
         if isinstance(guild_id, int):
-            r = Route("GET", "/leaderboard/discord/{guild_id}", guild_id=guild_id)
+            r = Route("GET", "/leaderboard/discord/{guild_id}/", guild_id=guild_id)
         else:
-            r = Route("GET", "/leaderboard")
+            r = Route("GET", "/leaderboard/")
 
         return self.request(r)

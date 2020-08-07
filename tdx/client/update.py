@@ -192,5 +192,5 @@ class PartialUpdate(BaseUpdate):
         self.unloaded_data = data.get("modified_extra_fields")
 
     async def upgrade(self) -> Update:
-        data = await self.http.get_update(self.uuid)
+        data = await self.http.get_update(self._trainer_id, self.uuid)
         return Update(self.http, data)

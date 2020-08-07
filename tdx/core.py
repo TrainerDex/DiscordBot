@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from typing import Final, Optional
@@ -76,77 +77,9 @@ class TrainerDex(commands.Cog):
             return
 
         async with source_message.channel.typing():
-            message: discord.Message = await source_message.channel.send(
-                loading(_("That's a nice image you have there, let's see…"))
-                + "\n"
-                + cf.info(
-                    _(
-                        "We use Google Vision API to read your images. "
-                        "Please ensure that the ‘Total XP’ field is visible. "
-                        "If it is visible and your image still doesn't scan after a minute, try a new image. "
-                        "Posting the same image again, will likely cause another failure."
-                    )
-                )
-            )
-            ocr = PogoOCR.ProfileSelf(
-                POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url
-            )
-            ocr.get_text()
-            if ocr.total_xp:
-                await message.edit(
-                    content=append_twitter(
-                        loading(
-                            _("{user}, we're sure your XP is {xp}. Just processing that now…")
-                        ).format(
-                            user=source_message.author.mention, xp=ocr.total_xp,
-                        )
-                    )
-                )
-                if max(trainer.updates, key=check_xp).total_xp > ocr.total_xp:
-                    await message.edit(
-                        content=append_twitter(
-                            cf.warning(
-                                _(
-                                    "You've previously set your XP to higher than what you're trying to set it to. "
-                                    "It's currently set to {xp}."
-                                )
-                            )
-                        ).format(xp=cf.humanize_number(ocr.total_xp))
-                    )
-                    await source_message.remove_reaction(
-                        self.bot.get_emoji(471298325904359434), self.bot.user
-                    )
-                    await source_message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
-                    return
-                elif max(trainer.updates, key=check_xp).total_xp == ocr.total_xp:
-                    text: str = cf.warning(
-                        _(
-                            "You've already set your XP to this figure. "
-                            "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
-                        )
-                    )
-                    await source_message.remove_reaction(
-                        self.bot.get_emoji(471298325904359434), self.bot.user
-                    )
-                    await source_message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
-                else:
-                    await trainer.post(total_xp=ocr.total_xp)
-                    await source_message.remove_reaction(
-                        self.bot.get_emoji(471298325904359434), self.bot.user
-                    )
-                    await source_message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
-                    text = None
-
-                await message.edit(
-                    content="\n".join(
-                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
-                    )
-                )
-                embed: discord.Embed = await ProfileCard(source_message, trainer)
-                await message.edit(content=text, embed=embed)
-            else:
-                await message.edit(
-                    content=cf.error(_("I could not find Total XP in your image. "))
+            try:
+                message: discord.Message = await source_message.channel.send(
+                    loading(_("That's a nice image you have there, let's see…"))
                     + "\n"
                     + cf.info(
                         _(
@@ -157,10 +90,114 @@ class TrainerDex(commands.Cog):
                         )
                     )
                 )
-                await source_message.remove_reaction(
-                    self.bot.get_emoji(471298325904359434), self.bot.user
+                ocr = PogoOCR.ProfileSelf(
+                    POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url
                 )
-                await source_message.add_reaction("\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}")
+                ocr.get_text()
+
+                data_found = {
+                    "travel_km": ocr.travel_km,
+                    "capture_total": ocr.capture_total,
+                    "pokestops_visited": ocr.pokestops_visited,
+                    "total_xp": ocr.total_xp,
+                }
+
+                if data_found.get("total_xp"):
+                    await message.edit(
+                        content=append_twitter(
+                            loading(
+                                _(
+                                    "{user}, we found the following stats:\n"
+                                    "{stats}\nJust processing that now…"
+                                )
+                            ).format(
+                                user=source_message.author.mention,
+                                stats=cf.box(
+                                    json.dumps(
+                                        {k: float(v) for k, v in data_found.items()},
+                                        indent=2,
+                                        ensure_ascii=False,
+                                    ),
+                                    "json",
+                                ),
+                            )
+                        )
+                    )
+
+                    if max(trainer.updates, key=check_xp).total_xp > data_found.get("total_xp"):
+                        await message.edit(
+                            content=append_twitter(
+                                cf.warning(
+                                    _(
+                                        "You've previously set your XP to higher than what you're trying to set it to. "
+                                        "It's currently set to {xp}."
+                                    )
+                                )
+                            ).format(xp=cf.humanize_number(data_found.get("total_xp")))
+                        )
+                        await source_message.remove_reaction(
+                            self.bot.get_emoji(471298325904359434), self.bot.user
+                        )
+                        await source_message.add_reaction(
+                            "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
+                        )
+                        return
+                    elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
+                        text: str = cf.warning(
+                            _(
+                                "You've already set your XP to this figure. "
+                                "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
+                            )
+                        )
+                        await source_message.remove_reaction(
+                            self.bot.get_emoji(471298325904359434), self.bot.user
+                        )
+                        await source_message.add_reaction(
+                            "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
+                        )
+                    else:
+                        await trainer.post(
+                            stats=data_found,
+                            data_source="ss_ocr",
+                            update_time=source_message.created_at,
+                        )
+                        await source_message.remove_reaction(
+                            self.bot.get_emoji(471298325904359434), self.bot.user
+                        )
+                        await source_message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                        text = None
+
+                    await message.edit(
+                        content="\n".join(
+                            [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                        )
+                    )
+                    embed: discord.Embed = await ProfileCard(source_message, trainer)
+                    await message.edit(content=text, embed=embed)
+                else:
+                    await message.edit(
+                        content=cf.error(_("I could not find Total XP in your image. "))
+                        + "\n"
+                        + cf.info(
+                            _(
+                                "We use Google Vision API to read your images. "
+                                "Please ensure that the ‘Total XP’ field is visible. "
+                                "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                                "Posting the same image again, will likely cause another failure."
+                            )
+                        )
+                    )
+                    await source_message.remove_reaction(
+                        self.bot.get_emoji(471298325904359434), self.bot.user
+                    )
+                    await source_message.add_reaction(
+                        "\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}"
+                    )
+            except Exception as e:
+                await source_message.channel.send(
+                    "`Error in function 'check_screenshot'. Check your console or logs for details.`"
+                )
+                raise e
 
     @commands.group(name="profile")
     async def profile(self, ctx: commands.Context) -> None:
@@ -522,7 +559,11 @@ class TrainerDex(commands.Cog):
                     user=trainer.username, total_xp=total_xp,
                 )
             )
-            await trainer.post(update_time=ctx.message.created_at, total_xp=total_xp)
+            await trainer.post(
+                stats={"total_xp": total_xp()},
+                data_source="ss_ocr",
+                update_time=ctx.message.created_at,
+            )
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))

@@ -87,6 +87,7 @@ class ProfileCard(BaseCard):
         await super().__init__(ctx, **kwargs)
 
         self.trainer = trainer
+        self.latest_update = await self.trainer.latest_update.upgrade()
 
         try:
             self.update = max(self.trainer.updates, key=check_xp)
@@ -98,17 +99,33 @@ class ProfileCard(BaseCard):
             nickname=self.trainer.username, level=self.trainer.level,
         )
         self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(self.trainer.old_id)
-        if self.trainer.latest_update:
-            self.timestamp = self.trainer.latest_update.update_time
+        if self.latest_update:
+            self.timestamp = self.latest_update.update_time
 
-        self.add_field(name=_("Team"), value=self.trainer.team)
-        self.add_field(name=_("Level"), value=self.trainer.level)
-        self.add_field(
-            name=_("Total XP"), value=cf.humanize_number(self.trainer.latest_update.total_xp),
-        )
         self.set_thumbnail(
             url=f"https://trainerdex.co.uk/static/img/faction/{self.trainer.team.id}.png"
         )
+
+        self.add_field(name=_("Team"), value=self.trainer.team)
+        self.add_field(name=_("Level"), value=self.trainer.level)
+        if self.latest_update.travel_km:
+            self.add_field(
+                name=_("Distance Walked"), value=cf.humanize_number(self.latest_update.travel_km),
+            )
+        if self.latest_update.capture_total:
+            self.add_field(
+                name=_("Pokémon Caught"),
+                value=cf.humanize_number(self.latest_update.capture_total),
+            )
+        if self.latest_update.pokestops_visited:
+            self.add_field(
+                name=_("PokéStops Visited"),
+                value=cf.humanize_number(self.latest_update.pokestops_visited),
+            )
+        if self.latest_update.total_xp:
+            self.add_field(
+                name=_("Total XP"), value=cf.humanize_number(self.latest_update.total_xp),
+            )
 
     async def add_guild_leaderboard(self) -> NoReturn:
         raise NotImplementedError
@@ -117,7 +134,7 @@ class ProfileCard(BaseCard):
         raise NotImplementedError
 
     async def show_progress(self) -> None:
-        this_update: client.Update = self.trainer.latest_update
+        this_update: client.Update = self.latest_update
 
         if this_update is None:
             return
@@ -156,7 +173,7 @@ class ProfileCard(BaseCard):
         stat_delta = this_update.total_xp - last_update.total_xp
         time_delta = this_update.update_time - last_update.update_time
         self.add_field(
-            name=_("XP Gain"),
+            name=_("Total XP Gain"),
             value=_("{gain} over {time} (since {earlier_date})").format(
                 gain=cf.humanize_number(stat_delta),
                 time=humanize.naturaldelta(time_delta),
