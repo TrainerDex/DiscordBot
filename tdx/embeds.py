@@ -107,9 +107,14 @@ class ProfileCard(BaseCard):
         )
 
         if self.trainer.trainer_code:
-            self.description = _("**Trainer Code**: `{code}`").format(
+            trainer_code_text = _("**Trainer Code**: `{code}`").format(
                 code=self.trainer.trainer_code
             )
+
+            if self.description:
+                self.description = "\n".join([self.description, trainer_code_text])
+            else:
+                self.description = trainer_code_text
 
         self.add_field(name=_("Team"), value=self.trainer.team)
         self.add_field(name=_("Level"), value=self.trainer.level)
@@ -208,19 +213,18 @@ class ProfileCard(BaseCard):
             if last_update.travel_km:
                 self.add_field(
                     name=_("Distance Walked"),
-                    value="{then} km ⇒ {now} km (+{delta} km)".format(
+                    value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.travel_km),
                         now=cf.humanize_number(this_update.travel_km),
                         delta=cf.humanize_number(this_update.travel_km - last_update.travel_km),
+                        daily_gain=_("{gain}/day").format(
+                            gain=cf.humanize_number(
+                                round((this_update.travel_km - last_update.travel_km) / days)
+                            )
+                            + "km"
+                        ),
                     ),
-                )
-                self.add_field(
-                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Distance Walked")),
-                    value=_("{gain}/day").format(
-                        gain=cf.humanize_number(
-                            round((this_update.travel_km - last_update.travel_km) / days)
-                        )
-                    ),
+                    inline=False,
                 )
             else:
                 self.add_field(
@@ -232,21 +236,21 @@ class ProfileCard(BaseCard):
             if last_update.capture_total:
                 self.add_field(
                     name=_("Pokémon Caught"),
-                    value="{then} ⇒ {now} (+{delta})".format(
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.capture_total),
                         now=cf.humanize_number(this_update.capture_total),
                         delta=cf.humanize_number(
                             this_update.capture_total - last_update.capture_total
                         ),
+                        daily_gain=_("{gain}/day").format(
+                            gain=cf.humanize_number(
+                                round(
+                                    (this_update.capture_total - last_update.capture_total) / days
+                                )
+                            )
+                        ),
                     ),
-                )
-                self.add_field(
-                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Pokémon Caught")),
-                    value=_("{gain}/day").format(
-                        gain=cf.humanize_number(
-                            round((this_update.capture_total - last_update.capture_total) / days)
-                        )
-                    ),
+                    inline=False,
                 )
             else:
                 self.add_field(
@@ -258,24 +262,22 @@ class ProfileCard(BaseCard):
             if last_update.pokestops_visited:
                 self.add_field(
                     name=_("PokéStops Visited"),
-                    value="{then} ⇒ {now} (+{delta})".format(
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.pokestops_visited),
                         now=cf.humanize_number(this_update.pokestops_visited),
                         delta=cf.humanize_number(
                             this_update.pokestops_visited - last_update.pokestops_visited
                         ),
-                    ),
-                )
-                self.add_field(
-                    name=_("Daily Gain ({stat_name})").format(stat_name=_("PokéStops Visited")),
-                    value=_("{gain}/day").format(
-                        gain=cf.humanize_number(
-                            round(
-                                (this_update.pokestops_visited - last_update.pokestops_visited)
-                                / days
+                        daily_gain=_("{gain}/day").format(
+                            gain=cf.humanize_number(
+                                round(
+                                    (this_update.pokestops_visited - last_update.pokestops_visited)
+                                    / days
+                                )
                             )
-                        )
+                        ),
                     ),
+                    inline=False,
                 )
             else:
                 self.add_field(
@@ -287,19 +289,17 @@ class ProfileCard(BaseCard):
             if last_update.total_xp:
                 self.add_field(
                     name=_("Total XP"),
-                    value="{then} ⇒ {now} (+{delta})".format(
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.total_xp),
                         now=cf.humanize_number(this_update.total_xp),
                         delta=cf.humanize_number(this_update.total_xp - last_update.total_xp),
+                        daily_gain=_("{gain}/day").format(
+                            gain=cf.humanize_number(
+                                round((this_update.total_xp - last_update.total_xp) / days)
+                            )
+                        ),
                     ),
-                )
-                self.add_field(
-                    name=_("Daily Gain ({stat_name})").format(stat_name=_("Total XP")),
-                    value=_("{gain}/day").format(
-                        gain=cf.humanize_number(
-                            round((this_update.total_xp - last_update.total_xp) / days)
-                        )
-                    ),
+                    inline=False,
                 )
             else:
                 self.add_field(

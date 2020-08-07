@@ -154,6 +154,12 @@ class TrainerDex(commands.Cog):
                         )
                     )
                     embed: discord.Embed = await ProfileCard(source_message, trainer)
+                    await message.edit(
+                        content="\n".join(
+                            [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                        )
+                    )
+                    await embed.show_progress()
                     await message.edit(content=text, embed=embed)
                 else:
                     await message.edit(

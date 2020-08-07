@@ -31,9 +31,7 @@ async def setup(bot: Red) -> None:
     config.register_global(
         **{
             "embed_footer": "Provided with ❤️ by TrainerDex",
-            "notice": chat_formatting.bold("Leaderboards are coming soon.")
-            + " The weird bug is fixed. I’m working reimplementing in the bot.\n"
-            + chat_formatting.italics("They’ll be back next week."),
+            "notice": "**Leaderboards are coming back** on August 14th.\n",
         }
     )
     config.register_guild(
