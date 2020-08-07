@@ -4,15 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
 ## [Unreleased]
+
+## [2020.32.0] - 2020-08-07
 ### Added
-- Rewrote Client library for talking to server, so that lives in `/tdx/client` until further notice
+- New Client library
+- GDPR settings
+- Bot now DMs user on join!
 
 ### Changed
 - Fixed a bug on generating progress if no data old enough found
 - Added 3 more stats to profile_ocr
 - Most requests are now async! I'm now awaiting a cup of tea
 
-## [2020.31] - 2020-07-31 [YANKED]
+## [2020.31.0] - 2020-07-31 [YANKED]
 ### Added
 - Start of `quickstart` commands
 - Added `tdx.converters.NicknameConverter`
@@ -40,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 - Fixed a bug where roles weren't changed as `add_roles` wasn't awaited
 
-## [2020.30] - 2020-07-25
+## [2020.30.0] - 2020-07-25
 ### Added
 - Profile lookup command
  - `[p]profile lookup [mention]`
