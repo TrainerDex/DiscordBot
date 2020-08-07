@@ -79,15 +79,6 @@ class TrainerDex(commands.Cog):
             try:
                 message: discord.Message = await source_message.channel.send(
                     loading(_("That's a nice image you have there, let's see…"))
-                    + "\n"
-                    + cf.info(
-                        _(
-                            "We use Google Vision API to read your images. "
-                            "Please ensure that the ‘Total XP’ field is visible. "
-                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
-                            "Posting the same image again, will likely cause another failure."
-                        )
-                    )
                 )
                 ocr = PogoOCR.ProfileSelf(
                     POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url
@@ -166,7 +157,7 @@ class TrainerDex(commands.Cog):
                 else:
                     await message.edit(
                         content=cf.error(_("I could not find Total XP in your image. "))
-                        + "\n"
+                        + "\n\n"
                         + cf.info(
                             _(
                                 "We use Google Vision API to read your images. "
@@ -185,6 +176,15 @@ class TrainerDex(commands.Cog):
             except Exception as e:
                 await source_message.channel.send(
                     "`Error in function 'check_screenshot'. Check your console or logs for details.`"
+                    + "\n\n"
+                    + cf.info(
+                        _(
+                            "We use Google Vision API to read your images. "
+                            "Please ensure that the ‘Total XP’ field is visible. "
+                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                            "Posting the same image again, will likely cause another failure."
+                        )
+                    )
                 )
                 raise e
 
