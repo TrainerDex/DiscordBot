@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Added
-- Rewrote Client library for talking to server, so that lives in `/tdx/client` until further notice
+- New Client library
+- GDPR settings
+- Bot now DMs user on join!
 
 ### Changed
 - Fixed a bug on generating progress if no data old enough found
