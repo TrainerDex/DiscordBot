@@ -4,8 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
 ## [Unreleased]
+### Added
+- Rewrote Client library for talking to server, so that lives in `/tdx/client` until further notice
+
 ### Changed
 - Fixed a bug on generating progress if no data old enough found
+- Added 3 more stats to profile_ocr
+- Most requests are now async! I'm now awaiting a cup of tea
 
 ## [2020.31] - 2020-07-31 [YANKED]
 ### Added
