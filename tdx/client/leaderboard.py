@@ -32,7 +32,7 @@ class LeaderboardEntry(abc.BaseClass):
             return self._trainer
 
         data = await self.http.get_trainer(self._trainer_id)
-        self._trainer = Trainer(data=data, conn=self.http)
+        self._trainer = Trainer(conn=self.http, data=data)
 
         return self._trainer
 
@@ -52,7 +52,7 @@ class BaseLeaderboard:
         if i >= len(self._entries):
             raise StopAsyncIteration
         self.i += 1
-        return LeaderboardEntry(self.http, **self._entries[i])
+        return LeaderboardEntry(conn=self.http, data=self._entries[i])
 
     def __len__(self) -> int:
         return len(self._entries)
