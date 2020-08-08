@@ -118,11 +118,11 @@ or visit the TrainerDex Support Discord (<{invite_url}>)
         twitter_handle="https://twitter.com/TrainerDexApp",
         invite_url="https://discord.gg/Anz3UpM",
     )
-    ADDITIONAL_NOTE = _("Additionally, you have a message from `{server.name}`:\n{note}").format(
-        server=ctx.guild, note=quote(additional_message),
-    )
 
     if additional_message:
+        ADDITIONAL_NOTE = _(
+            "Additionally, you have a message from `{server.name}`:\n{note}"
+        ).format(server=ctx.guild, note=quote(additional_message))
         return (BASE_NOTE, ADDITIONAL_NOTE)
     else:
         return (BASE_NOTE,)
