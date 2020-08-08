@@ -180,12 +180,20 @@ class ProfileCard(BaseCard):
             last_update: client.Update = client.Update(
                 conn=None,
                 data={
-                    "uuid": None,
+                    "uuid": "30aa3089-5917-4e38-85de-bea2e53a2448",
                     "trainer": self.trainer.old_id,
-                    "update_time": getattr(self.trainer, "start_date").isoformat(),
-                    "travel_km": 0,
-                    "capture_total": 0,
-                    "pokestops_visited": 0,
+                    "update_time": datetime.datetime(
+                        self.trainer.start_date.year,
+                        self.trainer.start_date.month,
+                        self.trainer.start_date.day,
+                        0,
+                        0,
+                        0,
+                        tzinfo=UTC,
+                    ).isoformat(),
+                    "badge_travel_km": 0,
+                    "badge_capture_total": 0,
+                    "badge_pokestops_visited": 0,
                     "total_xp": 0,
                 },
             )
@@ -211,7 +219,7 @@ class ProfileCard(BaseCard):
             inline=False,
         )
         if this_update.travel_km:
-            if last_update.travel_km:
+            if last_update.travel_km is not None:
                 self.add_field(
                     name=_("Distance Walked"),
                     value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
@@ -234,7 +242,7 @@ class ProfileCard(BaseCard):
                     inline=False,
                 )
         if self.latest_update.capture_total:
-            if last_update.capture_total:
+            if last_update.capture_total is not None:
                 self.add_field(
                     name=_("Pokémon Caught"),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
@@ -260,7 +268,7 @@ class ProfileCard(BaseCard):
                     inline=False,
                 )
         if self.latest_update.pokestops_visited:
-            if last_update.pokestops_visited:
+            if last_update.pokestops_visited is not None:
                 self.add_field(
                     name=_("PokéStops Visited"),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
@@ -287,7 +295,7 @@ class ProfileCard(BaseCard):
                     inline=False,
                 )
         if self.latest_update.total_xp:
-            if last_update.total_xp:
+            if last_update.total_xp is not None:
                 self.add_field(
                     name=_("Total XP"),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
