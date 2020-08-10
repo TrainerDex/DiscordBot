@@ -1,12 +1,12 @@
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
 
-import trainerdex
+from . import client
 
 _ = Translator("TrainerDex", __file__)
 
 
-def check_xp(x: trainerdex.Update) -> int:
+def check_xp(x: client.Update) -> int:
     if x.total_xp is None:
         return 0
     return x.total_xp

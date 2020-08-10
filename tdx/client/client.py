@@ -4,13 +4,13 @@ import logging
 from typing import Iterable, List, Union, Optional
 from uuid import UUID
 
-from tdx.client.faction import Faction
-from tdx.client.http import HTTPClient
-from tdx.client.trainer import Trainer
-from tdx.client.user import User
-from tdx.client.update import Update
-from tdx.client.leaderboard import Leaderboard, GuildLeaderboard
-from tdx.client.socialconnection import SocialConnection
+from .faction import Faction
+from .http import HTTPClient
+from .trainer import Trainer
+from .user import User
+from .update import Update
+from .leaderboard import Leaderboard, GuildLeaderboard
+from .socialconnection import SocialConnection
 
 log: logging.Logger = logging.getLogger(__name__)
 

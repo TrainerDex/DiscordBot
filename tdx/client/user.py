@@ -1,9 +1,9 @@
 from typing import Dict, Union, Optional
 
-from tdx.client import abc
-from tdx.client.http import HTTPClient
-from tdx.client.socialconnection import SocialConnection
-from tdx.client.trainer import Trainer
+from . import abc
+from .http import HTTPClient
+from .socialconnection import SocialConnection
+from .trainer import Trainer
 
 
 class User(abc.BaseClass):

@@ -1,6 +1,6 @@
 from typing import Dict, Union
 
-from tdx.client.http import HTTPClient
+from .http import HTTPClient
 
 
 class BaseClass:

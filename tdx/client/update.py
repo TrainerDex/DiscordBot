@@ -5,9 +5,9 @@ from typing import Dict, Union
 
 from dateutil.parser import parse
 
-from tdx.client import abc
-from tdx.client.http import HTTPClient, UPDATE_KEYS_ENUM_IN
-from tdx.client.utils import con
+from . import abc
+from .http import HTTPClient, UPDATE_KEYS_ENUM_IN
+from .utils import con
 
 odt = con(parse)
 
@@ -74,7 +74,7 @@ class BaseUpdate(abc.BaseClass):
             return self._trainer
 
         # have to import Trainer late to prevent circular imports
-        from tdx.client.trainer import Trainer
+        from .trainer import Trainer
 
         data = await self.http.get_trainer(self._trainer_id)
         self._trainer = Trainer(data=data, conn=self.http)

@@ -1,11 +1,11 @@
 from typing import Callable, Dict, List, Iterator, Optional, Union
 
 from dateutil.parser import parse
-from tdx.client import abc
-from tdx.client.http import HTTPClient
-from tdx.client.faction import Faction
-from tdx.client.trainer import Trainer
-from tdx.client.utils import con, maybe_coroutine
+from . import abc
+from .http import HTTPClient
+from .faction import Faction
+from .trainer import Trainer
+from .utils import con, maybe_coroutine
 
 
 class LeaderboardEntry(abc.BaseClass):

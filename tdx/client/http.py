@@ -11,8 +11,7 @@ from uuid import UUID
 import aiohttp
 from discord.errors import HTTPException, Forbidden, NotFound
 
-import tdx as bot
-import tdx.client as client
+from . import __version__
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -150,14 +149,11 @@ class HTTPClient:
         self.token = token
 
         user_agent = (
-            "DiscordBot (https://github.com/TrainerDex/DiscordBot {0}) "
-            "TrainerDex.py (https://github.com/TrainerDex/DiscordBot {1}) "
-            "Python/{2[0]}.{2[1]} "
-            "aiohttp/{3}"
+            "TrainerDex.py (https://github.com/TrainerDex/DiscordBot {0}) "
+            "Python/{1[0]}.{1[1]} "
+            "aiohttp/{2}"
         )
-        self.user_agent = user_agent.format(
-            bot.__version__, client.__version__, sys.version_info, aiohttp.__version__
-        )
+        self.user_agent = user_agent.format(__version__, sys.version_info, aiohttp.__version__)
 
     async def request(self, route: Route, **kwargs) -> Union[Dict, str]:
         method = route.method
