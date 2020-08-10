@@ -674,8 +674,9 @@ class TrainerDex(commands.Cog):
             levels = range(1, 41)
 
         levels = {client.update.get_level(level=i) for i in levels}
+        messages = []
 
-        await ctx.send("DEBUG: " + cf.box([leaderboard, factions, levels], "py"))
+        messages.append(await ctx.send("DEBUG: " + cf.box([leaderboard, factions, levels], "py")))
 
         leaderboard_title = (
             _("{guild.name} Leaderboard").format(guild=ctx.guild)
@@ -691,12 +692,15 @@ class TrainerDex(commands.Cog):
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
         )
+        messages.append(message)
         leaderboard = await self.client.get_leaderboard(
             guild=ctx.guild if leaderboard == "guild" else None
         )
-        await ctx.send(
-            "DEBUG: `{} entries ({} page(s)) downloaded.`".format(
-                len(leaderboard), math.ceil(len(leaderboard) / 15)
+        messages.append(
+            await ctx.send(
+                "DEBUG: `{} entries ({} page(s)) downloaded.`".format(
+                    len(leaderboard), math.ceil(len(leaderboard) / 15)
+                )
             )
         )
         await message.edit(
@@ -705,9 +709,11 @@ class TrainerDex(commands.Cog):
             )
         )
         leaderboard.filter(lambda x: x.faction in factions).filter(lambda x: x.level in levels)
-        await ctx.send(
-            "DEBUG: `{} entries ({} page(s)) after filtering.`".format(
-                len(leaderboard), math.ceil(len(leaderboard) / 15)
+        messages.append(
+            await ctx.send(
+                "DEBUG: `{} entries ({} page(s)) after filtering.`".format(
+                    len(leaderboard), math.ceil(len(leaderboard) / 15)
+                )
             )
         )
         await message.edit(
@@ -747,7 +753,8 @@ class TrainerDex(commands.Cog):
         async def close_menu(*args):
             with contextlib.suppress(discord.NotFound):
                 await args[3].delete()
-                await ctx.message.delete()
+                for x in messages:
+                    await x.delete()
 
         if ctx.channel.permissions_for(ctx.me).external_emojis:
             menu_controls = (
