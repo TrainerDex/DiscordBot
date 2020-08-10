@@ -2,9 +2,12 @@ import datetime
 import json
 import logging
 import os
-from typing import Final, Optional
+import math
+from typing import Final, Optional, Union
 
+import contextlib
 import discord
+import humanize
 from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
@@ -227,76 +230,6 @@ class TrainerDex(commands.Cog):
             }
             data: str = json.dumps(data, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(data, "json"))
-
-    @commands.command(name="leaderboard", aliases=["lb"])
-    async def leaderboard(self, ctx: commands.Context, limit: int = 100) -> None:
-        """Limited to top 100 results by default, but can be overiden
-
-        Example:
-            `[p]leaderboard`
-            Returns 100 results
-
-            `[p]leaderboard 250`
-            Returns 250 results
-        """
-
-        BASE_EMBED = await BaseCard(ctx, title=_("Global Leaderboard"))
-        PAGE_LEN = 15
-
-        await ctx.tick()
-
-        message = await ctx.send(
-            loading(_("{tag} Downloading global leaderboard…")).format(tag=ctx.author.mention)
-        )
-        leaderboard = await self.client.get_leaderboard()
-        await message.edit(
-            content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
-        )
-        embeds = []
-        working_embed = BASE_EMBED.copy()
-
-        async for entry in leaderboard:
-            """If embed at field limit, append to embeds list and start a fresh embed"""
-            if len(working_embed.fields) < PAGE_LEN:
-                working_embed.add_field(
-                    name="{} {}".format(entry.position, entry.username),
-                    value=cf.humanize_number(entry.total_xp),
-                    inline=False,
-                )
-            if len(working_embed.fields) == PAGE_LEN:
-                embeds.append(working_embed)
-                await message.edit(
-                    content=loading(_("{tag} Processing results ({pages} pages)")).format(
-                        tag=ctx.author.mention, pages=len(embeds)
-                    )
-                )
-                working_embed = BASE_EMBED.copy()
-        if len(working_embed.fields) > 0:
-            embeds.append(working_embed)
-        await message.edit(
-            content=_(
-                "{tag}: React ❌ to close the leaderboard. Navigate by reacting {prev} or {next}."
-            ).format(tag=ctx.author.mention, prev=self.PREV_EMOJI, next=self.NEXT_EMOJI)
-        )
-        await ctx.message.delete()
-
-        if ctx.channel.permissions_for(ctx.me).external_emojis:
-            menu_controls = (
-                {
-                    self.PREV_EMOJI: menus.prev_page,
-                    "❌": menus.close_menu,
-                    self.NEXT_EMOJI: menus.next_page,
-                }
-                if len(embeds) > 1
-                else {"❌": menus.close_menu}
-            )
-        else:
-            menu_controls = menus.DEFAULT_CONTROLS if len(embeds) > 1 else {"❌": menus.close_menu}
-
-        menus.start_adding_reactions(message, menu_controls.keys())
-        await menus.menu(
-            ctx, embeds, menu_controls, message=message,
-        )
 
     @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
     async def profile__lookup(
@@ -694,3 +627,140 @@ class TrainerDex(commands.Cog):
             await ctx.send_help()
             value: datetime.date = trainer.is_visible
             await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))
+
+    @commands.command(name="leaderboard", aliases=["lb"])
+    async def leaderboard(
+        self,
+        ctx: commands.Context,
+        leaderboard: Optional[commands.converter.Literal["global", "guild"]] = "guild",
+        *filters: Union[converters.TeamConverter, converters.LevelConverter],
+    ) -> None:
+        """Leaderboards
+
+        Parameters:
+            `leaderboard`: str
+                options are `guild` and `global`
+            `filters`: Union[Faction, Level]
+                If you mention any team, it'll filter to that. You can mention more than one team.
+                If you mention one level, it'll show that level and all below.
+                If you mention more than one level, it will show all between the lowest and highest level you mention.
+
+        Example:
+            `[p]leaderboard`
+            Shows the server leaderboard, unless you're in DMs.
+
+            `[p]leaderboard global`
+            Shows the global leaderboard
+
+            `[p]leaderboard valor mystic 24`
+            Shows the server leaderboard, post-filtered to only show valor and mystic players under or equal to level 24
+
+            `[p]leaderboard 15 24`
+            Shows the server leaderboard, post-filtered to only show players between level 15 and 24 (inclusive)
+        """
+
+        leaderboard = leaderboard if ctx.guild else "global"
+        factions = (
+            {x for x in filters if isinstance(x, client.Faction)}
+            if [x for x in filters if isinstance(x, client.Faction)]
+            else {client.Faction(i) for i in range(0, 4)}
+        )
+        levels = {x.level for x in filters if isinstance(x, client.Level)}
+        if len(levels) > 1:
+            levels = range(min(levels), max(levels) + 1,)
+        elif len(levels) == 1:
+            levels = range(levels.pop() + 1)
+        else:
+            levels = range(1, 41)
+
+        levels = {client.update.get_level(level=i) for i in levels}
+
+        await ctx.send(cf.box([leaderboard, factions, levels], "py"))
+
+        leaderboard_title = (
+            _("{guild.name} Leaderboard").format(guild=ctx.guild)
+            if leaderboard == "guild"
+            else _("Global Leaderboard")
+        )
+        BASE_EMBED = await BaseCard(ctx, title=leaderboard_title)
+
+        await ctx.tick()
+
+        message = await ctx.send(
+            loading(_("{tag} Downloading {leaderboard}…")).format(
+                tag=ctx.author.mention, leaderboard=leaderboard_title
+            )
+        )
+        leaderboard = await self.client.get_leaderboard(
+            guild=ctx.guild if leaderboard == "guild" else None
+        )
+        await ctx.send(
+            "DEBUG: `{} entries ({} page(s)) downloaded.`".format(
+                len(leaderboard), math.ceil(len(leaderboard) / 15)
+            )
+        )
+        await message.edit(
+            content=loading(_("{tag} Filtering {leaderboard}…")).format(
+                tag=ctx.author.mention, leaderboard=leaderboard_title
+            )
+        )
+        leaderboard.filter(lambda x: x.faction in factions).filter(lambda x: x.level in levels)
+        await ctx.send(
+            "DEBUG: `{} entries ({} page(s)) after filtering.`".format(
+                len(leaderboard), math.ceil(len(leaderboard) / 15)
+            )
+        )
+        await message.edit(
+            content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
+        )
+        embeds = []
+        working_embed = BASE_EMBED.copy()
+
+        async for entry in leaderboard:
+            """If embed at field limit, append to embeds list and start a fresh embed"""
+            if len(working_embed.fields) < 15:
+                working_embed.add_field(
+                    name=f"#{entry.position} {entry.username} • {entry.faction}",
+                    value=f"{cf.humanize_number(entry.total_xp)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
+                    inline=False,
+                )
+            if len(working_embed.fields) == 15:
+                embeds.append(working_embed)
+                await message.edit(
+                    content=loading(_("{tag} Processing results ({pages} pages)")).format(
+                        tag=ctx.author.mention, pages=len(embeds)
+                    )
+                )
+                working_embed = BASE_EMBED.copy()
+        if len(working_embed.fields) > 0:
+            embeds.append(working_embed)
+        if embeds:
+            await message.edit(
+                content=_(
+                    "{tag}: React ❌ to close the leaderboard. Navigate by reacting {prev} or {next}. There is a 5 minute timeout."
+                ).format(tag=ctx.author.mention, prev=self.PREV_EMOJI, next=self.NEXT_EMOJI)
+            )
+        else:
+            await message.edit(content="No results to display")
+            return
+
+        async def close_menu(*args):
+            with contextlib.suppress(discord.NotFound):
+                await args[3].delete()
+                await ctx.message.delete()
+
+        if ctx.channel.permissions_for(ctx.me).external_emojis:
+            menu_controls = (
+                {
+                    self.PREV_EMOJI: menus.prev_page,
+                    "❌": close_menu,
+                    self.NEXT_EMOJI: menus.next_page,
+                }
+                if len(embeds) > 1
+                else {"❌": close_menu}
+            )
+        else:
+            menu_controls = menus.DEFAULT_CONTROLS if len(embeds) > 1 else {"❌": menus.close_menu}
+
+        menus.start_adding_reactions(message, menu_controls.keys())
+        await menus.menu(ctx, embeds, menu_controls, message=message, timeout=300.0)

@@ -19,3 +19,12 @@ class Faction:
 
     def __str__(self) -> str:
         return self.verbose_name
+
+    def __repr__(self) -> str:
+        return f"Faction({self.id})"
+
+    def __eq__(self, o) -> bool:
+        return self.id == o.id
+
+    def __hash__(self):
+        return hash(self.id)

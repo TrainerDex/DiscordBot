@@ -7,7 +7,7 @@ from dateutil.parser import parse
 from . import abc
 from .http import HTTPClient, TRAINER_KEYS_ENUM_IN
 from .faction import Faction
-from .update import PartialUpdate, Update
+from .update import PartialUpdate, Update, Level
 from .utils import con
 
 odt = con(parse)
@@ -51,7 +51,7 @@ class Trainer(abc.BaseClass):
             return max(self.updates, key=lambda x: x.update_time)
 
     @property
-    def level(self) -> int:
+    def level(self) -> Level:
         return self.latest_update.level if self.latest_update else None
 
     async def user(self):

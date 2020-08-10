@@ -118,6 +118,14 @@ class TeamConverter(commands.Converter):
         return result
 
 
+class LevelConverter(commands.Converter):
+    async def convert(self, ctx, argument: str) -> client.Level:
+        try:
+            return client.update.get_level(level=int(argument))
+        except:
+            raise commands.BadArgument()
+
+
 class DatetimeConverter(commands.Converter):
     async def convert(self, ctx, argument: str) -> datetime.datetime:
         return parse(argument)
