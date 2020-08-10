@@ -205,7 +205,7 @@ class TrainerDex(commands.Cog):
                 )
                 raise e
 
-    @commands.group(name="profile")
+    @commands.group(name="profile", case_insensitive=True)
     async def profile(self, ctx: commands.Context) -> None:
         """Profile commands: This is a group command and does nothing on it's own"""
         if ctx.invoked_subcommand is None:
@@ -565,7 +565,7 @@ class TrainerDex(commands.Cog):
             embed=embed,
         )
 
-    @profile.group(name="edit")
+    @profile.group(name="edit", case_insensitive=True)
     async def profile__edit(self, ctx: commands.Context) -> None:
         """Edit various aspects about your profile"""
         pass
@@ -675,7 +675,7 @@ class TrainerDex(commands.Cog):
 
         levels = {client.update.get_level(level=i) for i in levels}
 
-        await ctx.send(cf.box([leaderboard, factions, levels], "py"))
+        await ctx.send("DEBUG: " + cf.box([leaderboard, factions, levels], "py"))
 
         leaderboard_title = (
             _("{guild.name} Leaderboard").format(guild=ctx.guild)

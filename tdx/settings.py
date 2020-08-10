@@ -90,11 +90,11 @@ class Settings(commands.Cog):
         settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
         await ctx.send(cf.box(settings, "json"))
 
-    @commands.group(name="tdxset", aliases=["config"])
+    @commands.group(name="tdxset", aliases=["config"], case_insensitive=True)
     async def settings(self, ctx: commands.Context) -> None:
         pass
 
-    @settings.group(name="guild", aliases=["server"])
+    @settings.group(name="guild", aliases=["server"], case_insensitive=True)
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
     async def settings__guild(self, ctx: commands.Context) -> None:
@@ -318,7 +318,7 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(key="guild.introduction_note", value=value)
             )
 
-    @settings.group(name="channel")
+    @settings.group(name="channel", case_insensitive=True)
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
     async def settings__channel(self, ctx: commands.Context) -> None:
@@ -350,7 +350,7 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings.group(name="user", aliases=["member"])
+    @settings.group(name="user", aliases=["member"], case_insensitive=True)
     async def settings__user(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
             if ctx.guild:
