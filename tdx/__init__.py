@@ -27,12 +27,7 @@ async def setup(bot: Red) -> None:
         None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
     )
 
-    config.register_global(
-        **{
-            "embed_footer": "Provided with ❤️ by TrainerDex",
-            "notice": "**Leaderboards are coming back** on August 14th.\n",
-        }
-    )
+    config.register_global(**{"embed_footer": "Provided with ❤️ by TrainerDex", "notice": None})
     config.register_guild(
         **{
             "assign_roles_on_join": True,
