@@ -173,7 +173,7 @@ class Settings(commands.Cog):
 
     @settings__guild.command(name="roles_to_assign_on_approval")
     async def settings__guild__roles_to_assign_on_approval(
-        self, ctx: commands.Context, action: str = None, roles: Optional[List[discord.Role]] = None
+        self, ctx: commands.Context, action: str = None, roles: Optional[discord.Role] = None
     ) -> None:
         """Which roles to add/remove to a user on approval
 
@@ -329,7 +329,7 @@ class Settings(commands.Cog):
 
     @settings__channel.command(name="profile_ocr")
     async def settings__channel__profile_ocr(
-        self, ctx: commands.Context, value: bool = None
+        self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Set if this channel should accept OCR commands."""
         if value is not None:
@@ -362,3 +362,36 @@ class Settings(commands.Cog):
                 settings: Dict = await self.config.user(ctx.author).all()
             settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(settings, "json"))
+
+    @settings.command(name="notice")
+    @checks.is_owner()
+    async def settings__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+        if value is not None:
+            if value == "None":
+                value = None
+            await self.config.notice.set(value)
+            await ctx.tick()
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="notice", value=value), delete_after=30,
+            )
+        else:
+            await ctx.send_help()
+            value: str = await self.config.notice()
+            await ctx.send(_("`{key}` is {value}").format(key="notice", value=value))
+
+    @settings.command(name="footer")
+    @checks.is_owner()
+    async def settings__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+        if value is not None:
+            if value == "None":
+                value = None
+            await self.config.embed_footer.set(value)
+            await ctx.tick()
+            await ctx.send(
+                _("`{key}` set to {value}").format(key="embed_footer", value=value),
+                delete_after=30,
+            )
+        else:
+            await ctx.send_help()
+            value: str = await self.config.embed_footer()
+            await ctx.send(_("`{key}` is {value}").format(key="embed_footer", value=value))
