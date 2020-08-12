@@ -5,6 +5,7 @@ from typing import Dict, List, Union, NoReturn
 import discord
 from discord.embeds import EmptyEmbed
 from redbot.core import commands, Config
+from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
@@ -82,16 +83,22 @@ class BaseCard(discord.Embed):
 
 class ProfileCard(BaseCard):
     async def __init__(
-        self, ctx: Union[commands.Context, discord.Message], trainer: client.Trainer, **kwargs,
+        self,
+        ctx: Union[commands.Context, discord.Message],
+        bot: Red,
+        client: client.Client,
+        trainer: client.Trainer,
+        **kwargs,
     ):
         await super().__init__(ctx, **kwargs)
         self.emoji = {
-            "travel_km": ctx.bot.get_emoji(743122298126467144),
-            "capture_total": ctx.bot.get_emoji(743122649529450566),
-            "pokestops_visited": ctx.bot.get_emoji(743122864303243355),
-            "total_xp": ctx.bot.get_emoji(743121748630831165),
-            "gift": ctx.bot.get_emoji(743120044615270616),
+            "travel_km": bot.get_emoji(743122298126467144),
+            "capture_total": bot.get_emoji(743122649529450566),
+            "pokestops_visited": bot.get_emoji(743122864303243355),
+            "total_xp": bot.get_emoji(743121748630831165),
+            "gift": bot.get_emoji(743120044615270616),
         }
+        self.client = client
         self.trainer = trainer
         self.latest_update = await self.trainer.latest_update.upgrade()
 
@@ -155,8 +162,8 @@ class ProfileCard(BaseCard):
                 inline=False,
             )
 
-    async def add_guild_leaderboard(self, client, guild: discord.Guild) -> None:
-        leaderboard = await client.get_leaderboard(guild=guild)
+    async def add_guild_leaderboard(self, guild: discord.Guild) -> None:
+        leaderboard = await self.client.get_leaderboard(guild=guild)
         entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
         if entry:
             self.insert_field_at(
@@ -168,8 +175,8 @@ class ProfileCard(BaseCard):
                 inline=False,
             )
 
-    async def add_leaderboard(self, client) -> None:
-        leaderboard = await client.get_leaderboard()
+    async def add_leaderboard(self) -> None:
+        leaderboard = await self.client.get_leaderboard()
         entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
         if entry:
             self.insert_field_at(

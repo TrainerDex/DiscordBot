@@ -163,7 +163,9 @@ class TrainerDex(commands.Cog):
                             [x for x in [text, loading(_("Loading output…"))] if x is not None]
                         )
                     )
-                    embed: discord.Embed = await ProfileCard(source_message, trainer)
+                    embed: discord.Embed = await ProfileCard(
+                        ctx=source_message, bot=self.bot, client=self.client, trainer=trainer
+                    )
                     await message.edit(
                         content="\n".join(
                             [x for x in [text, loading(_("Loading output…"))] if x is not None]
@@ -180,10 +182,10 @@ class TrainerDex(commands.Cog):
                         ),
                         embed=embed,
                     )
-                    await embed.add_leaderboard(self.client)
+                    await embed.add_leaderboard()
                     if source_message.guild:
                         await message.edit(embed=embed)
-                        await embed.add_guild_leaderboard(self.client, source_message.guild)
+                        await embed.add_guild_leaderboard(source_message.guild)
                     await message.edit(content=text, embed=embed)
                 else:
                     await message.edit(
@@ -279,14 +281,16 @@ class TrainerDex(commands.Cog):
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
 
-            embed: discord.Embed = await ProfileCard(ctx, trainer)
+            embed: discord.Embed = await ProfileCard(
+                ctx=ctx, bot=self.bot, client=self.client, trainer=trainer
+            )
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
             await embed.show_progress()
             await message.edit(content=loading(_("Loading leaderboards…")), embed=embed)
-            await embed.add_leaderboard(self.client)
+            await embed.add_leaderboard()
             if ctx.guild:
                 await message.edit(embed=embed)
-                await embed.add_guild_leaderboard(self.client, ctx.guild)
+                await embed.add_guild_leaderboard(ctx.guild)
             await message.edit(content=None, embed=embed)
 
     @profile.command(name="create", aliases=["register", "approve", "verify"])
@@ -575,7 +579,9 @@ class TrainerDex(commands.Cog):
                 user=mention.mention, trainer=trainer.username,
             )
         )
-        embed: discord.Embed = await ProfileCard(ctx, trainer)
+        embed: discord.Embed = await ProfileCard(
+            ctx=ctx, bot=self.bot, client=self.client, trainer=trainer
+        )
         await dm_message.edit(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
