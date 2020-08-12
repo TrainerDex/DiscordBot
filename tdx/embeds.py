@@ -85,7 +85,13 @@ class ProfileCard(BaseCard):
         self, ctx: Union[commands.Context, discord.Message], trainer: client.Trainer, **kwargs,
     ):
         await super().__init__(ctx, **kwargs)
-
+        self.emoji = {
+            "travel_km": ctx.bot.get_emoji(743122298126467144),
+            "capture_total": ctx.bot.get_emoji(743122649529450566),
+            "pokestops_visited": ctx.bot.get_emoji(743122864303243355),
+            "total_xp": ctx.bot.get_emoji(743121748630831165),
+            "gift": ctx.bot.get_emoji(743120044615270616),
+        }
         self.trainer = trainer
         self.latest_update = await self.trainer.latest_update.upgrade()
 
@@ -107,8 +113,8 @@ class ProfileCard(BaseCard):
         )
 
         if self.trainer.trainer_code:
-            trainer_code_text = _("**Trainer Code**: `{code}`").format(
-                code=self.trainer.trainer_code
+            trainer_code_text = "{icon} `{code}`".format(
+                icon=self.emoji.get("gift"), code=self.trainer.trainer_code
             )
 
             if self.description:
@@ -120,36 +126,63 @@ class ProfileCard(BaseCard):
         self.add_field(name=_("Level"), value=self.trainer.level)
         if self.latest_update.travel_km:
             self.add_field(
-                name=_("Distance Walked"),
+                name="{icon} {text}".format(
+                    icon=self.emoji.get("travel_km"), text=_("Distance Walked")
+                ),
                 value=cf.humanize_number(self.latest_update.travel_km) + " km",
                 inline=False,
             )
         if self.latest_update.capture_total:
             self.add_field(
-                name=_("Pokémon Caught"),
+                name="{icon} {text}".format(
+                    icon=self.emoji.get("capture_total"), text=_("Pokémon Caught")
+                ),
                 value=cf.humanize_number(self.latest_update.capture_total),
                 inline=False,
             )
         if self.latest_update.pokestops_visited:
             self.add_field(
-                name=_("PokéStops Visited"),
+                name="{icon} {text}".format(
+                    icon=self.emoji.get("pokestops_visited"), text=_("PokéStops Visited")
+                ),
                 value=cf.humanize_number(self.latest_update.pokestops_visited),
                 inline=False,
             )
         if self.latest_update.total_xp:
             self.add_field(
-                name=_("Total XP"),
+                name="{icon} {text}".format(icon=self.emoji.get("total_xp"), text=_("Total XP")),
                 value=cf.humanize_number(self.latest_update.total_xp),
                 inline=False,
             )
 
-    async def add_guild_leaderboard(self) -> NoReturn:
-        raise NotImplementedError
+    async def add_guild_leaderboard(self, client, guild: discord.Guild) -> None:
+        leaderboard = await client.get_leaderboard(guild=guild)
+        entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+        if entry:
+            self.insert_field_at(
+                index=0,
+                name="{guild.name} {icon} {text}".format(
+                    guild=guild, icon=self.emoji.get("total_xp"), text=_("Leaderboard")
+                ),
+                value="{:,}/{:,}".format(entry.position, len(leaderboard)),
+                inline=False,
+            )
 
-    async def add_leaderboard(self) -> NoReturn:
-        raise NotImplementedError
+    async def add_leaderboard(self, client) -> None:
+        leaderboard = await client.get_leaderboard()
+        entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+        if entry:
+            self.insert_field_at(
+                index=0,
+                name="\N{GLOBE WITH MERIDIANS} {icon} {text}".format(
+                    icon=self.emoji.get("total_xp"), text=_("Leaderboard")
+                ),
+                value="{:,}/{:,}+".format(entry.position, 9000),
+                inline=False,
+            )
 
     async def show_progress(self) -> None:
+
         this_update: client.Update = self.latest_update
 
         if this_update is None:
@@ -221,7 +254,9 @@ class ProfileCard(BaseCard):
         if this_update.travel_km:
             if last_update.travel_km is not None:
                 self.add_field(
-                    name=_("Distance Walked"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("travel_km"), text=_("Distance Walked")
+                    ),
                     value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.travel_km),
                         now=cf.humanize_number(this_update.travel_km),
@@ -237,14 +272,18 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=_("Distance Walked"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("travel_km"), text=_("Distance Walked")
+                    ),
                     value=cf.humanize_number(self.latest_update.travel_km) + " km",
                     inline=False,
                 )
         if self.latest_update.capture_total:
             if last_update.capture_total is not None:
                 self.add_field(
-                    name=_("Pokémon Caught"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("capture_total"), text=_("Pokémon Caught")
+                    ),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.capture_total),
                         now=cf.humanize_number(this_update.capture_total),
@@ -263,14 +302,18 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=_("Pokémon Caught"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("capture_total"), text=_("Pokémon Caught")
+                    ),
                     value=cf.humanize_number(self.latest_update.capture_total),
                     inline=False,
                 )
         if self.latest_update.pokestops_visited:
             if last_update.pokestops_visited is not None:
                 self.add_field(
-                    name=_("PokéStops Visited"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("pokestops_visited"), text=_("PokéStops Visited")
+                    ),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.pokestops_visited),
                         now=cf.humanize_number(this_update.pokestops_visited),
@@ -290,14 +333,18 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=_("PokéStops Visited"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("pokestops_visited"), text=_("PokéStops Visited")
+                    ),
                     value=cf.humanize_number(self.latest_update.pokestops_visited),
                     inline=False,
                 )
         if self.latest_update.total_xp:
             if last_update.total_xp is not None:
                 self.add_field(
-                    name=_("Total XP"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("total_xp"), text=_("Total XP")
+                    ),
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=cf.humanize_number(last_update.total_xp),
                         now=cf.humanize_number(this_update.total_xp),
@@ -312,7 +359,9 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=_("Total XP"),
+                    name="{icon} {text}".format(
+                        icon=self.emoji.get("total_xp"), text=_("Total XP")
+                    ),
                     value=cf.humanize_number(self.latest_update.total_xp),
                     inline=False,
                 )

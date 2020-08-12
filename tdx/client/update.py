@@ -85,6 +85,12 @@ class BaseUpdate(abc.BaseClass):
         super().__init__(conn, data)
         self._trainer = trainer
 
+    def __eq__(self, o) -> bool:
+        return self.uuid == o.uuid
+
+    def __hash__(self):
+        return hash(self.uuid)
+
     @property
     def level(self) -> Level:
         xp = getattr(self, "total_xp", None)

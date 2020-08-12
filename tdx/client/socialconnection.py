@@ -16,6 +16,12 @@ class SocialConnection(abc.BaseClass):
         self._trainer_id = data.get("trainer")
         self._trainer = None
 
+    def __eq__(self, o) -> bool:
+        return (self.provider, self.uid) == (o.provider, o.uid)
+
+    def __hash__(self):
+        return hash((self.provider, self.uid))
+
     async def user(self):
         if self._user:
             return self._user

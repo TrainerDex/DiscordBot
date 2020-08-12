@@ -170,6 +170,20 @@ class TrainerDex(commands.Cog):
                         )
                     )
                     await embed.show_progress()
+                    await message.edit(
+                        content="\n".join(
+                            [
+                                x
+                                for x in [text, loading(_("Loading leaderboards…"))]
+                                if x is not None
+                            ]
+                        ),
+                        embed=embed,
+                    )
+                    await embed.add_leaderboard(self.client)
+                    if source_message.guild:
+                        await message.edit(embed=embed)
+                        await embed.add_guild_leaderboard(self.client, source_message.guild)
                     await message.edit(content=text, embed=embed)
                 else:
                     await message.edit(
@@ -268,6 +282,11 @@ class TrainerDex(commands.Cog):
             embed: discord.Embed = await ProfileCard(ctx, trainer)
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
             await embed.show_progress()
+            await message.edit(content=loading(_("Loading leaderboards…")), embed=embed)
+            await embed.add_leaderboard(self.client)
+            if ctx.guild:
+                await message.edit(embed=embed)
+                await embed.add_guild_leaderboard(self.client, ctx.guild)
             await message.edit(content=None, embed=embed)
 
     @profile.command(name="create", aliases=["register", "approve", "verify"])
@@ -679,7 +698,7 @@ class TrainerDex(commands.Cog):
         messages.append(await ctx.send("DEBUG: " + cf.box([leaderboard, factions, levels], "py")))
 
         leaderboard_title = (
-            _("{guild.name} Leaderboard").format(guild=ctx.guild)
+            _("Leaderboard for {guild.name}").format(guild=ctx.guild)
             if leaderboard == "guild"
             else _("Global Leaderboard")
         )

@@ -37,6 +37,12 @@ class Trainer(abc.BaseClass):
         self._updates = data.get("updates", [])
         self._user = data.get("_user")
 
+    def __eq__(self, o) -> bool:
+        return self.old_id == o.old_id
+
+    def __hash__(self):
+        return hash(self.id)
+
     @property
     def team(self) -> Faction:
         return Faction(self.faction)

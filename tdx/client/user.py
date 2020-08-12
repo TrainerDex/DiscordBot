@@ -17,6 +17,12 @@ class User(abc.BaseClass):
         self.first_name = data.get("first_name")
         self.old_id = int(data.get("trainer"))
 
+    def __eq__(self, o) -> bool:
+        return self.id == o.id
+
+    def __hash__(self):
+        return hash(self.id)
+
     async def trainer(self) -> Trainer:
         if self._trainer:
             return self._trainer
