@@ -701,8 +701,6 @@ class TrainerDex(commands.Cog):
         levels = {client.update.get_level(level=i) for i in levels}
         messages = []
 
-        messages.append(await ctx.send("DEBUG: " + cf.box([leaderboard, factions, levels], "py")))
-
         leaderboard_title = (
             _("Leaderboard for {guild.name}").format(guild=ctx.guild)
             if leaderboard == "guild"
@@ -721,26 +719,14 @@ class TrainerDex(commands.Cog):
         leaderboard = await self.client.get_leaderboard(
             guild=ctx.guild if leaderboard == "guild" else None
         )
-        messages.append(
-            await ctx.send(
-                "DEBUG: `{} entries ({} page(s)) downloaded.`".format(
-                    len(leaderboard), math.ceil(len(leaderboard) / 15)
-                )
-            )
-        )
+
         await message.edit(
             content=loading(_("{tag} Filtering {leaderboard}…")).format(
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
         )
         leaderboard.filter(lambda x: x.faction in factions).filter(lambda x: x.level in levels)
-        messages.append(
-            await ctx.send(
-                "DEBUG: `{} entries ({} page(s)) after filtering.`".format(
-                    len(leaderboard), math.ceil(len(leaderboard) / 15)
-                )
-            )
-        )
+
         await message.edit(
             content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
         )
