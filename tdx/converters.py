@@ -64,6 +64,7 @@ class TrainerConverter(commands.Converter):
 
     async def convert(self, ctx, argument, cli=client.Client()) -> client.Trainer:
 
+        mention = None
         if isinstance(argument, str):
             is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
             is_mention = await safe_convert(commands.converter.UserConverter, ctx, argument)
