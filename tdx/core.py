@@ -67,10 +67,11 @@ class TrainerDex(commands.Cog):
 
         await source_message.add_reaction(self.bot.get_emoji(471298325904359434))
 
-        trainer: client.Trainer = await converters.TrainerConverter().convert(
-            None, source_message.author, cli=self.client
-        )
-        if not trainer:
+        try:
+            trainer: client.Trainer = await converters.TrainerConverter().convert(
+                None, source_message.author, cli=self.client
+            )
+        except discord.ext.commands.errors.BadArgument:
             await source_message.remove_reaction(
                 self.bot.get_emoji(471298325904359434), self.bot.user
             )
