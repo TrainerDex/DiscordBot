@@ -2,8 +2,7 @@ import datetime
 import json
 import logging
 import os
-import math
-from typing import Final, Optional, Union
+from typing import Dict, Final, Optional, Union
 
 import contextlib
 import discord
@@ -16,7 +15,15 @@ from redbot.core.utils import chat_formatting as cf, menus, predicates
 import PogoOCR
 from . import converters, client
 from .embeds import BaseCard, ProfileCard
-from .utils import check_xp, append_twitter, loading, success, QuestionMessage, introduction_notes
+from .utils import (
+    check_xp,
+    append_twitter,
+    loading,
+    success,
+    QuestionMessage,
+    introduction_notes,
+    quote,
+)
 
 log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -26,12 +33,13 @@ _ = Translator("TrainerDex", __file__)
 class TrainerDex(commands.Cog):
     """TrainerDex Core Functionality"""
 
-    def __init__(self, bot: Red, config: Config) -> None:
+    def __init__(
+        self, bot: Red, config: Config, emoji: Dict[str, Union[discord.Emoji, str]]
+    ) -> None:
         self.bot: Red = bot
         self.config: Config = config
         self.client = None
-        self.PREV_EMOJI = self.bot.get_emoji(729769958652772505)
-        self.NEXT_EMOJI = self.bot.get_emoji(729770058099982347)
+        self.emoji = emoji
 
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
 
@@ -165,7 +173,11 @@ class TrainerDex(commands.Cog):
                         )
                     )
                     embed: discord.Embed = await ProfileCard(
-                        ctx=source_message, bot=self.bot, client=self.client, trainer=trainer
+                        ctx=source_message,
+                        bot=self.bot,
+                        client=self.client,
+                        trainer=trainer,
+                        emoji=self.emoji,
                     )
                     await message.edit(
                         content="\n".join(
@@ -283,7 +295,7 @@ class TrainerDex(commands.Cog):
                 return
 
             embed: discord.Embed = await ProfileCard(
-                ctx=ctx, bot=self.bot, client=self.client, trainer=trainer
+                ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
             )
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
             await embed.show_progress()
@@ -581,7 +593,7 @@ class TrainerDex(commands.Cog):
             )
         )
         embed: discord.Embed = await ProfileCard(
-            ctx=ctx, bot=self.bot, client=self.client, trainer=trainer
+            ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
         )
         await dm_message.edit(embed=embed)
         await message.edit(
@@ -686,6 +698,7 @@ class TrainerDex(commands.Cog):
         """
 
         leaderboard = leaderboard if ctx.guild else "global"
+        stat = ("total_xp", _("Total XP"))
         factions = (
             {x for x in filters if isinstance(x, client.Faction)}
             if [x for x in filters if isinstance(x, client.Faction)]
@@ -700,14 +713,13 @@ class TrainerDex(commands.Cog):
             levels = range(1, 41)
 
         levels = {client.update.get_level(level=i) for i in levels}
-        messages = []
 
-        leaderboard_title = (
-            _("Leaderboard for {guild.name}").format(guild=ctx.guild)
-            if leaderboard in ("guild", "server")
-            else _("Global Leaderboard")
+        leaderboard_title = "{icon} {title}".format(
+            icon=self.emoji.get(stat[0], ""), title=_("{stat} Leaderboard").format(stat=stat[1]),
         )
         BASE_EMBED = await BaseCard(ctx, title=leaderboard_title)
+        if leaderboard in ("guild", "server"):
+            BASE_EMBED.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 
         await ctx.tick()
 
@@ -716,7 +728,6 @@ class TrainerDex(commands.Cog):
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
         )
-        messages.append(message)
         leaderboard = await self.client.get_leaderboard(
             guild=ctx.guild if leaderboard in ("guild", "server") else None
         )
@@ -738,8 +749,18 @@ class TrainerDex(commands.Cog):
             """If embed at field limit, append to embeds list and start a fresh embed"""
             if len(working_embed.fields) < 15:
                 working_embed.add_field(
-                    name=f"#{entry.position} {entry.username} • {entry.faction}",
-                    value=f"{cf.humanize_number(entry.total_xp)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
+                    name="{ic_pos}{pos} {handle} {faction}".format(
+                        ic_pos=self.emoji.get("number", ""),
+                        pos=entry.position,
+                        handle=entry.username,
+                        faction=self.emoji.get(entry.faction.verbose_name.lower()),
+                    ),
+                    value="{value}{ic_stat} • TL{level} • {dt}".format(
+                        value=cf.humanize_number(entry.total_xp),
+                        ic_stat=self.emoji.get(stat[0]),
+                        level=entry.level,
+                        dt=humanize.naturaldate(entry.last_updated),
+                    ),
                     inline=False,
                 )
             if len(working_embed.fields) == 15:
@@ -752,34 +773,41 @@ class TrainerDex(commands.Cog):
                 working_embed = BASE_EMBED.copy()
         if len(working_embed.fields) > 0:
             embeds.append(working_embed)
-        if embeds:
-            await message.edit(
-                content=_(
-                    "{tag}: React ❌ to close the leaderboard. Navigate by reacting {prev} or {next}. There is a 5 minute timeout."
-                ).format(tag=ctx.author.mention, prev=self.PREV_EMOJI, next=self.NEXT_EMOJI)
-            )
-        else:
-            await message.edit(content="No results to display")
-            return
-
-        async def close_menu(*args):
-            with contextlib.suppress(discord.NotFound):
-                await args[3].delete()
-                for x in messages:
-                    await x.delete()
 
         if ctx.channel.permissions_for(ctx.me).external_emojis:
             menu_controls = (
                 {
-                    self.PREV_EMOJI: menus.prev_page,
-                    "❌": close_menu,
-                    self.NEXT_EMOJI: menus.next_page,
+                    self.emoji.get("previous"): menus.prev_page,
+                    "❌": menus.close_menu,
+                    self.emoji.get("next"): menus.next_page,
                 }
                 if len(embeds) > 1
-                else {"❌": close_menu}
+                else {"❌": menus.close_menu}
             )
         else:
             menu_controls = menus.DEFAULT_CONTROLS if len(embeds) > 1 else {"❌": menus.close_menu}
+
+        if embeds:
+            if len(menu_controls.keys()) == 3:
+                controls_text = _(
+                    "{tag} Tap {close} to close the leaderboard, navigate with {prev} and {next}."
+                    " There is a 5 minute timeout."
+                ).format(
+                    tag=ctx.author.mention,
+                    prev=list(menu_controls.keys())[0],
+                    close=list(menu_controls.keys())[1],
+                    next=list(menu_controls.keys())[2],
+                )
+            else:
+                controls_text = _(
+                    "{tag} Tap {close} to close the leaderboard. There is a 5 minute timeout."
+                ).format(tag=ctx.author.mention, close=list(menu_controls.keys())[0])
+
+            await message.edit(content="\n".join([quote(ctx.message.content), controls_text]))
+            await ctx.message.delete()
+        else:
+            await message.edit(content="No results to display")
+            return
 
         menus.start_adding_reactions(message, menu_controls.keys())
         await menus.menu(ctx, embeds, menu_controls, message=message, timeout=300.0)

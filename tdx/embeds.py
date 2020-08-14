@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import Dict, List, Union, NoReturn
+from typing import Dict, List, Union
 
 import discord
 from discord.embeds import EmptyEmbed
@@ -29,8 +29,9 @@ class BaseCard(discord.Embed):
         await instance.__init__(*args, **kwargs)
         return instance
 
-    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs) -> None:
+    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs,) -> None:
         super().__init__(**kwargs)
+
         # Set default colour to TrainerDex brand colour
         try:
             colour: Union[discord.Colour, int] = kwargs["colour"]
@@ -88,16 +89,11 @@ class ProfileCard(BaseCard):
         bot: Red,
         client: client.Client,
         trainer: client.Trainer,
+        emoji: Dict[str, Union[discord.Emoji, str]],
         **kwargs,
     ):
         await super().__init__(ctx, **kwargs)
-        self.emoji = {
-            "travel_km": bot.get_emoji(743122298126467144),
-            "capture_total": bot.get_emoji(743122649529450566),
-            "pokestops_visited": bot.get_emoji(743122864303243355),
-            "total_xp": bot.get_emoji(743121748630831165),
-            "gift": bot.get_emoji(743120044615270616),
-        }
+        self.emoji = emoji
         self.client = client
         self.trainer = trainer
         self.latest_update = await self.trainer.latest_update.upgrade()
