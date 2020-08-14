@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [2020.32.0] - 2020-08-07
+## [2020.32.0] - 2020-08-07 [YANKED]
 ### Added
 - New Client library
 - GDPR settings
@@ -15,6 +15,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fixed a bug on generating progress if no data old enough found
 - Added 3 more stats to profile_ocr
 - Most requests are now async! I'm now awaiting a cup of tea
+
+### [2020.32.1] - 2020-08-07 [YANKED]
+#### Changed
+- Fixed a bug on outputting data on new users
+
+### [2020.32.2] - 2020-08-07 [YANKED]
+#### Changed
+- Fixed a bug on sending DMs from a server with no additional_message set
+
+### [2020.32.3] - 2020-08-07
+#### Security Fix
+- Updated to `Red-DiscordBot==3.3.11`
 
 ## [2020.31.0] - 2020-07-31 [YANKED]
 ### Added
