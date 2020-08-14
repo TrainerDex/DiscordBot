@@ -16,13 +16,14 @@ import PogoOCR
 from . import converters, client
 from .embeds import BaseCard, ProfileCard
 from .utils import (
-    check_xp,
+    append_icon,
     append_twitter,
-    loading,
-    success,
-    QuestionMessage,
+    check_xp,
     introduction_notes,
+    loading,
     quote,
+    QuestionMessage,
+    success,
 )
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -714,8 +715,8 @@ class TrainerDex(commands.Cog):
 
         levels = {client.update.get_level(level=i) for i in levels}
 
-        leaderboard_title = "{icon} {title}".format(
-            icon=self.emoji.get(stat[0], ""), title=_("{stat} Leaderboard").format(stat=stat[1]),
+        leaderboard_title = append_icon(
+            icon=self.emoji.get(stat[0], ""), text=_("{stat} Leaderboard").format(stat=stat[1]),
         )
         BASE_EMBED = await BaseCard(ctx, title=leaderboard_title)
         if leaderboard in ("guild", "server"):
@@ -749,15 +750,15 @@ class TrainerDex(commands.Cog):
             """If embed at field limit, append to embeds list and start a fresh embed"""
             if len(working_embed.fields) < 15:
                 working_embed.add_field(
-                    name="{ic_pos}{pos} {handle} {faction}".format(
-                        ic_pos=self.emoji.get("number", ""),
-                        pos=entry.position,
+                    name="{pos} {handle} {faction}".format(
+                        pos=append_icon(self.emoji.get("number", "#"), entry.position),
                         handle=entry.username,
                         faction=self.emoji.get(entry.faction.verbose_name.lower()),
                     ),
-                    value="{value}{ic_stat} • TL{level} • {dt}".format(
-                        value=cf.humanize_number(entry.total_xp),
-                        ic_stat=self.emoji.get(stat[0]),
+                    value="{value} • TL{level} • {dt}".format(
+                        value=append_icon(
+                            self.emoji.get(stat[0]), cf.humanize_number(entry.total_xp)
+                        ),
                         level=entry.level,
                         dt=humanize.naturaldate(entry.last_updated),
                     ),

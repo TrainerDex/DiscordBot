@@ -1,3 +1,6 @@
+from typing import Union
+
+import discord
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
 
@@ -24,6 +27,10 @@ def append_twitter(text: str) -> str:
     )
 
 
+def append_icon(icon: Union[discord.Emoji, str], text: str) -> str:
+    return f"{icon} {text}"
+
+
 def quote(text: str) -> str:
     return "\n".join(["> " + x for x in text.splitlines()])
 
@@ -39,7 +46,7 @@ def loading(text: str) -> str:
     """
 
     emoji = "<a:loading:471298325904359434>"
-    return f"{emoji} {text}"
+    return append_icon(emoji, text)
 
 
 def success(text: str) -> str:
@@ -52,7 +59,7 @@ def success(text: str) -> str:
 
     """
     emoji = "\N{WHITE HEAVY CHECK MARK}"
-    return f"{emoji} {text}"
+    return append_icon(emoji, text)
 
 
 class QuestionMessage:
