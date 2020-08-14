@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.33.0a"
+__version__ = "2020.33.0"
 
 import discord
 from redbot.core import commands, Config
