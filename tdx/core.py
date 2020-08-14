@@ -658,14 +658,14 @@ class TrainerDex(commands.Cog):
     async def leaderboard(
         self,
         ctx: commands.Context,
-        leaderboard: Optional[commands.converter.Literal["global", "guild"]] = "guild",
+        leaderboard: Optional[commands.converter.Literal["global", "guild", "server"]] = "guild",
         *filters: Union[converters.TeamConverter, converters.LevelConverter],
     ) -> None:
         """Leaderboards
 
         Parameters:
             `leaderboard`: str
-                options are `guild` and `global`
+                options are `guild` (or `server`) and `global`
             `filters`: Union[Faction, Level]
                 If you mention any team, it'll filter to that. You can mention more than one team.
                 If you mention one level, it'll show that level and all below.
@@ -704,7 +704,7 @@ class TrainerDex(commands.Cog):
 
         leaderboard_title = (
             _("Leaderboard for {guild.name}").format(guild=ctx.guild)
-            if leaderboard == "guild"
+            if leaderboard in ("guild", "server")
             else _("Global Leaderboard")
         )
         BASE_EMBED = await BaseCard(ctx, title=leaderboard_title)
@@ -718,7 +718,7 @@ class TrainerDex(commands.Cog):
         )
         messages.append(message)
         leaderboard = await self.client.get_leaderboard(
-            guild=ctx.guild if leaderboard == "guild" else None
+            guild=ctx.guild if leaderboard in ("guild", "server") else None
         )
 
         await message.edit(
