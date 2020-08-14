@@ -220,7 +220,7 @@ class ProfileCard(BaseCard):
             last_update: client.Update = client.Update(
                 conn=None,
                 data={
-                    "uuid": "30aa3089-5917-4e38-85de-bea2e53a2448",
+                    "uuid": "00000000-0000-0000-0000-000000000000",
                     "trainer": self.trainer.old_id,
                     "update_time": datetime.datetime(
                         self.trainer.start_date.year,
