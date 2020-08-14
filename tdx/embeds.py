@@ -127,10 +127,7 @@ class ProfileCard(BaseCard):
 
         self.add_field(
             name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
-            value=append_icon(
-                icon=self.emoji.get(self.trainer.team.verbose_name.lower()),
-                text=self.trainer.team.verbose_name,
-            ),
+            value=self.trainer.team.verbose_name,
         )
 
         if self.latest_update.travel_km:
@@ -245,10 +242,7 @@ class ProfileCard(BaseCard):
 
         self.add_field(
             name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
-            value=append_icon(
-                icon=self.emoji.get(self.trainer.team.verbose_name.lower()),
-                text=self.trainer.team.verbose_name,
-            ),
+            value=self.trainer.team.verbose_name,
         )
 
         self.add_field(
