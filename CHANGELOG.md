@@ -5,6 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2020.33.0] - 2020-08-14
+### Added
+- Added a Level object to Client (756302f732899284dda700414fccaecfca8f5004)
+- Server leaderboards (756302f732899284dda700414fccaecfca8f5004, 52ac9d1d7108523eb2caeb33fb3814a040840b6a)
+- Leaderboard positions in trainer output (52ac9d1d7108523eb2caeb33fb3814a040840b6a)
+- Emoji on trainer output (52ac9d1d7108523eb2caeb33fb3814a040840b6a)
+- Admin commands to change footer or notice on demand (2f5ede6b18423cc106e296e1972a96047f4dc41e, 2f5ede6b18423cc106e296e1972a96047f4dc41e)
+
+### Changed
+- Made proper use of relative imports. This has fixed a weird import issue that sometimes happen when reloading the cog (756302f732899284dda700414fccaecfca8f5004)
+- Changed the user-agent (756302f732899284dda700414fccaecfca8f5004)
+- Client objects are now hashable and support the == operator (756302f732899284dda700414fccaecfca8f5004, 52ac9d1d7108523eb2caeb33fb3814a040840b6a)
+- Filtering a leaderboard now filters in place. (756302f732899284dda700414fccaecfca8f5004)
+- Some commands are now Case Insensitive (e5d4d9a480525cb4ff89b73ab9d44e94547434ac, 3c8084a70b864cf82c59cae26e7b047f8fac7d44)
+- Various bug fixes (63df44a033625035dae5d1c47bc167438504f492, a9f23b2bc60464cd023ef9a4ab362c65095b80a3, 63173356afee7e61dceb47cbb2596d4770046339, 50ad59bd342b9f9e60c0163f18e6634209eb5a74)
+
 ## [2020.32.0] - 2020-08-07 [YANKED]
 ### Added
 - New Client library
