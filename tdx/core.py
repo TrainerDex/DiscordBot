@@ -654,7 +654,7 @@ class TrainerDex(commands.Cog):
             value: datetime.date = trainer.is_visible
             await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))
 
-    @commands.command(name="leaderboard", aliases=["lb"])
+    @commands.command(name="leaderboard", aliases=["lb", "LB"])
     async def leaderboard(
         self,
         ctx: commands.Context,
