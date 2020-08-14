@@ -4,11 +4,11 @@ from typing import Dict, List, Union
 
 from dateutil.parser import parse
 
-from tdx.client import abc
-from tdx.client.http import HTTPClient, TRAINER_KEYS_ENUM_IN
-from tdx.client.faction import Faction
-from tdx.client.update import PartialUpdate, Update
-from tdx.client.utils import con
+from . import abc
+from .http import HTTPClient, TRAINER_KEYS_ENUM_IN
+from .faction import Faction
+from .update import PartialUpdate, Update, Level
+from .utils import con
 
 odt = con(parse)
 
@@ -37,6 +37,12 @@ class Trainer(abc.BaseClass):
         self._updates = data.get("updates", [])
         self._user = data.get("_user")
 
+    def __eq__(self, o) -> bool:
+        return self.old_id == o.old_id
+
+    def __hash__(self):
+        return hash(self.id)
+
     @property
     def team(self) -> Faction:
         return Faction(self.faction)
@@ -51,7 +57,7 @@ class Trainer(abc.BaseClass):
             return max(self.updates, key=lambda x: x.update_time)
 
     @property
-    def level(self) -> int:
+    def level(self) -> Level:
         return self.latest_update.level if self.latest_update else None
 
     async def user(self):
@@ -59,7 +65,7 @@ class Trainer(abc.BaseClass):
             return self._user
 
         # have to import User late to prevent circular imports
-        from tdx.client.user import User
+        from .user import User
 
         data = await self.http.get_user(self.id)
         self._user = User(data=data, conn=self.http)

@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.32.3"
+__version__ = "2020.33.0"
 
 import discord
 from redbot.core import commands, Config
@@ -27,12 +27,7 @@ async def setup(bot: Red) -> None:
         None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
     )
 
-    config.register_global(
-        **{
-            "embed_footer": "Provided with ❤️ by TrainerDex",
-            "notice": "**Leaderboards are coming back** on August 14th.\n",
-        }
-    )
+    config.register_global(**{"embed_footer": "Provided with ❤️ by TrainerDex", "notice": None})
     config.register_guild(
         **{
             "assign_roles_on_join": True,

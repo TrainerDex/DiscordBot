@@ -1,11 +1,12 @@
 from typing import Callable, Dict, List, Iterator, Optional, Union
 
 from dateutil.parser import parse
-from tdx.client import abc
-from tdx.client.http import HTTPClient
-from tdx.client.faction import Faction
-from tdx.client.trainer import Trainer
-from tdx.client.utils import con, maybe_coroutine
+from . import abc
+from .http import HTTPClient
+from .faction import Faction
+from .trainer import Trainer
+from .update import get_level
+from .utils import con, maybe_coroutine
 
 
 class LeaderboardEntry(abc.BaseClass):
@@ -14,7 +15,7 @@ class LeaderboardEntry(abc.BaseClass):
         self._trainer = None
 
     def _update(self, data: Dict[str, Union[str, int]]) -> None:
-        self.level = data.get("level", 1)
+        self.level = get_level(level=data.get("level", 1))
         self.position = data.get("position", None)
         self._trainer_id = data.get("id", None)
         self.username = data.get("username")
@@ -103,10 +104,10 @@ class BaseLeaderboard:
         [1, 5]
 
         """
-        for x in self._entries:
-            xx = LeaderboardEntry(conn=self.http, data=x)
-            if predicate(xx):
-                yield xx
+        self._entries = [
+            x for x in self._entries if predicate(LeaderboardEntry(conn=self.http, data=x))
+        ]
+        return self
 
     async def find(
         self, predicate: Callable, default: Optional[LeaderboardEntry] = None

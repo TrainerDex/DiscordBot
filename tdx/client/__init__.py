@@ -20,6 +20,6 @@ from .http import Route, HTTPClient
 from .leaderboard import Leaderboard, GuildLeaderboard
 from .faction import Faction
 from .trainer import Trainer
-from .update import Update
+from .update import Update, Level
 from .user import User
 from .socialconnection import SocialConnection

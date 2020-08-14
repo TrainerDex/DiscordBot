@@ -1,9 +1,9 @@
 from typing import Dict, Union, Optional
 
-from tdx.client import abc
-from tdx.client.http import HTTPClient
-from tdx.client.socialconnection import SocialConnection
-from tdx.client.trainer import Trainer
+from . import abc
+from .http import HTTPClient
+from .socialconnection import SocialConnection
+from .trainer import Trainer
 
 
 class User(abc.BaseClass):
@@ -16,6 +16,12 @@ class User(abc.BaseClass):
         self.username = data.get("username")
         self.first_name = data.get("first_name")
         self.old_id = int(data.get("trainer"))
+
+    def __eq__(self, o) -> bool:
+        return self.id == o.id
+
+    def __hash__(self):
+        return hash(self.id)
 
     async def trainer(self) -> Trainer:
         if self._trainer:

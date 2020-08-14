@@ -64,6 +64,7 @@ class TrainerConverter(commands.Converter):
 
     async def convert(self, ctx, argument, cli=client.Client()) -> client.Trainer:
 
+        mention = None
         if isinstance(argument, str):
             is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
             is_mention = await safe_convert(commands.converter.UserConverter, ctx, argument)
@@ -116,6 +117,14 @@ class TeamConverter(commands.Converter):
             raise commands.BadArgument(_("Faction `{}` not found").format(argument))
 
         return result
+
+
+class LevelConverter(commands.Converter):
+    async def convert(self, ctx, argument: str) -> client.Level:
+        try:
+            return client.update.get_level(level=int(argument))
+        except:
+            raise commands.BadArgument()
 
 
 class DatetimeConverter(commands.Converter):

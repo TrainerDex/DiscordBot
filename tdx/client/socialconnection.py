@@ -1,9 +1,9 @@
 import json
 from typing import Dict, Union
 
-from tdx.client import abc
-from tdx.client.trainer import Trainer
-from tdx.client.utils import con
+from . import abc
+from .trainer import Trainer
+from .utils import con
 
 
 class SocialConnection(abc.BaseClass):
@@ -16,11 +16,17 @@ class SocialConnection(abc.BaseClass):
         self._trainer_id = data.get("trainer")
         self._trainer = None
 
+    def __eq__(self, o) -> bool:
+        return (self.provider, self.uid) == (o.provider, o.uid)
+
+    def __hash__(self):
+        return hash((self.provider, self.uid))
+
     async def user(self):
         if self._user:
             return self._user
 
-        from tdx.client.user import User
+        from .user import User
 
         data = await self.http.get_user(self._user_id)
         self._user = User(data=data, conn=self.http)

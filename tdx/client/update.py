@@ -5,14 +5,33 @@ from typing import Dict, Union
 
 from dateutil.parser import parse
 
-from tdx.client import abc
-from tdx.client.http import HTTPClient, UPDATE_KEYS_ENUM_IN
-from tdx.client.utils import con
+from . import abc
+from .http import HTTPClient, UPDATE_KEYS_ENUM_IN
+from .utils import con
 
 odt = con(parse)
 
 
-def get_level(xp: int) -> int:
+class Level:
+    def __init__(self, level: int, min: int, max: Union[int, float]) -> None:
+        self.level = level
+        self.min = min
+        self.max = max
+
+    def __eq__(self, o) -> bool:
+        return self.level == o.level
+
+    def __hash__(self):
+        return hash(self.level)
+
+    def __str__(self) -> str:
+        return str(self.level)
+
+    def __repr__(self) -> str:
+        return f"Level({self.level})"
+
+
+def get_level(xp: int = None, level: int = None) -> int:
     levels = {
         1: (0, 1000),
         2: (1000, 3000),
@@ -55,7 +74,10 @@ def get_level(xp: int) -> int:
         39: (15000000, 20000000),
         40: (20000000, float("inf")),
     }
-    return [k for k, v in levels.items() if v[0] <= xp < v[1]][0]
+    if xp:
+        return [Level(k, *v) for k, v in levels.items() if v[0] <= xp < v[1]][0]
+    elif level:
+        return Level(level, *levels[level])
 
 
 class BaseUpdate(abc.BaseClass):
@@ -63,18 +85,24 @@ class BaseUpdate(abc.BaseClass):
         super().__init__(conn, data)
         self._trainer = trainer
 
+    def __eq__(self, o) -> bool:
+        return self.uuid == o.uuid
+
+    def __hash__(self):
+        return hash(self.uuid)
+
     @property
-    def level(self) -> int:
+    def level(self) -> Level:
         xp = getattr(self, "total_xp", None)
         if xp:
-            return get_level(xp)
+            return get_level(xp=xp)
 
     async def trainer(self):
         if self._trainer:
             return self._trainer
 
         # have to import Trainer late to prevent circular imports
-        from tdx.client.trainer import Trainer
+        from .trainer import Trainer
 
         data = await self.http.get_trainer(self._trainer_id)
         self._trainer = Trainer(data=data, conn=self.http)
