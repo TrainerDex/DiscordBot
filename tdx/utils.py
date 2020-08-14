@@ -28,7 +28,9 @@ def append_twitter(text: str) -> str:
 
 
 def append_icon(icon: Union[discord.Emoji, str], text: str) -> str:
-    return f"{icon} {text}"
+    if icon:
+        return f"{icon} {text}"
+    return text
 
 
 def quote(text: str) -> str:

@@ -44,7 +44,7 @@ async def setup(bot: Red) -> None:
     config.register_channel(**{"profile_ocr": False, "post_leaderboard": False})
 
     emoji = {
-        "teamless": bot.get_emoji(743853262469333042),
+        "teamless": bot.get_emoji(743873748029145209),
         "mystic": bot.get_emoji(430113444558274560),
         "valor": bot.get_emoji(430113457149575168),
         "instinct": bot.get_emoji(430113431333371924),
@@ -58,9 +58,11 @@ async def setup(bot: Red) -> None:
         "next": bot.get_emoji(729770058099982347),
         "loading": bot.get_emoji(471298325904359434),
         "global": bot.get_emoji(743853198217052281),
+        "gym": bot.get_emoji(743874196639056096),
         "gym_badge": bot.get_emoji(743853262469333042),
         "number": "#",
         "profile": bot.get_emoji(743853381919178824),
+        "date": bot.get_emoji(743874800547791023),
     }
 
     bot.add_cog(Settings(bot, config))

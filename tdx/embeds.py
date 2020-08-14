@@ -117,7 +117,7 @@ class ProfileCard(BaseCard):
 
         if self.trainer.trainer_code:
             trainer_code_text = append_icon(
-                icon=self.emoji.get("add_friend"), text=self.trainer.trainer_code
+                icon=self.emoji.get("add_friend"), text=f"`{self.trainer.trainer_code}`"
             )
 
             if self.description:
@@ -126,13 +126,12 @@ class ProfileCard(BaseCard):
                 self.description = trainer_code_text
 
         self.add_field(
-            name=append_icon(icon=self.emoji.get("gym_badge"), text=_("Team")),
+            name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
             value=append_icon(
                 icon=self.emoji.get(self.trainer.team.verbose_name.lower()),
                 text=self.trainer.team.verbose_name,
             ),
         )
-        self.add_field(name=_("Level"), value=self.trainer.level)
 
         if self.latest_update.travel_km:
             self.add_field(
@@ -245,16 +244,15 @@ class ProfileCard(BaseCard):
         self.clear_fields()
 
         self.add_field(
-            name=append_icon(icon=self.emoji.get("gym_badge"), text=_("Team")),
+            name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
             value=append_icon(
                 icon=self.emoji.get(self.trainer.team.verbose_name.lower()),
                 text=self.trainer.team.verbose_name,
             ),
         )
-        self.add_field(name=_("Level"), value=self.trainer.level)
 
         self.add_field(
-            name=append_icon(icon="\N{TEAR-OFF CALENDAR}", text=_("Timedelta")),
+            name=append_icon(icon=self.emoji.get("date"), text=_("Interval")),
             value="{then} ⇒ {now} (+{delta})".format(
                 then=humanize.naturaldate(last_update.update_time),
                 now=humanize.naturaldate(this_update.update_time),
