@@ -4,7 +4,6 @@ import logging
 import os
 from typing import Dict, Final, Optional, Union
 
-import contextlib
 import discord
 import humanize
 from redbot.core import checks, commands, Config

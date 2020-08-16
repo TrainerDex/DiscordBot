@@ -18,7 +18,7 @@ import discord
 from redbot.core import commands, Config
 from redbot.core.bot import Red
 
-from .core import TrainerDex
+from .trainerdex import TrainerDex
 from .settings import Settings
 
 
