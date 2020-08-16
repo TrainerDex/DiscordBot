@@ -374,7 +374,7 @@ class TrainerDex(commands.Cog):
             if q.exit:
                 return await q.response.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
-            total_xp = q.answer
+            total_xp = int(q.answer)
             answer_text: str = cf.humanize_number(total_xp)
             await q.message.edit(content=f"{q.message.content}\n{answer_text}")
 
