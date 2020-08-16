@@ -343,6 +343,7 @@ class TrainerDex(commands.Cog):
             if nickname:
                 answer_text: str = nickname
                 await q.message.edit(content=f"{q.message.content}\n{answer_text}")
+                await q.response.delete()
             else:
                 await ctx.send(nickname.e)
                 nickname = None
@@ -359,6 +360,7 @@ class TrainerDex(commands.Cog):
             if team:
                 answer_text: str = team
                 await q.message.edit(content=f"{q.message.content}\n{answer_text}")
+                await q.response.delete()
             else:
                 await ctx.send(team.e)
                 team = None
@@ -377,6 +379,7 @@ class TrainerDex(commands.Cog):
             total_xp = int(q.answer)
             answer_text: str = cf.humanize_number(total_xp)
             await q.message.edit(content=f"{q.message.content}\n{answer_text}")
+            await q.response.delete()
 
         message: discord.Message = await ctx.send(loading(_("Let's go…")))
 
