@@ -89,6 +89,7 @@ class Settings(MixinMeta):
 
     @commands.group(name="tdxset", aliases=["config"], case_insensitive=True)
     async def tdxset(self, ctx: commands.Context) -> None:
+        """⬎ Set server and/or channel settings"""
         pass
 
     @tdxset.group(name="guild", aliases=["server"], case_insensitive=True)
@@ -346,19 +347,6 @@ class Settings(MixinMeta):
                     key=f"channel[{ctx.channel.id}].profile_ocr", value=value
                 )
             )
-
-    @tdxset.group(name="user", aliases=["member"], case_insensitive=True)
-    async def tdxset__user(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand is None:
-            if ctx.guild:
-                tdxset: Dict = {
-                    **await self.config.member(ctx.author).all(),
-                    **await self.config.user(ctx.author).all(),
-                }
-            else:
-                tdxset: Dict = await self.config.user(ctx.author).all()
-            tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(tdxset, "json"))
 
     @tdxset.command(name="notice")
     @checks.is_owner()
