@@ -29,7 +29,7 @@ class BaseCard(discord.Embed):
         await instance.__init__(*args, **kwargs)
         return instance
 
-    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs,) -> None:
+    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs) -> None:
         super().__init__(**kwargs)
 
         # Set default colour to TrainerDex brand colour

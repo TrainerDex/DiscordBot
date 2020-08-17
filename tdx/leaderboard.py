@@ -4,6 +4,7 @@ from typing import Final, Optional, Union
 
 import humanize
 from redbot.core import commands
+from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, menus
 
@@ -22,7 +23,7 @@ class Leaderboard(MixinMeta):
     async def leaderboard(
         self,
         ctx: commands.Context,
-        leaderboard: Optional[commands.converter.Literal["global", "guild", "server"]] = "guild",
+        leaderboard: Optional[Literal["global", "guild", "server"]] = "guild",
         *filters: Union[converters.TeamConverter, converters.LevelConverter],
     ) -> None:
         """Leaderboards

@@ -1,6 +1,8 @@
 from typing import Union
 
 import discord
+
+from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
@@ -59,7 +61,9 @@ def success(text: str) -> str:
     return append_icon(emoji, text)
 
 
-def introduction_notes(ctx, member, trainer, additional_message: str) -> str:
+def introduction_notes(
+    ctx: commands.Context, member: discord.Member, trainer: client.Trainer, additional_message: str
+) -> str:
     BASE_NOTE = _(
         """**You're getting this message because you have been added to the TrainerDex database.**
 

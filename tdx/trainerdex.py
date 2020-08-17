@@ -1,7 +1,7 @@
 import logging
 import os
 from abc import ABC
-from typing import Final
+from typing import Dict, Final, Union
 
 import discord
 from redbot.core import commands, Config
@@ -57,8 +57,8 @@ class TrainerDex(
             }
         )
         self.config.register_channel(**{"profile_ocr": False})
-        self.client = None
-        self.emoji = {
+        self.client: client.Client = None
+        self.emoji: Dict[str, Union[str, discord.Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
             "valor": self.bot.get_emoji(430113457149575168),
@@ -87,7 +87,7 @@ class TrainerDex(
 
     async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
-        token = await self._get_token()
+        token: str = await self._get_token()
         self.client = client.Client(token=token)
 
     async def _get_token(self) -> str:

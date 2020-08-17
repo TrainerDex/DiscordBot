@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import discord
 from redbot.core import checks, commands
+from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
@@ -171,7 +172,10 @@ class Settings(MixinMeta):
 
     @tdxset__guild.command(name="roles_to_assign_on_approval")
     async def tdxset__guild__roles_to_assign_on_approval(
-        self, ctx: commands.Context, action: str = None, roles: Optional[discord.Role] = None
+        self,
+        ctx: commands.Context,
+        action: Optional[Literal["add", "remove"]] = None,
+        roles: Optional[discord.Role] = None,
     ) -> None:
         """Which roles to add/remove to a user on approval
 

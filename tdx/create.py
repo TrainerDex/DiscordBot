@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional, Union
 
 import discord
 from redbot.core import checks, commands
@@ -10,7 +10,7 @@ from . import converters, client
 from .abc import MixinMeta
 from .profile import Profile
 from .embeds import ProfileCard
-from .utils import check_xp, introduction_notes, loading, success
+from .utils import check_xp, introduction_notes, loading, success, quote
 
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
@@ -22,19 +22,16 @@ NoAnswerProvidedException = Exception
 class Question:
     def __init__(
         self,
-        ctx,
+        ctx: commands.Context,
         question: str,
         message: Optional[discord.Message] = None,
         predicate: Optional[Callable] = None,
     ) -> None:
-        self._ctx = ctx
-        self.question = question
-        self.message = message
-        if predicate:
-            self.predicate = predicate
-        else:
-            self.predicate = predicates.MessagePredicate.same_context(self._ctx)
-        self.response = None
+        self._ctx: commands.Context = ctx
+        self.question: str = question
+        self.message: discord.Message = message
+        self.predicate: Callable = predicate or predicates.MessagePredicate.same_context(self._ctx)
+        self.response: discord.Message = None
 
     async def ask(self) -> Union[str, None]:
         if self.message:
@@ -46,7 +43,7 @@ class Question:
                 content=cf.question(f"{self._ctx.author.mention}: {self.question}")
             )
         self.response = await self._ctx.bot.wait_for("message", check=self.predicate)
-        if self.responce.content.lower() == f"{self._ctx.prefix}cancel":
+        if self.response.content.lower() == f"{self._ctx.prefix}cancel":
             # TODO: Make an actual exception class
             raise AbandonQuestionException
         else:
@@ -54,7 +51,7 @@ class Question:
 
     async def append_answer(self, answer: Optional[str] = None) -> None:
         content = "{q}\n{a}".format(
-            q=self.question, a=(answer if answer is not None else self.answer)
+            q=self.question, a=quote(str(answer) if answer is not None else self.answer)
         )
         await self.message.edit(content=content)
 
@@ -70,11 +67,11 @@ class ProfileCreate(MixinMeta):
 
     async def ask_question(
         self,
-        ctx,
+        ctx: commands.Context,
         question: str,
         optional: bool = False,
         predicate: Optional[Callable] = None,
-        converter: Optional[Callable[[discord.Context, str], Any]] = None,
+        converter: commands.Converter = None,
     ):
         m = await ctx.send(content=self.emoji.get("loading"))
         attempts_remaining = 5
@@ -112,7 +109,7 @@ class ProfileCreate(MixinMeta):
         member: discord.Member,
         nickname: Optional[converters.NicknameConverter] = None,
         team: Optional[converters.TeamConverter] = None,
-        total_xp: Optional[int] = None,
+        total_xp: Optional[converters.TotalXPConverter] = None,
     ) -> None:
         """Get or create a profile in TrainerDex
 
@@ -126,44 +123,37 @@ class ProfileCreate(MixinMeta):
         assign_roles: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
 
-        if nickname is None:
-            try:
-                nickname = await self.ask_question(
-                    ctx,
-                    question=_("What is the in-game username of {mention}?").format(
-                        mention=mention
-                    ),
-                    converter=converters.NicknameConverter,
-                )
-            except NoAnswerProvidedException:
-                await ctx.send(_("Answer could not be determined. Abandoning!"))
-                return
+        questions = {
+            "nickname": {
+                "question": _("What is the in-game username of {user}?").format(user=member),
+                "converter": converters.NicknameConverter,
+            },
+            "team": {
+                "question": _("What team is {user} in?").format(user=member),
+                "converter": converters.TeamConverter,
+            },
+            "total_xp": {
+                "question": _("What is {user}‘s Total XP?").format(user=member),
+                "predicate": predicates.MessagePredicate.valid_int(ctx),
+                "converter": converters.TotalXPConverter,
+            },
+        }
+        answers = {
+            "nickname": nickname,
+            "team": team,
+            "total_xp": total_xp,
+        }
 
-        if team is None:
-            try:
-                team = await self.ask_question(
-                    ctx,
-                    question=_("What team is {nickname} in?").format(nickname=nickname),
-                    converter=converters.TeamConverter,
-                )
-            except NoAnswerProvidedException:
-                await ctx.send(_("Answer could not be determined. Abandoning!"))
-                return
-
-        MINIMUM_XP_CAP = 100
-        if (total_xp is None) or (total_xp <= MINIMUM_XP_CAP):
-            try:
-                total_xp = await self.ask_question(
-                    ctx,
-                    question=_("What is {nickname}‘s Total XP? (as a whole number)").format(
-                        nickname=nickname
-                    ),
-                    predicate=predicates.MessagePredicate.valid_int(ctx),
-                )
-            except NoAnswerProvidedException:
-                await ctx.send(_("Answer could not be determined. Abandoning!"))
-                return
-            total_xp = int(total_xp)
+        for key, values in questions.items():
+            if answers.get(key) is None:
+                try:
+                    answers[key] = await self.ask_question(ctx, **values)
+                except NoAnswerProvidedException:
+                    await ctx.send(_("Answer could not be determined. Abandoning!"))
+                    return
+                except AbandonQuestionException:
+                    await ctx.send(_("Cancelled!"))
+                    return
 
         message: discord.Message = await ctx.send(loading(_("Let's go…")))
 
@@ -171,10 +161,10 @@ class ProfileCreate(MixinMeta):
             async with ctx.typing():
                 roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
                 roles["add"] = [ctx.guild.get_role(x) for x in roles["add"]]
-                if team.id > 0:
+                if answers.get("team").id > 0:
                     team_role = await getattr(
                         self.config.guild(ctx.guild),
-                        ["", "mystic_role", "valor_role", "instinct_role"][team.id],
+                        ["", "mystic_role", "valor_role", "instinct_role"][answers.get("team").id],
                     )()
                     if team_role:
                         roles["add"].append(ctx.guild.get_role(team_role))
@@ -238,13 +228,13 @@ class ProfileCreate(MixinMeta):
             async with ctx.typing():
                 await message.edit(
                     content=loading(_("Changing {user}‘s nick to {nickname}")).format(
-                        user=member.mention, nickname=nickname
+                        user=member.mention, nickname=answers.get("nickname")
                     )
                 )
 
                 try:
                     await member.edit(
-                        nick=nickname,
+                        nick=answers.get("nickname"),
                         reason=_("{mod} ran the command `{command}`").format(
                             mod=ctx.author, command=ctx.invoked_with
                         ),
@@ -255,7 +245,7 @@ class ProfileCreate(MixinMeta):
                 else:
                     await message.edit(
                         content=success(_("Changed {user}‘s nick to {nickname}")).format(
-                            user=member.mention, nickname=nickname
+                            user=member.mention, nickname=answers.get("nickname")
                         )
                     )
                     nick_set = True
@@ -295,20 +285,24 @@ class ProfileCreate(MixinMeta):
                 else:
                     approval_message += cf.error(
                         _("User nickname could not be set. (`{nickname}`)\n")
-                    ).format(nickname=nickname)
+                    ).format(nickname=answers.get("nickname"))
                     approval_message += f"`{nick_set_error}`\n"
 
             if assign_roles or set_nickname:
                 await message.edit(content=approval_message)
                 message: discord.Message = await ctx.send(loading(""))
 
-        log.info(f"Attempting to add {nickname} to database, checking if they already exist")
+        log.info(
+            "Attempting to add {user} to database, checking if they already exist".format(
+                user=answers.get("nickname")
+            )
+        )
 
-        await message.edit(content=loading(_("Checking for user to database")))
+        await message.edit(content=loading(_("Checking for user in database")))
 
         try:
             trainer: client.Trainer = await converters.TrainerConverter().convert(
-                ctx, nickname, cli=self.client
+                ctx, answers.get("nickname"), cli=self.client
             )
         except commands.BadArgument:
             try:
@@ -330,11 +324,11 @@ class ProfileCreate(MixinMeta):
 
             # Edit the trainer instance with the new team and set is_verified
             # Chances are, is_verified might have been False and this will fix that.
-            await trainer.edit(faction=team.id, is_verified=True)
+            await trainer.edit(faction=answers.get("team").id, is_verified=True)
 
             # Check if it's a good idea to update the stats
-            set_xp = (
-                (total_xp > max(trainer.updates, key=check_xp).total_xp)
+            set_xp: bool = (
+                (answers.get("total_xp") > max(trainer.updates, key=check_xp).total_xp)
                 if trainer.updates
                 else True
             )
@@ -342,7 +336,7 @@ class ProfileCreate(MixinMeta):
             log.info(f"{nickname}: No user found, creating profile")
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
             trainer: client.Trainer = await self.client.create_trainer(
-                username=nickname, faction=team.id, is_verified=True
+                username=nickname, faction=answers.get("team").id, is_verified=True
             )
             user = await trainer.user()
             await user.add_discord(member)
@@ -352,11 +346,11 @@ class ProfileCreate(MixinMeta):
         if set_xp:
             await message.edit(
                 content=loading(_("Setting Total XP for {user} to {total_xp}.")).format(
-                    user=trainer.username, total_xp=total_xp,
+                    user=trainer.username, total_xp=answers.get("total_xp"),
                 )
             )
             await trainer.post(
-                stats={"total_xp": total_xp},
+                stats={"total_xp": answers.get("total_xp")},
                 data_source="ss_ocr",
                 update_time=ctx.message.created_at,
             )
