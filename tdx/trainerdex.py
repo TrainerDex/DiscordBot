@@ -83,7 +83,7 @@ class TrainerDex(commands.Cog):
             await source_message.remove_reaction(
                 self.bot.get_emoji(471298325904359434), self.bot.user
             )
-            await source_message.add_reaction("\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}")
+            await source_message.add_reaction("\N{THUMBS DOWN SIGN}")
             await source_message.channel.send(
                 "{message.author.mention} Trainer not found!", delete_after=5
             )
@@ -216,9 +216,7 @@ class TrainerDex(commands.Cog):
                     await source_message.remove_reaction(
                         self.bot.get_emoji(471298325904359434), self.bot.user
                     )
-                    await source_message.add_reaction(
-                        "\N{THUMBS DOWN SIGN}\N{VARIATION SELECTOR-16}"
-                    )
+                    await source_message.add_reaction("\N{THUMBS DOWN SIGN}")
             except Exception as e:
                 await source_message.channel.send(
                     "`Error in function 'check_screenshot'. Check your console or logs for details.`"
