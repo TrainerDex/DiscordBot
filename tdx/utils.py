@@ -74,8 +74,7 @@ TrainerDex is a Pokemon Go trainer database and leaderboard. View our privacy po
 
 {is_visible_note}
 
-If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}),
-or visit the TrainerDex Support Discord (<{invite_url}>)
+If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)
 """
     )
     IS_VISIBLE_TRUE = _(
