@@ -109,7 +109,7 @@ class ProfileCreate(MixinMeta):
     async def profile__create(
         self,
         ctx: commands.Context,
-        mention: discord.Member,
+        member: discord.Member,
         nickname: Optional[converters.NicknameConverter] = None,
         team: Optional[converters.TeamConverter] = None,
         total_xp: Optional[int] = None,
@@ -183,12 +183,12 @@ class ProfileCreate(MixinMeta):
                     await message.edit(
                         content=loading(_("Adding roles ({roles}) to {user}")).format(
                             roles=cf.humanize_list([str(x) for x in roles["add"]]),
-                            user=mention.mention,
+                            user=member.mention,
                         )
                     )
 
                     try:
-                        await mention.add_roles(
+                        await member.add_roles(
                             *roles["add"],
                             reason=_("{mod} ran the command `{command}`").format(
                                 mod=ctx.author, command=ctx.invoked_with
@@ -201,7 +201,7 @@ class ProfileCreate(MixinMeta):
                         await message.edit(
                             content=success(_("Added roles ({roles}) to {user}")).format(
                                 roles=cf.humanize_list([str(x) for x in roles["add"]]),
-                                user=mention.mention,
+                                user=member.mention,
                             )
                         )
                         roles_added = len(roles["add"])
@@ -211,12 +211,12 @@ class ProfileCreate(MixinMeta):
                     await message.edit(
                         content=loading(_("Removing roles ({roles}) from {user}")).format(
                             roles=cf.humanize_list([str(x) for x in roles["remove"]]),
-                            user=mention.mention,
+                            user=member.mention,
                         )
                     )
 
                     try:
-                        await mention.remove_roles(
+                        await member.remove_roles(
                             *roles["remove"],
                             reason=_("{mod} ran the command `{command}`").format(
                                 mod=ctx.author, command=ctx.invoked_with
@@ -229,7 +229,7 @@ class ProfileCreate(MixinMeta):
                         await message.edit(
                             content=success(_("Removed roles ({roles}) from {user}")).format(
                                 roles=cf.humanize_list([str(x) for x in roles["remove"]]),
-                                user=mention.mention,
+                                user=member.mention,
                             )
                         )
                         roles_removed = len(roles["remove"])
@@ -238,12 +238,12 @@ class ProfileCreate(MixinMeta):
             async with ctx.typing():
                 await message.edit(
                     content=loading(_("Changing {user}‘s nick to {nickname}")).format(
-                        user=mention.mention, nickname=nickname
+                        user=member.mention, nickname=nickname
                     )
                 )
 
                 try:
-                    await mention.edit(
+                    await member.edit(
                         nick=nickname,
                         reason=_("{mod} ran the command `{command}`").format(
                             mod=ctx.author, command=ctx.invoked_with
@@ -255,7 +255,7 @@ class ProfileCreate(MixinMeta):
                 else:
                     await message.edit(
                         content=success(_("Changed {user}‘s nick to {nickname}")).format(
-                            user=mention.mention, nickname=nickname
+                            user=member.mention, nickname=nickname
                         )
                     )
                     nick_set = True
@@ -263,7 +263,7 @@ class ProfileCreate(MixinMeta):
         async with ctx.typing():
             if assign_roles or set_nickname:
                 approval_message = success(_("{user} has been approved!\n")).format(
-                    user=mention.mention
+                    user=member.mention
                 )
 
             if assign_roles:
@@ -313,7 +313,7 @@ class ProfileCreate(MixinMeta):
         except commands.BadArgument:
             try:
                 trainer: client.Trainer = await converters.TrainerConverter().convert(
-                    ctx, mention, cli=self.client
+                    ctx, member, cli=self.client
                 )
             except commands.BadArgument:
                 trainer = None
@@ -345,7 +345,7 @@ class ProfileCreate(MixinMeta):
                 username=nickname, faction=team.id, is_verified=True
             )
             user = await trainer.user()
-            await user.add_discord(mention)
+            await user.add_discord(member)
             await message.edit(content=loading(_("Created {user}")).format(user=nickname))
             set_xp: bool = True
 
@@ -366,18 +366,18 @@ class ProfileCreate(MixinMeta):
             )
 
         custom_message: str = await self.config.guild(ctx.guild).introduction_note()
-        notes = introduction_notes(ctx, mention, trainer, additional_message=custom_message)
+        notes = introduction_notes(ctx, member, trainer, additional_message=custom_message)
 
-        dm_message = await mention.send(notes[0])
+        dm_message = await member.send(notes[0])
         if len(notes) == 2:
-            await mention.send(notes[1])
+            await member.send(notes[1])
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))
                 + "\n"
                 + loading(_("Loading profile…"))
             ).format(
-                user=mention.mention, trainer=trainer.username,
+                user=member.mention, trainer=trainer.username,
             )
         )
         embed: discord.Embed = await ProfileCard(
@@ -386,7 +386,7 @@ class ProfileCreate(MixinMeta):
         await dm_message.edit(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
-                user=mention.mention, trainer=trainer.username,
+                user=member.mention, trainer=trainer.username,
             ),
             embed=embed,
         )
