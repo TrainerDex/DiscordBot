@@ -219,16 +219,8 @@ class TrainerDex(commands.Cog):
                     await source_message.add_reaction("\N{THUMBS DOWN SIGN}")
             except Exception as e:
                 await source_message.channel.send(
-                    "`Error in function 'check_screenshot'. Check your console or logs for details.`"
-                    + "\n\n"
-                    + cf.info(
-                        _(
-                            "We use Google Vision API to read your images. "
-                            "Please ensure that the ‘Total XP’ field is visible. "
-                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
-                            "Posting the same image again, will likely cause another failure."
-                        )
-                    )
+                    "`Error in function 'check_screenshot'."
+                    " Check your console or logs for details.`"
                 )
                 raise e
 
