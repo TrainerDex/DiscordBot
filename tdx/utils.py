@@ -6,7 +6,7 @@ from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
-from . import client
+import trainerdex as client
 
 _ = Translator("TrainerDex", __file__)
 

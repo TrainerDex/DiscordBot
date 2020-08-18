@@ -6,7 +6,8 @@ from redbot.core import checks, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
 
-from . import converters, client
+import trainerdex as client
+from . import converters
 from .abc import MixinMeta
 from .profile import Profile
 from .embeds import ProfileCard

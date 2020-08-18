@@ -9,8 +9,9 @@ from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
+import trainerdex as client
 import PogoOCR
-from . import converters, client
+from . import converters
 from .create import ProfileCreate
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard

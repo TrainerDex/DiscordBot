@@ -5,9 +5,9 @@ from typing import Any, Union
 import discord
 from dateutil.parser import parse
 
+import trainerdex as client
 from redbot.core.i18n import Translator
 from redbot.core import commands
-from . import client
 
 _ = Translator("TrainerDex", __file__)
 

@@ -10,7 +10,7 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import humanize
-from . import client
+import trainerdex as client
 from .utils import check_xp, append_icon
 from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY

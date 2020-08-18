@@ -8,6 +8,7 @@
   "requirements": [
     "humanize",
     "PogoOCR==0.3.1",
-    "python-dateutil"
+    "python-dateutil",
+    "trainerdex==3.5.0"
   ]
 }

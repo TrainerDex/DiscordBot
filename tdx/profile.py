@@ -8,7 +8,8 @@ from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
-from . import converters, client
+import trainerdex as client
+from . import converters
 from .abc import MixinMeta
 from .embeds import ProfileCard
 from .utils import loading
