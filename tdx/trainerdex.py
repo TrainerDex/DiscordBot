@@ -1,7 +1,7 @@
 import logging
 import os
 from abc import ABC
-from typing import Dict, Final, Union
+from typing import Dict, Final, Literal, Union
 
 import discord
 from redbot.core import commands, Config
@@ -263,3 +263,21 @@ class TrainerDex(
                     " Check your console or logs for details.`"
                 )
                 raise e
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester in ("discord_deleted_user", "owner", "user", "user_strict"):
+            # TODO: Create different cases for each requester type.
+            # discord_deleted_user should alert out database that a duid is not valid anymore
+            # owner and user should probably just hide a user
+            # user_strict should probably hide the user and remove duid association
+            # But for now, they all just hide the user
+            socialconnections = await self.client.get_social_connections("discord", str(user_id))
+            if socialconnections:
+                trainer = await socialconnections[0].trainer()
+            if trainer:
+                await trainer.edit(is_visible=False)
