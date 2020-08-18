@@ -103,13 +103,14 @@ class TrainerDex(
         if source_message.author.bot:
             return
 
-        profile_ocr: bool = await self.config.channel_from_id(
-            source_message.channel.id
-        ).profile_ocr()
-        if not profile_ocr:
+        if self.bot.cog_disabled_in_guild(self, source_message.guild):
             return
 
         if len(source_message.attachments) != 1:
+            return
+
+        profile_ocr: bool = await self.config.channel(source_message.channel).profile_ocr()
+        if not profile_ocr:
             return
 
         await source_message.add_reaction(self.bot.get_emoji(471298325904359434))
