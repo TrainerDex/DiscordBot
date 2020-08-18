@@ -100,10 +100,10 @@ class TrainerDex(
 
     @commands.Cog.listener("on_message")
     async def check_screenshot(self, source_message: discord.Message) -> None:
-        if source_message.author.bot:
+        if not (await self.bot.message_eligible_as_command(source_message)):
             return
 
-        if self.bot.cog_disabled_in_guild(self, source_message.guild):
+        if await self.bot.cog_disabled_in_guild(self, source_message.guild):
             return
 
         if len(source_message.attachments) != 1:
