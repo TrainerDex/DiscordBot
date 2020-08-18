@@ -1,7 +1,7 @@
 import logging
 import os
 from abc import ABC
-from typing import Dict, Final, Union
+from typing import Dict, Final, Literal, Union
 
 import discord
 from redbot.core import commands, Config
@@ -100,16 +100,17 @@ class TrainerDex(
 
     @commands.Cog.listener("on_message")
     async def check_screenshot(self, source_message: discord.Message) -> None:
-        if source_message.author.bot:
+        if not (await self.bot.message_eligible_as_command(source_message)):
             return
 
-        profile_ocr: bool = await self.config.channel_from_id(
-            source_message.channel.id
-        ).profile_ocr()
-        if not profile_ocr:
+        if await self.bot.cog_disabled_in_guild(self, source_message.guild):
             return
 
         if len(source_message.attachments) != 1:
+            return
+
+        profile_ocr: bool = await self.config.channel(source_message.channel).profile_ocr()
+        if not profile_ocr:
             return
 
         await source_message.add_reaction(self.bot.get_emoji(471298325904359434))
@@ -262,3 +263,21 @@ class TrainerDex(
                     " Check your console or logs for details.`"
                 )
                 raise e
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester in ("discord_deleted_user", "owner", "user", "user_strict"):
+            # TODO: Create different cases for each requester type.
+            # discord_deleted_user should alert out database that a duid is not valid anymore
+            # owner and user should probably just hide a user
+            # user_strict should probably hide the user and remove duid association
+            # But for now, they all just hide the user
+            socialconnections = await self.client.get_social_connections("discord", str(user_id))
+            if socialconnections:
+                trainer = await socialconnections[0].trainer()
+            if trainer:
+                await trainer.edit(is_visible=False)
