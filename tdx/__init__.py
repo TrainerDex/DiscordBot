@@ -40,7 +40,7 @@ The types of information we may store on you include;
 
 It is within your right to request to be removed from TrainerDex or have your information hidden at any time. However, we are not responsible for third party services caching your public data.
 
-To request removal or to be hidden from TrainerDex, email <jay@trainerdex.co.uk> or message TurnrDev#0117 ( <@319792326958514176> ) on Discord.
+To request removal or to be hidden from TrainerDex, email <jay@trainerdex.co.uk> or message TurnrDev#0117 on Discord.
 """
 
 from discord import Game
