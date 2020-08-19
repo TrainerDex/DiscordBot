@@ -1,22 +1,61 @@
 import logging
 import os
+import math
 from typing import Final, Optional, Union
 
+import discord
 import humanize
 from redbot.core import commands
 from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf, menus
+from redbot.core.utils import chat_formatting as cf
+from redbot.vendored.discord.ext import menus
 
 import trainerdex as client
 from . import converters
 from .abc import MixinMeta
 from .embeds import BaseCard
-from .utils import append_icon, loading, quote
+from .utils import append_icon, loading
 
 log: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
+
+
+class LeaderboardPages(menus.AsyncIteratorPageSource):
+    def __init__(self, *args, **kwargs):
+        self.base = kwargs.pop("base")
+        self.emoji = kwargs.pop("emoji")
+        self.stat = kwargs.pop("stat")
+        super().__init__(*args, **kwargs)
+
+    async def format_page(self, menu, page):
+        emb: discord.Embed = self.base.copy()
+        for entry in page:
+            emb.add_field(
+                name="{pos} {handle} {faction}".format(
+                    pos=append_icon(self.emoji.get("number", "#"), entry.position),
+                    handle=entry.username,
+                    faction=self.emoji.get(entry.faction.verbose_name.lower()),
+                ),
+                value="{value} • TL{level} • {dt}".format(
+                    value=append_icon(
+                        self.emoji.get(self.stat[0]), cf.humanize_number(entry.total_xp)
+                    ),
+                    level=entry.level,
+                    dt=humanize.naturaldate(entry.last_updated),
+                ),
+                inline=False,
+            )
+        emb.set_footer(
+            text=_("Page {page} of {pages} | {footer}").format(
+                page=menu.current_page + 1,
+                pages=math.ceil(len(menu.source.iterator) / menu.source.per_page),
+                footer=emb.footer.text,
+            ),
+            icon_url=emb.footer.icon_url,
+        )
+        return {"embed": emb, "content": None}
 
 
 class Leaderboard(MixinMeta):
@@ -71,9 +110,10 @@ class Leaderboard(MixinMeta):
         leaderboard_title = append_icon(
             icon=self.emoji.get(stat[0], ""), text=_("{stat} Leaderboard").format(stat=stat[1]),
         )
-        BASE_EMBED = await BaseCard(ctx, title=leaderboard_title)
+
+        emb = await BaseCard(ctx, title=leaderboard_title)
         if leaderboard in ("guild", "server"):
-            BASE_EMBED.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+            emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 
         await ctx.tick()
 
@@ -93,75 +133,14 @@ class Leaderboard(MixinMeta):
         )
         leaderboard.filter(lambda x: x.faction in factions).filter(lambda x: x.level in levels)
 
-        await message.edit(
-            content=loading(_("{tag} Processing results!")).format(tag=ctx.author.mention)
-        )
-        embeds = []
-        working_embed = BASE_EMBED.copy()
-
-        async for entry in leaderboard:
-            """If embed at field limit, append to embeds list and start a fresh embed"""
-            if len(working_embed.fields) < 15:
-                working_embed.add_field(
-                    name="{pos} {handle} {faction}".format(
-                        pos=append_icon(self.emoji.get("number", "#"), entry.position),
-                        handle=entry.username,
-                        faction=self.emoji.get(entry.faction.verbose_name.lower()),
-                    ),
-                    value="{value} • TL{level} • {dt}".format(
-                        value=append_icon(
-                            self.emoji.get(stat[0]), cf.humanize_number(entry.total_xp)
-                        ),
-                        level=entry.level,
-                        dt=humanize.naturaldate(entry.last_updated),
-                    ),
-                    inline=False,
-                )
-            if len(working_embed.fields) == 15:
-                embeds.append(working_embed)
-                await message.edit(
-                    content=loading(_("{tag} Processing results ({pages} pages)")).format(
-                        tag=ctx.author.mention, pages=len(embeds)
-                    )
-                )
-                working_embed = BASE_EMBED.copy()
-        if len(working_embed.fields) > 0:
-            embeds.append(working_embed)
-
-        if ctx.channel.permissions_for(ctx.me).external_emojis:
-            menu_controls = (
-                {
-                    self.emoji.get("previous"): menus.prev_page,
-                    "❌": menus.close_menu,
-                    self.emoji.get("next"): menus.next_page,
-                }
-                if len(embeds) > 1
-                else {"❌": menus.close_menu}
+        if len(leaderboard) < 1:
+            await message.edit(content=_("No results to display!"))
+        else:
+            embeds = LeaderboardPages(
+                leaderboard, per_page=10, base=emb, emoji=self.emoji, stat=stat
             )
-        else:
-            menu_controls = menus.DEFAULT_CONTROLS if len(embeds) > 1 else {"❌": menus.close_menu}
-
-        if embeds:
-            if len(menu_controls.keys()) == 3:
-                controls_text = _(
-                    "{tag} Tap {close} to close the leaderboard, navigate with {prev} and {next}."
-                    " There is a 5 minute timeout."
-                ).format(
-                    tag=ctx.author.mention,
-                    prev=list(menu_controls.keys())[0],
-                    close=list(menu_controls.keys())[1],
-                    next=list(menu_controls.keys())[2],
-                )
-            else:
-                controls_text = _(
-                    "{tag} Tap {close} to close the leaderboard. There is a 5 minute timeout."
-                ).format(tag=ctx.author.mention, close=list(menu_controls.keys())[0])
-
-            await message.edit(content="\n".join([quote(ctx.message.content), controls_text]))
-            await ctx.message.delete()
-        else:
-            await message.edit(content="No results to display")
-            return
-
-        menus.start_adding_reactions(message, menu_controls.keys())
-        await menus.menu(ctx, embeds, menu_controls, message=message, timeout=300.0)
+            menu = menus.MenuPages(
+                source=embeds, timeout=300.0, message=message, clear_reactions_after=True
+            )
+            await menu.show_page(0)
+            await menu.start(ctx)
