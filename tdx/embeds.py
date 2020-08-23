@@ -5,7 +5,6 @@ from typing import Dict, List, Union
 import discord
 from discord.embeds import EmptyEmbed
 from redbot.core import commands, Config
-from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
@@ -29,7 +28,7 @@ class BaseCard(discord.Embed):
         await instance.__init__(*args, **kwargs)
         return instance
 
-    async def __init__(self, ctx: Union[commands.Context, discord.Message], **kwargs) -> None:
+    async def __init__(self, ctx: commands.Context, **kwargs) -> None:
         super().__init__(**kwargs)
 
         # Set default colour to TrainerDex brand colour
@@ -85,8 +84,7 @@ class BaseCard(discord.Embed):
 class ProfileCard(BaseCard):
     async def __init__(
         self,
-        ctx: Union[commands.Context, discord.Message],
-        bot: Red,
+        ctx: commands.Context,
         client: client.Client,
         trainer: client.Trainer,
         emoji: Dict[str, Union[discord.Emoji, str]],

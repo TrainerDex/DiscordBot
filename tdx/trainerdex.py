@@ -99,44 +99,45 @@ class TrainerDex(
             log.warning("No valid token found")
         return token
 
-    @commands.Cog.listener("on_message")
-    async def check_screenshot(self, source_message: discord.Message) -> None:
-        if not (await self.bot.message_eligible_as_command(source_message)):
+    @commands.Cog.listener("on_message_without_command")
+    async def check_screenshot(self, message: discord.Message) -> None:
+        ctx = await self.bot.get_context(message)
+        del message
+        if not (await self.bot.message_eligible_as_command(ctx.message)):
             return
 
-        if await self.bot.cog_disabled_in_guild(self, source_message.guild):
+        if await self.bot.cog_disabled_in_guild(self, ctx.guild):
             return
 
-        if len(source_message.attachments) != 1:
+        if len(ctx.message.attachments) != 1:
+            # TODO: Enable multiple images
             return
 
-        profile_ocr: bool = await self.config.channel(source_message.channel).profile_ocr()
+        profile_ocr: bool = await self.config.channel(ctx.channel).profile_ocr()
         if not profile_ocr:
             return
 
-        await source_message.add_reaction(self.bot.get_emoji(471298325904359434))
+        await ctx.message.add_reaction(self.bot.get_emoji(471298325904359434))
 
         try:
             trainer: client.Trainer = await converters.TrainerConverter().convert(
-                None, source_message.author, cli=self.client
+                ctx, ctx.author, cli=self.client
             )
         except discord.ext.commands.errors.BadArgument:
-            await source_message.remove_reaction(
+            await ctx.message.remove_reaction(
                 self.bot.get_emoji(471298325904359434), self.bot.user
             )
-            await source_message.add_reaction("\N{THUMBS DOWN SIGN}")
-            await source_message.channel.send(
-                "{message.author.mention} Trainer not found!", delete_after=5
-            )
+            await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
+            await ctx.send("{message.author.mention} Trainer not found!", delete_after=5)
             return
 
-        async with source_message.channel.typing():
+        async with ctx.channel.typing():
             try:
-                message: discord.Message = await source_message.channel.send(
+                message: discord.Message = await ctx.send(
                     loading(_("That's a nice image you have there, let's see…"))
                 )
                 ocr = PogoOCR.ProfileSelf(
-                    POGOOCR_TOKEN_PATH, image_uri=source_message.attachments[0].proxy_url
+                    POGOOCR_TOKEN_PATH, image_uri=ctx.message.attachments[0].proxy_url
                 )
                 ocr.get_text()
 
@@ -155,7 +156,7 @@ class TrainerDex(
                                     "{user}, we found the following stats:\n"
                                     "{stats}\nJust processing that now…"
                                 )
-                            ).format(user=source_message.author.mention, stats=cf.box(data_found))
+                            ).format(user=ctx.author.mention, stats=cf.box(data_found))
                         )
                     )
 
@@ -170,12 +171,10 @@ class TrainerDex(
                                 )
                             ).format(xp=cf.humanize_number(data_found.get("total_xp")))
                         )
-                        await source_message.remove_reaction(
+                        await ctx.message.remove_reaction(
                             self.bot.get_emoji(471298325904359434), self.bot.user
                         )
-                        await source_message.add_reaction(
-                            "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
-                        )
+                        await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
                     elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
                         text: str = cf.warning(
@@ -184,29 +183,25 @@ class TrainerDex(
                                 "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                             )
                         )
-                        await source_message.remove_reaction(
+                        await ctx.message.remove_reaction(
                             self.bot.get_emoji(471298325904359434), self.bot.user
                         )
-                        await source_message.add_reaction(
-                            "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
-                        )
+                        await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                     else:
                         await trainer.post(
                             stats=data_found,
                             data_source="ss_ocr",
-                            update_time=source_message.created_at,
+                            update_time=ctx.message.created_at,
                         )
-                        await source_message.remove_reaction(
+                        await ctx.message.remove_reaction(
                             self.bot.get_emoji(471298325904359434), self.bot.user
                         )
-                        await source_message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                        await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                         text = None
 
-                    if source_message.guild and not trainer.is_visible:
+                    if ctx.guild and not trainer.is_visible:
                         await message.edit(_("Sending in DMs"))
-                        message = await source_message.author.send(
-                            content=loading(_("Loading output…"))
-                        )
+                        message = await ctx.author.send(content=loading(_("Loading output…")))
 
                     await message.edit(
                         content="\n".join(
@@ -214,11 +209,7 @@ class TrainerDex(
                         )
                     )
                     embed: discord.Embed = await ProfileCard(
-                        ctx=source_message,
-                        bot=self.bot,
-                        client=self.client,
-                        trainer=trainer,
-                        emoji=self.emoji,
+                        ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji,
                     )
                     await message.edit(
                         content="\n".join(
@@ -237,9 +228,9 @@ class TrainerDex(
                         embed=embed,
                     )
                     await embed.add_leaderboard()
-                    if source_message.guild:
+                    if ctx.guild:
                         await message.edit(embed=embed)
-                        await embed.add_guild_leaderboard(source_message.guild)
+                        await embed.add_guild_leaderboard(ctx.guild)
                     await message.edit(content=text, embed=embed)
                 else:
                     await message.edit(
@@ -254,12 +245,12 @@ class TrainerDex(
                             )
                         )
                     )
-                    await source_message.remove_reaction(
+                    await ctx.message.remove_reaction(
                         self.bot.get_emoji(471298325904359434), self.bot.user
                     )
-                    await source_message.add_reaction("\N{THUMBS DOWN SIGN}")
+                    await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             except Exception as e:
-                await source_message.channel.send(
+                await ctx.send(
                     "`Error in function 'check_screenshot'."
                     " Check your console or logs for details.`"
                 )

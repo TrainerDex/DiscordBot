@@ -80,7 +80,7 @@ class Profile(MixinMeta):
                 return
 
             embed: discord.Embed = await ProfileCard(
-                ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
+                ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji
             )
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
             await embed.show_progress()
