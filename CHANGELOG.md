@@ -89,10 +89,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### [2020.30.0] - 2020-07-25
 #### Added
 - Profile lookup command
- - `[p]profile lookup [mention]`
+  - `[p]profile lookup [mention]`
 - Profile creation command
- - `[p]profile create [mention] (nickname) (team) (total_xp)`
+  - `[p]profile create [mention] (nickname) (team) (total_xp)`
 - Add [PogoOCR](https://github.com/TrainerDex/PogoOCR) engine for scanning for Total XP
 - Progress command
- - `[p]progress (mention)`
+  - `[p]progress (mention)`
 - Settings commands
