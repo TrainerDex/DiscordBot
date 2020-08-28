@@ -3,21 +3,19 @@ import logging
 from typing import Dict, List, Optional
 
 import discord
-from redbot.core import checks, commands, Config
-from redbot.core.bot import Red
+from redbot.core import checks, commands
+from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
+
+from .abc import MixinMeta
 
 
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 
-class Settings(commands.Cog):
-    def __init__(self, bot: Red, config: Config) -> None:
-        self.bot: Red = bot
-        self.config: Config = config
-
+class Settings(MixinMeta):
     @commands.command(name="quickstart")
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
@@ -86,25 +84,26 @@ class Settings(commands.Cog):
 
         await message.delete()
 
-        settings: Dict = await self.config.guild(ctx.guild).all()
-        settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
-        await ctx.send(cf.box(settings, "json"))
+        tdxset: Dict = await self.config.guild(ctx.guild).all()
+        tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
+        await ctx.send(cf.box(tdxset, "json"))
 
     @commands.group(name="tdxset", aliases=["config"], case_insensitive=True)
-    async def settings(self, ctx: commands.Context) -> None:
+    async def tdxset(self, ctx: commands.Context) -> None:
+        """⬎ Set server and/or channel settings"""
         pass
 
-    @settings.group(name="guild", aliases=["server"], case_insensitive=True)
+    @tdxset.group(name="guild", aliases=["server"], case_insensitive=True)
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
-    async def settings__guild(self, ctx: commands.Context) -> None:
+    async def tdxset__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            settings: Dict = await self.config.guild(ctx.guild).all()
-            settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(settings, "json"))
+            tdxset: Dict = await self.config.guild(ctx.guild).all()
+            tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(tdxset, "json"))
 
-    @settings__guild.command(name="assign_roles_on_join")
-    async def settings__guild__assign_roles_on_join(
+    @tdxset__guild.command(name="assign_roles_on_join")
+    async def tdxset__guild__assign_roles_on_join(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the roles of members when they're approved.
@@ -125,8 +124,8 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(key="guild.assign_roles_on_join", value=value)
             )
 
-    @settings__guild.command(name="set_nickname_on_join")
-    async def settings__guild__set_nickname_on_join(
+    @tdxset__guild.command(name="set_nickname_on_join")
+    async def tdxset__guild__set_nickname_on_join(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the nickname of members when they're approved.
@@ -147,8 +146,8 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(key="guild.set_nickname_on_join", value=value)
             )
 
-    @settings__guild.command(name="set_nickname_on_update")
-    async def settings__guild__set_nickname_on_update(
+    @tdxset__guild.command(name="set_nickname_on_update")
+    async def tdxset__guild__set_nickname_on_update(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the nickname of members when they update their Total XP.
@@ -171,9 +170,12 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(key="guild.set_nickname_on_update", value=value)
             )
 
-    @settings__guild.command(name="roles_to_assign_on_approval")
-    async def settings__guild__roles_to_assign_on_approval(
-        self, ctx: commands.Context, action: str = None, roles: Optional[discord.Role] = None
+    @tdxset__guild.command(name="roles_to_assign_on_approval")
+    async def tdxset__guild__roles_to_assign_on_approval(
+        self,
+        ctx: commands.Context,
+        action: Optional[Literal["add", "remove"]] = None,
+        roles: Optional[discord.Role] = None,
     ) -> None:
         """Which roles to add/remove to a user on approval
 
@@ -214,8 +216,8 @@ class Settings(commands.Cog):
             value: str = json.dumps(value, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(value, "json"))
 
-    @settings__guild.command(name="mystic_role")
-    async def settings__guild__mystic_role(
+    @tdxset__guild.command(name="mystic_role")
+    async def tdxset__guild__mystic_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
@@ -234,8 +236,8 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings__guild.command(name="valor_role")
-    async def settings__guild__valor_role(
+    @tdxset__guild.command(name="valor_role")
+    async def tdxset__guild__valor_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
@@ -254,8 +256,8 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings__guild.command(name="instinct_role")
-    async def settings__guild__instinct_role(
+    @tdxset__guild.command(name="instinct_role")
+    async def tdxset__guild__instinct_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
@@ -274,8 +276,8 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings__guild.command(name="tl40_role")
-    async def settings__guild__tl40_role(
+    @tdxset__guild.command(name="tl40_role")
+    async def tdxset__guild__tl40_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
         if value is not None:
@@ -294,8 +296,8 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings__guild.command(name="introduction_note")
-    async def settings__guild__introduction_note(
+    @tdxset__guild.command(name="introduction_note")
+    async def tdxset__guild__introduction_note(
         self, ctx: commands.Context, value: Optional[str] = None
     ) -> None:
         """Send a note to a member upon running `profile create` (aka, `approve`)
@@ -318,17 +320,17 @@ class Settings(commands.Cog):
                 _("`{key}` is {value}").format(key="guild.introduction_note", value=value)
             )
 
-    @settings.group(name="channel", case_insensitive=True)
+    @tdxset.group(name="channel", case_insensitive=True)
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
-    async def settings__channel(self, ctx: commands.Context) -> None:
+    async def tdxset__channel(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            settings: Dict = await self.config.channel(ctx.channel).all()
-            settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(settings, "json"))
+            tdxset: Dict = await self.config.channel(ctx.channel).all()
+            tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(tdxset, "json"))
 
-    @settings__channel.command(name="profile_ocr")
-    async def settings__channel__profile_ocr(
+    @tdxset__channel.command(name="profile_ocr")
+    async def tdxset__channel__profile_ocr(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Set if this channel should accept OCR commands."""
@@ -350,22 +352,9 @@ class Settings(commands.Cog):
                 )
             )
 
-    @settings.group(name="user", aliases=["member"], case_insensitive=True)
-    async def settings__user(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand is None:
-            if ctx.guild:
-                settings: Dict = {
-                    **await self.config.member(ctx.author).all(),
-                    **await self.config.user(ctx.author).all(),
-                }
-            else:
-                settings: Dict = await self.config.user(ctx.author).all()
-            settings: str = json.dumps(settings, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(settings, "json"))
-
-    @settings.command(name="notice")
+    @tdxset.command(name="notice")
     @checks.is_owner()
-    async def settings__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    async def tdxset__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
         if value is not None:
             if value == "None":
                 value = None
@@ -379,9 +368,9 @@ class Settings(commands.Cog):
             value: str = await self.config.notice()
             await ctx.send(_("`{key}` is {value}").format(key="notice", value=value))
 
-    @settings.command(name="footer")
+    @tdxset.command(name="footer")
     @checks.is_owner()
-    async def settings__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    async def tdxset__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
         if value is not None:
             if value == "None":
                 value = None

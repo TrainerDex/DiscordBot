@@ -1,7 +1,12 @@
-from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf, predicates
+from typing import Union
 
-from . import client
+import discord
+
+from redbot.core import commands
+from redbot.core.i18n import Translator
+from redbot.core.utils import chat_formatting as cf
+
+import trainerdex as client
 
 _ = Translator("TrainerDex", __file__)
 
@@ -12,16 +17,17 @@ def check_xp(x: client.Update) -> int:
     return x.total_xp
 
 
-def contact_us_on_twitter() -> str:
-    return cf.info(
-        _("If that doesn't look right, please contact us on Twitter. {twitter_handle}")
-    ).format(twitter_handle="@TrainerDexApp")
+TWITTER_MESSAGE = cf.info(
+    _("If that doesn't look right, please contact us on Twitter. {twitter_handle}")
+).format(twitter_handle="@TrainerDexApp")
 
 
 def append_twitter(text: str) -> str:
-    return "{original_message}\n\n{twitter}".format(
-        original_message=text, twitter=contact_us_on_twitter()
-    )
+    return f"{text}\n\n{TWITTER_MESSAGE}"
+
+
+def append_icon(icon: Union[discord.Emoji, str], text: str) -> str:
+    return f"{icon} {text}" if icon else text
 
 
 def quote(text: str) -> str:
@@ -39,7 +45,7 @@ def loading(text: str) -> str:
     """
 
     emoji = "<a:loading:471298325904359434>"
-    return f"{emoji} {text}"
+    return append_icon(emoji, text)
 
 
 def success(text: str) -> str:
@@ -52,40 +58,12 @@ def success(text: str) -> str:
 
     """
     emoji = "\N{WHITE HEAVY CHECK MARK}"
-    return f"{emoji} {text}"
+    return append_icon(emoji, text)
 
 
-class QuestionMessage:
-    def __init__(self, ctx, question: str, check=None):
-        self._ctx = ctx
-        self.question = question
-        self.message = None
-        if check:
-            self.predicate = check
-        else:
-            self.predicate = predicates.MessagePredicate.same_context(self._ctx)
-        self.response = None
-
-    async def ask(self, bot):
-        self.message = await self._ctx.send(
-            cf.question(f"{self._ctx.author.mention}: {self.question}")
-        )
-        self.response = await bot.wait_for("message", check=self.predicate)
-
-    @property
-    def answer(self) -> str:
-        if self.response:
-            return self.response.content
-        return None
-
-    @property
-    def exit(self) -> bool:
-        if self.answer:
-            return self.answer.lower() == f"{self._ctx.prefix}cancel"
-        return False
-
-
-def introduction_notes(ctx, member, trainer, additional_message: str) -> str:
+def introduction_notes(
+    ctx: commands.Context, member: discord.Member, trainer: client.Trainer, additional_message: str
+) -> str:
     BASE_NOTE = _(
         """**You're getting this message because you have been added to the TrainerDex database.**
 
@@ -96,8 +74,7 @@ TrainerDex is a Pokemon Go trainer database and leaderboard. View our privacy po
 
 {is_visible_note}
 
-If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}),
-or visit the TrainerDex Support Discord (<{invite_url}>)
+If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)
 """
     )
     IS_VISIBLE_TRUE = _(
