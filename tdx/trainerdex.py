@@ -59,6 +59,11 @@ class TrainerDex(
         )
         self.config.register_channel(**{"profile_ocr": False})
         self.client: client.Client = None
+        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
+
+    async def initialize(self) -> None:
+        await self.bot.wait_until_ready()
+        await self._create_client()
         self.emoji: Dict[str, Union[str, discord.Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
@@ -80,11 +85,6 @@ class TrainerDex(
             "profile": self.bot.get_emoji(743853381919178824),
             "date": self.bot.get_emoji(743874800547791023),
         }
-
-        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
-
-    async def initialize(self) -> None:
-        await self._create_client()
 
     async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
