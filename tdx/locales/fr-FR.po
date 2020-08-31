@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-08-31 23:30+0100\n"
-"PO-Revision-Date: 2020-08-31 22:54\n"
+"PO-Revision-Date: 2020-08-31 23:37\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -172,7 +172,7 @@ msgstr "Chargement du profil…"
 
 #: tdx/embeds.py:105
 msgid "{nickname} | TL{level}"
-msgstr ""
+msgstr "{nickname} | Niveau {level}"
 
 #: tdx/embeds.py:127 tdx/embeds.py:242
 msgid "Team"
