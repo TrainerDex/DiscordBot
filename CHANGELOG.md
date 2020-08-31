@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
-### [2020.33.0] - 2020-08-28
+### [2020.35.0] - 2020-08-28
 #### Added
 - Added End User Data Statement (debb5c42f7fa376b90d77f5860ff9438ee10a2e6, 416acc284a23dbaa57b567f4bce417aef789c2b7)
 
@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Made use of CompositeMetaClass to spread the cog over mutliple files, for better readability (558ef1618b37b64ce547d72c5017e381dfbffbd3, bb23d4c7490649a7aa8977cc85fe686f3872c8b0, 9c882b3a0c2ed2a1014e4b03936de82232ed1169, 9fc42030c5654349535d21fbe0fa6dceb3bf3db6, #20, 2bd4312c9d2b4638a8c598002cde496eed0f0934)
 - Updated to Red 3.4.0 (42901c8521f34454289dbbbb67ba2f979f48779c, #21, dbc1bbfac8a39035ab02906fab6d052b06669466, 8ba8f9378b20cb6a18f41eb96c7426e4cf9bfe18)
 - Updated to TrainerDex.py 3.5.0 (9c52b1a5fa8860a15f4255e43a66431134624944)
+
+### [2020.35.1] - 2020-08-07
+#### Changed
+- Testing [Cog-Creators/Red-DiscordBot#3896](https://github.com/Cog-Creators/Red-DiscordBot/pull/3896)
 
 ### [2020.33.0] - 2020-08-14
 #### Added
