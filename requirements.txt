@@ -1,5 +1,5 @@
 humanize
 PogoOCR==0.3.1
 python-dateutil
-git+https://github.com/Kowlin/Red-DiscordBot@pr/guild-i18n#egg=Red-DiscordBot[postgres]
+git+https://github.com/Kowlin/Red-DiscordBot@pr/guild-i18n#egg=Red-DiscordBot
 trainerdex==3.5.0
