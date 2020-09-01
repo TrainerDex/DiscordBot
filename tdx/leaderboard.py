@@ -83,7 +83,7 @@ class Leaderboard(MixinMeta):
         Parameters:
             `leaderboard`: str
                 options are `guild` (or `server`) and `global`
-            `filters`: Union[Faction, Level]
+            `filters`: Union[Team, Level]
                 If you mention any team, it'll filter to that. You can mention more than one team.
                 If you mention one level, it'll show that level and all below.
                 If you mention more than one level, it will show all between the lowest and highest level you mention.

@@ -129,7 +129,7 @@ class TeamConverter(commands.Converter):
                 result = None
 
         if result is None:
-            raise commands.BadArgument(_("Faction `{}` not found").format(argument))
+            raise commands.BadArgument(_("Team `{}` not found").format(argument))
 
         return result
 
