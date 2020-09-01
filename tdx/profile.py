@@ -150,7 +150,7 @@ class Profile(MixinMeta):
     ) -> None:
         """Set the Start Date on your profile
 
-        This is the date you started playing Pokemon Go and is just under Total XP
+        This is the date you started playing Pokémon Go and is just under Total XP
         """
         async with ctx.typing():
             try:

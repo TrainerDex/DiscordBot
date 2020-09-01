@@ -69,7 +69,7 @@ def introduction_notes(
 
 This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.
 
-TrainerDex is a Pokemon Go trainer database and leaderboard. View our privacy policy here:
+TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:
 <{privacy_policy_url}>
 
 {is_visible_note}

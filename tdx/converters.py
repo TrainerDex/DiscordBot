@@ -55,8 +55,8 @@ class NicknameConverter(commands.Converter):
         if match is None:
             raise commands.BadArgument(
                 _(
-                    "{} is not a valid Pokemon Go username. "
-                    "A Pokemon Go username is 3-15 letters or numbers long."
+                    "{} is not a valid Pokémon Go username. "
+                    "A Pokémon Go username is 3-15 letters or numbers long."
                 ).format(argument)
             )
         return argument
