@@ -347,7 +347,8 @@ class ProfileCreate(MixinMeta):
         if set_xp:
             await message.edit(
                 content=loading(_("Setting Total XP for {user} to {total_xp}.")).format(
-                    user=trainer.username, total_xp=answers.get("total_xp"),
+                    user=trainer.username,
+                    total_xp=answers.get("total_xp"),
                 )
             )
             await trainer.post(
@@ -372,7 +373,8 @@ class ProfileCreate(MixinMeta):
                 + "\n"
                 + loading(_("Loading profile…"))
             ).format(
-                user=member.mention, trainer=trainer.username,
+                user=member.mention,
+                trainer=trainer.username,
             )
         )
         embed: discord.Embed = await ProfileCard(
@@ -381,7 +383,116 @@ class ProfileCreate(MixinMeta):
         await dm_message.edit(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
-                user=member.mention, trainer=trainer.username,
+                user=member.mention,
+                trainer=trainer.username,
             ),
             embed=embed,
         )
+
+    @commands.command(name="auto-role")
+    @checks.mod_or_permissions(manage_roles=True)
+    async def profile__create(self, ctx: commands.Context) -> None:
+        """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
+
+        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.
+        It can really mess with roles on a mass scale.
+        """
+        assign_roles: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
+        if assign_roles is False:
+            return
+        set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
+        roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
+        add_roles = [ctx.guild.get_role(x) for x in roles["add"]]
+        del_roles = [ctx.guild.get_role(x) for x in roles["remove"]]
+        team_roles = [
+            None,
+            ctx.guild.get_role(await self.config.guild(ctx.guild).mystic_role()),
+            ctx.guild.get_role(await self.config.guild(ctx.guild).valor_role()),
+            ctx.guild.get_role(await self.config.guild(ctx.guild).instinct_role()),
+        ]
+        print(team_roles)
+        members = [x for x in ctx.guild.members if not x.bot]
+
+        members_to_edit = []
+        await ctx.send("Starting ({}/{})".format(len(set(members_to_edit)), len(members)))
+        for role in add_roles:
+            message = await ctx.send(
+                "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
+            )
+            members_to_edit += [m for m in members if role not in m.roles]
+            await message.edit(
+                content="Checked `{}` ({}/{})".format(
+                    role, len(set(members_to_edit)), len(members)
+                )
+            )
+        for role in del_roles:
+            message = await ctx.send(
+                "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
+            )
+            members_to_edit += [m for m in members if role in m.roles]
+            await message.edit(
+                content="Checked `{}` ({}/{})".format(
+                    role, len(set(members_to_edit)), len(members)
+                )
+            )
+        members_to_edit = list(set(members_to_edit))
+
+        members_approve = 0
+        message = await ctx.send(
+            "{} approved, {} checked, {} total".format(members_approve, 0, len(members_to_edit))
+        )
+        async with ctx.typing():
+            for index, member in enumerate(members_to_edit):
+                try:
+                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                        ctx, member, cli=self.client
+                    )
+                except commands.BadArgument:
+                    await message.edit(
+                        content="{} approved, {} checked, {} total".format(
+                            members_approve, index + 1, len(members_to_edit)
+                        )
+                    )
+                    continue
+                if trainer.is_verified:
+                    roles_to_add = list(set(add_roles))
+                    if trainer.faction > 0:
+                        roles_to_add.append(team_roles[trainer.faction])
+                    if roles_to_add:
+                        try:
+                            await member.add_roles(
+                                *roles_to_add,
+                                reason=_("{mod} ran the command `{command}`").format(
+                                    mod=ctx.author, command=ctx.invoked_with
+                                ),
+                            )
+                        except:
+                            pass
+
+                    if del_roles:
+                        try:
+                            await member.remove_roles(
+                                *del_roles,
+                                reason=_("{mod} ran the command `{command}`").format(
+                                    mod=ctx.author, command=ctx.invoked_with
+                                ),
+                            )
+                        except:
+                            pass
+
+                    if set_nickname:
+                        try:
+                            await member.edit(
+                                nick=trainer.nickname,
+                                reason=_("{mod} ran the command `{command}`").format(
+                                    mod=ctx.author, command=ctx.invoked_with
+                                ),
+                            )
+                        except:
+                            pass
+                    members_approve += 1
+                await message.edit(
+                    content="{} approved, {} checked, {} total".format(
+                        members_approve, index + 1, len(members_to_edit)
+                    )
+                )
