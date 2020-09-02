@@ -46,7 +46,7 @@ class Profile(MixinMeta):
 
             data = {
                 "nickname": trainer.nickname,
-                "start_date": trainer.start_date.isoformat(),
+                "start_date": trainer.start_date.isoformat() if trainer.start_date else None,
                 "faction": trainer.faction,
                 "trainer_code": trainer.trainer_code,
                 "is_banned": trainer.is_banned,
