@@ -61,14 +61,14 @@ class BaseCard(discord.Embed):
         # Default _author
         self._footer: Dict[str, str] = {
             "text": await config.embed_footer(),
-            "icon_url": "https://www.trainerdex.co.uk/static/img/android-desktop.png",
+            "icon_url": "https://www.trainerdex.co.uk/static/img/android-chrome-512x512.png",
         }
 
         # Default _author
         self._author: Dict[str, str] = {
             "name": "TrainerDex",
             "url": "https://www.trainerdex.co.uk/",
-            "icon_url": "https://www.trainerdex.co.uk/static/img/android-desktop.png",
+            "icon_url": "https://www.trainerdex.co.uk/static/img/android-chrome-512x512.png",
         }
 
         if isinstance(ctx, commands.Context):
