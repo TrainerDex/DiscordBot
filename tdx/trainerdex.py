@@ -128,7 +128,13 @@ class TrainerDex(
                 self.bot.get_emoji(471298325904359434), self.bot.user
             )
             await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
-            await ctx.send("{message.author.mention} Trainer not found!", delete_after=5)
+            await ctx.send(
+                _(
+                    "{author.mention} No TrainerDex profile found for this Discord account."
+                    + " A moderator for this server can set you up."
+                    + " If it still doesn't work after that, please contact {bot_owner}."
+                ).format(author=ctx.author, bot_owner=ctx.bot.get_user(319792326958514176))
+            )
             return
 
         async with ctx.channel.typing():
