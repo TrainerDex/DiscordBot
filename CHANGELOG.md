@@ -3,7 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
-### [2020.36.0] - 2020-09-04
+### [2020.36.1] - 2020-09-04
+#### Fixed
+- Fixed a bug in which two commands shared the same function name (a29319e8fd163f30fc3b4c03f92d7cfab3464148)
+
+### [2020.36.0] - 2020-09-04 [YANKED]
 #### Changed
 - Various bug fixes (23fc68526c20559a32bf0bc7699bbed6b5e3b77c, 48d87d8b439257417ea89072fff69e8a9c9dd9b1)
 
