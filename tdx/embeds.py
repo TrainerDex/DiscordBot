@@ -262,7 +262,7 @@ class ProfileCard(BaseCard):
                         delta=cf.humanize_number(this_update.travel_km - last_update.travel_km),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round((this_update.travel_km - last_update.travel_km) / days)
+                                (this_update.travel_km - last_update.travel_km) / days
                             )
                             + "km"
                         ),
@@ -289,9 +289,7 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round(
-                                    (this_update.capture_total - last_update.capture_total) / days
-                                )
+                                (this_update.capture_total - last_update.capture_total) / days
                             )
                         ),
                     ),
@@ -319,10 +317,8 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round(
-                                    (this_update.pokestops_visited - last_update.pokestops_visited)
-                                    / days
-                                )
+                                (this_update.pokestops_visited - last_update.pokestops_visited)
+                                / days
                             )
                         ),
                     ),
@@ -346,7 +342,7 @@ class ProfileCard(BaseCard):
                         delta=cf.humanize_number(this_update.total_xp - last_update.total_xp),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round((this_update.total_xp - last_update.total_xp) / days)
+                                (this_update.total_xp - last_update.total_xp) / days
                             )
                         ),
                     ),
