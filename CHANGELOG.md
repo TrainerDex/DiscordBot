@@ -4,12 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Calendar Versioning](https://calver.org/) `YYYY.0W`.
 
 ### [2020.36.0] - 2020-09-04
+#### Changed
+- Various bug fixes (23fc68526c20559a32bf0bc7699bbed6b5e3b77c, 48d87d8b439257417ea89072fff69e8a9c9dd9b1)
+
 #### i18n
 - Add common aliases for commands (b651b4acb41432ba10640d4c3b6ca0aeb66f146d)
 - Minor text fixes (fcbaca5a89b2b05e2d8f9efc985ba5db7dfd3bd1, 7c3323df7db300e142666857a43b37c34150ecbe)
 
 #### Dev
-- Changed how translations are pulled from Crowdin (919048c6e119fce4bfc8f1cc3ea32f1816be433e, 2e58311c4d0fd741991ed2994dae87437ba99451)
+- Changed how translations are pulled from Crowdin (919048c6e119fce4bfc8f1cc3ea32f1816be433e, 2e58311c4d0fd741991ed2994dae87437ba99451, cc11d86d43705401889d2c9dbbb0b1b4b332b4ea)
 
 ### [2020.35.1] - 2020-08-31
 #### Changed
