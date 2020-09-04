@@ -43,15 +43,9 @@ It is within your right to request to be removed from TrainerDex or have your in
 To request removal or to be hidden from TrainerDex, email <jay@trainerdex.co.uk> or message TurnrDev#0117 on Discord.
 """
 
-from discord import Game
-from redbot.core import commands
 from redbot.core.bot import Red
-
 from .trainerdex import TrainerDex
 
 
 async def setup(bot: Red) -> None:
-    cog: commands.Cog = TrainerDex(bot)
-    await cog.initialize()
-    bot.add_cog(cog)
-    await bot.change_presence(activity=Game(name=__version__))
+    bot.add_cog(TrainerDex(bot))

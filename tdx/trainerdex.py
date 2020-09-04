@@ -11,7 +11,7 @@ from redbot.core.utils import chat_formatting as cf
 
 import trainerdex as client
 import PogoOCR
-from . import converters
+from . import converters, __version__
 from .create import ProfileCreate
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard
@@ -59,11 +59,18 @@ class TrainerDex(
         )
         self.config.register_channel(**{"profile_ocr": False})
         self.client: client.Client = None
+        self.bot.loop.create_task(self.create_client())
+        self.bot.loop.create_task(self.load_emojis())
+        self.bot.loop.create_task(self.set_game_to_version())
+
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
 
-    async def initialize(self) -> None:
+    async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self._create_client()
+        await self.bot.change_presence(activity=discord.Game(name=__version__))
+
+    async def load_emojis(self) -> None:
+        await self.bot.wait_until_ready()
         self.emoji: Dict[str, Union[str, discord.Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
@@ -86,18 +93,12 @@ class TrainerDex(
             "date": self.bot.get_emoji(743874800547791023),
         }
 
-    async def _create_client(self) -> None:
-        """Create TrainerDex API Client"""
-        token: str = await self._get_token()
-        self.client = client.Client(token=token)
-
-    async def _get_token(self) -> str:
-        """Get TrainerDex token"""
+    async def create_client(self) -> None:
         api_tokens = await self.bot.get_shared_api_tokens("trainerdex")
         token = api_tokens.get("token", "")
         if not token:
             log.warning("No valid token found")
-        return token
+        self.client = client.Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")
     async def check_screenshot(self, message: discord.Message) -> None:
