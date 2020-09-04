@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-08-31 23:30+0100\n"
-"PO-Revision-Date: 2020-08-31 22:54\n"
+"POT-Creation-Date: 2020-09-04 08:14+0000\n"
+"PO-Revision-Date: 2020-09-04 08:14\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Language: de_DE\n"
 
 #: tdx/converters.py:57
-msgid "{} is not a valid Pokemon Go username. A Pokemon Go username is 3-15 letters or numbers long."
+msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
 msgstr ""
 
 #: tdx/converters.py:103
@@ -26,7 +26,7 @@ msgid "Trainer `{}` not found"
 msgstr ""
 
 #: tdx/converters.py:132
-msgid "Faction `{}` not found"
+msgid "Team `{}` not found"
 msgstr ""
 
 #: tdx/converters.py:142
@@ -78,7 +78,8 @@ msgstr ""
 msgid "Adding roles ({roles}) to {user}"
 msgstr ""
 
-#: tdx/create.py:184 tdx/create.py:212 tdx/create.py:239
+#: tdx/create.py:184 tdx/create.py:212 tdx/create.py:239 tdx/create.py:465
+#: tdx/create.py:476 tdx/create.py:487
 msgid "{mod} ran the command `{command}`"
 msgstr ""
 
@@ -150,45 +151,54 @@ msgstr ""
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr ""
 
-#: tdx/create.py:360
+#: tdx/create.py:361
 msgid "Won't set Total XP for {user}."
 msgstr ""
 
-#: tdx/create.py:371 tdx/create.py:383
+#: tdx/create.py:372 tdx/create.py:385
 msgid "Successfully added {user} as {trainer}."
 msgstr ""
 
-#: tdx/create.py:373
+#: tdx/create.py:374
 msgid "Loading profile…"
+msgstr ""
+
+#: tdx/create.py:395
+#, docstring
+msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them\n\n"
+"        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
+"        It can really mess with roles on a mass scale.\n"
+"        "
 msgstr ""
 
 #: tdx/embeds.py:105
 msgid "{nickname} | TL{level}"
-msgstr ""
+msgstr "{nickname} | TL{level}"
 
 #: tdx/embeds.py:127 tdx/embeds.py:242
 msgid "Team"
-msgstr ""
+msgstr "Team"
 
 #: tdx/embeds.py:133 tdx/embeds.py:258 tdx/embeds.py:274
 msgid "Distance Walked"
-msgstr ""
+msgstr "Gelaufene Distanz"
 
 #: tdx/embeds.py:139 tdx/embeds.py:282 tdx/embeds.py:303
 msgid "Pokémon Caught"
-msgstr ""
+msgstr "Gefangene Pokémon"
 
 #: tdx/embeds.py:146 tdx/embeds.py:312 tdx/embeds.py:334
 msgid "PokéStops Visited"
-msgstr ""
+msgstr "Besuchte PokéStops"
 
-#: tdx/embeds.py:153 tdx/embeds.py:342 tdx/embeds.py:357 tdx/leaderboard.py:94
+#: tdx/embeds.py:153 tdx/embeds.py:342 tdx/embeds.py:357
+#: tdx/leaderboard.py:106
 msgid "Total XP"
-msgstr ""
+msgstr "Gesamt-EP"
 
 #: tdx/embeds.py:164 tdx/embeds.py:176
 msgid "Leaderboard"
-msgstr ""
+msgstr "Bestenliste"
 
 #: tdx/embeds.py:230
 msgid "No data old enough found, using start date."
@@ -204,15 +214,15 @@ msgstr ""
 
 #: tdx/leaderboard.py:51
 msgid "Page {page} of {pages} | {footer}"
-msgstr ""
+msgstr "Seite {page} von {pages} | {footer}"
 
-#: tdx/leaderboard.py:69
+#: tdx/leaderboard.py:81
 #, docstring
 msgid "Leaderboards\n\n"
 "        Parameters:\n"
 "            `leaderboard`: str\n"
 "                options are `guild` (or `server`) and `global`\n"
-"            `filters`: Union[Faction, Level]\n"
+"            `filters`: Union[Team, Level]\n"
 "                If you mention any team, it'll filter to that. You can mention more than one team.\n"
 "                If you mention one level, it'll show that level and all below.\n"
 "                If you mention more than one level, it will show all between the lowest and highest level you mention.\n\n"
@@ -228,147 +238,147 @@ msgid "Leaderboards\n\n"
 "        "
 msgstr ""
 
-#: tdx/leaderboard.py:111
+#: tdx/leaderboard.py:123
 msgid "{stat} Leaderboard"
-msgstr ""
+msgstr "{stat} Bestenliste"
 
-#: tdx/leaderboard.py:121
+#: tdx/leaderboard.py:133
 msgid "{tag} Downloading {leaderboard}…"
 msgstr ""
 
-#: tdx/leaderboard.py:130
+#: tdx/leaderboard.py:142
 msgid "{tag} Filtering {leaderboard}…"
 msgstr ""
 
-#: tdx/leaderboard.py:137
+#: tdx/leaderboard.py:149
 msgid "No results to display!"
 msgstr ""
 
-#: tdx/profile.py:24
+#: tdx/profile.py:36
 #, docstring
 msgid "⬎ View, edit and create profiles. View Trainer Codes and more..."
 msgstr ""
 
-#: tdx/profile.py:52
+#: tdx/profile.py:76
 #, docstring
 msgid "Find a profile given a username."
 msgstr ""
 
-#: tdx/profile.py:55
+#: tdx/profile.py:79
 msgid "Searching for profile…"
 msgstr ""
 
-#: tdx/profile.py:66 tdx/profile.py:71 tdx/profile.py:74
+#: tdx/profile.py:90 tdx/profile.py:95 tdx/profile.py:98
 msgid "Found profile. Loading…"
 msgstr ""
 
-#: tdx/profile.py:69 tdx/trainerdex.py:203
+#: tdx/profile.py:93 tdx/trainerdex.py:209
 msgid "Sending in DMs"
 msgstr ""
 
-#: tdx/profile.py:76
+#: tdx/profile.py:100
 msgid "Profile deactivated or hidden."
 msgstr ""
 
-#: tdx/profile.py:79
+#: tdx/profile.py:103
 msgid "Profile not found."
 msgstr ""
 
-#: tdx/profile.py:85
+#: tdx/profile.py:109
 msgid "Checking progress…"
 msgstr ""
 
-#: tdx/profile.py:87 tdx/trainerdex.py:224
+#: tdx/profile.py:111 tdx/trainerdex.py:230
 msgid "Loading leaderboards…"
 msgstr ""
 
-#: tdx/profile.py:96
+#: tdx/profile.py:132
 #, docstring
 msgid "Edit various aspects about your profile"
 msgstr ""
 
-#: tdx/profile.py:103
+#: tdx/profile.py:151
 #, docstring
 msgid "Set the Start Date on your profile\n\n"
-"        This is the date you started playing Pokemon Go and is just under Total XP\n"
+"        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
 msgstr ""
 
-#: tdx/profile.py:120 tdx/profile.py:149 tdx/settings.py:35 tdx/settings.py:48
-#: tdx/settings.py:61 tdx/settings.py:81 tdx/settings.py:117
-#: tdx/settings.py:139 tdx/settings.py:161 tdx/settings.py:227
-#: tdx/settings.py:247 tdx/settings.py:267 tdx/settings.py:287
-#: tdx/settings.py:313 tdx/settings.py:341 tdx/settings.py:364
-#: tdx/settings.py:380
+#: tdx/profile.py:168 tdx/profile.py:209 tdx/settings.py:47 tdx/settings.py:60
+#: tdx/settings.py:73 tdx/settings.py:93 tdx/settings.py:129
+#: tdx/settings.py:151 tdx/settings.py:173 tdx/settings.py:239
+#: tdx/settings.py:259 tdx/settings.py:279 tdx/settings.py:299
+#: tdx/settings.py:325 tdx/settings.py:353 tdx/settings.py:376
+#: tdx/settings.py:392
 msgid "`{key}` set to {value}"
 msgstr ""
 
-#: tdx/profile.py:126 tdx/profile.py:155 tdx/settings.py:124
-#: tdx/settings.py:146 tdx/settings.py:170 tdx/settings.py:234
-#: tdx/settings.py:254 tdx/settings.py:274 tdx/settings.py:294
-#: tdx/settings.py:320 tdx/settings.py:350 tdx/settings.py:369
-#: tdx/settings.py:386
+#: tdx/profile.py:174 tdx/profile.py:215 tdx/settings.py:136
+#: tdx/settings.py:158 tdx/settings.py:182 tdx/settings.py:246
+#: tdx/settings.py:266 tdx/settings.py:286 tdx/settings.py:306
+#: tdx/settings.py:332 tdx/settings.py:362 tdx/settings.py:381
+#: tdx/settings.py:398
 msgid "`{key}` is {value}"
 msgstr ""
 
-#: tdx/profile.py:132
+#: tdx/profile.py:192
 #, docstring
 msgid "Set if you should appear in Leaderboards\n\n"
 "        Hide or show yourself on leaderboards at will!\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:24
+#: tdx/settings.py:36
 msgid "Looking for team roles..."
 msgstr ""
 
-#: tdx/settings.py:28
+#: tdx/settings.py:40
 msgid "Mystic"
 msgstr "Weisheit"
 
-#: tdx/settings.py:41
+#: tdx/settings.py:53
 msgid "Valor"
 msgstr "Wagemut"
 
-#: tdx/settings.py:54
+#: tdx/settings.py:66
 msgid "Instinct"
 msgstr "Intuition"
 
-#: tdx/settings.py:65
+#: tdx/settings.py:77
 msgid "Looking for TL40 role..."
 msgstr ""
 
-#: tdx/settings.py:72
+#: tdx/settings.py:84
 msgid "Level 40"
-msgstr ""
+msgstr "Level 40"
 
-#: tdx/settings.py:93
+#: tdx/settings.py:105
 #, docstring
 msgid "⬎ Set server and/or channel settings"
 msgstr ""
 
-#: tdx/settings.py:109
+#: tdx/settings.py:121
 #, docstring
 msgid "Modify the roles of members when they're approved.\n\n"
 "        This is useful for granting users access to the rest of the server.\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:131
+#: tdx/settings.py:143
 #, docstring
 msgid "Modify the nickname of members when they're approved.\n\n"
 "        This is useful for ensuring players can be easily identified.\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:153
+#: tdx/settings.py:165
 #, docstring
 msgid "Modify the nickname of members when they update their Total XP.\n\n"
 "        This is useful for setting levels in their name.\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:180
+#: tdx/settings.py:192
 #, docstring
 msgid "Which roles to add/remove to a user on approval\n\n"
 "        Usage:\n"
@@ -379,45 +389,45 @@ msgid "Which roles to add/remove to a user on approval\n\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:303
+#: tdx/settings.py:315
 #, docstring
 msgid "Send a note to a member upon running `profile create` (aka, `approve`)\n\n"
 "        Set value to `None` to empty it\n"
 "        "
 msgstr ""
 
-#: tdx/settings.py:336
+#: tdx/settings.py:348
 #, docstring
 msgid "Set if this channel should accept OCR commands."
 msgstr ""
 
-#: tdx/trainerdex.py:137
+#: tdx/trainerdex.py:143
 msgid "That's a nice image you have there, let's see…"
 msgstr ""
 
-#: tdx/trainerdex.py:155
+#: tdx/trainerdex.py:161
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
 msgstr ""
 
-#: tdx/trainerdex.py:167
+#: tdx/trainerdex.py:173
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr ""
 
-#: tdx/trainerdex.py:181
+#: tdx/trainerdex.py:187
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr ""
 
-#: tdx/trainerdex.py:204 tdx/trainerdex.py:208 tdx/trainerdex.py:216
+#: tdx/trainerdex.py:210 tdx/trainerdex.py:214 tdx/trainerdex.py:222
 msgid "Loading output…"
 msgstr ""
 
-#: tdx/trainerdex.py:237
+#: tdx/trainerdex.py:243
 msgid "I could not find Total XP in your image. "
 msgstr ""
 
-#: tdx/trainerdex.py:240
+#: tdx/trainerdex.py:246
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr ""
 
@@ -428,7 +438,7 @@ msgstr ""
 #: tdx/utils.py:67
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
 "This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.\n\n"
-"TrainerDex is a Pokemon Go trainer database and leaderboard. View our privacy policy here:\n"
+"TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:\n"
 "<{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
