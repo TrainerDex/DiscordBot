@@ -391,7 +391,7 @@ class ProfileCreate(MixinMeta):
 
     @commands.command(name="auto-role")
     @checks.mod_or_permissions(manage_roles=True)
-    async def profile__create(self, ctx: commands.Context) -> None:
+    async def autorole(self, ctx: commands.Context) -> None:
         """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
 
         Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.
