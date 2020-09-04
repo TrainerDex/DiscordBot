@@ -59,7 +59,19 @@ class LeaderboardPages(menus.AsyncIteratorPageSource):
 
 
 class Leaderboard(MixinMeta):
-    @commands.command(name="leaderboard", aliases=["lb", "LB"])
+    leaderboard_aliases = []
+    leaderboard_aliases.extend(["bestenliste", "bl"])  # de-DE German
+    leaderboard_aliases.extend(["clasificación"])  # es-ES Spanish
+    leaderboard_aliases.extend(["lb", "LB"])  # en-US English
+    leaderboard_aliases.extend(["classement"])  # fr-FR French
+    leaderboard_aliases.extend(["classifica"])  # it-IT Italian
+    leaderboard_aliases.extend(["リーダーボード"])  # ja-JP Japanese
+    leaderboard_aliases.extend(["리더보드"])  # ko-KR Korean
+    leaderboard_aliases.extend(["entre-os-melhores", "melhores", "eos"])  # pt-BR Portuguese
+    leaderboard_aliases.extend(["ลีดเดอร์บอร์ด"])  # th-TH Thai
+    leaderboard_aliases.extend(["排行榜"])  # zh-HK Chinese (Traditional)
+
+    @commands.command(name="leaderboard", aliases=list(set(leaderboard_aliases)))
     async def leaderboard(
         self,
         ctx: commands.Context,
@@ -71,7 +83,7 @@ class Leaderboard(MixinMeta):
         Parameters:
             `leaderboard`: str
                 options are `guild` (or `server`) and `global`
-            `filters`: Union[Faction, Level]
+            `filters`: Union[Team, Level]
                 If you mention any team, it'll filter to that. You can mention more than one team.
                 If you mention one level, it'll show that level and all below.
                 If you mention more than one level, it will show all between the lowest and highest level you mention.

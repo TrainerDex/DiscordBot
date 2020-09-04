@@ -19,7 +19,19 @@ _ = Translator("TrainerDex", __file__)
 
 
 class Profile(MixinMeta):
-    @commands.group(name="profile", case_insensitive=True)
+    profile_aliases = []
+    profile_aliases.extend(["profil"])  # de-DE German
+    profile_aliases.extend(["perfil"])  # es-ES Spanish
+    profile_aliases.extend([])  # en-US English
+    profile_aliases.extend(["profil"])  # fr-FR French
+    profile_aliases.extend(["profilo"])  # it-IT Italian
+    profile_aliases.extend(["プロフィール"])  # ja-JP Japanese
+    profile_aliases.extend(["프로필"])  # ko-KR Korean
+    profile_aliases.extend(["perfil"])  # pt-BR Portuguese
+    profile_aliases.extend(["ข้อมูลส่วนตัว"])  # th-TH Thai
+    profile_aliases.extend(["個人資料"])  # zh-HK Chinese (Traditional)
+
+    @commands.group(name="profile", case_insensitive=True, aliases=list(set(profile_aliases)))
     async def profile(self, ctx: commands.Context) -> None:
         """⬎ View, edit and create profiles. View Trainer Codes and more..."""
         if ctx.invoked_subcommand is None:
@@ -34,7 +46,7 @@ class Profile(MixinMeta):
 
             data = {
                 "nickname": trainer.nickname,
-                "start_date": trainer.start_date.isoformat(),
+                "start_date": trainer.start_date.isoformat() if trainer.start_date else None,
                 "faction": trainer.faction,
                 "trainer_code": trainer.trainer_code,
                 "is_banned": trainer.is_banned,
@@ -45,7 +57,19 @@ class Profile(MixinMeta):
             data: str = json.dumps(data, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(data, "json"))
 
-    @profile.command(name="lookup", aliases=["whois", "find", "progress", "trainer"])
+    profile__lookup_aliases = []
+    profile__lookup_aliases.extend(["sieh-nach-oben", "finden", "wer-ist"])  # de-DE German
+    profile__lookup_aliases.extend(["buscar", "hallar", "quien-es"])  # es-ES Spanish
+    profile__lookup_aliases.extend(["find", "whois"])  # en-US English
+    profile__lookup_aliases.extend(["chercher", "découvrir", "qui-est"])  # fr-FR French
+    profile__lookup_aliases.extend(["consultare", "trova", "chi-è"])  # it-IT Italian
+    profile__lookup_aliases.extend(["調べる", "誰が"])  # ja-JP Japanese
+    profile__lookup_aliases.extend(["조회", "누구인가", "입수하다"])  # ko-KR Korean
+    profile__lookup_aliases.extend(["olho-para-cima", "quem-é", "encontrar"])  # pt-BR Portuguese
+    profile__lookup_aliases.extend(["ค้นหา", "ไคร", "พบ"])  # th-TH Thai
+    profile__lookup_aliases.extend(["抬頭", "誰是", "藪"])  # zh-HK Chinese (Traditional)
+
+    @profile.command(name="lookup", aliases=list(set(profile__lookup_aliases)))
     async def profile__lookup(
         self, ctx: commands.Context, trainer: Optional[converters.TrainerConverter] = None,
     ) -> None:
@@ -91,18 +115,42 @@ class Profile(MixinMeta):
                 await embed.add_guild_leaderboard(ctx.guild)
             await message.edit(content=None, embed=embed)
 
-    @profile.group(name="edit", case_insensitive=True)
+    profile__edit_aliases = []
+    profile__edit_aliases.extend(["ändern"])  # de-DE German
+    profile__edit_aliases.extend(["modificar"])  # es-ES Spanish
+    profile__edit_aliases.extend(["modify"])  # en-US English
+    profile__edit_aliases.extend(["modifier"])  # fr-FR French
+    profile__edit_aliases.extend(["modificare"])  # it-IT Italian
+    profile__edit_aliases.extend(["修正", "モディファイ"])  # ja-JP Japanese
+    profile__edit_aliases.extend(["수정"])  # ko-KR Korean
+    profile__edit_aliases.extend(["modificar"])  # pt-BR Portuguese
+    profile__edit_aliases.extend(["ปรับเปลี่ยน"])  # th-TH Thai
+    profile__edit_aliases.extend(["修改"])  # zh-HK Chinese (Traditional)
+
+    @profile.group(name="edit", case_insensitive=True, aliases=list(set(profile__edit_aliases)))
     async def profile__edit(self, ctx: commands.Context) -> None:
         """Edit various aspects about your profile"""
         pass
 
-    @profile__edit.command(name="start_date")
+    profile__edit__start_date_aliases = []
+    profile__edit__start_date_aliases.extend(["startdatum"])  # de-DE German
+    profile__edit__start_date_aliases.extend(["fecha-de-inicio", "inicio"])  # es-ES Spanish
+    profile__edit__start_date_aliases.extend(["start"])  # en-US English
+    profile__edit__start_date_aliases.extend(["date-de-début", "début"])  # fr-FR French
+    profile__edit__start_date_aliases.extend(["data-di-inizio", "inizio"])  # it-IT Italian
+    profile__edit__start_date_aliases.extend(["始めた日"])  # ja-JP Japanese
+    profile__edit__start_date_aliases.extend(["시작한", "시작한-날"])  # ko-KR Korean
+    profile__edit__start_date_aliases.extend(["data-de-início", "início"])  # pt-BR Portuguese
+    profile__edit__start_date_aliases.extend(["วันที่เริ่มเล่น"])  # th-TH Thai
+    profile__edit__start_date_aliases.extend(["開始日"])  # zh-HK Chinese (Traditional)
+
+    @profile__edit.command(name="start_date", aliases=list(set(profile__edit__start_date_aliases)))
     async def profile__edit__start_date(
         self, ctx: commands.Context, value: Optional[converters.DateConverter] = None
     ) -> None:
         """Set the Start Date on your profile
 
-        This is the date you started playing Pokemon Go and is just under Total XP
+        This is the date you started playing Pokémon Go and is just under Total XP
         """
         async with ctx.typing():
             try:
@@ -125,7 +173,19 @@ class Profile(MixinMeta):
             value: datetime.date = trainer.start_date
             await ctx.send(_("`{key}` is {value}").format(key="trainer.start_date", value=value))
 
-    @profile__edit.command(name="visible")
+    profile__edit__visible_aliases = []
+    profile__edit__visible_aliases.extend(["sichtbar"])  # de-DE German
+    profile__edit__visible_aliases.extend([])  # es-ES Spanish
+    profile__edit__visible_aliases.extend([])  # en-US English
+    profile__edit__visible_aliases.extend([])  # fr-FR French
+    profile__edit__visible_aliases.extend(["visibile"])  # it-IT Italian
+    profile__edit__visible_aliases.extend(["見える"])  # ja-JP Japanese
+    profile__edit__visible_aliases.extend(["명백한"])  # ko-KR Korean
+    profile__edit__visible_aliases.extend(["visível"])  # pt-BR Portuguese
+    profile__edit__visible_aliases.extend(["มองเห็นได้"])  # th-TH Thai
+    profile__edit__visible_aliases.extend(["可見"])  # zh-HK Chinese (Traditional)
+
+    @profile__edit.command(name="visible", aliases=list(set(profile__edit__visible_aliases)))
     async def profile__edit__visible(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:

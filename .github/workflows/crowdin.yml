@@ -1,8 +1,9 @@
 name: Translations
 
 on:
-  push:
-    branches: [ production ]
+  schedule:
+    - cron: '0 8 * * FRI'
+  workflow_dispatch:
 
 jobs:
   crowdin:

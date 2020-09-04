@@ -59,6 +59,11 @@ class TrainerDex(
         )
         self.config.register_channel(**{"profile_ocr": False})
         self.client: client.Client = None
+        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
+
+    async def initialize(self) -> None:
+        await self.bot.wait_until_ready()
+        await self._create_client()
         self.emoji: Dict[str, Union[str, discord.Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
@@ -80,11 +85,6 @@ class TrainerDex(
             "profile": self.bot.get_emoji(743853381919178824),
             "date": self.bot.get_emoji(743874800547791023),
         }
-
-        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
-
-    async def initialize(self) -> None:
-        await self._create_client()
 
     async def _create_client(self) -> None:
         """Create TrainerDex API Client"""
@@ -128,7 +128,13 @@ class TrainerDex(
                 self.bot.get_emoji(471298325904359434), self.bot.user
             )
             await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
-            await ctx.send("{message.author.mention} Trainer not found!", delete_after=5)
+            await ctx.send(
+                _(
+                    "{author.mention} No TrainerDex profile found for this Discord account."
+                    + " A moderator for this server can set you up."
+                    + " If it still doesn't work after that, please contact {bot_owner}."
+                ).format(author=ctx.author, bot_owner=ctx.bot.get_user(319792326958514176))
+            )
             return
 
         async with ctx.channel.typing():

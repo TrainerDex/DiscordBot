@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.35.1"
+__version__ = "2020.36.0"
 __red_end_user_data_statement__ = """We use several terms in this document which could be considered ambiguous so I would like to clear these up:
  * the Website - any website hosted on the trainerdex.co.uk domain or any subdomains thereof
  * the Discord Bot - Our official bot instance, TrainerDex#8522, on Discord, or any third party instances that may or may not launch in the future.
@@ -28,10 +28,10 @@ The following rules/terms are in place and violation of these rules can result i
  * No submitting anybody else’s screenshots as your own
  * No knowingly submitting false data to TrainerDex
 
-We endeavour to be open with data. We have a public API for information such as your Pokemon Go profile data. As such, your data may be used on third party tools such as PokeNav.
+We endeavour to be open with data. We have a public API for information such as your Pokémon Go profile data. As such, your data may be used on third party tools such as PokeNav.
 
 The types of information we may store on you include;
- * Various datapoints about your Pokemon Go profile, including username, team, start date and any of the badges information provided to us
+ * Various datapoints about your Pokémon Go profile, including username, team, start date and any of the badges information provided to us
  * Your first name, if provided
  * Your email address, if provided
  * Your Discord UID, if provided via the Website or via using the Discord Bot

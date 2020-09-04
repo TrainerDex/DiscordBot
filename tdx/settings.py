@@ -16,7 +16,19 @@ _ = Translator("TrainerDex", __file__)
 
 
 class Settings(MixinMeta):
-    @commands.command(name="quickstart")
+    quickstart_aliases = []
+    quickstart_aliases.extend(["schnellstart"])  # de-DE German
+    quickstart_aliases.extend(["inicio rápido"])  # es-ES Spanish
+    quickstart_aliases.extend([])  # en-US English
+    quickstart_aliases.extend(["démarrage-rapide"])  # fr-FR French
+    quickstart_aliases.extend(["avvio-rapido"])  # it-IT Italian
+    quickstart_aliases.extend(["クイックスタート"])  # ja-JP Japanese
+    quickstart_aliases.extend(["빠른-시작"])  # ko-KR Korean
+    quickstart_aliases.extend(["começo-rápido"])  # pt-BR Portuguese (Brazil)
+    quickstart_aliases.extend(["เริ่มต้นอย่างรวดเร็ว"])  # th-TH Thai
+    quickstart_aliases.extend(["快速開始"])  # zh-HK Chinese (Traditional)
+
+    @commands.command(name="quickstart", aliases=list(set(quickstart_aliases)))
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
@@ -216,7 +228,7 @@ class Settings(MixinMeta):
             value: str = json.dumps(value, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(value, "json"))
 
-    @tdxset__guild.command(name="mystic_role")
+    @tdxset__guild.command(name="mystic_role", aliases=["mystic"])
     async def tdxset__guild__mystic_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
@@ -236,7 +248,7 @@ class Settings(MixinMeta):
                 )
             )
 
-    @tdxset__guild.command(name="valor_role")
+    @tdxset__guild.command(name="valor_role", aliases=["valor"])
     async def tdxset__guild__valor_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
@@ -256,7 +268,7 @@ class Settings(MixinMeta):
                 )
             )
 
-    @tdxset__guild.command(name="instinct_role")
+    @tdxset__guild.command(name="instinct_role", aliases=["instinct"])
     async def tdxset__guild__instinct_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
@@ -276,7 +288,7 @@ class Settings(MixinMeta):
                 )
             )
 
-    @tdxset__guild.command(name="tl40_role")
+    @tdxset__guild.command(name="tl40_role", aliases=["tl40"])
     async def tdxset__guild__tl40_role(
         self, ctx: commands.Context, value: Optional[discord.Role] = None
     ) -> None:
@@ -329,7 +341,7 @@ class Settings(MixinMeta):
             tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
             await ctx.send(cf.box(tdxset, "json"))
 
-    @tdxset__channel.command(name="profile_ocr")
+    @tdxset__channel.command(name="profile_ocr", aliases=["ocr"])
     async def tdxset__channel__profile_ocr(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
