@@ -1,10 +1,11 @@
+import json
 import logging
 import os
 from abc import ABC
 from typing import Dict, Final, Literal, Union
 
 import discord
-from redbot.core import commands, Config
+from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
@@ -262,6 +263,103 @@ class TrainerDex(
                     " Check your console or logs for details.`"
                 )
                 raise e
+
+    @commands.command(name="debug-ocr")
+    @checks.mod()
+    async def debug_ocr(self, ctx: commands.Context, message: discord.Message) -> None:
+        octx = await self.bot.get_context(message)
+        async with ctx.channel.typing():
+            if await self.bot.cog_disabled_in_guild(self, octx.guild):
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because the cog is disabled in the guild"
+                    ).format(message)
+                )
+                return
+
+            if len(octx.message.attachments) == 0:
+                await ctx.send(
+                    _("Message {message.id} failed because there is no file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            if len(octx.message.attachments) > 1:
+                await ctx.send(
+                    _("Message {message.id} failed because there more than file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
+            if not profile_ocr:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because that channel is not enabled for OCR"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    octx, octx.author, cli=self.client
+                )
+            except discord.ext.commands.errors.BadArgument:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                ocr = PogoOCR.ProfileSelf(
+                    POGOOCR_TOKEN_PATH, image_uri=octx.message.attachments[0].proxy_url
+                )
+                ocr.get_text()
+            except Exception as e:
+                n = await ctx.send(
+                    _("Message {message.id} failed because for an unknown reason").format(
+                        message=message
+                    )
+                )
+                msg = str(ocr.text_found[0].description)
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await n.edit(
+                        file=cf.text_to_file(msg, filename=f"full_debug_{message.id}.txt")
+                    )
+                return
+            else:
+                msg = str(ocr.text_found[0].description)
+                data_found = {
+                    "locale": ocr.locale,
+                    "number_locale": ocr.number_locale,
+                    "username": ocr.username,
+                    "buddy_name": ocr.buddy_name,
+                    "travel_km": ocr.travel_km,
+                    "capture_total": ocr.capture_total,
+                    "pokestops_visited": ocr.pokestops_visited,
+                    "total_xp": ocr.total_xp,
+                    "start_date": ocr.start_date,
+                }
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await ctx.send(file=cf.text_to_file(msg, filename=f"debug_{message.id}.txt"))
+
+                try:
+                    df = json.dumps(data_found, default=repr)
+                except (TypeError, OverflowError, TypeError):
+                    df = data_found
+                if len(cf.box(df, lang=("json" if isinstance(df, str) else "py"))) <= 2000:
+                    await ctx.send(cf.box(df, lang=("json" if isinstance(df, str) else "py")))
+                else:
+                    await ctx.send(file=cf.text_to_file(df, filename=f"debug_{message.id}.json"))
+                return
 
     async def red_delete_data_for_user(
         self,
