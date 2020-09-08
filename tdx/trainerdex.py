@@ -40,7 +40,10 @@ class TrainerDex(
     def __init__(self, bot: Red) -> None:
         self.bot: Red = bot
         self.config: Config = Config.get_conf(
-            None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
+            None,
+            cog_name="trainerdex",
+            identifier=8124637339,
+            force_registration=True,
         )
         self.config.register_global(
             **{"embed_footer": "Provided with ❤️ by TrainerDex", "notice": None}
@@ -217,7 +220,10 @@ class TrainerDex(
                         )
                     )
                     embed: discord.Embed = await ProfileCard(
-                        ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji,
+                        ctx=ctx,
+                        client=self.client,
+                        trainer=trainer,
+                        emoji=self.emoji,
                     )
                     await message.edit(
                         content="\n".join(

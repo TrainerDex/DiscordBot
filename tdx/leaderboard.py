@@ -111,7 +111,10 @@ class Leaderboard(MixinMeta):
         )
         levels = {x.level for x in filters if isinstance(x, client.Level)}
         if len(levels) > 1:
-            levels = range(min(levels), max(levels) + 1,)
+            levels = range(
+                min(levels),
+                max(levels) + 1,
+            )
         elif len(levels) == 1:
             levels = range(levels.pop() + 1)
         else:
@@ -120,7 +123,8 @@ class Leaderboard(MixinMeta):
         levels = {client.update.get_level(level=i) for i in levels}
 
         leaderboard_title = append_icon(
-            icon=self.emoji.get(stat[0], ""), text=_("{stat} Leaderboard").format(stat=stat[1]),
+            icon=self.emoji.get(stat[0], ""),
+            text=_("{stat} Leaderboard").format(stat=stat[1]),
         )
 
         emb = await BaseCard(ctx, title=leaderboard_title)

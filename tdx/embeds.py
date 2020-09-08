@@ -18,7 +18,10 @@ from dateutil.tz import UTC
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 config = Config.get_conf(
-    None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
+    None,
+    cog_name="trainerdex",
+    identifier=8124637339,
+    force_registration=True,
 )
 
 
@@ -103,7 +106,8 @@ class ProfileCard(BaseCard):
 
         self.colour: int = self.trainer.team.colour
         self.title: str = _("{nickname} | TL{level}").format(
-            nickname=self.trainer.username, level=self.trainer.level,
+            nickname=self.trainer.username,
+            level=self.trainer.level,
         )
         self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(self.trainer.old_id)
         if self.latest_update:
