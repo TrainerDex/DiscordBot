@@ -3,6 +3,7 @@ import logging
 from typing import Dict, List, Optional
 
 import discord
+from discord.ext.alternatives import silent_delete
 from redbot.core import checks, commands
 from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
@@ -94,7 +95,7 @@ class Settings(MixinMeta):
                 delete_after=30,
             )
 
-        await message.delete()
+        await message.delete(silent=True)
 
         tdxset: Dict = await self.config.guild(ctx.guild).all()
         tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)

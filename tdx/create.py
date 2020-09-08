@@ -2,6 +2,7 @@ import logging
 from typing import Callable, Optional, Union
 
 import discord
+from discord.ext.alternatives import silent_delete
 from redbot.core import checks, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
@@ -87,7 +88,7 @@ class ProfileCreate(MixinMeta):
                 raise AbandonQuestionException(e)
 
             await q.append_answer(answer)
-            await q.response.delete()
+            await q.response.delete(silent=True)
 
             if converter:
                 try:
