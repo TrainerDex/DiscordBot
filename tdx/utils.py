@@ -1,10 +1,10 @@
-from typing import Union
+from typing import Callable, Union, Optional
 
 import discord
 
 from redbot.core import commands
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
+from redbot.core.utils import chat_formatting as cf, predicates
 
 import trainerdex as client
 
@@ -101,3 +101,50 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
         return (BASE_NOTE, ADDITIONAL_NOTE)
     else:
         return (BASE_NOTE,)
+
+
+AbandonQuestionException = Exception
+NoAnswerProvidedException = Exception
+
+
+class Question:
+    def __init__(
+        self,
+        ctx: commands.Context,
+        question: str,
+        message: Optional[discord.Message] = None,
+        predicate: Optional[Callable] = None,
+    ) -> None:
+        self._ctx: commands.Context = ctx
+        self.question: str = question
+        self.message: discord.Message = message
+        self.predicate: Callable = predicate or predicates.MessagePredicate.same_context(self._ctx)
+        self.response: discord.Message = None
+
+    async def ask(self) -> Union[str, None]:
+        if self.message:
+            await self.message.edit(
+                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
+            )
+        else:
+            self.message = await self._ctx.send(
+                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
+            )
+        self.response = await self._ctx.bot.wait_for("message", check=self.predicate)
+        if self.response.content.lower() == f"{self._ctx.prefix}cancel":
+            # TODO: Make an actual exception class
+            raise AbandonQuestionException
+        else:
+            return self.answer
+
+    async def append_answer(self, answer: Optional[str] = None) -> None:
+        content = "{q}\n{a}".format(
+            q=self.question, a=quote(str(answer) if answer is not None else self.answer)
+        )
+        await self.message.edit(content=content)
+
+    @property
+    def answer(self) -> Union[str, None]:
+        if self.response:
+            return self.response.content
+        return None
