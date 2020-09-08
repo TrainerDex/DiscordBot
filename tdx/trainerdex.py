@@ -309,9 +309,7 @@ class TrainerDex(
                 return
 
             try:
-                trainer: client.Trainer = await converters.TrainerConverter().convert(
-                    octx, octx.author, cli=self.client
-                )
+                await converters.TrainerConverter().convert(octx, octx.author, cli=self.client)
             except discord.ext.commands.errors.BadArgument:
                 await ctx.send(
                     _(
@@ -331,6 +329,7 @@ class TrainerDex(
                         message=message
                     )
                 )
+                await ctx.send(cf.box(e))
                 msg = str(ocr.text_found[0].description)
                 if len(msg) <= 1994:
                     await ctx.send(cf.box(msg))
