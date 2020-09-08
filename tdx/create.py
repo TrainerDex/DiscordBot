@@ -467,7 +467,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
 
                     if del_roles:
@@ -478,7 +478,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
 
                     if set_nickname:
@@ -489,7 +489,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
                     members_approve += 1
                 await message.edit(
