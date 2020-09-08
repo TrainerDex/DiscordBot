@@ -71,7 +71,9 @@ class Profile(MixinMeta):
 
     @profile.command(name="lookup", aliases=list(set(profile__lookup_aliases)))
     async def profile__lookup(
-        self, ctx: commands.Context, trainer: Optional[converters.TrainerConverter] = None,
+        self,
+        ctx: commands.Context,
+        trainer: Optional[converters.TrainerConverter] = None,
     ) -> None:
         """Find a profile given a username."""
 

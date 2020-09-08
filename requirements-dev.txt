@@ -1,0 +1,2 @@
+-r requirements.txt
+black==20.8 # This is so changes are sent to GitHub Repo, so we can see if it changes anything else

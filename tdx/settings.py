@@ -373,7 +373,8 @@ class Settings(MixinMeta):
             await self.config.notice.set(value)
             await ctx.tick()
             await ctx.send(
-                _("`{key}` set to {value}").format(key="notice", value=value), delete_after=30,
+                _("`{key}` set to {value}").format(key="notice", value=value),
+                delete_after=30,
             )
         else:
             await ctx.send_help()
