@@ -1,10 +1,11 @@
+import asyncio
 import json
 import logging
 import os
 from typing import Final, Callable, Optional
 
 import discord
-from discord.ext.alternatives import silent_delete
+from discord.ext.alternatives import silent_delete, message_eq
 from redbot.core import checks, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
@@ -574,3 +575,68 @@ class ModCmds(MixinMeta):
                         members_approve, index + 1, len(members_to_edit)
                     )
                 )
+
+    @tdxmod__trainer.group(name="edit", case_insensitive=True)
+    async def tdxmod__trainer__edit(self, ctx: commands.Context) -> None:
+        """⬎ Edit Trainer Profiles"""
+        pass
+
+    @tdxmod__trainer__edit.command(name="faction", aliases=["team"])
+    @checks.mod_or_permissions(manage_roles=True)
+    async def tdxmod__trainer__edit__team(
+        self,
+        ctx: commands.Context,
+        member: discord.Member,
+        team: converters.TeamConverter,
+    ) -> None:
+        """Edit another trainers team."""
+
+        # if member == ctx.author:
+        #     await ctx.send(_("You can't use this command on yourself."))
+
+        try:
+            trainer = await converters.TrainerConverter().convert(ctx, member, self.client)
+        except commands.BadArgument as e:
+            await ctx.send(e)
+            return
+
+        if trainer.team == team:
+            await ctx.send(_("No changes required."))
+        else:
+            memberships = [
+                g.get_member(member.id)
+                for g in self.bot.guilds
+                if (
+                    g.get_member(member.id) is not None
+                    and await self.config.guild(g).assign_roles_on_join()
+                )
+            ]
+
+            warning = await ctx.send(
+                _(
+                    (
+                        "This command will change {trainer.username}'s team from {trainer.team} to {team}."
+                        "\nThis change will apply to the website and change roles in **{num_guilds}** servers."
+                        "\nAre you **sure** you want to proceed?"
+                    ).format(trainer=trainer, team=team, num_guilds=len(memberships))
+                )
+            )
+
+            try:
+                await warning.add_reaction("\N{THUMBS UP SIGN}")
+            except (discord.HTTPException, discord.Forbidden):
+                await warning.edit(warning.content + "\n React \N{THUMBS UP SIGN} to agree.")
+            try:
+                await ctx.bot.wait_for(
+                    "reaction_add",
+                    check=(
+                        lambda reaction, user: user == ctx.author
+                        and str(reaction.emoji) == "\N{THUMBS UP SIGN}"
+                        and reaction.message == warning
+                    ),
+                    timeout=500.0,
+                )
+            except asyncio.TimeoutError:
+                await ctx.send("Timeout.")
+            else:
+                await ctx.send("This is where I would do the stuff.")
