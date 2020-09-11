@@ -17,12 +17,10 @@ def check_xp(x: client.Update) -> int:
     return x.total_xp
 
 
-TWITTER_MESSAGE = cf.info(
-    _("If that doesn't look right, please contact us on Twitter. {twitter_handle}")
-).format(twitter_handle="@TrainerDexApp")
-
-
 def append_twitter(text: str) -> str:
+    TWITTER_MESSAGE = cf.info(
+        _("If that doesn't look right, please contact us on Twitter. {twitter_handle}")
+    ).format(twitter_handle="@TrainerDexApp")
     return f"{text}\n\n{TWITTER_MESSAGE}"
 
 

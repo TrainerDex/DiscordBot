@@ -18,7 +18,10 @@ from dateutil.tz import UTC
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 config = Config.get_conf(
-    None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
+    None,
+    cog_name="trainerdex",
+    identifier=8124637339,
+    force_registration=True,
 )
 
 
@@ -103,7 +106,8 @@ class ProfileCard(BaseCard):
 
         self.colour: int = self.trainer.team.colour
         self.title: str = _("{nickname} | TL{level}").format(
-            nickname=self.trainer.username, level=self.trainer.level,
+            nickname=self.trainer.username,
+            level=self.trainer.level,
         )
         self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(self.trainer.old_id)
         if self.latest_update:
@@ -262,7 +266,7 @@ class ProfileCard(BaseCard):
                         delta=cf.humanize_number(this_update.travel_km - last_update.travel_km),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round((this_update.travel_km - last_update.travel_km) / days)
+                                (this_update.travel_km - last_update.travel_km) / days
                             )
                             + "km"
                         ),
@@ -289,9 +293,7 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round(
-                                    (this_update.capture_total - last_update.capture_total) / days
-                                )
+                                (this_update.capture_total - last_update.capture_total) / days
                             )
                         ),
                     ),
@@ -319,10 +321,8 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round(
-                                    (this_update.pokestops_visited - last_update.pokestops_visited)
-                                    / days
-                                )
+                                (this_update.pokestops_visited - last_update.pokestops_visited)
+                                / days
                             )
                         ),
                     ),
@@ -346,7 +346,7 @@ class ProfileCard(BaseCard):
                         delta=cf.humanize_number(this_update.total_xp - last_update.total_xp),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                round((this_update.total_xp - last_update.total_xp) / days)
+                                (this_update.total_xp - last_update.total_xp) / days
                             )
                         ),
                     ),

@@ -1,17 +1,18 @@
+import json
 import logging
 import os
 from abc import ABC
 from typing import Dict, Final, Literal, Union
 
 import discord
-from redbot.core import commands, Config
+from redbot.core import checks, commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import trainerdex as client
 import PogoOCR
-from . import converters
+from . import converters, __version__
 from .create import ProfileCreate
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard
@@ -39,7 +40,10 @@ class TrainerDex(
     def __init__(self, bot: Red) -> None:
         self.bot: Red = bot
         self.config: Config = Config.get_conf(
-            None, cog_name="trainerdex", identifier=8124637339, force_registration=True,
+            None,
+            cog_name="trainerdex",
+            identifier=8124637339,
+            force_registration=True,
         )
         self.config.register_global(
             **{"embed_footer": "Provided with ❤️ by TrainerDex", "notice": None}
@@ -59,11 +63,18 @@ class TrainerDex(
         )
         self.config.register_channel(**{"profile_ocr": False})
         self.client: client.Client = None
+        self.bot.loop.create_task(self.create_client())
+        self.bot.loop.create_task(self.load_emojis())
+        self.bot.loop.create_task(self.set_game_to_version())
+
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
 
-    async def initialize(self) -> None:
+    async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self._create_client()
+        await self.bot.change_presence(activity=discord.Game(name=__version__))
+
+    async def load_emojis(self) -> None:
+        await self.bot.wait_until_ready()
         self.emoji: Dict[str, Union[str, discord.Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
@@ -86,18 +97,12 @@ class TrainerDex(
             "date": self.bot.get_emoji(743874800547791023),
         }
 
-    async def _create_client(self) -> None:
-        """Create TrainerDex API Client"""
-        token: str = await self._get_token()
-        self.client = client.Client(token=token)
-
-    async def _get_token(self) -> str:
-        """Get TrainerDex token"""
+    async def create_client(self) -> None:
         api_tokens = await self.bot.get_shared_api_tokens("trainerdex")
         token = api_tokens.get("token", "")
         if not token:
             log.warning("No valid token found")
-        return token
+        self.client = client.Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")
     async def check_screenshot(self, message: discord.Message) -> None:
@@ -215,7 +220,10 @@ class TrainerDex(
                         )
                     )
                     embed: discord.Embed = await ProfileCard(
-                        ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji,
+                        ctx=ctx,
+                        client=self.client,
+                        trainer=trainer,
+                        emoji=self.emoji,
                     )
                     await message.edit(
                         content="\n".join(
@@ -261,6 +269,102 @@ class TrainerDex(
                     " Check your console or logs for details.`"
                 )
                 raise e
+
+    @commands.command(name="debug-ocr")
+    @checks.mod()
+    async def debug_ocr(self, ctx: commands.Context, message: discord.Message) -> None:
+        octx = await self.bot.get_context(message)
+        async with ctx.channel.typing():
+            if await self.bot.cog_disabled_in_guild(self, octx.guild):
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because the cog is disabled in the guild"
+                    ).format(message)
+                )
+                return
+
+            if len(octx.message.attachments) == 0:
+                await ctx.send(
+                    _("Message {message.id} failed because there is no file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            if len(octx.message.attachments) > 1:
+                await ctx.send(
+                    _("Message {message.id} failed because there more than file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
+            if not profile_ocr:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because that channel is not enabled for OCR"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                await converters.TrainerConverter().convert(octx, octx.author, cli=self.client)
+            except discord.ext.commands.errors.BadArgument:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                ocr = PogoOCR.ProfileSelf(
+                    POGOOCR_TOKEN_PATH, image_uri=octx.message.attachments[0].proxy_url
+                )
+                ocr.get_text()
+            except Exception as e:
+                n = await ctx.send(
+                    _("Message {message.id} failed because for an unknown reason").format(
+                        message=message
+                    )
+                )
+                await ctx.send(cf.box(e))
+                msg = str(ocr.text_found[0].description)
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await n.edit(
+                        file=cf.text_to_file(msg, filename=f"full_debug_{message.id}.txt")
+                    )
+                return
+            else:
+                msg = str(ocr.text_found[0].description)
+                data_found = {
+                    "locale": ocr.locale,
+                    "number_locale": ocr.number_locale,
+                    "username": ocr.username,
+                    "buddy_name": ocr.buddy_name,
+                    "travel_km": ocr.travel_km,
+                    "capture_total": ocr.capture_total,
+                    "pokestops_visited": ocr.pokestops_visited,
+                    "total_xp": ocr.total_xp,
+                    "start_date": ocr.start_date,
+                }
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await ctx.send(file=cf.text_to_file(msg, filename=f"debug_{message.id}.txt"))
+
+                try:
+                    df = json.dumps(data_found, default=repr)
+                except (TypeError, OverflowError, TypeError):
+                    df = data_found
+                if len(cf.box(df, lang=("json" if isinstance(df, str) else "py"))) <= 2000:
+                    await ctx.send(cf.box(df, lang=("json" if isinstance(df, str) else "py")))
+                else:
+                    await ctx.send(file=cf.text_to_file(df, filename=f"debug_{message.id}.json"))
+                return
 
     async def red_delete_data_for_user(
         self,

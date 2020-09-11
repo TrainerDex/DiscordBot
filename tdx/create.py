@@ -2,6 +2,7 @@ import logging
 from typing import Callable, Optional, Union
 
 import discord
+from discord.ext.alternatives import silent_delete
 from redbot.core import checks, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
@@ -87,7 +88,7 @@ class ProfileCreate(MixinMeta):
                 raise AbandonQuestionException(e)
 
             await q.append_answer(answer)
-            await q.response.delete()
+            await q.response.delete(silent=True)
 
             if converter:
                 try:
@@ -466,7 +467,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
 
                     if del_roles:
@@ -477,7 +478,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
 
                     if set_nickname:
@@ -488,7 +489,7 @@ class ProfileCreate(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except:
+                        except (discord.Forbidden, discord.HTTPException):
                             pass
                     members_approve += 1
                 await message.edit(

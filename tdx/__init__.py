@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.36.0"
+__version__ = "2020.37.0"
 __red_end_user_data_statement__ = """We use several terms in this document which could be considered ambiguous so I would like to clear these up:
  * the Website - any website hosted on the trainerdex.co.uk domain or any subdomains thereof
  * the Discord Bot - Our official bot instance, TrainerDex#8522, on Discord, or any third party instances that may or may not launch in the future.
@@ -43,15 +43,9 @@ It is within your right to request to be removed from TrainerDex or have your in
 To request removal or to be hidden from TrainerDex, email <jay@trainerdex.co.uk> or message TurnrDev#0117 on Discord.
 """
 
-from discord import Game
-from redbot.core import commands
 from redbot.core.bot import Red
-
 from .trainerdex import TrainerDex
 
 
 async def setup(bot: Red) -> None:
-    cog: commands.Cog = TrainerDex(bot)
-    await cog.initialize()
-    bot.add_cog(cog)
-    await bot.change_presence(activity=Game(name=__version__))
+    bot.add_cog(TrainerDex(bot))
