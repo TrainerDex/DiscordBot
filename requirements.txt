@@ -1,6 +1,6 @@
 discord-ext-alternatives==2020.7.30
 humanize
-PogoOCR==0.3.2.post0
+PogoOCR==0.3.2.post2
 python-dateutil
 git+https://github.com/Kowlin/Red-DiscordBot@pr/guild-i18n#egg=Red-DiscordBot
 trainerdex==3.5.0
