@@ -1,4 +1,4 @@
-discord-ext-alternatives==2020.7.30
+discord-ext-alternatives>=2020.5.20
 humanize
 PogoOCR==0.3.2.post2
 python-dateutil
