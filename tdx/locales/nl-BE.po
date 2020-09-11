@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-09-04 08:14+0000\n"
-"PO-Revision-Date: 2020-09-04 08:14\n"
+"POT-Creation-Date: 2020-09-11 08:14+0000\n"
+"PO-Revision-Date: 2020-09-11 08:14\n"
 "Last-Translator: \n"
 "Language-Team: Dutch, Belgium\n"
 "MIME-Version: 1.0\n"
@@ -41,7 +41,7 @@ msgstr "Geen geldig getal."
 msgid "Value too low."
 msgstr "Waarde te laag."
 
-#: tdx/create.py:115
+#: tdx/create.py:116
 #, docstring
 msgid "Get or create a profile in TrainerDex\n\n"
 "        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.\n\n"
@@ -54,120 +54,120 @@ msgstr "Verkrijg of creëer een profiel in TrainerDex\n\n"
 "        Het commando kan je een aantal vragen stellen. Om te verlaten, typ je `[p]cancel`.\n\n"
 "        "
 
-#: tdx/create.py:129
+#: tdx/create.py:130
 msgid "What is the in-game username of {user}?"
 msgstr "Wat is de in-game gebruikersnaam van {user}?"
 
-#: tdx/create.py:133
+#: tdx/create.py:134
 msgid "What team is {user} in?"
 msgstr "Van welk team maakt {user} deel uit?"
 
-#: tdx/create.py:137
+#: tdx/create.py:138
 msgid "What is {user}‘s Total XP?"
 msgstr "Wat is {user}'s Total XP?"
 
-#: tdx/create.py:153
+#: tdx/create.py:154
 msgid "Answer could not be determined. Abandoning!"
 msgstr "Er kon geen antwoord bepaald worden. Script wordt onderbroken!"
 
-#: tdx/create.py:156
+#: tdx/create.py:157
 msgid "Cancelled!"
 msgstr "Geanullueerd!"
 
-#: tdx/create.py:159
+#: tdx/create.py:160
 msgid "Let's go…"
 msgstr "Hier gaan we…"
 
-#: tdx/create.py:175
+#: tdx/create.py:176
 msgid "Adding roles ({roles}) to {user}"
 msgstr "Rollen ({roles}) toevoegen aan {user}"
 
-#: tdx/create.py:184 tdx/create.py:212 tdx/create.py:239 tdx/create.py:465
-#: tdx/create.py:476 tdx/create.py:487
+#: tdx/create.py:185 tdx/create.py:213 tdx/create.py:240 tdx/create.py:466
+#: tdx/create.py:477 tdx/create.py:488
 msgid "{mod} ran the command `{command}`"
 msgstr "{mod} gebruikte het commando `{command}`"
 
-#: tdx/create.py:193
+#: tdx/create.py:194
 msgid "Added roles ({roles}) to {user}"
 msgstr "Rollen ({roles}) toegevoegd aan {user}"
 
-#: tdx/create.py:203
+#: tdx/create.py:204
 msgid "Removing roles ({roles}) from {user}"
 msgstr "Rollen ({roles}) verwijderen van {user}"
 
-#: tdx/create.py:221
+#: tdx/create.py:222
 msgid "Removed roles ({roles}) from {user}"
 msgstr "Rollen ({roles}) verwijderd van {user}"
 
-#: tdx/create.py:231
+#: tdx/create.py:232
 msgid "Changing {user}‘s nick to {nickname}"
 msgstr "Gebruiker {user}'s nick veranderen naar {nickname}"
 
-#: tdx/create.py:248
+#: tdx/create.py:249
 msgid "Changed {user}‘s nick to {nickname}"
 msgstr "Gebruiker {user}'s nick veranderd naar {nickname}"
 
-#: tdx/create.py:256
+#: tdx/create.py:257
 msgid "{user} has been approved!\n"
 msgstr "{user} werd goedgekeurd!\n"
 
-#: tdx/create.py:263
+#: tdx/create.py:264
 msgid "{count} role(s) added.\n"
 msgstr "{count} rol(len) toevoegd.\n"
 
-#: tdx/create.py:268
+#: tdx/create.py:269
 msgid "Some roles could not be added. ({roles})\n"
 msgstr "Een aantal rollen kon niet worden toegevoegd. ({roles})\n"
 
-#: tdx/create.py:274
+#: tdx/create.py:275
 msgid "{count} role(s) removed.\n"
 msgstr "{count} rol(len) verwijderd.\n"
 
-#: tdx/create.py:279
+#: tdx/create.py:280
 msgid "Some roles could not be removed. ({roles})\n"
 msgstr "Een aantal rollen kon niet worden verwijderd. ({roles})\n"
 
-#: tdx/create.py:285
+#: tdx/create.py:286
 msgid "User nickname set.\n"
 msgstr "Nickname van gebruiker ingesteld.\n"
 
-#: tdx/create.py:288
+#: tdx/create.py:289
 msgid "User nickname could not be set. (`{nickname}`)\n"
 msgstr "Nickname van gebruiker kon niet worden ingesteld. (`{nickname}`)\n"
 
-#: tdx/create.py:302
+#: tdx/create.py:303
 msgid "Checking for user in database"
 msgstr "In database aan het zoeken naar gebruiker"
 
-#: tdx/create.py:320
+#: tdx/create.py:321
 msgid "An existing record was found for {user}. Updating details…"
 msgstr "Een bestaande record werd gevonden voor {user}. Details updaten…"
 
-#: tdx/create.py:338
+#: tdx/create.py:339
 msgid "Creating {user}"
 msgstr "{user} aan het aanmaken"
 
-#: tdx/create.py:344
+#: tdx/create.py:345
 msgid "Created {user}"
 msgstr "{user} aangemaakt"
 
-#: tdx/create.py:349
+#: tdx/create.py:350
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr "Total XP voor {user} instellen op {total_xp}."
 
-#: tdx/create.py:361
+#: tdx/create.py:362
 msgid "Won't set Total XP for {user}."
 msgstr "Total XP voor {user} wordt niet ingesteld."
 
-#: tdx/create.py:372 tdx/create.py:385
+#: tdx/create.py:373 tdx/create.py:386
 msgid "Successfully added {user} as {trainer}."
 msgstr "Succesvol {user} toegevoegd als {trainer}."
 
-#: tdx/create.py:374
+#: tdx/create.py:375
 msgid "Loading profile…"
 msgstr "Profiel aan het laden…"
 
-#: tdx/create.py:395
+#: tdx/create.py:396
 #, docstring
 msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them\n\n"
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
@@ -175,44 +175,44 @@ msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, 
 "        "
 msgstr ""
 
-#: tdx/embeds.py:105
+#: tdx/embeds.py:108
 msgid "{nickname} | TL{level}"
 msgstr "{nickname} | TL{level}"
 
-#: tdx/embeds.py:127 tdx/embeds.py:242
+#: tdx/embeds.py:131 tdx/embeds.py:246
 msgid "Team"
 msgstr "Team"
 
-#: tdx/embeds.py:133 tdx/embeds.py:258 tdx/embeds.py:274
+#: tdx/embeds.py:137 tdx/embeds.py:262 tdx/embeds.py:278
 msgid "Distance Walked"
 msgstr "Gewandelde afstand"
 
-#: tdx/embeds.py:139 tdx/embeds.py:282 tdx/embeds.py:303
+#: tdx/embeds.py:143 tdx/embeds.py:286 tdx/embeds.py:305
 msgid "Pokémon Caught"
 msgstr "Gevangen Pokémon"
 
-#: tdx/embeds.py:146 tdx/embeds.py:312 tdx/embeds.py:334
+#: tdx/embeds.py:150 tdx/embeds.py:314 tdx/embeds.py:334
 msgid "PokéStops Visited"
 msgstr "Bezochte Pokéstops"
 
-#: tdx/embeds.py:153 tdx/embeds.py:342 tdx/embeds.py:357
+#: tdx/embeds.py:157 tdx/embeds.py:342 tdx/embeds.py:357
 #: tdx/leaderboard.py:106
 msgid "Total XP"
 msgstr "Total XP"
 
-#: tdx/embeds.py:164 tdx/embeds.py:176
+#: tdx/embeds.py:168 tdx/embeds.py:180
 msgid "Leaderboard"
 msgstr "Klassement"
 
-#: tdx/embeds.py:230
+#: tdx/embeds.py:234
 msgid "No data old enough found, using start date."
 msgstr "Geen voldoende oude data gevonden, startdatum wordt gebruikt."
 
-#: tdx/embeds.py:247
+#: tdx/embeds.py:251
 msgid "Interval"
 msgstr "Tijdsstap"
 
-#: tdx/embeds.py:263 tdx/embeds.py:290 tdx/embeds.py:320 tdx/embeds.py:347
+#: tdx/embeds.py:267 tdx/embeds.py:294 tdx/embeds.py:322 tdx/embeds.py:347
 msgid "{gain}/day"
 msgstr "{gain}/dag"
 
@@ -242,19 +242,19 @@ msgid "Leaderboards\n\n"
 "        "
 msgstr ""
 
-#: tdx/leaderboard.py:123
+#: tdx/leaderboard.py:127
 msgid "{stat} Leaderboard"
 msgstr "{stat} Klassement"
 
-#: tdx/leaderboard.py:133
+#: tdx/leaderboard.py:137
 msgid "{tag} Downloading {leaderboard}…"
 msgstr "{tag} {leaderboard} aan het downloaden…"
 
-#: tdx/leaderboard.py:142
+#: tdx/leaderboard.py:146
 msgid "{tag} Filtering {leaderboard}…"
 msgstr "{tag} {leaderboard} aan het filteren…"
 
-#: tdx/leaderboard.py:149
+#: tdx/leaderboard.py:153
 msgid "No results to display!"
 msgstr "Geen resultaten om weer te geven!"
 
@@ -263,69 +263,69 @@ msgstr "Geen resultaten om weer te geven!"
 msgid "⬎ View, edit and create profiles. View Trainer Codes and more..."
 msgstr "⬎ Bekijk, bewerk en creëer profiel. Bekijk Trainer Codes en meer..."
 
-#: tdx/profile.py:76
+#: tdx/profile.py:78
 #, docstring
 msgid "Find a profile given a username."
 msgstr "Vind een profiel op basis van een gebruikersnaam."
 
-#: tdx/profile.py:79
+#: tdx/profile.py:81
 msgid "Searching for profile…"
 msgstr "Aan het zoeken naar profiel…"
 
-#: tdx/profile.py:90 tdx/profile.py:95 tdx/profile.py:98
+#: tdx/profile.py:92 tdx/profile.py:97 tdx/profile.py:100
 msgid "Found profile. Loading…"
 msgstr "Profiel gevonden. Aan het laden…"
 
-#: tdx/profile.py:93 tdx/trainerdex.py:209
+#: tdx/profile.py:95 tdx/trainerdex.py:214
 msgid "Sending in DMs"
 msgstr "Naar DM's aan het sturen"
 
-#: tdx/profile.py:100
+#: tdx/profile.py:102
 msgid "Profile deactivated or hidden."
 msgstr "Profiel gedeactiveerd of verborgen."
 
-#: tdx/profile.py:103
+#: tdx/profile.py:105
 msgid "Profile not found."
 msgstr "Profiel niet gevonden."
 
-#: tdx/profile.py:109
+#: tdx/profile.py:111
 msgid "Checking progress…"
 msgstr "Voortgang aan het controleren…"
 
-#: tdx/profile.py:111 tdx/trainerdex.py:230
+#: tdx/profile.py:113 tdx/trainerdex.py:238
 msgid "Loading leaderboards…"
 msgstr "Klassement aan het laden…"
 
-#: tdx/profile.py:132
+#: tdx/profile.py:134
 #, docstring
 msgid "Edit various aspects about your profile"
 msgstr "Bewerk diverse aspecten van je profiel"
 
-#: tdx/profile.py:151
+#: tdx/profile.py:153
 #, docstring
 msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
 msgstr ""
 
-#: tdx/profile.py:168 tdx/profile.py:209 tdx/settings.py:47 tdx/settings.py:60
-#: tdx/settings.py:73 tdx/settings.py:93 tdx/settings.py:129
-#: tdx/settings.py:151 tdx/settings.py:173 tdx/settings.py:239
-#: tdx/settings.py:259 tdx/settings.py:279 tdx/settings.py:299
-#: tdx/settings.py:325 tdx/settings.py:353 tdx/settings.py:376
-#: tdx/settings.py:392
+#: tdx/profile.py:170 tdx/profile.py:211 tdx/settings.py:48 tdx/settings.py:61
+#: tdx/settings.py:74 tdx/settings.py:94 tdx/settings.py:130
+#: tdx/settings.py:152 tdx/settings.py:174 tdx/settings.py:240
+#: tdx/settings.py:260 tdx/settings.py:280 tdx/settings.py:300
+#: tdx/settings.py:326 tdx/settings.py:354 tdx/settings.py:377
+#: tdx/settings.py:394
 msgid "`{key}` set to {value}"
 msgstr "`{key}` ingesteld als {value}"
 
-#: tdx/profile.py:174 tdx/profile.py:215 tdx/settings.py:136
-#: tdx/settings.py:158 tdx/settings.py:182 tdx/settings.py:246
-#: tdx/settings.py:266 tdx/settings.py:286 tdx/settings.py:306
-#: tdx/settings.py:332 tdx/settings.py:362 tdx/settings.py:381
-#: tdx/settings.py:398
+#: tdx/profile.py:176 tdx/profile.py:217 tdx/settings.py:137
+#: tdx/settings.py:159 tdx/settings.py:183 tdx/settings.py:247
+#: tdx/settings.py:267 tdx/settings.py:287 tdx/settings.py:307
+#: tdx/settings.py:333 tdx/settings.py:363 tdx/settings.py:383
+#: tdx/settings.py:400
 msgid "`{key}` is {value}"
 msgstr "`{key}` is {value}"
 
-#: tdx/profile.py:192
+#: tdx/profile.py:194
 #, docstring
 msgid "Set if you should appear in Leaderboards\n\n"
 "        Hide or show yourself on leaderboards at will!\n"
@@ -334,36 +334,36 @@ msgstr "Stel in of je in het klassement wil verschijnen\n\n"
 "        Verberg of toon jezelf in het klassement volgens eigen voorkeur!\n"
 "        "
 
-#: tdx/settings.py:36
+#: tdx/settings.py:37
 msgid "Looking for team roles..."
 msgstr "Zoeken naar team rollen..."
 
-#: tdx/settings.py:40
+#: tdx/settings.py:41
 msgid "Mystic"
 msgstr "Mystic"
 
-#: tdx/settings.py:53
+#: tdx/settings.py:54
 msgid "Valor"
 msgstr "Valor"
 
-#: tdx/settings.py:66
+#: tdx/settings.py:67
 msgid "Instinct"
 msgstr "Instinct"
 
-#: tdx/settings.py:77
+#: tdx/settings.py:78
 msgid "Looking for TL40 role..."
 msgstr "Zoeken naar rol voor Trainer Level 40..."
 
-#: tdx/settings.py:84
+#: tdx/settings.py:85
 msgid "Level 40"
 msgstr "Level 40"
 
-#: tdx/settings.py:105
+#: tdx/settings.py:106
 #, docstring
 msgid "⬎ Set server and/or channel settings"
 msgstr "⬎ Stel server en/of kanaal voorkeuren in"
 
-#: tdx/settings.py:121
+#: tdx/settings.py:122
 #, docstring
 msgid "Modify the roles of members when they're approved.\n\n"
 "        This is useful for granting users access to the rest of the server.\n"
@@ -372,7 +372,7 @@ msgstr "Pas de rollen aan van leden wanneer ze goedgekeurd worden.\n\n"
 "        Dit is nuttig om gebruikers toegang te geven tot de rest van de server.\n"
 "        "
 
-#: tdx/settings.py:143
+#: tdx/settings.py:144
 #, docstring
 msgid "Modify the nickname of members when they're approved.\n\n"
 "        This is useful for ensuring players can be easily identified.\n"
@@ -381,7 +381,7 @@ msgstr "Pas de nickname van gebruikers aan wanneer ze goedgekeurd worden.\n\n"
 "        Dit is nuttig om te verzekeren dat spelers eenvoudig herkend kunnen worden.\n"
 "        "
 
-#: tdx/settings.py:165
+#: tdx/settings.py:166
 #, docstring
 msgid "Modify the nickname of members when they update their Total XP.\n\n"
 "        This is useful for setting levels in their name.\n"
@@ -390,7 +390,7 @@ msgstr "Pas de nickname van leden aan wanneer ze hun Total XP updaten.\n\n"
 "        Dit is nuttig om levels in hun naam automatisch mee in te stellen.\n"
 "        "
 
-#: tdx/settings.py:192
+#: tdx/settings.py:193
 #, docstring
 msgid "Which roles to add/remove to a user on approval\n\n"
 "        Usage:\n"
@@ -407,7 +407,7 @@ msgstr "Welke rollen toe te voegen / te verwijderen aan een gebruiker bij goedke
 "                Verwijder deze rollen van gebruikers wanneer ze goedgekeurd worden\n"
 "        "
 
-#: tdx/settings.py:315
+#: tdx/settings.py:316
 #, docstring
 msgid "Send a note to a member upon running `profile create` (aka, `approve`)\n\n"
 "        Set value to `None` to empty it\n"
@@ -416,16 +416,16 @@ msgstr "Stuur een bericht naar een lid wanneer je `profile create` (ofte `approv
 "        Zet de waarde op  `None` om het leeg te maken\n"
 "        "
 
-#: tdx/settings.py:348
+#: tdx/settings.py:349
 #, docstring
 msgid "Set if this channel should accept OCR commands."
 msgstr "Stel in of dit kanaal OCR (tekstherkenning) commando's moet accepteren."
 
-#: tdx/trainerdex.py:143
+#: tdx/trainerdex.py:148
 msgid "That's a nice image you have there, let's see…"
 msgstr "Dat is een leuke afbeelding, even kijken…"
 
-#: tdx/trainerdex.py:161
+#: tdx/trainerdex.py:166
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
@@ -433,31 +433,55 @@ msgstr "{user}, we vonden volgende statistieken;\n"
 "{stats}\n"
 "Dit wordt nu even verwerkt…"
 
-#: tdx/trainerdex.py:173
+#: tdx/trainerdex.py:178
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Je hebt eerder al XP op een hogere waarde gezet dan je nu probeert in te stellen. Deze is momenteel ingesteld op {xp}."
 
-#: tdx/trainerdex.py:187
+#: tdx/trainerdex.py:192
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Je hebt je XP al op dit cijfer ingesteld. In de toekomst, om de resultaten te herbekijken, gebruik het 'progress' commando, gezien de tekstherkenning op de afbeeldingen kosten voor ons met zich meebrengt."
 
-#: tdx/trainerdex.py:210 tdx/trainerdex.py:214 tdx/trainerdex.py:222
+#: tdx/trainerdex.py:215 tdx/trainerdex.py:219 tdx/trainerdex.py:230
 msgid "Loading output…"
 msgstr "Uitvoer aan het laden…"
 
-#: tdx/trainerdex.py:243
+#: tdx/trainerdex.py:251
 msgid "I could not find Total XP in your image. "
 msgstr "Ik kon geen Total XP in je afbeelding vinden. "
 
-#: tdx/trainerdex.py:246
+#: tdx/trainerdex.py:254
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr "We gebruiken de Google Vision API om je afbeeldingen te lezen. Zorg er alstublieft voor dat het veld 'Total XP' zichtbaar is. Als het zichtbaar is, en je afbeelding wordt na een minuut nog altijd niet gescand, probeer dan een nieuwe afbeelding. Dezelfde afbeelding opnieuw posten, zal hoogstwaarschijnlijk een nieuwe mislukking opleveren."
 
-#: tdx/utils.py:21
+#: tdx/trainerdex.py:280
+msgid "Message {message.id} failed because the cog is disabled in the guild"
+msgstr ""
+
+#: tdx/trainerdex.py:288
+msgid "Message {message.id} failed because there is no file attached."
+msgstr ""
+
+#: tdx/trainerdex.py:296
+msgid "Message {message.id} failed because there more than file attached."
+msgstr ""
+
+#: tdx/trainerdex.py:305
+msgid "Message {message.id} failed because that channel is not enabled for OCR"
+msgstr ""
+
+#: tdx/trainerdex.py:315
+msgid "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
+msgstr ""
+
+#: tdx/trainerdex.py:328
+msgid "Message {message.id} failed because for an unknown reason"
+msgstr ""
+
+#: tdx/utils.py:22
 msgid "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
 msgstr "Als dat er niet juist uit ziet, gelieve ons dan te contacteren op Twitter. {twitter_handle}"
 
-#: tdx/utils.py:67
+#: tdx/utils.py:65
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
 "This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.\n\n"
 "TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:\n"
@@ -466,19 +490,19 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
 msgstr ""
 
-#: tdx/utils.py:80
+#: tdx/utils.py:78
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
 "    `{p}profile edit visible false`"
 msgstr "Je profiel is momenteel zichtbaar. Om je data te verbergen voor andere gebruikers, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible false`"
 
-#: tdx/utils.py:84
+#: tdx/utils.py:82
 msgid "Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:\n"
 "    `{p}profile edit visible true`"
 msgstr "Je profiel is momenteel niet zichtbaar. Om toe te staan dat je data gebruikt wordt, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible true`"
 
-#: tdx/utils.py:100
+#: tdx/utils.py:98
 msgid "Additionally, you have a message from `{server.name}`:\n"
 "{note}"
 msgstr "Aanvullend heb je een bericht van `{server.name}`:\n"
