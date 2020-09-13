@@ -12,7 +12,7 @@ TrainerDex cog for Red-DiscordBot 3
 __author__ = "TurnrDev"
 __licence__ = "GNU-GPL"
 __copyright__ = "Copyright 2020 TrainerDex/TurnrDev"
-__version__ = "2020.37.0.post2"
+__version__ = "2020.37.1"
 __red_end_user_data_statement__ = """We use several terms in this document which could be considered ambiguous so I would like to clear these up:
  * the Website - any website hosted on the trainerdex.co.uk domain or any subdomains thereof
  * the Discord Bot - Our official bot instance, TrainerDex#8522, on Discord, or any third party instances that may or may not launch in the future.

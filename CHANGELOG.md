@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2020.37.1] - 2020-09-13
+### Fixed
+- Fixed message deletions
+- Renamed a couple commands
+
 ## [2020.37.0] - 2020-09-11
 ### Added
 - Added Command to debug OCR functions (addeb7a741f8839505d5c410b6f00e0d4bf4f04c)
@@ -129,7 +134,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.0...HEAD
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.1...HEAD
+[2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.0...v2020.37.1
 [2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.36.1...v2020.37.0
 [2020.36.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.36.0...v2020.36.1
 [2020.36.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.35.1...v2020.36.0
