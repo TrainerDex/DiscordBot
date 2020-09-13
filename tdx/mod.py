@@ -1,5 +1,7 @@
+import json
 import logging
-from typing import Callable, Optional, Union
+import os
+from typing import Final, Callable, Optional
 
 import discord
 from discord.ext.alternatives import silent_delete
@@ -8,63 +10,27 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf, predicates
 
 import trainerdex as client
+import PogoOCR
 from . import converters
 from .abc import MixinMeta
 from .profile import Profile
 from .embeds import ProfileCard
-from .utils import check_xp, introduction_notes, loading, success, quote
+from .utils import (
+    AbandonQuestionException,
+    check_xp,
+    introduction_notes,
+    loading,
+    NoAnswerProvidedException,
+    Question,
+    success,
+)
 
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
-
-AbandonQuestionException = Exception
-NoAnswerProvidedException = Exception
+POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
-class Question:
-    def __init__(
-        self,
-        ctx: commands.Context,
-        question: str,
-        message: Optional[discord.Message] = None,
-        predicate: Optional[Callable] = None,
-    ) -> None:
-        self._ctx: commands.Context = ctx
-        self.question: str = question
-        self.message: discord.Message = message
-        self.predicate: Callable = predicate or predicates.MessagePredicate.same_context(self._ctx)
-        self.response: discord.Message = None
-
-    async def ask(self) -> Union[str, None]:
-        if self.message:
-            await self.message.edit(
-                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
-            )
-        else:
-            self.message = await self._ctx.send(
-                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
-            )
-        self.response = await self._ctx.bot.wait_for("message", check=self.predicate)
-        if self.response.content.lower() == f"{self._ctx.prefix}cancel":
-            # TODO: Make an actual exception class
-            raise AbandonQuestionException
-        else:
-            return self.answer
-
-    async def append_answer(self, answer: Optional[str] = None) -> None:
-        content = "{q}\n{a}".format(
-            q=self.question, a=quote(str(answer) if answer is not None else self.answer)
-        )
-        await self.message.edit(content=content)
-
-    @property
-    def answer(self) -> Union[str, None]:
-        if self.response:
-            return self.response.content
-        return None
-
-
-class ProfileCreate(MixinMeta):
+class ModCmds(MixinMeta):
     profile = Profile.profile
 
     async def ask_question(
@@ -390,7 +356,114 @@ class ProfileCreate(MixinMeta):
             embed=embed,
         )
 
-    @commands.command(name="auto-role")
+    @commands.group(name="tdxmod", case_insensitive=True)
+    async def tdxmod(self, ctx: commands.Context) -> None:
+        """⬎ TrainerDex-specific Moderation Commands"""
+        pass
+
+    @tdxmod.command(name="debug")
+    @checks.mod()
+    async def tdxmod__debug(self, ctx: commands.Context, message: discord.Message) -> None:
+        """Returns a reason why OCR would have failed"""
+        octx = await self.bot.get_context(message)
+        async with ctx.channel.typing():
+            if await self.bot.cog_disabled_in_guild(self, octx.guild):
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because the cog is disabled in the guild"
+                    ).format(message)
+                )
+                return
+
+            if len(octx.message.attachments) == 0:
+                await ctx.send(
+                    _("Message {message.id} failed because there is no file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            if len(octx.message.attachments) > 1:
+                await ctx.send(
+                    _("Message {message.id} failed because there more than file attached.").format(
+                        message=message
+                    )
+                )
+                return
+
+            profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
+            if not profile_ocr:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because that channel is not enabled for OCR"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                await converters.TrainerConverter().convert(octx, octx.author, cli=self.client)
+            except discord.ext.commands.errors.BadArgument:
+                await ctx.send(
+                    _(
+                        "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
+                    ).format(message=message)
+                )
+                return
+
+            try:
+                ocr = PogoOCR.ProfileSelf(
+                    POGOOCR_TOKEN_PATH, image_uri=octx.message.attachments[0].proxy_url
+                )
+                ocr.get_text()
+            except Exception as e:
+                n = await ctx.send(
+                    _("Message {message.id} failed because for an unknown reason").format(
+                        message=message
+                    )
+                )
+                await ctx.send(cf.box(e))
+                msg = str(ocr.text_found[0].description)
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await n.edit(
+                        file=cf.text_to_file(msg, filename=f"full_debug_{message.id}.txt")
+                    )
+                return
+            else:
+                msg = str(ocr.text_found[0].description)
+                data_found = {
+                    "locale": ocr.locale,
+                    "number_locale": ocr.number_locale,
+                    "username": ocr.username,
+                    "buddy_name": ocr.buddy_name,
+                    "travel_km": ocr.travel_km,
+                    "capture_total": ocr.capture_total,
+                    "pokestops_visited": ocr.pokestops_visited,
+                    "total_xp": ocr.total_xp,
+                    "start_date": ocr.start_date,
+                }
+                if len(msg) <= 1994:
+                    await ctx.send(cf.box(msg))
+                else:
+                    await ctx.send(file=cf.text_to_file(msg, filename=f"debug_{message.id}.txt"))
+
+                try:
+                    df = json.dumps(data_found, default=repr)
+                except (TypeError, OverflowError, TypeError):
+                    df = data_found
+                if len(cf.box(df, lang=("json" if isinstance(df, str) else "py"))) <= 2000:
+                    await ctx.send(cf.box(df, lang=("json" if isinstance(df, str) else "py")))
+                else:
+                    await ctx.send(file=cf.text_to_file(df, filename=f"debug_{message.id}.json"))
+                return
+
+    @tdxmod.group(name="trainer", case_insensitive=True)
+    async def tdxmod__trainer(self, ctx: commands.Context) -> None:
+        """⬎ View, Edit, or Create Trainer Profiles"""
+        pass
+
+    @tdxmod__trainer.command(name="auto-role")
     @checks.mod_or_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context) -> None:
         """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
