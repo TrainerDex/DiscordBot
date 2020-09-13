@@ -1,4 +1,4 @@
-git+https://github.com/TurnrDev/discord-ext-alternatives@5patch-1#egg=discord-ext-alternatives
+git+https://github.com/TurnrDev/discord-ext-alternatives@patch-1#egg=discord-ext-alternatives
 humanize
 PogoOCR==0.3.2.post2
 python-dateutil
