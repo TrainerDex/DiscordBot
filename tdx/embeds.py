@@ -1,5 +1,6 @@
 import datetime
 import logging
+from decimal import Decimal
 from typing import Dict, List, Union
 
 import discord
@@ -238,7 +239,7 @@ class ProfileCard(BaseCard):
                 self.description = data_inacuracy_notice
 
         time_delta = this_update.update_time - last_update.update_time
-        days: int = max(round(time_delta.total_seconds() / 86400), 1)
+        days: float = max((time_delta.total_seconds() / 86400), 1)
 
         self.clear_fields()
 
@@ -249,10 +250,10 @@ class ProfileCard(BaseCard):
 
         self.add_field(
             name=append_icon(icon=self.emoji.get("date"), text=_("Interval")),
-            value="{then} ⇒ {now} (+{delta})".format(
+            value="{then} ⇒ {now} (+{days} days)".format(
                 then=humanize.naturaldate(last_update.update_time),
                 now=humanize.naturaldate(this_update.update_time),
-                delta=humanize.naturaldelta(time_delta),
+                days=cf.humanize_number(days),
             ),
             inline=False,
         )
@@ -266,7 +267,7 @@ class ProfileCard(BaseCard):
                         delta=cf.humanize_number(this_update.travel_km - last_update.travel_km),
                         daily_gain=_("{gain}/day").format(
                             gain=cf.humanize_number(
-                                (this_update.travel_km - last_update.travel_km) / days
+                                (this_update.travel_km - last_update.travel_km) / Decimal(days)
                             )
                             + "km"
                         ),
