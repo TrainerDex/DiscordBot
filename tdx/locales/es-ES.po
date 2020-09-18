@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-09-11 23:40+0000\n"
-"PO-Revision-Date: 2020-09-11 23:40\n"
+"PO-Revision-Date: 2020-09-18 08:14\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -106,7 +106,24 @@ msgid "Leaderboards\n\n"
 "            `[p]leaderboard 15 24`\n"
 "            Shows the server leaderboard, post-filtered to only show players between level 15 and 24 (inclusive)\n"
 "        "
-msgstr ""
+msgstr "Tabla de Clasificación\n\n"
+"        Parámetros:\n"
+"            `leaderboard`: str\n"
+"                opciones son `guild` (or `server`) y `global`\n"
+"            `filters`: Union[Team, Level]\n"
+"                Si mencionas algún equipo, filtraré eso. Puedes mencionar más de un equipo.\n"
+"                Si mencionas un nivel, mostraré ese nivel y todos los siguientes.\n"
+"                Si mencionas más de un nivel, mostraré todos entre el nivel más bajo y el más alto.\n\n"
+"        Ejemplo:\n"
+"            `[p]leaderboard`\n"
+"              Muestra la tabla de clasificación del servidor, a menos que estés en Mensaje Directo.\n\n"
+"            `[p]leaderboard global`\n"
+"            Muestra la tabla mundial.\n\n"
+"            `[p]leaderboard valor mystic 24`\n"
+"            Muestra la tabla de clasificación del servidor, filtrada para  jugadores del equipo Sabiduría menores o iguales al nivel 24\n"
+"            `[p]leaderboard 15 24`\n"
+"            Muestra la tabla de clasificación del servidor, filtrada para mostrar solo a los jugadores entre el nivel 15 y 24 (inclusive)\n"
+"        "
 
 #: tdx/leaderboard.py:127
 msgid "{stat} Leaderboard"
@@ -253,12 +270,12 @@ msgstr "Cargando perfil…"
 #: tdx/mod.py:361
 #, docstring
 msgid "⬎ TrainerDex-specific Moderation Commands"
-msgstr ""
+msgstr "⬎ TrainerDex-específico Comandos de Moderación"
 
 #: tdx/mod.py:367
 #, docstring
 msgid "Returns a reason why OCR would have failed"
-msgstr ""
+msgstr "Devuelve una razón por la que OCR habría fallado"
 
 #: tdx/mod.py:372
 msgid "Message {message.id} failed because the cog is disabled in the guild"
@@ -287,7 +304,7 @@ msgstr "El mensaje {message.id} falló por una razón desconocida"
 #: tdx/mod.py:463
 #, docstring
 msgid "⬎ View, Edit, or Create Trainer Profiles"
-msgstr ""
+msgstr "Ver, editar o crear perfiles de entrenador"
 
 #: tdx/mod.py:469
 #, docstring
@@ -295,7 +312,10 @@ msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, 
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
 "        It can really mess with roles on a mass scale.\n"
 "        "
-msgstr ""
+msgstr "EXPERIMENTAL: Comprueba los usuarios existentes que no tienen los roles correctos, y los aplica\n\n"
+"        Advertencia: Este comando es lento y experimental. No se recomienda ejecutarlo sin comprobar primero su configuración en roles_to_assign_on_approvation.\n"
+"        Realmente puede alterar los roles a gran escala.\n"
+"        "
 
 #: tdx/profile.py:36
 #, docstring
@@ -345,7 +365,9 @@ msgstr "Editar varios aspectos de tu perfil"
 msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
-msgstr ""
+msgstr "Establece la fecha de inicio de tu perfil\n\n"
+"        Esta es la fecha en la que comenzaste a jugar Pokemon Go y está por debajo del Total de Experiencia\n"
+"        "
 
 #: tdx/profile.py:170 tdx/profile.py:211 tdx/settings.py:48 tdx/settings.py:61
 #: tdx/settings.py:74 tdx/settings.py:94 tdx/settings.py:130
@@ -503,7 +525,11 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "<{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
-msgstr ""
+msgstr "**Estás recibiendo este mensaje porque has sido añadido a la base de datos de TrainerDex. *\n\n"
+"Esto sería en respuesta a que te unas a `{server.name}` y publicas tus capturas de pantalla para que un mod te pueda aprobar.\n\n"
+"TrainerDex es una base de datos de entrenadores y tablero de Pokemon Go. Vea nuestra política de privacidad aquí: <{privacy_policy_url}>\n\n"
+"{is_visible_note}\n\n"
+"Si tienes alguna pregunta, por favor contáctenos en Twitter (<{twitter_handle}>), pregunta al mod que te aprobó ({mod.mention}), o visita el soporte de TrainerDex Discord (<{invite_url}>)\n"
 
 #: tdx/utils.py:78
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"

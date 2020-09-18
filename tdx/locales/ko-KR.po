@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-09-11 23:40+0000\n"
-"PO-Revision-Date: 2020-09-11 23:40\n"
+"PO-Revision-Date: 2020-09-17 10:49\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "MIME-Version: 1.0\n"
@@ -68,7 +68,7 @@ msgstr "Total XP"
 
 #: tdx/embeds.py:168 tdx/embeds.py:180
 msgid "Leaderboard"
-msgstr "리더 보드"
+msgstr ""
 
 #: tdx/embeds.py:234
 msgid "No data old enough found, using start date."
