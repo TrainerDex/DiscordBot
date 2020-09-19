@@ -53,7 +53,7 @@ class LeaderboardPages(menus.AsyncIteratorPageSource):
             ),
             icon_url=emb.footer.icon_url,
         )
-        return {"embed": emb, "content": None}
+        return {"embed": emb}
 
 
 class Leaderboard(MixinMeta):
@@ -106,6 +106,7 @@ class Leaderboard(MixinMeta):
         """
 
         leaderboard = leaderboard if ctx.guild else "global"
+        is_guild = True if leaderboard == "guild" else False
 
         # Convert stat_name for API
         stat = {
@@ -159,6 +160,17 @@ class Leaderboard(MixinMeta):
         leaderboard = await self.client.get_leaderboard(
             stat=stat, guild=ctx.guild if leaderboard in ("guild", "server") else None
         )
+        if is_guild:
+            emb.description = _(
+                """Average {stat_name}: {stat_avg}
+                Trainers: {stat_count}
+                Sum of all Trainers: {stat_sum}"""
+            ).format(
+                stat_name=stat_name.get(stat, stat),
+                stat_avg=cf.humanize_number(leaderboard.avg),
+                stat_count=cf.humanize_number(leaderboard.count),
+                stat_sum=cf.humanize_number(leaderboard.sum),
+            )
 
         await message.edit(
             content=loading(_("{tag} Filtering {leaderboard}…")).format(
@@ -176,5 +188,6 @@ class Leaderboard(MixinMeta):
             menu = menus.MenuPages(
                 source=embeds, timeout=300.0, message=message, clear_reactions_after=True
             )
+            await message.edit(content=ctx.author.mention)
             await menu.show_page(0)
             await menu.start(ctx)
