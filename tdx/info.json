@@ -10,6 +10,6 @@
     "humanize",
     "PogoOCR==0.3.2.post2",
     "python-dateutil",
-    "trainerdex==3.6.0"
+    "trainerdex==3.6.1"
   ]
 }
