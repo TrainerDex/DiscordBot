@@ -127,11 +127,6 @@ class ProfileCard(BaseCard):
             else:
                 self.description = trainer_code_text
 
-        self.add_field(
-            name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
-            value=self.trainer.team.verbose_name,
-        )
-
         if self.latest_update.travel_km:
             self.add_field(
                 name=append_icon(icon=self.emoji.get("travel_km"), text=_("Distance Walked")),
@@ -160,26 +155,54 @@ class ProfileCard(BaseCard):
             )
 
     async def add_guild_leaderboard(self, guild: discord.Guild) -> None:
-        leaderboard = await self.client.get_leaderboard(guild=guild)
-        entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
-        if entry:
+        entries = []
+        stats = [
+            "badge_travel_km",
+            "badge_capture_total",
+            "badge_pokestops_visited",
+            "total_xp",
+        ]
+        for stat in stats:
+            leaderboard = await self.client.get_leaderboard(stat=stat, guild=guild)
+            entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+            if entry:
+                entries.append(
+                    append_icon(
+                        self.emoji.get(stat),
+                        "{:,} / {:,}".format(entry.position, len(leaderboard)),
+                    )
+                )
+            del leaderboard
+            del entry
+
+        if entries:
             self.insert_field_at(
                 index=0,
-                name=append_icon(icon=self.emoji.get("total_xp"), text=_("Leaderboard")),
-                value="{:,}/{:,}".format(entry.position, len(leaderboard)),
+                name=_("{guild.name} Leaderboard (All)").format(guild=guild),
+                value="\n".join(entries),
             )
 
     async def add_leaderboard(self) -> None:
-        leaderboard = await self.client.get_leaderboard()
-        entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
-        if entry:
+        entries = []
+        stats = [
+            "badge_travel_km",
+            "badge_capture_total",
+            "badge_pokestops_visited",
+            "total_xp",
+        ]
+        for stat in stats:
+            leaderboard = await self.client.get_leaderboard(stat=stat)
+            entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+            if entry:
+                entries.append(append_icon(self.emoji.get(stat), f"{entry.position:,}"))
+            del leaderboard
+            del entry
+
+        if entries:
             self.insert_field_at(
                 index=0,
-                name=append_icon(
-                    icon=self.emoji.get("global"),
-                    text=append_icon(icon=self.emoji.get("total_xp"), text=_("Leaderboard")),
-                ),
-                value="{:,}/{:,}+".format(entry.position, 9000),
+                name=append_icon(self.emoji.get("global"), _("Leaderboard (Top 1000)")),
+                value="\n".join(entries),
             )
 
     async def show_progress(self) -> None:
@@ -241,11 +264,6 @@ class ProfileCard(BaseCard):
         days: int = max(round(time_delta.total_seconds() / 86400), 1)
 
         self.clear_fields()
-
-        self.add_field(
-            name=append_icon(icon=self.emoji.get("gym"), text=_("Team")),
-            value=self.trainer.team.verbose_name,
-        )
 
         self.add_field(
             name=append_icon(icon=self.emoji.get("date"), text=_("Interval")),
