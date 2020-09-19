@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-09-11 23:40+0000\n"
-"PO-Revision-Date: 2020-09-11 23:40\n"
+"PO-Revision-Date: 2020-09-17 10:49\n"
 "Last-Translator: \n"
 "Language-Team: Dutch, Belgium\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: tdx/converters.py:57
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
-msgstr ""
+msgstr "{} is geen geldige Pokémon Go gebruikersnaam. Een Pokémon Go gebruikersnaam is 3-15 letters of cijfers lang."
 
 #: tdx/converters.py:103
 msgid "Trainer `{}` not found"
@@ -27,7 +27,7 @@ msgstr "Trainer `{}` niet gevonden"
 
 #: tdx/converters.py:132
 msgid "Team `{}` not found"
-msgstr ""
+msgstr "Team `{}` niet gevonden"
 
 #: tdx/converters.py:142
 msgid "Not a valid level. Please choose between 1-40"
@@ -106,7 +106,24 @@ msgid "Leaderboards\n\n"
 "            `[p]leaderboard 15 24`\n"
 "            Shows the server leaderboard, post-filtered to only show players between level 15 and 24 (inclusive)\n"
 "        "
-msgstr ""
+msgstr "Klassementen\n\n"
+"        Parameters:\n"
+"            `leaderboard`: tekst-argument.\n"
+"                opties zijn `guild` (of `server`) en `global` (wereldwijd)\n"
+"            `filters`: Combinatie van team en/of level\n"
+"                Als je een team vermeldt, zal daarop gefilterd worden. Je kan meer dan één team vermelden.\n"
+"                Als je een level vermeldt, zal het iedereen tonen op dat level en lager.\n"
+"                Als je meer dan één level vermeldt, zal  iedereen getoond worden tussen het laagste en hoogste level dat je vermeldt.\n\n"
+"        Voorbeeld:\n"
+"            `[p]leaderboard`\n"
+"            Toont het klassement voor de server, tenzij je in DM chat met de bot.\n\n"
+"            `[p]leaderboard global`\n"
+"            Toont het wereldwijde klassement\n\n"
+"            `[p]leaderboard valor mystic 24`\n"
+"            Toont het klassement voor de server, gefilterd om enkel mystic en valor spelers weer te geven, level 24 of lager\n\n"
+"            `[p]leaderboard 15 24`\n"
+"            Toont het klassement, gefilterd om enkel spelers van level 15 tot en met 24 weer te geven\n"
+"        "
 
 #: tdx/leaderboard.py:127
 msgid "{stat} Leaderboard"
@@ -345,7 +362,9 @@ msgstr "Bewerk diverse aspecten van je profiel"
 msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
-msgstr ""
+msgstr "Zet de startdatum op je profiel\n\n"
+"        Dit is de dag waarop je Pokémon Go begon te spelen, en staat vlak onder je 'Total XP'\n"
+"        "
 
 #: tdx/profile.py:170 tdx/profile.py:211 tdx/settings.py:48 tdx/settings.py:61
 #: tdx/settings.py:74 tdx/settings.py:94 tdx/settings.py:130
@@ -503,7 +522,12 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "<{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
-msgstr ""
+msgstr "**Je krijgt dit bericht omdat je toevoegd werd aan de TrainerDex database.**\n\n"
+"Dit is wellicht het gevolg van het vervoegen van `{server.name}` en je screenshots te posten voor een moderator ter goedkeuring.\n\n"
+"TrainerDex is een Pokémon Go trainer databank en klassement. Ons privacy beleid kan je er hier op nalezen:\n"
+"<{privacy_policy_url}>\n\n"
+"{is_visible_note}\n\n"
+"Als je vragen hebt, gelieve ons te contacteren op Twitter (<{twitter_handle}>), stel ze aan de moderator die je toegelaten heeft ({mod.mention}), of bezoek de TrainerDex Support Discord (<{invite_url}>)\n"
 
 #: tdx/utils.py:78
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
