@@ -178,7 +178,7 @@ class ProfileCard(BaseCard):
         if entries:
             self.insert_field_at(
                 index=0,
-                name=_("{guild.name} Leaderboard").format(guild=guild),
+                name=_("{guild.name} Leaderboard (All)").format(guild=guild),
                 value="\n".join(entries),
             )
 
@@ -201,7 +201,7 @@ class ProfileCard(BaseCard):
         if entries:
             self.insert_field_at(
                 index=0,
-                name=append_icon(self.emoji.get("global"), _("Leaderboard")),
+                name=append_icon(self.emoji.get("global"), _("Leaderboard (Top 1000)")),
                 value="\n".join(entries),
             )
 
