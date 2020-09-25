@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-09-11 23:40+0000\n"
-"PO-Revision-Date: 2020-09-17 10:49\n"
+"POT-Creation-Date: 2020-09-25 08:14+0000\n"
+"PO-Revision-Date: 2020-09-25 08:15\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -45,53 +45,58 @@ msgstr ""
 msgid "{nickname} | TL{level}"
 msgstr "{nickname} | Niveau {level}"
 
-#: tdx/embeds.py:131 tdx/embeds.py:246
-msgid "Team"
-msgstr "Équipe"
-
-#: tdx/embeds.py:137 tdx/embeds.py:262 tdx/embeds.py:278
+#: tdx/embeds.py:132 tdx/embeds.py:280 tdx/embeds.py:296
+#: tdx/leaderboard.py:120
 msgid "Distance Walked"
 msgstr "Distance marchée"
 
-#: tdx/embeds.py:143 tdx/embeds.py:286 tdx/embeds.py:305
+#: tdx/embeds.py:138 tdx/embeds.py:304 tdx/embeds.py:323
+#: tdx/leaderboard.py:121
 msgid "Pokémon Caught"
 msgstr "Pokémon attrapé"
 
-#: tdx/embeds.py:150 tdx/embeds.py:314 tdx/embeds.py:334
+#: tdx/embeds.py:145 tdx/embeds.py:332 tdx/embeds.py:352
+#: tdx/leaderboard.py:122
 msgid "PokéStops Visited"
 msgstr "PokéStops visités"
 
-#: tdx/embeds.py:157 tdx/embeds.py:342 tdx/embeds.py:357
-#: tdx/leaderboard.py:106
+#: tdx/embeds.py:152 tdx/embeds.py:360 tdx/embeds.py:375
+#: tdx/leaderboard.py:123
 msgid "Total XP"
 msgstr "Total de PX"
 
-#: tdx/embeds.py:168 tdx/embeds.py:180
-msgid "Leaderboard"
-msgstr "Classement"
+#: tdx/embeds.py:181
+msgid "{guild.name} Leaderboard (All)"
+msgstr ""
 
-#: tdx/embeds.py:234
+#: tdx/embeds.py:204
+msgid "Leaderboard (Top 1000)"
+msgstr ""
+
+#: tdx/embeds.py:257
 msgid "No data old enough found, using start date."
 msgstr "Aucune donnée suffisamment ancienne trouvée en utilisant la date de début."
 
-#: tdx/embeds.py:251
+#: tdx/embeds.py:269
 msgid "Interval"
 msgstr "Intervalle"
 
-#: tdx/embeds.py:267 tdx/embeds.py:294 tdx/embeds.py:322 tdx/embeds.py:347
+#: tdx/embeds.py:285 tdx/embeds.py:312 tdx/embeds.py:340 tdx/embeds.py:365
 msgid "{gain}/day"
 msgstr "{gain}/jour"
 
-#: tdx/leaderboard.py:51
+#: tdx/leaderboard.py:49
 msgid "Page {page} of {pages} | {footer}"
 msgstr "Page {page} de {pages} | {footer}"
 
-#: tdx/leaderboard.py:81
+#: tdx/leaderboard.py:82
 #, docstring
 msgid "Leaderboards\n\n"
 "        Parameters:\n"
-"            `leaderboard`: str\n"
+"            `leaderboard`: text\n"
 "                options are `guild` (or `server`) and `global`\n"
+"            `stat`: text\n"
+"                options are `travel_km`, `capture_total`, `pokestops_visited`, `total_xp`\n"
 "            `filters`: Union[Team, Level]\n"
 "                If you mention any team, it'll filter to that. You can mention more than one team.\n"
 "                If you mention one level, it'll show that level and all below.\n"
@@ -100,7 +105,7 @@ msgid "Leaderboards\n\n"
 "            `[p]leaderboard`\n"
 "            Shows the server leaderboard, unless you're in DMs.\n\n"
 "            `[p]leaderboard global`\n"
-"            Shows the global leaderboard\n\n"
+"            Shows the global leaderboard, limited to the top 1000\n\n"
 "            `[p]leaderboard valor mystic 24`\n"
 "            Shows the server leaderboard, post-filtered to only show valor and mystic players under or equal to level 24\n\n"
 "            `[p]leaderboard 15 24`\n"
@@ -108,19 +113,25 @@ msgid "Leaderboards\n\n"
 "        "
 msgstr ""
 
-#: tdx/leaderboard.py:127
+#: tdx/leaderboard.py:146
 msgid "{stat} Leaderboard"
 msgstr "Classement {stat}"
 
-#: tdx/leaderboard.py:137
+#: tdx/leaderboard.py:156
 msgid "{tag} Downloading {leaderboard}…"
 msgstr "{tag} Téléchargement {leaderboard}…"
 
-#: tdx/leaderboard.py:146
+#: tdx/leaderboard.py:164
+msgid "Average {stat_name}: {stat_avg}\n"
+"                Trainers: {stat_count}\n"
+"                Sum of all Trainers: {stat_sum}"
+msgstr ""
+
+#: tdx/leaderboard.py:176
 msgid "{tag} Filtering {leaderboard}…"
 msgstr "{tag} Filtrage {leaderboard}…"
 
-#: tdx/leaderboard.py:153
+#: tdx/leaderboard.py:183
 msgid "No results to display!"
 msgstr ""
 
@@ -319,7 +330,7 @@ msgstr "Recherche du profil…"
 msgid "Found profile. Loading…"
 msgstr "Profil trouvé. Chargement…"
 
-#: tdx/profile.py:95 tdx/trainerdex.py:213
+#: tdx/profile.py:95 tdx/trainerdex.py:216
 msgid "Sending in DMs"
 msgstr ""
 
@@ -335,7 +346,7 @@ msgstr "Profil non trouvé."
 msgid "Checking progress…"
 msgstr "Vérification de l'avancement…"
 
-#: tdx/profile.py:113 tdx/trainerdex.py:237
+#: tdx/profile.py:113 tdx/trainerdex.py:240
 msgid "Loading leaderboards…"
 msgstr ""
 
@@ -455,33 +466,33 @@ msgstr ""
 msgid "Set if this channel should accept OCR commands."
 msgstr "Défini si ce canal accepte les commandes OCR."
 
-#: tdx/trainerdex.py:147
+#: tdx/trainerdex.py:150
 msgid "That's a nice image you have there, let's see…"
 msgstr "C'est une belle image que nous avons là, voyons voir…"
 
-#: tdx/trainerdex.py:165
+#: tdx/trainerdex.py:168
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
 msgstr ""
 
-#: tdx/trainerdex.py:177
+#: tdx/trainerdex.py:180
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Vous avez précédemment défini votre XP à une valeur plus haute que celle donnée actuellement. Votre XP est actuellement de {xp}."
 
-#: tdx/trainerdex.py:191
+#: tdx/trainerdex.py:194
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Vous avez déjà défini votre XP sur cette valeur. La prochaine fois, pour voir de nouveau le récapitulatif, veuillez exécuter la commande `progress` car nous payons le système de reconnaissance d'image (OCR)."
 
-#: tdx/trainerdex.py:214 tdx/trainerdex.py:218 tdx/trainerdex.py:229
+#: tdx/trainerdex.py:217 tdx/trainerdex.py:221 tdx/trainerdex.py:232
 msgid "Loading output…"
 msgstr "Chargement du récapitulatif…"
 
-#: tdx/trainerdex.py:250
+#: tdx/trainerdex.py:253
 msgid "I could not find Total XP in your image. "
 msgstr "Je n'ai pas pu trouver Total de PX dans votre image. "
 
-#: tdx/trainerdex.py:253
+#: tdx/trainerdex.py:256
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr ""
 
