@@ -443,7 +443,7 @@ class ModCmds(MixinMeta):
                 msg = str(ocr.text_found[0].description)
                 data_found = {
                     "locale": ocr.locale,
-                    "number_locale": ocr.number_locale,
+                    "numeric_locale": ocr.numeric_locale,
                     "username": ocr.username,
                     "buddy_name": ocr.buddy_name,
                     "travel_km": ocr.travel_km,
