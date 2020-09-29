@@ -388,6 +388,18 @@ class ModCmds(MixinMeta):
                 )
                 return
 
+            if os.path.splitext(ctx.message.attachment[0].proxy_url)[1] not in [
+                "jpeg",
+                "jpg",
+                "png",
+            ]:
+                await ctx.send(
+                    _("Message {message.id} failed because the file is not jpg or png.").format(
+                        message=message
+                    )
+                )
+                return
+
             profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
             if not profile_ocr:
                 await ctx.send(
@@ -431,7 +443,7 @@ class ModCmds(MixinMeta):
                 msg = str(ocr.text_found[0].description)
                 data_found = {
                     "locale": ocr.locale,
-                    "number_locale": ocr.number_locale,
+                    "numeric_locale": ocr.numeric_locale,
                     "username": ocr.username,
                     "buddy_name": ocr.buddy_name,
                     "travel_km": ocr.travel_km,
