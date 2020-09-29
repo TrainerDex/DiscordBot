@@ -388,10 +388,10 @@ class ModCmds(MixinMeta):
                 )
                 return
 
-            if os.path.splitext(ctx.message.attachment[0].proxy_url)[1] not in [
-                "jpeg",
-                "jpg",
-                "png",
+            if os.path.splitext(ctx.message.attachment[0].proxy_url)[1].lower() not in [
+                ".jpeg",
+                ".jpg",
+                ".png",
             ]:
                 await ctx.send(
                     _("Message {message.id} failed because the file is not jpg or png.").format(
