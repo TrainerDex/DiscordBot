@@ -148,3 +148,25 @@ class Profile(MixinMeta):
             await ctx.send_help()
             value: datetime.date = trainer.is_visible
             await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))
+
+    @edit_profile.command(
+        name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"]
+    )
+    async def set_friendcode(self, ctx: commands.Context, value: str) -> None:
+        async with ctx.typing():
+            try:
+                trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except commands.BadArgument:
+                await ctx.send(cf.error("No profile found."))
+
+        if value is not None:
+            async with ctx.typing():
+                await trainer.edit(trainer_code=value)
+                await ctx.tick()
+                await ctx.send(
+                    _("{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}").format(
+                        trainer=trainer
+                    )
+                )
