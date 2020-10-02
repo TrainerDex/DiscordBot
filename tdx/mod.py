@@ -13,7 +13,6 @@ import trainerdex as client
 import PogoOCR
 from . import converters
 from .abc import MixinMeta
-from .profile import Profile
 from .embeds import ProfileCard
 from .utils import (
     AbandonQuestionException,
@@ -31,8 +30,6 @@ POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.js
 
 
 class ModCmds(MixinMeta):
-    profile = Profile.profile
-
     async def ask_question(
         self,
         ctx: commands.Context,
@@ -69,9 +66,9 @@ class ModCmds(MixinMeta):
         else:
             raise NoAnswerProvidedException
 
-    @profile.command(name="create", aliases=["register", "approve", "verify"])
+    @commands.command(name="approve", aliases=["ap", "register", "verify"])
     @checks.mod_or_permissions(manage_roles=True)
-    async def profile__create(
+    async def approve_trainer(
         self,
         ctx: commands.Context,
         member: discord.Member,
@@ -79,7 +76,7 @@ class ModCmds(MixinMeta):
         team: Optional[converters.TeamConverter] = None,
         total_xp: Optional[converters.TotalXPConverter] = None,
     ) -> None:
-        """Get or create a profile in TrainerDex
+        """Create a profile in TrainerDex
 
         If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
 
@@ -391,6 +388,18 @@ class ModCmds(MixinMeta):
                 )
                 return
 
+            if os.path.splitext(ctx.message.attachment[0].proxy_url)[1].lower() not in [
+                ".jpeg",
+                ".jpg",
+                ".png",
+            ]:
+                await ctx.send(
+                    _("Message {message.id} failed because the file is not jpg or png.").format(
+                        message=message
+                    )
+                )
+                return
+
             profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
             if not profile_ocr:
                 await ctx.send(
@@ -434,7 +443,7 @@ class ModCmds(MixinMeta):
                 msg = str(ocr.text_found[0].description)
                 data_found = {
                     "locale": ocr.locale,
-                    "number_locale": ocr.number_locale,
+                    "numeric_locale": ocr.numeric_locale,
                     "username": ocr.username,
                     "buddy_name": ocr.buddy_name,
                     "travel_km": ocr.travel_km,
@@ -458,12 +467,7 @@ class ModCmds(MixinMeta):
                     await ctx.send(file=cf.text_to_file(df, filename=f"debug_{message.id}.json"))
                 return
 
-    @tdxmod.group(name="trainer", case_insensitive=True)
-    async def tdxmod__trainer(self, ctx: commands.Context) -> None:
-        """⬎ View, Edit, or Create Trainer Profiles"""
-        pass
-
-    @tdxmod__trainer.command(name="auto-role")
+    @tdxmod.command(name="auto-role")
     @checks.mod_or_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context) -> None:
         """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them

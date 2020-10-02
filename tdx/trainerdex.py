@@ -120,6 +120,13 @@ class TrainerDex(
             # TODO: Enable multiple images
             return
 
+        if os.path.splitext(ctx.message.attachment[0].proxy_url)[1].lower() not in [
+            ".jpeg",
+            ".jpg",
+            ".png",
+        ]:
+            return
+
         profile_ocr: bool = await self.config.channel(ctx.channel).profile_ocr()
         if not profile_ocr:
             return

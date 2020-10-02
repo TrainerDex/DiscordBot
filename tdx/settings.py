@@ -17,19 +17,7 @@ _ = Translator("TrainerDex", __file__)
 
 
 class Settings(MixinMeta):
-    quickstart_aliases = []
-    quickstart_aliases.extend(["schnellstart"])  # de-DE German
-    quickstart_aliases.extend(["inicio rápido"])  # es-ES Spanish
-    quickstart_aliases.extend([])  # en-US English
-    quickstart_aliases.extend(["démarrage-rapide"])  # fr-FR French
-    quickstart_aliases.extend(["avvio-rapido"])  # it-IT Italian
-    quickstart_aliases.extend(["クイックスタート"])  # ja-JP Japanese
-    quickstart_aliases.extend(["빠른-시작"])  # ko-KR Korean
-    quickstart_aliases.extend(["começo-rápido"])  # pt-BR Portuguese (Brazil)
-    quickstart_aliases.extend(["เริ่มต้นอย่างรวดเร็ว"])  # th-TH Thai
-    quickstart_aliases.extend(["快速開始"])  # zh-HK Chinese (Traditional)
-
-    @commands.command(name="quickstart", aliases=list(set(quickstart_aliases)))
+    @commands.command(name="quickstart")
     @checks.mod_or_permissions(manage_guild=True)
     @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:

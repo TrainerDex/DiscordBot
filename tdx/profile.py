@@ -19,58 +19,8 @@ _ = Translator("TrainerDex", __file__)
 
 
 class Profile(MixinMeta):
-    profile_aliases = []
-    profile_aliases.extend(["profil"])  # de-DE German
-    profile_aliases.extend(["perfil"])  # es-ES Spanish
-    profile_aliases.extend([])  # en-US English
-    profile_aliases.extend(["profil"])  # fr-FR French
-    profile_aliases.extend(["profilo"])  # it-IT Italian
-    profile_aliases.extend(["プロフィール"])  # ja-JP Japanese
-    profile_aliases.extend(["프로필"])  # ko-KR Korean
-    profile_aliases.extend(["perfil"])  # pt-BR Portuguese
-    profile_aliases.extend(["ข้อมูลส่วนตัว"])  # th-TH Thai
-    profile_aliases.extend(["個人資料"])  # zh-HK Chinese (Traditional)
-
-    @commands.group(name="profile", case_insensitive=True, aliases=list(set(profile_aliases)))
-    async def profile(self, ctx: commands.Context) -> None:
-        """⬎ View, edit and create profiles. View Trainer Codes and more..."""
-        if ctx.invoked_subcommand is None:
-            async with ctx.typing():
-                try:
-                    trainer = await converters.TrainerConverter().convert(
-                        ctx, ctx.author, cli=self.client
-                    )
-                except commands.BadArgument:
-                    await ctx.send(cf.error("No profile found."))
-                    return
-
-            data = {
-                "nickname": trainer.nickname,
-                "start_date": trainer.start_date.isoformat() if trainer.start_date else None,
-                "faction": trainer.faction,
-                "trainer_code": trainer.trainer_code,
-                "is_banned": trainer.is_banned,
-                "is_verified": trainer.is_verified,
-                "is_visible": trainer.is_visible,
-                "updates__len": len(trainer._updates),
-            }
-            data: str = json.dumps(data, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(data, "json"))
-
-    profile__lookup_aliases = []
-    profile__lookup_aliases.extend(["sieh-nach-oben", "finden", "wer-ist"])  # de-DE German
-    profile__lookup_aliases.extend(["buscar", "hallar", "quien-es"])  # es-ES Spanish
-    profile__lookup_aliases.extend(["find", "whois"])  # en-US English
-    profile__lookup_aliases.extend(["chercher", "découvrir", "qui-est"])  # fr-FR French
-    profile__lookup_aliases.extend(["consultare", "trova", "chi-è"])  # it-IT Italian
-    profile__lookup_aliases.extend(["調べる", "誰が"])  # ja-JP Japanese
-    profile__lookup_aliases.extend(["조회", "누구인가", "입수하다"])  # ko-KR Korean
-    profile__lookup_aliases.extend(["olho-para-cima", "quem-é", "encontrar"])  # pt-BR Portuguese
-    profile__lookup_aliases.extend(["ค้นหา", "ไคร", "พบ"])  # th-TH Thai
-    profile__lookup_aliases.extend(["抬頭", "誰是", "藪"])  # zh-HK Chinese (Traditional)
-
-    @profile.command(name="lookup", aliases=list(set(profile__lookup_aliases)))
-    async def profile__lookup(
+    @commands.command(name="profile", aliases=["trainer", "progress", "trnr", "whois"])
+    async def view_profile(
         self,
         ctx: commands.Context,
         trainer: Optional[converters.TrainerConverter] = None,
@@ -117,37 +67,34 @@ class Profile(MixinMeta):
                 await embed.add_guild_leaderboard(ctx.guild)
             await message.edit(content=None, embed=embed)
 
-    profile__edit_aliases = []
-    profile__edit_aliases.extend(["ändern"])  # de-DE German
-    profile__edit_aliases.extend(["modificar"])  # es-ES Spanish
-    profile__edit_aliases.extend(["modify"])  # en-US English
-    profile__edit_aliases.extend(["modifier"])  # fr-FR French
-    profile__edit_aliases.extend(["modificare"])  # it-IT Italian
-    profile__edit_aliases.extend(["修正", "モディファイ"])  # ja-JP Japanese
-    profile__edit_aliases.extend(["수정"])  # ko-KR Korean
-    profile__edit_aliases.extend(["modificar"])  # pt-BR Portuguese
-    profile__edit_aliases.extend(["ปรับเปลี่ยน"])  # th-TH Thai
-    profile__edit_aliases.extend(["修改"])  # zh-HK Chinese (Traditional)
-
-    @profile.group(name="edit", case_insensitive=True, aliases=list(set(profile__edit_aliases)))
-    async def profile__edit(self, ctx: commands.Context) -> None:
+    @commands.group(name="editprofile", case_insensitive=True)
+    async def edit_profile(self, ctx: commands.Context) -> None:
         """Edit various aspects about your profile"""
-        pass
+        if ctx.invoked_subcommand is None:
+            async with ctx.typing():
+                try:
+                    trainer = await converters.TrainerConverter().convert(
+                        ctx, ctx.author, cli=self.client
+                    )
+                except commands.BadArgument:
+                    await ctx.send(cf.error("No profile found."))
+                    return
 
-    profile__edit__start_date_aliases = []
-    profile__edit__start_date_aliases.extend(["startdatum"])  # de-DE German
-    profile__edit__start_date_aliases.extend(["fecha-de-inicio", "inicio"])  # es-ES Spanish
-    profile__edit__start_date_aliases.extend(["start"])  # en-US English
-    profile__edit__start_date_aliases.extend(["date-de-début", "début"])  # fr-FR French
-    profile__edit__start_date_aliases.extend(["data-di-inizio", "inizio"])  # it-IT Italian
-    profile__edit__start_date_aliases.extend(["始めた日"])  # ja-JP Japanese
-    profile__edit__start_date_aliases.extend(["시작한", "시작한-날"])  # ko-KR Korean
-    profile__edit__start_date_aliases.extend(["data-de-início", "início"])  # pt-BR Portuguese
-    profile__edit__start_date_aliases.extend(["วันที่เริ่มเล่น"])  # th-TH Thai
-    profile__edit__start_date_aliases.extend(["開始日"])  # zh-HK Chinese (Traditional)
+            data = {
+                "nickname": trainer.nickname,
+                "start_date": trainer.start_date.isoformat() if trainer.start_date else None,
+                "faction": trainer.faction,
+                "trainer_code": trainer.trainer_code,
+                "is_banned": trainer.is_banned,
+                "is_verified": trainer.is_verified,
+                "is_visible": trainer.is_visible,
+                "updates__len": len(trainer._updates),
+            }
+            data: str = json.dumps(data, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(data, "json"))
 
-    @profile__edit.command(name="start_date", aliases=list(set(profile__edit__start_date_aliases)))
-    async def profile__edit__start_date(
+    @edit_profile.command(name="startdate")
+    async def edit_start_date(
         self, ctx: commands.Context, value: Optional[converters.DateConverter] = None
     ) -> None:
         """Set the Start Date on your profile
@@ -175,22 +122,8 @@ class Profile(MixinMeta):
             value: datetime.date = trainer.start_date
             await ctx.send(_("`{key}` is {value}").format(key="trainer.start_date", value=value))
 
-    profile__edit__visible_aliases = []
-    profile__edit__visible_aliases.extend(["sichtbar"])  # de-DE German
-    profile__edit__visible_aliases.extend([])  # es-ES Spanish
-    profile__edit__visible_aliases.extend([])  # en-US English
-    profile__edit__visible_aliases.extend([])  # fr-FR French
-    profile__edit__visible_aliases.extend(["visibile"])  # it-IT Italian
-    profile__edit__visible_aliases.extend(["見える"])  # ja-JP Japanese
-    profile__edit__visible_aliases.extend(["명백한"])  # ko-KR Korean
-    profile__edit__visible_aliases.extend(["visível"])  # pt-BR Portuguese
-    profile__edit__visible_aliases.extend(["มองเห็นได้"])  # th-TH Thai
-    profile__edit__visible_aliases.extend(["可見"])  # zh-HK Chinese (Traditional)
-
-    @profile__edit.command(name="visible", aliases=list(set(profile__edit__visible_aliases)))
-    async def profile__edit__visible(
-        self, ctx: commands.Context, value: Optional[bool] = None
-    ) -> None:
+    @edit_profile.command(name="visible", aliases=["gdpr"])
+    async def toggle_gdpr(self, ctx: commands.Context, value: Optional[bool] = None) -> None:
         """Set if you should appear in Leaderboards
 
         Hide or show yourself on leaderboards at will!
@@ -215,3 +148,25 @@ class Profile(MixinMeta):
             await ctx.send_help()
             value: datetime.date = trainer.is_visible
             await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))
+
+    @edit_profile.command(
+        name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"]
+    )
+    async def set_friendcode(self, ctx: commands.Context, value: str) -> None:
+        async with ctx.typing():
+            try:
+                trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except commands.BadArgument:
+                await ctx.send(cf.error("No profile found."))
+
+        if value is not None:
+            async with ctx.typing():
+                await trainer.edit(trainer_code=value)
+                await ctx.tick()
+                await ctx.send(
+                    _("{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}").format(
+                        trainer=trainer
+                    )
+                )
