@@ -120,7 +120,7 @@ class TrainerDex(
             # TODO: Enable multiple images
             return
 
-        if os.path.splitext(ctx.message.attachment[0].proxy_url)[1].lower() not in [
+        if os.path.splitext(ctx.message.attachments[0].proxy_url)[1].lower() not in [
             ".jpeg",
             ".jpg",
             ".png",
