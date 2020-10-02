@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2020.40.0] - 2020-10-02
+### Added
+- Added command to add trainer code
+
+### Changed
+- Better calculation for gains (#44)
+- Refactored Command layout (#51)
+- Better pre-flight checks for OCR (#52)
+
 ## [2020.38.0] - 2020-09-19
 ### Added
 - Capture Total, PokéStops Visited and Travel KM added to Leaderboards
@@ -138,9 +147,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.38.0...HEAD
-[2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.1...v2020.38.0
-[2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.0...v2020.37.1
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.40.0...HEAD
+[2020.48.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.38.0...v2020.40.0
+[2020.38.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.1...v2020.38.0
+[2020.37.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.0...v2020.37.1
 [2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.36.1...v2020.37.0
 [2020.36.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.36.0...v2020.36.1
 [2020.36.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.35.1...v2020.36.0
