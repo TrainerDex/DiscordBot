@@ -8,7 +8,7 @@
   "requirements": [
     "git+https://github.com/TurnrDev/discord-ext-alternatives@patch-1#egg=discord-ext-alternatives",
     "humanize",
-    "PogoOCR==0.3.2.post2",
+    "PogoOCR==0.3.4",
     "python-dateutil",
     "trainerdex==3.6.1"
   ]
