@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2020.40.2] - 2020-10-02
+### Dependencies
+- Bump [https://github.com/TrainerDex/PogoOCR](PogoOCR) to [https://github.com/TrainerDex/PogoOCR/compare/0.3.2...0.3.4](0.3.4)
+
 ## [2020.40.0] - 2020-10-02
 ### Added
 - Added command to add trainer code
