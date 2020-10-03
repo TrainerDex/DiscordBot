@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-10-02 08:15+0000\n"
-"PO-Revision-Date: 2020-10-02 08:15\n"
+"PO-Revision-Date: 2020-10-03 13:47\n"
 "Last-Translator: \n"
 "Language-Team: Dutch, Belgium\n"
 "MIME-Version: 1.0\n"
@@ -142,7 +142,11 @@ msgid "Create a profile in TrainerDex\n\n"
 "        If a trainer already exists for this profile, it will update the Total XP is needed.\n\n"
 "        The command may ask you a few questions. To exit out, say `[p]cancel`.\n\n"
 "        "
-msgstr ""
+msgstr "Een TrainerDex profiel aanmaken\n\n"
+"        Indien `guild.assign_roles_on_join` of `guild.set_nickname_on_join` Waar zijn, zal het deze acties uitvoeren vooraleer de database te controleren.\n\n"
+"       Als er al een trainer bestaat voor dit profiel, zal het updaten. Total XP is vereist.\n\n"
+"        Het commando kan je een aantal vragen stellen. Om te verlaten type `[p]cancel`.\n\n"
+"        "
 
 #: tdx/mod.py:93
 msgid "What is the in-game username of {user}?"
@@ -281,7 +285,7 @@ msgstr "Bericht {message.id} mislukt omdat er meer dan één bestand werd toegev
 
 #: tdx/mod.py:397
 msgid "Message {message.id} failed because the file is not jpg or png."
-msgstr ""
+msgstr "Boodschap {message.id} mislukt omdat het bestand geen jpg of png is."
 
 #: tdx/mod.py:406
 msgid "Message {message.id} failed because that channel is not enabled for OCR"
@@ -378,7 +382,7 @@ msgstr "Stel in of je in het klassement wil verschijnen\n\n"
 
 #: tdx/profile.py:169
 msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
-msgstr ""
+msgstr "{trainer.nickname}'s Trainer Code ingesteld als {trainer.trainer_code}"
 
 #: tdx/settings.py:25
 msgid "Looking for team roles..."
