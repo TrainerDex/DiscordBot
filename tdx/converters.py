@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import re
 from typing import Any, Union
@@ -80,16 +81,13 @@ class TrainerConverter(commands.Converter):
         mention = None
         if isinstance(argument, str):
             is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
+            if is_valid_nickname:
+                with contextlib.suppress(IndexError):
+                    return await cli.search_trainer(argument)
+
             is_mention = await safe_convert(
                 discord.ext.commands.converter.UserConverter, ctx, argument
             )
-            if is_valid_nickname:
-                try:
-                    return await cli.search_trainer(argument)
-                except IndexError:
-                    pass
-                mention = None
-
             if is_mention:
                 mention = is_mention
         elif isinstance(argument, (discord.User, discord.Member)):

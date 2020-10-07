@@ -1,6 +1,6 @@
 import logging
-import os
 import math
+import os
 from typing import Final, Optional, Union
 
 import discord

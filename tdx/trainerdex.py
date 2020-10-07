@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 from abc import ABC
@@ -131,17 +132,21 @@ class TrainerDex(
         if not profile_ocr:
             return
 
-        await ctx.message.add_reaction(self.bot.get_emoji(471298325904359434))
+        with contextlib.suppress(
+            discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
+        ):
+            await ctx.message.add_reaction(self.emoji.get("loading"))
 
         try:
             trainer: client.Trainer = await converters.TrainerConverter().convert(
                 ctx, ctx.author, cli=self.client
             )
         except discord.ext.commands.errors.BadArgument:
-            await ctx.message.remove_reaction(
-                self.bot.get_emoji(471298325904359434), self.bot.user
-            )
-            await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
+            with contextlib.suppress(
+                discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
+            ):
+                await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
+                await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             await ctx.send(
                 _(
                     "{author.mention} No TrainerDex profile found for this Discord account."
@@ -153,7 +158,7 @@ class TrainerDex(
 
         async with ctx.channel.typing():
             try:
-                message: discord.Message = await ctx.send(
+                message = await ctx.send(
                     loading(_("That's a nice image you have there, let's see…"))
                 )
                 ocr = PogoOCR.ProfileSelf(
@@ -191,11 +196,19 @@ class TrainerDex(
                                 )
                             ).format(xp=cf.humanize_number(data_found.get("total_xp")))
                         )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
-                        await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
-                        return
+                        with contextlib.suppress(
+                            discord.HTTPException,
+                            discord.Forbidden,
+                            discord.NotFound,
+                            discord.InvalidArgument,
+                        ):
+                            await ctx.message.remove_reaction(
+                                self.emoji.get("loading"), self.bot.user
+                            )
+                            await ctx.message.add_reaction(
+                                "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
+                            )
+                            return
                     elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
                         text: str = cf.warning(
                             _(
@@ -203,20 +216,34 @@ class TrainerDex(
                                 "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                             )
                         )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
-                        await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
+                        with contextlib.suppress(
+                            discord.HTTPException,
+                            discord.Forbidden,
+                            discord.NotFound,
+                            discord.InvalidArgument,
+                        ):
+                            await ctx.message.remove_reaction(
+                                self.emoji.get("loading"), self.bot.user
+                            )
+                            await ctx.message.add_reaction(
+                                "\N{WARNING SIGN}\N{VARIATION SELECTOR-16}"
+                            )
                     else:
                         await trainer.post(
                             stats=data_found,
                             data_source="ss_ocr",
                             update_time=ctx.message.created_at,
                         )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
-                        await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                        with contextlib.suppress(
+                            discord.HTTPException,
+                            discord.Forbidden,
+                            discord.NotFound,
+                            discord.InvalidArgument,
+                        ):
+                            await ctx.message.remove_reaction(
+                                self.emoji.get("loading"), self.bot.user
+                            )
+                            await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                         text = None
 
                     if ctx.guild and not trainer.is_visible:
@@ -268,10 +295,14 @@ class TrainerDex(
                             )
                         )
                     )
-                    await ctx.message.remove_reaction(
-                        self.bot.get_emoji(471298325904359434), self.bot.user
-                    )
-                    await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
+                    with contextlib.suppress(
+                        discord.HTTPException,
+                        discord.Forbidden,
+                        discord.NotFound,
+                        discord.InvalidArgument,
+                    ):
+                        await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
+                        await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             except Exception as e:
                 await ctx.send(
                     "`Error in function 'check_screenshot'."

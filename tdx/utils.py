@@ -12,9 +12,7 @@ _ = Translator("TrainerDex", __file__)
 
 
 def check_xp(x: client.Update) -> int:
-    if x.total_xp is None:
-        return 0
-    return x.total_xp
+    return x.total_xp if x.total_xp is not None else 0
 
 
 def append_twitter(text: str) -> str:
@@ -29,7 +27,7 @@ def append_icon(icon: Union[discord.Emoji, str], text: str) -> str:
 
 
 def quote(text: str) -> str:
-    return "\n".join(["> " + x for x in text.splitlines()])
+    return "> " + text.rstrip("\n").replace("\n", "\n> ")
 
 
 def loading(text: str) -> str:
