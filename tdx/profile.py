@@ -1,7 +1,8 @@
 import datetime
 import json
 import logging
-from typing import Optional
+import os
+from typing import Final, Optional
 
 import discord
 from redbot.core import commands
@@ -9,6 +10,7 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 
 import trainerdex as client
+import PogoOCR
 from . import converters
 from .abc import MixinMeta
 from .embeds import ProfileCard
@@ -16,6 +18,7 @@ from .utils import loading
 
 log: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
+POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
 class Profile(MixinMeta):
@@ -170,3 +173,64 @@ class Profile(MixinMeta):
                         trainer=trainer
                     )
                 )
+
+    @edit_profile.command(name="team", aliases=["faction"])
+    async def edit_profile__team(self, ctx: commands.Context) -> None:
+        """Edit your team."""
+        # Check if image atteched, if not, ask for one
+        async with ctx.typing():
+            if len(ctx.message.attachments) == 1:
+                img_url = ctx.message.attachments[0].proxy_url
+            else:
+                await ctx.send(
+                    _(
+                        "Please attach an image of your Trainer profile, clearly showing your username and team colours."
+                    )
+                )
+                img_url = (
+                    (
+                        await self.bot.wait_for(
+                            "message",
+                            check=(
+                                lambda message: (message.author == ctx.author)
+                                and (message.channel == ctx.channel)
+                                and (len(message.attachments) == 1)
+                            ),
+                        )
+                    )
+                    .attachments[0]
+                    .proxy_url
+                )
+
+        async with ctx.typing():
+            try:
+                trainer = await converters.TrainerConverter().convert(ctx, ctx.author, self.client)
+            except commands.BadArgument:
+                await ctx.send(cf.error("No profile found."))
+                return
+
+        async with ctx.typing():
+            # Extract team from image
+            ocr = PogoOCR.ProfileSelf(POGOOCR_TOKEN_PATH, image_uri=img_url)
+            ocr.get_text()
+            team: client.Faction = client.Faction(ocr.team)
+
+            if trainer.nickname != ocr.username:
+                await ctx.send(
+                    "Nickname doesn't match. (Stored nickname: `{}`. Detected: `{}`)".format(
+                        trainer.nickname, ocr.username
+                    )
+                )
+                return
+
+            await ctx.send("Team detected: `{}`".format(team))
+
+            if trainer.team != team:
+                await trainer.edit(faction=team)
+                # Change team on Database
+
+            # Ensure team roles are set correctly on discord
+
+            # Ask users permission to change on other Discords
+
+            # TODO: Add system for restricting guilds to certain teams, kick users from guild if team is bad
