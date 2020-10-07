@@ -216,7 +216,7 @@ class Profile(MixinMeta):
             ocr.get_text()
             team: client.Faction = client.Faction(ocr.team)
 
-            if trainer.nickname != ocr.username:
+            if not self.match_usernames(trainer.nickname, ocr.username):
                 await ctx.send(
                     "Nickname doesn't match. (Stored nickname: `{}`. Detected: `{}`)".format(
                         trainer.nickname, ocr.username

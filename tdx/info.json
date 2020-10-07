@@ -11,5 +11,6 @@
     "git+https://github.com/TrainerDex/PogoOCR@release/0.4.0#egg=PogoOCR",
     "python-dateutil",
     "trainerdex>=3.6.1,<3.7.0",
+    "python-Levenshtein>=0.12.0,<0.13.0"
   ]
 }

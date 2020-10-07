@@ -5,6 +5,7 @@ from abc import ABC
 from typing import Dict, Final, Literal, Union
 
 import discord
+import Levenshtein
 from redbot.core import commands, Config
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
@@ -158,6 +159,13 @@ class TrainerDex(
             return None
         else:
             return member
+
+    async def match_usernames(self, control: str, input: str) -> bool:
+        """Returns True if the Levenshtein distance is less than 5.
+
+        https://en.wikipedia.org/wiki/Levenshtein_distance
+        """
+        return True if Levenshtein.distance(control.casefold(), input.casefold()) < 5 else False
 
     @commands.Cog.listener("on_message_without_command")
     async def check_screenshot(self, message: discord.Message) -> None:
