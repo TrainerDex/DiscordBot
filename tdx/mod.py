@@ -128,10 +128,7 @@ class ModCmds(MixinMeta):
                 roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
                 roles["add"] = [ctx.guild.get_role(x) for x in roles["add"]]
                 if answers.get("team").id > 0:
-                    team_role = await getattr(
-                        self.config.guild(ctx.guild),
-                        ["", "mystic_role", "valor_role", "instinct_role"][answers.get("team").id],
-                    )()
+                    team_role = await self.get_team_role(ctx.guild, answers.get("team"))
                     if team_role:
                         roles["add"].append(ctx.guild.get_role(team_role))
 
@@ -342,7 +339,7 @@ class ModCmds(MixinMeta):
                 trainer=trainer.username,
             )
         )
-        embed: discord.Embed = await ProfileCard(
+        embed: ProfileCard = await ProfileCard(
             ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
         )
         await dm_message.edit(embed=embed)

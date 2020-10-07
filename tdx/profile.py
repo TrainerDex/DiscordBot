@@ -1,8 +1,9 @@
+import contextlib
 import datetime
 import json
 import logging
 import os
-from typing import Final, Optional
+from typing import Final, Optional, Union
 
 import discord
 from redbot.core import commands
@@ -58,7 +59,7 @@ class Profile(MixinMeta):
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
 
-            embed: discord.Embed = await ProfileCard(
+            embed: ProfileCard = await ProfileCard(
                 ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji
             )
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
@@ -177,7 +178,7 @@ class Profile(MixinMeta):
     @edit_profile.command(name="team", aliases=["faction"])
     async def edit_profile__team(self, ctx: commands.Context) -> None:
         """Edit your team."""
-        # Check if image atteched, if not, ask for one
+        # Check if image attached, if not, ask for one
         async with ctx.typing():
             if len(ctx.message.attachments) == 1:
                 img_url = ctx.message.attachments[0].proxy_url
@@ -225,11 +226,27 @@ class Profile(MixinMeta):
 
             await ctx.send("Team detected: `{}`".format(team))
 
-            if trainer.team != team:
+            old_team = trainer.team
+
+            if old_team != team:
                 await trainer.edit(faction=team)
-                # Change team on Database
+                embed = await ProfileCard(
+                    ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji
+                )
+                await ctx.send(
+                    content=_("Team successfully updated on the database."), embed=embed
+                )
 
             # Ensure team roles are set correctly on discord
+            await self.change_team_roles(
+                ctx.guild,
+                ctx.author,
+                old_team,
+                team,
+                reason=_(
+                    "User changed their team with `[p]editprofile team` and supplying a screenshot"
+                ),
+            )
 
             # Ask users permission to change on other Discords
 

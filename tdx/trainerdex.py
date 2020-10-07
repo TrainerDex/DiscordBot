@@ -107,6 +107,58 @@ class TrainerDex(
             log.warning("No valid token found")
         self.client = client.Client(token=token)
 
+    async def get_team_role(
+        self, guild: discord.Guild, team: Union[client.Faction, int]
+    ) -> discord.Role:
+        if isinstance(team, int) and 0 <= team <= 3:
+            team = client.Faction(team)
+        elif isinstance(team, client.Faction):
+            pass
+        else:
+            raise ValueError
+        if team == client.Faction(0):
+            return None
+        elif team == client.Faction(1):
+            role_id = await self.config.guild(guild).mystic_role()
+        elif team == client.Faction(2):
+            role_id = await self.config.guild(guild).valor_role()
+        elif team == client.Faction(3):
+            role_id = await self.config.guild(guild).instinct_role()
+
+        return guild.get_role(role_id)
+
+    async def change_team_roles(
+        self,
+        guild: discord.Guild,
+        user: discord.User,
+        old_team: Union[client.Faction, int],
+        new_team: Union[client.Faction, int],
+        reason: str = None,
+    ) -> Union[None, discord.Member]:
+        member = guild.get_member(user.id)
+        if not member:
+            return None
+
+        assign_roles: bool = await self.config.guild(guild).assign_roles_on_join()
+        if not assign_roles:
+            return None
+
+        old_team_role = await self.get_team_role(guild, old_team)
+        new_team_role = await self.get_team_role(guild, new_team)
+
+        member_roles = member.roles.copy()
+        with contextlib.suppress(ValueError):
+            member_roles.remove(old_team_role)
+            if new_team_role:
+                member_roles.append(new_team_role)
+
+        try:
+            await member.edit(roles=member_roles, reason=reason)
+        except (discord.Forbidden, discord.HTTPException):
+            return None
+        else:
+            return member
+
     @commands.Cog.listener("on_message_without_command")
     async def check_screenshot(self, message: discord.Message) -> None:
         ctx = await self.bot.get_context(message)
@@ -255,7 +307,7 @@ class TrainerDex(
                             [x for x in [text, loading(_("Loading output…"))] if x is not None]
                         )
                     )
-                    embed: discord.Embed = await ProfileCard(
+                    embed: ProfileCard = await ProfileCard(
                         ctx=ctx,
                         client=self.client,
                         trainer=trainer,
