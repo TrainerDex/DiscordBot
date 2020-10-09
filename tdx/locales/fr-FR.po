@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-10-02 08:15+0000\n"
-"PO-Revision-Date: 2020-10-03 17:31\n"
+"POT-Creation-Date: 2020-10-09 08:16+0000\n"
+"PO-Revision-Date: 2020-10-09 08:17\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -17,71 +17,71 @@ msgstr ""
 "X-Crowdin-File-ID: 34\n"
 "Language: fr_FR\n"
 
-#: tdx/converters.py:57
+#: tdx/converters.py:58
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
 msgstr "{} n'est pas un nom d'utilisateur valide dans Pokemon Go. Un nom d'utilisateur Pokemon Go contient de 3 à 15 lettres ou nombres."
 
-#: tdx/converters.py:103
+#: tdx/converters.py:101
 msgid "Trainer `{}` not found"
 msgstr "Le dresseur `{}` est introuvable"
 
-#: tdx/converters.py:132
+#: tdx/converters.py:130
 msgid "Team `{}` not found"
 msgstr ""
 
-#: tdx/converters.py:142
+#: tdx/converters.py:140
 msgid "Not a valid level. Please choose between 1-40"
 msgstr "Pas un niveau valide. Veuillez choisir entre 1-40"
 
-#: tdx/converters.py:148
+#: tdx/converters.py:146
 msgid "Not a valid number."
 msgstr "Nombre invalide."
 
-#: tdx/converters.py:150
+#: tdx/converters.py:148
 msgid "Value too low."
 msgstr ""
 
-#: tdx/embeds.py:109
+#: tdx/embeds.py:103
 msgid "{nickname} | TL{level}"
 msgstr "{nickname} | Niveau {level}"
 
-#: tdx/embeds.py:133 tdx/embeds.py:281 tdx/embeds.py:297
+#: tdx/embeds.py:127 tdx/embeds.py:275 tdx/embeds.py:291
 #: tdx/leaderboard.py:120
 msgid "Distance Walked"
 msgstr "Distance marchée"
 
-#: tdx/embeds.py:139 tdx/embeds.py:305 tdx/embeds.py:324
+#: tdx/embeds.py:133 tdx/embeds.py:299 tdx/embeds.py:318
 #: tdx/leaderboard.py:121
 msgid "Pokémon Caught"
 msgstr "Pokémon attrapé"
 
-#: tdx/embeds.py:146 tdx/embeds.py:333 tdx/embeds.py:353
+#: tdx/embeds.py:140 tdx/embeds.py:327 tdx/embeds.py:347
 #: tdx/leaderboard.py:122
 msgid "PokéStops Visited"
 msgstr "PokéStops visités"
 
-#: tdx/embeds.py:153 tdx/embeds.py:361 tdx/embeds.py:376
+#: tdx/embeds.py:147 tdx/embeds.py:355 tdx/embeds.py:370
 #: tdx/leaderboard.py:123
 msgid "Total XP"
 msgstr "Total de PX"
 
-#: tdx/embeds.py:182
+#: tdx/embeds.py:176
 msgid "{guild.name} Leaderboard (All)"
 msgstr "Classement de {guild.name} (Tous)"
 
-#: tdx/embeds.py:205
+#: tdx/embeds.py:199
 msgid "Leaderboard (Top 1000)"
 msgstr "Classement (Top 1000)"
 
-#: tdx/embeds.py:258
+#: tdx/embeds.py:252
 msgid "No data old enough found, using start date."
 msgstr "Aucune donnée suffisamment ancienne trouvée en utilisant la date de début."
 
-#: tdx/embeds.py:270
+#: tdx/embeds.py:264
 msgid "Interval"
 msgstr "Intervalle"
 
-#: tdx/embeds.py:286 tdx/embeds.py:313 tdx/embeds.py:341 tdx/embeds.py:366
+#: tdx/embeds.py:280 tdx/embeds.py:307 tdx/embeds.py:335 tdx/embeds.py:360
 msgid "{gain}/day"
 msgstr "{gain}/jour"
 
@@ -335,7 +335,7 @@ msgstr "Recherche du profil…"
 msgid "Found profile. Loading…"
 msgstr "Profil trouvé. Chargement…"
 
-#: tdx/profile.py:45 tdx/trainerdex.py:223
+#: tdx/profile.py:45 tdx/trainerdex.py:250
 msgid "Sending in DMs"
 msgstr ""
 
@@ -351,7 +351,7 @@ msgstr "Profil non trouvé."
 msgid "Checking progress…"
 msgstr "Vérification de l'avancement…"
 
-#: tdx/profile.py:63 tdx/trainerdex.py:247
+#: tdx/profile.py:63 tdx/trainerdex.py:274
 msgid "Loading leaderboards…"
 msgstr "Chargement du classement…"
 
@@ -400,8 +400,8 @@ msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
 msgstr ""
 
 #: tdx/settings.py:25
-msgid "Looking for team roles..."
-msgstr "Recherche du rôle d'équipe..."
+msgid "Looking for team roles…"
+msgstr ""
 
 #: tdx/settings.py:29
 msgid "Mystic"
@@ -416,8 +416,8 @@ msgid "Instinct"
 msgstr "Intuition"
 
 #: tdx/settings.py:66
-msgid "Looking for TL40 role..."
-msgstr "Recherche du rôle TL40..."
+msgid "Looking for TL40 role…"
+msgstr ""
 
 #: tdx/settings.py:73
 msgid "Level 40"
@@ -479,41 +479,41 @@ msgstr ""
 msgid "Set if this channel should accept OCR commands."
 msgstr "Défini si ce canal accepte les commandes OCR."
 
-#: tdx/trainerdex.py:157
+#: tdx/trainerdex.py:162
 msgid "That's a nice image you have there, let's see…"
 msgstr "C'est une belle image que nous avons là, voyons voir…"
 
-#: tdx/trainerdex.py:175
+#: tdx/trainerdex.py:180
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
 msgstr ""
 
-#: tdx/trainerdex.py:187
+#: tdx/trainerdex.py:192
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Vous avez précédemment défini votre XP à une valeur plus haute que celle donnée actuellement. Votre XP est actuellement de {xp}."
 
-#: tdx/trainerdex.py:201
+#: tdx/trainerdex.py:214
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Vous avez déjà défini votre XP sur cette valeur. La prochaine fois, pour voir de nouveau le récapitulatif, veuillez exécuter la commande `progress` car nous payons le système de reconnaissance d'image (OCR)."
 
-#: tdx/trainerdex.py:224 tdx/trainerdex.py:228 tdx/trainerdex.py:239
+#: tdx/trainerdex.py:251 tdx/trainerdex.py:255 tdx/trainerdex.py:266
 msgid "Loading output…"
 msgstr "Chargement du récapitulatif…"
 
-#: tdx/trainerdex.py:260
+#: tdx/trainerdex.py:287
 msgid "I could not find Total XP in your image. "
 msgstr "Je n'ai pas pu trouver Total de PX dans votre image. "
 
-#: tdx/trainerdex.py:263
+#: tdx/trainerdex.py:290
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr ""
 
-#: tdx/utils.py:22
+#: tdx/utils.py:20
 msgid "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
 msgstr "Si il semble qu'il y ai un problème, veuillez nous contacter sur Twitter. {twitter_handle}"
 
-#: tdx/utils.py:65
+#: tdx/utils.py:63
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
 "This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.\n\n"
 "TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:\n"
@@ -522,17 +522,17 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
 msgstr ""
 
-#: tdx/utils.py:78
+#: tdx/utils.py:76
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
 "    `{p}profile edit visible false`"
 msgstr ""
 
-#: tdx/utils.py:82
+#: tdx/utils.py:80
 msgid "Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:\n"
 "    `{p}profile edit visible true`"
 msgstr ""
 
-#: tdx/utils.py:98
+#: tdx/utils.py:96
 msgid "Additionally, you have a message from `{server.name}`:\n"
 "{note}"
 msgstr ""

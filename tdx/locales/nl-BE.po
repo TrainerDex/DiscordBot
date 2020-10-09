@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-10-02 08:15+0000\n"
-"PO-Revision-Date: 2020-10-03 13:47\n"
+"POT-Creation-Date: 2020-10-09 08:16+0000\n"
+"PO-Revision-Date: 2020-10-09 08:17\n"
 "Last-Translator: \n"
 "Language-Team: Dutch, Belgium\n"
 "MIME-Version: 1.0\n"
@@ -17,71 +17,71 @@ msgstr ""
 "X-Crowdin-File-ID: 34\n"
 "Language: nl_BE\n"
 
-#: tdx/converters.py:57
+#: tdx/converters.py:58
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
 msgstr "{} is geen geldige Pokémon Go gebruikersnaam. Een Pokémon Go gebruikersnaam is 3-15 letters of cijfers lang."
 
-#: tdx/converters.py:103
+#: tdx/converters.py:101
 msgid "Trainer `{}` not found"
 msgstr "Trainer `{}` niet gevonden"
 
-#: tdx/converters.py:132
+#: tdx/converters.py:130
 msgid "Team `{}` not found"
 msgstr "Team `{}` niet gevonden"
 
-#: tdx/converters.py:142
+#: tdx/converters.py:140
 msgid "Not a valid level. Please choose between 1-40"
 msgstr "Geen geldig level. Kies een level tussen 1-40"
 
-#: tdx/converters.py:148
+#: tdx/converters.py:146
 msgid "Not a valid number."
 msgstr "Geen geldig getal."
 
-#: tdx/converters.py:150
+#: tdx/converters.py:148
 msgid "Value too low."
 msgstr "Waarde te laag."
 
-#: tdx/embeds.py:109
+#: tdx/embeds.py:103
 msgid "{nickname} | TL{level}"
 msgstr "{nickname} | TL{level}"
 
-#: tdx/embeds.py:133 tdx/embeds.py:281 tdx/embeds.py:297
+#: tdx/embeds.py:127 tdx/embeds.py:275 tdx/embeds.py:291
 #: tdx/leaderboard.py:120
 msgid "Distance Walked"
 msgstr "Gewandelde afstand"
 
-#: tdx/embeds.py:139 tdx/embeds.py:305 tdx/embeds.py:324
+#: tdx/embeds.py:133 tdx/embeds.py:299 tdx/embeds.py:318
 #: tdx/leaderboard.py:121
 msgid "Pokémon Caught"
 msgstr "Gevangen Pokémon"
 
-#: tdx/embeds.py:146 tdx/embeds.py:333 tdx/embeds.py:353
+#: tdx/embeds.py:140 tdx/embeds.py:327 tdx/embeds.py:347
 #: tdx/leaderboard.py:122
 msgid "PokéStops Visited"
 msgstr "Bezochte Pokéstops"
 
-#: tdx/embeds.py:153 tdx/embeds.py:361 tdx/embeds.py:376
+#: tdx/embeds.py:147 tdx/embeds.py:355 tdx/embeds.py:370
 #: tdx/leaderboard.py:123
 msgid "Total XP"
 msgstr "Total XP"
 
-#: tdx/embeds.py:182
+#: tdx/embeds.py:176
 msgid "{guild.name} Leaderboard (All)"
 msgstr ""
 
-#: tdx/embeds.py:205
+#: tdx/embeds.py:199
 msgid "Leaderboard (Top 1000)"
 msgstr ""
 
-#: tdx/embeds.py:258
+#: tdx/embeds.py:252
 msgid "No data old enough found, using start date."
 msgstr "Geen voldoende oude data gevonden, startdatum wordt gebruikt."
 
-#: tdx/embeds.py:270
+#: tdx/embeds.py:264
 msgid "Interval"
 msgstr "Tijdsstap"
 
-#: tdx/embeds.py:286 tdx/embeds.py:313 tdx/embeds.py:341 tdx/embeds.py:366
+#: tdx/embeds.py:280 tdx/embeds.py:307 tdx/embeds.py:335 tdx/embeds.py:360
 msgid "{gain}/day"
 msgstr "{gain}/dag"
 
@@ -320,7 +320,7 @@ msgstr "Aan het zoeken naar profiel…"
 msgid "Found profile. Loading…"
 msgstr "Profiel gevonden. Aan het laden…"
 
-#: tdx/profile.py:45 tdx/trainerdex.py:223
+#: tdx/profile.py:45 tdx/trainerdex.py:250
 msgid "Sending in DMs"
 msgstr "Naar DM's aan het sturen"
 
@@ -336,7 +336,7 @@ msgstr "Profiel niet gevonden."
 msgid "Checking progress…"
 msgstr "Voortgang aan het controleren…"
 
-#: tdx/profile.py:63 tdx/trainerdex.py:247
+#: tdx/profile.py:63 tdx/trainerdex.py:274
 msgid "Loading leaderboards…"
 msgstr "Klassement aan het laden…"
 
@@ -385,8 +385,8 @@ msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
 msgstr "{trainer.nickname}'s Trainer Code ingesteld als {trainer.trainer_code}"
 
 #: tdx/settings.py:25
-msgid "Looking for team roles..."
-msgstr "Zoeken naar team rollen..."
+msgid "Looking for team roles…"
+msgstr ""
 
 #: tdx/settings.py:29
 msgid "Mystic"
@@ -401,8 +401,8 @@ msgid "Instinct"
 msgstr "Instinct"
 
 #: tdx/settings.py:66
-msgid "Looking for TL40 role..."
-msgstr "Zoeken naar rol voor Trainer Level 40..."
+msgid "Looking for TL40 role…"
+msgstr ""
 
 #: tdx/settings.py:73
 msgid "Level 40"
@@ -471,11 +471,11 @@ msgstr "Stuur een bericht naar een lid wanneer je `profile create` (ofte `approv
 msgid "Set if this channel should accept OCR commands."
 msgstr "Stel in of dit kanaal OCR (tekstherkenning) commando's moet accepteren."
 
-#: tdx/trainerdex.py:157
+#: tdx/trainerdex.py:162
 msgid "That's a nice image you have there, let's see…"
 msgstr "Dat is een leuke afbeelding, even kijken…"
 
-#: tdx/trainerdex.py:175
+#: tdx/trainerdex.py:180
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
@@ -483,31 +483,31 @@ msgstr "{user}, we vonden volgende statistieken;\n"
 "{stats}\n"
 "Dit wordt nu even verwerkt…"
 
-#: tdx/trainerdex.py:187
+#: tdx/trainerdex.py:192
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Je hebt eerder al XP op een hogere waarde gezet dan je nu probeert in te stellen. Deze is momenteel ingesteld op {xp}."
 
-#: tdx/trainerdex.py:201
+#: tdx/trainerdex.py:214
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Je hebt je XP al op dit cijfer ingesteld. In de toekomst, om de resultaten te herbekijken, gebruik het 'progress' commando, gezien de tekstherkenning op de afbeeldingen kosten voor ons met zich meebrengt."
 
-#: tdx/trainerdex.py:224 tdx/trainerdex.py:228 tdx/trainerdex.py:239
+#: tdx/trainerdex.py:251 tdx/trainerdex.py:255 tdx/trainerdex.py:266
 msgid "Loading output…"
 msgstr "Uitvoer aan het laden…"
 
-#: tdx/trainerdex.py:260
+#: tdx/trainerdex.py:287
 msgid "I could not find Total XP in your image. "
 msgstr "Ik kon geen Total XP in je afbeelding vinden. "
 
-#: tdx/trainerdex.py:263
+#: tdx/trainerdex.py:290
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr "We gebruiken de Google Vision API om je afbeeldingen te lezen. Zorg er alstublieft voor dat het veld 'Total XP' zichtbaar is. Als het zichtbaar is, en je afbeelding wordt na een minuut nog altijd niet gescand, probeer dan een nieuwe afbeelding. Dezelfde afbeelding opnieuw posten, zal hoogstwaarschijnlijk een nieuwe mislukking opleveren."
 
-#: tdx/utils.py:22
+#: tdx/utils.py:20
 msgid "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
 msgstr "Als dat er niet juist uit ziet, gelieve ons dan te contacteren op Twitter. {twitter_handle}"
 
-#: tdx/utils.py:65
+#: tdx/utils.py:63
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
 "This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.\n\n"
 "TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:\n"
@@ -521,19 +521,19 @@ msgstr "**Je krijgt dit bericht omdat je toevoegd werd aan de TrainerDex databas
 "{is_visible_note}\n\n"
 "Als je vragen hebt, gelieve ons te contacteren op Twitter (<{twitter_handle}>), stel ze aan de moderator die je toegelaten heeft ({mod.mention}), of bezoek de TrainerDex Support Discord (<{invite_url}>)\n"
 
-#: tdx/utils.py:78
+#: tdx/utils.py:76
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
 "    `{p}profile edit visible false`"
 msgstr "Je profiel is momenteel zichtbaar. Om je data te verbergen voor andere gebruikers, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible false`"
 
-#: tdx/utils.py:82
+#: tdx/utils.py:80
 msgid "Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:\n"
 "    `{p}profile edit visible true`"
 msgstr "Je profiel is momenteel niet zichtbaar. Om toe te staan dat je data gebruikt wordt, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible true`"
 
-#: tdx/utils.py:98
+#: tdx/utils.py:96
 msgid "Additionally, you have a message from `{server.name}`:\n"
 "{note}"
 msgstr "Aanvullend heb je een bericht van `{server.name}`:\n"
