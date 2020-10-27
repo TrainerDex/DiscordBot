@@ -1,4 +1,4 @@
-git+https://github.com/Ext-Creators/discord-ext-alternatives@5482a4e7a5387563fe1662ba95e22134572a369c#egg=discord-ext-alternatives
+discord-ext-alternatives>=2020.10.11
 humanize
 PogoOCR==0.3.5
 python-dateutil
