@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-10-09 08:16+0000\n"
-"PO-Revision-Date: 2020-10-09 08:17\n"
+"POT-Creation-Date: 2020-10-30 08:13+0000\n"
+"PO-Revision-Date: 2020-10-30 08:13\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -335,7 +335,7 @@ msgstr "Recherche du profil…"
 msgid "Found profile. Loading…"
 msgstr "Profil trouvé. Chargement…"
 
-#: tdx/profile.py:45 tdx/trainerdex.py:250
+#: tdx/profile.py:45 tdx/trainerdex.py:247
 msgid "Sending in DMs"
 msgstr ""
 
@@ -351,7 +351,7 @@ msgstr "Profil non trouvé."
 msgid "Checking progress…"
 msgstr "Vérification de l'avancement…"
 
-#: tdx/profile.py:63 tdx/trainerdex.py:274
+#: tdx/profile.py:63 tdx/trainerdex.py:269
 msgid "Loading leaderboards…"
 msgstr "Chargement du classement…"
 
@@ -479,33 +479,37 @@ msgstr ""
 msgid "Set if this channel should accept OCR commands."
 msgstr "Défini si ce canal accepte les commandes OCR."
 
-#: tdx/trainerdex.py:162
+#: tdx/trainerdex.py:160
 msgid "That's a nice image you have there, let's see…"
 msgstr "C'est une belle image que nous avons là, voyons voir…"
 
-#: tdx/trainerdex.py:180
+#: tdx/trainerdex.py:169
+msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
+msgstr ""
+
+#: tdx/trainerdex.py:187
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
 msgstr ""
 
-#: tdx/trainerdex.py:192
+#: tdx/trainerdex.py:199
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Vous avez précédemment défini votre XP à une valeur plus haute que celle donnée actuellement. Votre XP est actuellement de {xp}."
 
-#: tdx/trainerdex.py:214
+#: tdx/trainerdex.py:217
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Vous avez déjà défini votre XP sur cette valeur. La prochaine fois, pour voir de nouveau le récapitulatif, veuillez exécuter la commande `progress` car nous payons le système de reconnaissance d'image (OCR)."
 
-#: tdx/trainerdex.py:251 tdx/trainerdex.py:255 tdx/trainerdex.py:266
+#: tdx/trainerdex.py:248 tdx/trainerdex.py:252 tdx/trainerdex.py:263
 msgid "Loading output…"
 msgstr "Chargement du récapitulatif…"
 
-#: tdx/trainerdex.py:287
+#: tdx/trainerdex.py:280
 msgid "I could not find Total XP in your image. "
 msgstr "Je n'ai pas pu trouver Total de PX dans votre image. "
 
-#: tdx/trainerdex.py:290
+#: tdx/trainerdex.py:283
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr ""
 
