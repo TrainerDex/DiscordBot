@@ -7,7 +7,7 @@ on:
 
 jobs:
   crowdin:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -35,11 +35,13 @@ jobs:
         translation: 'tdx/locales/%locale%.po'
         upload_translations: false
         download_translations: true
+        commit_message: 'chore: update translations via Crowdin'
+        pull_request_title: 'chore: update translations via Crowdin'
         pull_request_labels: 'i18n'
         crowdin_branch_name: 'master'
         project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
         token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
         CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
