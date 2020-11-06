@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-10-30 08:13+0000\n"
-"PO-Revision-Date: 2020-10-30 08:13\n"
+"PO-Revision-Date: 2020-11-06 08:14\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -476,7 +476,7 @@ msgstr "Es una buena imagen la que tienes ahí, veamos…"
 
 #: tdx/trainerdex.py:169
 msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
-msgstr ""
+msgstr "OCR Error al reconocer el texto de la captura de pantalla. Por favor, prueba una *nueva* captura de pantalla."
 
 #: tdx/trainerdex.py:187
 msgid "{user}, we found the following stats:\n"
