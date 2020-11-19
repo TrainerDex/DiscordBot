@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
 "POT-Creation-Date: 2020-10-30 08:13+0000\n"
-"PO-Revision-Date: 2020-11-06 08:14\n"
+"PO-Revision-Date: 2020-11-19 00:51\n"
 "Last-Translator: \n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -48,22 +48,22 @@ msgstr ""
 #: tdx/embeds.py:127 tdx/embeds.py:275 tdx/embeds.py:291
 #: tdx/leaderboard.py:120
 msgid "Distance Walked"
-msgstr ""
+msgstr "歩いた距離"
 
 #: tdx/embeds.py:133 tdx/embeds.py:299 tdx/embeds.py:318
 #: tdx/leaderboard.py:121
 msgid "Pokémon Caught"
-msgstr ""
+msgstr "つかまえたポケモン"
 
 #: tdx/embeds.py:140 tdx/embeds.py:327 tdx/embeds.py:347
 #: tdx/leaderboard.py:122
 msgid "PokéStops Visited"
-msgstr ""
+msgstr "訪れたポケストップ"
 
 #: tdx/embeds.py:147 tdx/embeds.py:355 tdx/embeds.py:370
 #: tdx/leaderboard.py:123
 msgid "Total XP"
-msgstr ""
+msgstr "トータルXP"
 
 #: tdx/embeds.py:176
 msgid "{guild.name} Leaderboard (All)"
