@@ -1,10 +1,8 @@
 import contextlib
-import datetime
 import re
 from typing import Any, Union
 
 import discord
-from dateutil.parser import parse
 
 import trainerdex as client
 from redbot.core.i18n import Translator
@@ -148,13 +146,3 @@ class TotalXPConverter(commands.Converter):
             raise commands.BadArgument(_("Value too low."))
         else:
             return int(argument)
-
-
-class DatetimeConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> datetime.datetime:
-        return parse(argument)
-
-
-class DateConverter(DatetimeConverter):
-    async def convert(self, ctx: commands.Context, argument: str) -> datetime.date:
-        return await super().convert(ctx, argument).date()

@@ -95,7 +95,11 @@ class Profile(MixinMeta):
 
     @edit_profile.command(name="startdate")
     async def edit_start_date(
-        self, ctx: commands.Context, value: Optional[converters.DateConverter] = None
+        self,
+        ctx: commands.Context,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        day: Optional[int] = None,
     ) -> None:
         """Set the Start Date on your profile
 
@@ -109,12 +113,30 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 await ctx.send(cf.error("No profile found."))
 
-        if value is not None:
+        if year and month and day:
+            try:
+                start_date = datetime.date(year, month, day)
+            except ValueError as e:
+                await ctx.send(
+                    _("Can't set `{key}` because {error}").format(
+                        key="trainer.start_date", error=e
+                    )
+                )
+                return
+
             async with ctx.typing():
-                await trainer.edit(start_date=value)
+                if start_date < datetime.date(2016, 7, 5):
+                    await ctx.send(
+                        _("Can't set `{key}` because the date is too early").format(
+                            key="trainer.start_date"
+                        )
+                    )
+                    return
+
+                await trainer.edit(start_date=start_date)
                 await ctx.tick()
                 await ctx.send(
-                    _("`{key}` set to {value}").format(key="trainer.start_date", value=value),
+                    _("`{key}` set to {value}").format(key="trainer.start_date", value=start_date),
                     delete_after=30,
                 )
         else:
