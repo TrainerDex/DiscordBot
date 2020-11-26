@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import re
 from typing import Optional
 
 import discord
@@ -62,7 +63,7 @@ class Profile(MixinMeta):
                     else:
                         await message.edit(content=loading(_("Found profile. Loading…")))
                 else:
-                    await message.edit(content=loading(_("Profile deactivated or hidden.")))
+                    await message.edit(content=cf.warning(_("Profile deactivated or hidden.")))
                     return
             else:
                 await message.edit(content=cf.warning(_("Profile not found.")))
@@ -79,6 +80,49 @@ class Profile(MixinMeta):
                 await message.edit(embed=embed)
                 await embed.add_guild_leaderboard(ctx.guild)
             await message.edit(content=None, embed=embed)
+
+    @commands.command(name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"])
+    async def get_trainer_code(
+        self,
+        ctx: commands.Context,
+        nickname: str = None,
+    ) -> None:
+        """Find a profile given a username."""
+
+        async with ctx.typing():
+            try:
+                logger.debug("searching for trainer by discord uid: %s", ctx.author.id)
+                author_profile = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except commands.BadArgument:
+                author_profile = None
+
+            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
+
+            if nickname is None:
+                trainer = author_profile
+            else:
+                try:
+                    logger.debug("searching for trainer by username: %s", nickname)
+                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                        ctx, nickname, cli=self.client
+                    )
+                except commands.BadArgument:
+                    await message.edit(content=cf.warning(_("Profile not found.")))
+                    return
+
+            if trainer:
+                if trainer.is_visible and trainer.trainer_code:
+                    await message.edit(content=trainer.trainer_code)
+                elif trainer.is_visible and not trainer.trainer_code:
+                    await message.edit(content=cf.warning(_("Unknown.")))
+                else:
+                    await message.edit(
+                        content=cf.warningloading(_("Profile deactivated or hidden."))
+                    )
+            else:
+                await message.edit(content=cf.warning(_("Profile not found.")))
 
     @commands.group(name="editprofile", case_insensitive=True)
     async def edit_profile(self, ctx: commands.Context) -> None:
@@ -187,8 +231,16 @@ class Profile(MixinMeta):
     @edit_profile.command(
         name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"]
     )
-    async def set_friendcode(
+    async def set_trainer_code(
         self, ctx: commands.Context, *, value: converters.TrainerCodeValidator
+    ) -> None:
+        return await self._set_trainer_code(ctx, False, value)
+
+    async def _set_trainer_code(
+        self,
+        ctx: commands.Context,
+        no_error: bool,
+        value: converters.TrainerCodeValidator,
     ) -> None:
         async with ctx.typing():
             try:
@@ -196,6 +248,8 @@ class Profile(MixinMeta):
                     ctx, ctx.author, cli=self.client
                 )
             except commands.BadArgument:
+                if no_error:
+                    return
                 await ctx.send(cf.error("No profile found."))
 
         if value:
@@ -207,3 +261,17 @@ class Profile(MixinMeta):
                         trainer=trainer
                     )
                 )
+
+    @commands.Cog.listener("on_message_without_command")
+    async def pokenav_set_trainer_code(self, message: discord.Message) -> None:
+        ctx = await self.bot.get_context(message)
+        del message
+        if not (await self.bot.message_eligible_as_command(ctx.message)):
+            return
+
+        if await self.bot.cog_disabled_in_guild(self, ctx.guild):
+            return
+
+        match = re.match(r"^\$(?:stc|set-trainer-code)\s(.*)$", ctx.message.content)
+        if match:
+            return await self._set_trainer_code(ctx, True, match[1])
