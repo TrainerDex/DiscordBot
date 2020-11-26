@@ -20,7 +20,7 @@ from .profile import Profile
 from .settings import Settings
 from .utils import append_twitter, check_xp, loading
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
 
@@ -104,7 +104,7 @@ class TrainerDex(
         api_tokens = await self.bot.get_shared_api_tokens("trainerdex")
         token = api_tokens.get("token", "")
         if not token:
-            log.warning("No valid token found")
+            logger.warning("No valid token found")
         self.client = client.Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")

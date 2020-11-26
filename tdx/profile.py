@@ -14,7 +14,7 @@ from .abc import MixinMeta
 from .embeds import ProfileCard
 from .utils import loading
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 

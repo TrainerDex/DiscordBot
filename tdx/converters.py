@@ -9,7 +9,7 @@ import trainerdex as client
 from redbot.core.i18n import Translator
 from redbot.core import commands
 
-logger: logging.Logger = logging.getLogger("TrainerDex.DiscordBot")
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 
@@ -52,6 +52,8 @@ class NicknameConverter(commands.Converter):
         return r"[A-Za-z0-9]{3,15}$"
 
     async def convert(self, ctx: commands.Context, argument: str) -> str:
+        logger.debug("NicknameConverter: argument: %s", argument)
+
         match: Union[re.Match, None] = re.match(self.regex, argument)
         if match is None:
             raise commands.BadArgument(
@@ -77,6 +79,7 @@ class TrainerConverter(commands.Converter):
         argument: Union[str, discord.User, discord.Member],
         cli: client.Client = client.Client(),
     ) -> client.Trainer:
+        logger.debug("TrainerConverter: argument: %s", argument)
 
         mention = None
         if isinstance(argument, str):
@@ -111,6 +114,7 @@ class TeamConverter(commands.Converter):
         }
 
     async def convert(self, ctx: commands.Context, argument: str) -> client.Faction:
+        logger.debug("TeamConverter: argument: %s", argument)
         if isinstance(argument, int) or argument.isnumeric():
             if int(argument) in self.teams.keys():
                 result = client.Faction(int(argument))
@@ -134,6 +138,7 @@ class TeamConverter(commands.Converter):
 
 class LevelConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+        logger.debug("LevelConverter: argument: %s", argument)
         try:
             return client.update.get_level(level=int(argument))
         except KeyError:
@@ -142,6 +147,7 @@ class LevelConverter(commands.Converter):
 
 class TotalXPConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+        logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
             raise commands.BadArgument(_("Not a valid number."))
         elif int(argument) < 100:

@@ -17,7 +17,7 @@ from .abc import MixinMeta
 from .embeds import BaseCard
 from .utils import append_icon, loading
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
 

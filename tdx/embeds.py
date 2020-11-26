@@ -16,7 +16,7 @@ from dateutil.relativedelta import MO
 from dateutil.rrule import rrule, WEEKLY
 from dateutil.tz import UTC
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 config = Config.get_conf(
     None,
@@ -97,7 +97,7 @@ class ProfileCard(BaseCard):
         try:
             self.update = max(self.trainer.updates, key=check_xp)
         except ValueError:
-            log.warning("No updates found for {user}".format(user=self.trainer))
+            logger.warning("No updates found for %(user)s", {"user": self.trainer})
 
         self.colour: int = self.trainer.team.colour
         self.title: str = _("{nickname} | TL{level}").format(

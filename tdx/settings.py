@@ -12,7 +12,7 @@ from redbot.core.utils import chat_formatting as cf
 from .abc import MixinMeta
 
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 
