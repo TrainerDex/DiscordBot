@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [CalVer](https://calver.org/) `YYYY.0W.patch`.
 
 ## [Unreleased]
+### Changed
+- Fixed `[p]editprofile trainercode`
+- Fixed `[p]editprofile startdate`
+- Fixed a bug in `[p]profile` where it would return yourself if it can't find who you're looking for
+- Aliased `$stc` to `[p]editprofile trainercode` so hook into commands intended for PokeNav to set the Trainer Code so you only need to set once.
+
+### Added
+- Added `trainercode` to search for trainer codes
+
 
 ## [2020.40.2] - 2020-10-02
 ### Dependencies
