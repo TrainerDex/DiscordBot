@@ -23,24 +23,37 @@ class Profile(MixinMeta):
     async def view_profile(
         self,
         ctx: commands.Context,
-        trainer: Optional[converters.TrainerConverter] = None,
+        nickname: str = None,
     ) -> None:
         """Find a profile given a username."""
 
         async with ctx.typing():
-            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
-
-            self_profile = False
-            if trainer is None:
-                trainer: client.Trainer = await converters.TrainerConverter().convert(
+            try:
+                logger.debug("searching for trainer by discord uid: %s", ctx.author.id)
+                author_profile = await converters.TrainerConverter().convert(
                     ctx, ctx.author, cli=self.client
                 )
-                self_profile = True
+            except commands.BadArgument:
+                author_profile = None
+
+            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
+
+            if nickname is None:
+                trainer = author_profile
+            else:
+                try:
+                    logger.debug("searching for trainer by username: %s", nickname)
+                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                        ctx, nickname, cli=self.client
+                    )
+                except commands.BadArgument:
+                    await message.edit(content=cf.warning(_("Profile not found.")))
+                    return
 
             if trainer:
                 if trainer.is_visible:
                     await message.edit(content=loading(_("Found profile. Loading…")))
-                elif self_profile:
+                elif trainer == author_profile:
                     if ctx.guild:
                         await message.edit(content=_("Sending in DMs"))
                         message = await ctx.author.send(

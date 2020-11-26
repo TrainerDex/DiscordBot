@@ -45,7 +45,7 @@ class BaseCard(discord.Embed):
         self.type: str = kwargs.get("type", "rich")
         self.url: str = kwargs.get("url", EmptyEmbed)
         self.description: str = kwargs.get("description", EmptyEmbed)
-        self.timestamp = kwargs.get("timestamp")
+        self.timestamp = kwargs.get("timestamp", EmptyEmbed)
 
         notice: str = await config.notice()
         if notice:
