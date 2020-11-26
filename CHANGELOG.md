@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [CalVer](https://calver.org/) `YYYY.0W.patch`.
 
 ## [Unreleased]
+
+## [2020.48.0] - 2020-11-26
 ### Changed
 - Fixed `[p]editprofile trainercode`
 - Fixed `[p]editprofile startdate`
@@ -160,8 +162,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.40.0...HEAD
-[2020.48.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.38.0...v2020.40.0
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.48.0...HEAD
+[2020.48.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.40.2...v2020.48.0
+[2020.40.2]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.40.0...v2020.40.2
+[2020.40.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.38.0...v2020.40.0
 [2020.38.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.1...v2020.38.0
 [2020.37.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.37.0...v2020.37.1
 [2020.37.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v2020.36.1...v2020.37.0
