@@ -174,7 +174,9 @@ class Profile(MixinMeta):
     @edit_profile.command(
         name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"]
     )
-    async def set_friendcode(self, ctx: commands.Context, value: str) -> None:
+    async def set_friendcode(
+        self, ctx: commands.Context, *, value: converters.TrainerCodeValidator
+    ) -> None:
         async with ctx.typing():
             try:
                 trainer = await converters.TrainerConverter().convert(
@@ -183,7 +185,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 await ctx.send(cf.error("No profile found."))
 
-        if value is not None:
+        if value:
             async with ctx.typing():
                 await trainer.edit(trainer_code=value)
                 await ctx.tick()

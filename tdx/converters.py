@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import re
 from typing import Any, Union
 
@@ -8,6 +9,7 @@ import trainerdex as client
 from redbot.core.i18n import Translator
 from redbot.core import commands
 
+logger: logging.Logger = logging.getLogger("TrainerDex.DiscordBot")
 _ = Translator("TrainerDex", __file__)
 
 
@@ -146,3 +148,14 @@ class TotalXPConverter(commands.Converter):
             raise commands.BadArgument(_("Value too low."))
         else:
             return int(argument)
+
+
+class TrainerCodeValidator(commands.Converter):
+    async def convert(self, ctx: commands.Context, argument: str) -> str:
+        logger.debug("TrainerCodeValidator: argument: %s", argument)
+        if re.match(r"^(\d{4}[\s-]?){3}$", argument):
+            return re.sub(r"[\s-]", "", argument)
+        else:
+            raise commands.BadArgument(
+                _("Trainer Code must be 12 digits long and contain only numbers and whitespace.")
+            )
