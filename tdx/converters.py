@@ -1,14 +1,15 @@
-import datetime
+import contextlib
+import logging
 import re
 from typing import Any, Union
 
 import discord
-from dateutil.parser import parse
 
 import trainerdex as client
 from redbot.core.i18n import Translator
 from redbot.core import commands
 
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 
@@ -51,6 +52,8 @@ class NicknameConverter(commands.Converter):
         return r"[A-Za-z0-9]{3,15}$"
 
     async def convert(self, ctx: commands.Context, argument: str) -> str:
+        logger.debug("NicknameConverter: argument: %s", argument)
+
         match: Union[re.Match, None] = re.match(self.regex, argument)
         if match is None:
             raise commands.BadArgument(
@@ -76,20 +79,18 @@ class TrainerConverter(commands.Converter):
         argument: Union[str, discord.User, discord.Member],
         cli: client.Client = client.Client(),
     ) -> client.Trainer:
+        logger.debug("TrainerConverter: argument: %s", argument)
 
         mention = None
         if isinstance(argument, str):
             is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
+            if is_valid_nickname:
+                with contextlib.suppress(IndexError):
+                    return await cli.search_trainer(argument)
+
             is_mention = await safe_convert(
                 discord.ext.commands.converter.UserConverter, ctx, argument
             )
-            if is_valid_nickname:
-                try:
-                    return await cli.search_trainer(argument)
-                except IndexError:
-                    pass
-                mention = None
-
             if is_mention:
                 mention = is_mention
         elif isinstance(argument, (discord.User, discord.Member)):
@@ -113,6 +114,7 @@ class TeamConverter(commands.Converter):
         }
 
     async def convert(self, ctx: commands.Context, argument: str) -> client.Faction:
+        logger.debug("TeamConverter: argument: %s", argument)
         if isinstance(argument, int) or argument.isnumeric():
             if int(argument) in self.teams.keys():
                 result = client.Faction(int(argument))
@@ -136,6 +138,7 @@ class TeamConverter(commands.Converter):
 
 class LevelConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+        logger.debug("LevelConverter: argument: %s", argument)
         try:
             return client.update.get_level(level=int(argument))
         except KeyError:
@@ -144,6 +147,7 @@ class LevelConverter(commands.Converter):
 
 class TotalXPConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+        logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
             raise commands.BadArgument(_("Not a valid number."))
         elif int(argument) < 100:
@@ -152,11 +156,12 @@ class TotalXPConverter(commands.Converter):
             return int(argument)
 
 
-class DatetimeConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> datetime.datetime:
-        return parse(argument)
-
-
-class DateConverter(DatetimeConverter):
-    async def convert(self, ctx: commands.Context, argument: str) -> datetime.date:
-        return await super().convert(ctx, argument).date()
+class TrainerCodeValidator(commands.Converter):
+    async def convert(self, ctx: commands.Context, argument: str) -> str:
+        logger.debug("TrainerCodeValidator: argument: %s", argument)
+        if re.match(r"^(\d{4}[\s-]?){3}$", argument):
+            return re.sub(r"[\s-]", "", argument)
+        else:
+            raise commands.BadArgument(
+                _("Trainer Code must be 12 digits long and contain only numbers and whitespace.")
+            )

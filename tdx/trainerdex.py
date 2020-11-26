@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 from abc import ABC
@@ -19,7 +20,7 @@ from .profile import Profile
 from .settings import Settings
 from .utils import append_twitter, check_xp, loading
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 _ = Translator("TrainerDex", __file__)
 
@@ -103,7 +104,7 @@ class TrainerDex(
         api_tokens = await self.bot.get_shared_api_tokens("trainerdex")
         token = api_tokens.get("token", "")
         if not token:
-            log.warning("No valid token found")
+            logger.warning("No valid token found")
         self.client = client.Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")
@@ -131,17 +132,21 @@ class TrainerDex(
         if not profile_ocr:
             return
 
-        await ctx.message.add_reaction(self.bot.get_emoji(471298325904359434))
+        with contextlib.suppress(
+            discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
+        ):
+            await ctx.message.add_reaction(self.emoji.get("loading"))
 
         try:
             trainer: client.Trainer = await converters.TrainerConverter().convert(
                 ctx, ctx.author, cli=self.client
             )
         except discord.ext.commands.errors.BadArgument:
-            await ctx.message.remove_reaction(
-                self.bot.get_emoji(471298325904359434), self.bot.user
-            )
-            await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
+            with contextlib.suppress(
+                discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
+            ):
+                await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
+                await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             await ctx.send(
                 _(
                     "{author.mention} No TrainerDex profile found for this Discord account."
@@ -152,132 +157,145 @@ class TrainerDex(
             return
 
         async with ctx.channel.typing():
+            message = await ctx.send(loading(_("That's a nice image you have there, let's see…")))
+            ocr = PogoOCR.ProfileSelf(
+                POGOOCR_TOKEN_PATH, image_uri=ctx.message.attachments[0].proxy_url
+            )
             try:
-                message: discord.Message = await ctx.send(
-                    loading(_("That's a nice image you have there, let's see…"))
-                )
-                ocr = PogoOCR.ProfileSelf(
-                    POGOOCR_TOKEN_PATH, image_uri=ctx.message.attachments[0].proxy_url
-                )
                 ocr.get_text()
+            except PogoOCR.OutOfRetriesException:
+                await ctx.send(
+                    cf.error(
+                        _(
+                            "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
+                        )
+                    )
+                )
+                return
 
-                data_found = {
-                    "travel_km": ocr.travel_km,
-                    "capture_total": ocr.capture_total,
-                    "pokestops_visited": ocr.pokestops_visited,
-                    "total_xp": ocr.total_xp,
-                }
+            data_found = {
+                "travel_km": ocr.travel_km,
+                "capture_total": ocr.capture_total,
+                "pokestops_visited": ocr.pokestops_visited,
+                "total_xp": ocr.total_xp,
+            }
 
-                if data_found.get("total_xp"):
+            if data_found.get("total_xp"):
+                await message.edit(
+                    content=append_twitter(
+                        loading(
+                            _(
+                                "{user}, we found the following stats:\n"
+                                "{stats}\nJust processing that now…"
+                            )
+                        ).format(user=ctx.author.mention, stats=cf.box(data_found))
+                    )
+                )
+
+                if max(trainer.updates, key=check_xp).total_xp > data_found.get("total_xp"):
                     await message.edit(
                         content=append_twitter(
-                            loading(
+                            cf.warning(
                                 _(
-                                    "{user}, we found the following stats:\n"
-                                    "{stats}\nJust processing that now…"
+                                    "You've previously set your XP to higher than what you're trying to set it to. "
+                                    "It's currently set to {xp}."
                                 )
-                            ).format(user=ctx.author.mention, stats=cf.box(data_found))
-                        )
+                            )
+                        ).format(xp=cf.humanize_number(data_found.get("total_xp")))
                     )
-
-                    if max(trainer.updates, key=check_xp).total_xp > data_found.get("total_xp"):
-                        await message.edit(
-                            content=append_twitter(
-                                cf.warning(
-                                    _(
-                                        "You've previously set your XP to higher than what you're trying to set it to. "
-                                        "It's currently set to {xp}."
-                                    )
-                                )
-                            ).format(xp=cf.humanize_number(data_found.get("total_xp")))
-                        )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
+                    with contextlib.suppress(
+                        discord.HTTPException,
+                        discord.Forbidden,
+                        discord.NotFound,
+                        discord.InvalidArgument,
+                    ):
+                        await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
-                    elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
-                        text: str = cf.warning(
-                            _(
-                                "You've already set your XP to this figure. "
-                                "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
-                            )
+                elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
+                    text: str = cf.warning(
+                        _(
+                            "You've already set your XP to this figure. "
+                            "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                         )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
+                    )
+                    with contextlib.suppress(
+                        discord.HTTPException,
+                        discord.Forbidden,
+                        discord.NotFound,
+                        discord.InvalidArgument,
+                    ):
+                        await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
-                    else:
-                        await trainer.post(
-                            stats=data_found,
-                            data_source="ss_ocr",
-                            update_time=ctx.message.created_at,
-                        )
-                        await ctx.message.remove_reaction(
-                            self.bot.get_emoji(471298325904359434), self.bot.user
-                        )
-                        await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
-                        text = None
-
-                    if ctx.guild and not trainer.is_visible:
-                        await message.edit(_("Sending in DMs"))
-                        message = await ctx.author.send(content=loading(_("Loading output…")))
-
-                    await message.edit(
-                        content="\n".join(
-                            [x for x in [text, loading(_("Loading output…"))] if x is not None]
-                        )
-                    )
-                    embed: discord.Embed = await ProfileCard(
-                        ctx=ctx,
-                        client=self.client,
-                        trainer=trainer,
-                        emoji=self.emoji,
-                    )
-                    await message.edit(
-                        content="\n".join(
-                            [x for x in [text, loading(_("Loading output…"))] if x is not None]
-                        )
-                    )
-                    await embed.show_progress()
-                    await message.edit(
-                        content="\n".join(
-                            [
-                                x
-                                for x in [text, loading(_("Loading leaderboards…"))]
-                                if x is not None
-                            ]
-                        ),
-                        embed=embed,
-                    )
-                    await embed.add_leaderboard()
-                    if ctx.guild:
-                        await message.edit(embed=embed)
-                        await embed.add_guild_leaderboard(ctx.guild)
-                    await message.edit(content=text, embed=embed)
                 else:
-                    await message.edit(
-                        content=cf.error(_("I could not find Total XP in your image. "))
-                        + "\n\n"
-                        + cf.info(
-                            _(
-                                "We use Google Vision API to read your images. "
-                                "Please ensure that the ‘Total XP’ field is visible. "
-                                "If it is visible and your image still doesn't scan after a minute, try a new image. "
-                                "Posting the same image again, will likely cause another failure."
-                            )
+                    await trainer.post(
+                        stats=data_found,
+                        data_source="ss_ocr",
+                        update_time=ctx.message.created_at,
+                    )
+                    with contextlib.suppress(
+                        discord.HTTPException,
+                        discord.Forbidden,
+                        discord.NotFound,
+                        discord.InvalidArgument,
+                    ):
+                        await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
+                        await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                    text = None
+
+                if ctx.guild and not trainer.is_visible:
+                    await message.edit(_("Sending in DMs"))
+                    message = await ctx.author.send(content=loading(_("Loading output…")))
+
+                await message.edit(
+                    content="\n".join(
+                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                    )
+                )
+                embed: discord.Embed = await ProfileCard(
+                    ctx=ctx,
+                    client=self.client,
+                    trainer=trainer,
+                    emoji=self.emoji,
+                )
+                await message.edit(
+                    content="\n".join(
+                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                    )
+                )
+                await embed.show_progress()
+                await message.edit(
+                    content="\n".join(
+                        [x for x in [text, loading(_("Loading leaderboards…"))] if x is not None]
+                    ),
+                    embed=embed,
+                )
+                await embed.add_leaderboard()
+                if ctx.guild:
+                    await message.edit(embed=embed)
+                    await embed.add_guild_leaderboard(ctx.guild)
+                await message.edit(content=text, embed=embed)
+            else:
+                await message.edit(
+                    content=cf.error(_("I could not find Total XP in your image. "))
+                    + "\n\n"
+                    + cf.info(
+                        _(
+                            "We use Google Vision API to read your images. "
+                            "Please ensure that the ‘Total XP’ field is visible. "
+                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                            "Posting the same image again, will likely cause another failure."
                         )
                     )
-                    await ctx.message.remove_reaction(
-                        self.bot.get_emoji(471298325904359434), self.bot.user
-                    )
-                    await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
-            except Exception as e:
-                await ctx.send(
-                    "`Error in function 'check_screenshot'."
-                    " Check your console or logs for details.`"
                 )
-                raise e
+                with contextlib.suppress(
+                    discord.HTTPException,
+                    discord.Forbidden,
+                    discord.NotFound,
+                    discord.InvalidArgument,
+                ):
+                    await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
+                    await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
 
     async def red_delete_data_for_user(
         self,

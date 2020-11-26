@@ -12,7 +12,7 @@ from redbot.core.utils import chat_formatting as cf
 from .abc import MixinMeta
 
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 
 
@@ -22,7 +22,7 @@ class Settings(MixinMeta):
     @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
         await ctx.tick()
-        message = await ctx.send(_("Looking for team roles..."))
+        message = await ctx.send(_("Looking for team roles…"))
 
         try:
             mystic_role: discord.Role = min(
@@ -63,7 +63,7 @@ class Settings(MixinMeta):
                 delete_after=30,
             )
 
-        await message.edit(content=_("Looking for TL40 role..."))
+        await message.edit(content=_("Looking for TL40 role…"))
 
         try:
             tl40_role: discord.Role = min(

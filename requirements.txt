@@ -1,6 +1,6 @@
-git+https://github.com/Ext-Creators/discord-ext-alternatives@5482a4e7a5387563fe1662ba95e22134572a369c#egg=discord-ext-alternatives
+discord-ext-alternatives>=2020.10.11
 humanize
-PogoOCR==0.3.4
+PogoOCR==0.3.6
 python-dateutil
-git+https://github.com/Kowlin/Red-DiscordBot@pr/guild-i18n#egg=Red-DiscordBot
-trainerdex==3.6.1
+Red-DiscordBot>=3.4.1,<3.5.0
+git+https://github.com/TrainerDex/TrainerDex.py.git@release/3.7.0#trainerdex>=3.6.2,<3.8.0

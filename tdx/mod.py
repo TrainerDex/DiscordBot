@@ -24,7 +24,7 @@ from .utils import (
     success,
 )
 
-log: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
 
@@ -257,10 +257,9 @@ class ModCmds(MixinMeta):
                 await message.edit(content=approval_message)
                 message: discord.Message = await ctx.send(loading(""))
 
-        log.info(
-            "Attempting to add {user} to database, checking if they already exist".format(
-                user=answers.get("nickname")
-            )
+        logger.info(
+            "Attempting to add %(user)s to database, checking if they already exist",
+            {"user": answers.get("nickname")},
         )
 
         await message.edit(content=loading(_("Checking for user in database")))
@@ -278,7 +277,7 @@ class ModCmds(MixinMeta):
                 trainer = None
 
         if trainer is not None:
-            log.info("We found a trainer: {trainer.username}")
+            logger.info("We found a trainer: %(trainer)s", {"trainer": trainer.username})
             await message.edit(
                 content=loading(
                     _("An existing record was found for {user}. Updating details…").format(
@@ -298,7 +297,7 @@ class ModCmds(MixinMeta):
                 else True
             )
         else:
-            log.info(f"{nickname}: No user found, creating profile")
+            logger.info("%s: No user found, creating profile", nickname)
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
             trainer: client.Trainer = await self.client.create_trainer(
                 username=nickname, faction=answers.get("team").id, is_verified=True
