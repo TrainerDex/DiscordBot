@@ -137,7 +137,7 @@ class Leaderboard(MixinMeta):
         elif len(levels) == 1:
             levels = range(levels.pop() + 1)
         else:
-            levels = range(1, 41)
+            levels = range(1, 51)
 
         levels = {client.update.get_level(level=i) for i in levels}
 
@@ -177,7 +177,9 @@ class Leaderboard(MixinMeta):
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
         )
-        leaderboard.filter(lambda x: x.faction in factions).filter(lambda x: x.level in levels)
+        leaderboard.filter(lambda x: x.faction in factions).filter(
+            lambda x: client.update.get_level(level=int(str(x.level).split("-")[0])) in levels
+        )
 
         if len(leaderboard) < 1:
             await message.edit(content=_("No results to display!"))
