@@ -4,94 +4,94 @@ msgstr ""
 "POT-Creation-Date: 2020-11-26 23:30+0000\n"
 "PO-Revision-Date: 2020-11-27 02:41\n"
 "Last-Translator: \n"
-"Language-Team: Spanish\n"
+"Language-Team: Hebrew\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: redgettext 3.3\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3;\n"
 "X-Crowdin-Project: trainerdex\n"
 "X-Crowdin-Project-ID: 413366\n"
-"X-Crowdin-Language: es-ES\n"
+"X-Crowdin-Language: he\n"
 "X-Crowdin-File: /master/messages.pot\n"
 "X-Crowdin-File-ID: 34\n"
-"Language: es_ES\n"
+"Language: he_IL\n"
 
 #: tdx/converters.py:60
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
-msgstr "{} no es un nombre de usuario válido de Pokemon Go. Un nombre de usuario de Pokemon Go es de 3-15 letras o números de largo."
+msgstr ""
 
 #: tdx/converters.py:104
 msgid "Trainer `{}` not found"
-msgstr "Entrenador `{}` no encontrado"
+msgstr ""
 
 #: tdx/converters.py:134
 msgid "Team `{}` not found"
-msgstr "Equipo `{}` no encontrado"
+msgstr ""
 
 #: tdx/converters.py:145
 msgid "Not a valid level. Please choose between 1-40"
-msgstr "Nivel no válido. Por favor, elige entre 1-40"
+msgstr ""
 
 #: tdx/converters.py:152
 msgid "Not a valid number."
-msgstr "No es un número válido."
+msgstr ""
 
 #: tdx/converters.py:154
 msgid "Value too low."
-msgstr "Valor demasiado bajo."
+msgstr ""
 
 #: tdx/converters.py:166
 msgid "Trainer Code must be 12 digits long and contain only numbers and whitespace."
-msgstr "El código de entrenador debe tener 12 dígitos y contener números y espacios en blanco."
+msgstr ""
 
 #: tdx/embeds.py:103
 msgid "{nickname} | TL{level}"
-msgstr "{nickname} | TL{level}"
+msgstr ""
 
 #: tdx/embeds.py:127 tdx/embeds.py:275 tdx/embeds.py:291
 #: tdx/leaderboard.py:120
 msgid "Distance Walked"
-msgstr "Distancia caminando"
+msgstr ""
 
 #: tdx/embeds.py:133 tdx/embeds.py:299 tdx/embeds.py:318
 #: tdx/leaderboard.py:121
 msgid "Pokémon Caught"
-msgstr "Pokémon atrapados"
+msgstr ""
 
 #: tdx/embeds.py:140 tdx/embeds.py:327 tdx/embeds.py:347
 #: tdx/leaderboard.py:122
 msgid "PokéStops Visited"
-msgstr "Poképaradas visitadas"
+msgstr ""
 
 #: tdx/embeds.py:147 tdx/embeds.py:355 tdx/embeds.py:370
 #: tdx/leaderboard.py:123
 msgid "Total XP"
-msgstr "Total de PX"
+msgstr ""
 
 #: tdx/embeds.py:176
 msgid "{guild.name} Leaderboard (All)"
-msgstr "{guild.name} Tablero (Todos)"
+msgstr ""
 
 #: tdx/embeds.py:199
 msgid "Leaderboard (Top 1000)"
-msgstr "Tabla de clasificación (Top 1000)"
+msgstr ""
 
 #: tdx/embeds.py:252
 msgid "No data old enough found, using start date."
-msgstr "No se encontraron datos con suficiente antigüedad, usando la fecha de inicio."
+msgstr ""
 
 #: tdx/embeds.py:264
 msgid "Interval"
-msgstr "Intervalo"
+msgstr ""
 
 #: tdx/embeds.py:280 tdx/embeds.py:307 tdx/embeds.py:335 tdx/embeds.py:360
 msgid "{gain}/day"
-msgstr "{gain}/día"
+msgstr ""
 
 #: tdx/leaderboard.py:49
 msgid "Page {page} of {pages} | {footer}"
-msgstr "Página {page} de {pages} | {footer}"
+msgstr ""
 
 #: tdx/leaderboard.py:82
 #, docstring
@@ -119,27 +119,25 @@ msgstr ""
 
 #: tdx/leaderboard.py:146
 msgid "{stat} Leaderboard"
-msgstr "{stat} Tabla de clasificación"
+msgstr ""
 
 #: tdx/leaderboard.py:156
 msgid "{tag} Downloading {leaderboard}…"
-msgstr "{tag} Descargando {leaderboard}…"
+msgstr ""
 
 #: tdx/leaderboard.py:164
 msgid "Average {stat_name}: {stat_avg}\n"
 "                Trainers: {stat_count}\n"
 "                Sum of all Trainers: {stat_sum}"
-msgstr "Promedio {stat_name}: {stat_avg}\n"
-"                Entrenadores: {stat_count}\n"
-"                Suma de todos los Entrenadores: {stat_sum}"
+msgstr ""
 
 #: tdx/leaderboard.py:176
 msgid "{tag} Filtering {leaderboard}…"
-msgstr "{tag} Filtrando {leaderboard}…"
+msgstr ""
 
 #: tdx/leaderboard.py:183
 msgid "No results to display!"
-msgstr "No hay resultados que mostrar!"
+msgstr ""
 
 #: tdx/mod.py:79
 #, docstring
@@ -152,138 +150,138 @@ msgstr ""
 
 #: tdx/mod.py:93
 msgid "What is the in-game username of {user}?"
-msgstr "¿Cuál es el nombre de usuario del juego {user}?"
+msgstr ""
 
 #: tdx/mod.py:97
 msgid "What team is {user} in?"
-msgstr "¿En qué equipo está {user}?"
+msgstr ""
 
 #: tdx/mod.py:101
 msgid "What is {user}‘s Total XP?"
-msgstr "¿Cuál es el total de PX de {user}?"
+msgstr ""
 
 #: tdx/mod.py:117
 msgid "Answer could not be determined. Abandoning!"
-msgstr "No se pudo determinar la respuesta. ¡Abandonando!"
+msgstr ""
 
 #: tdx/mod.py:120
 msgid "Cancelled!"
-msgstr "Cancelado!"
+msgstr ""
 
 #: tdx/mod.py:123
 msgid "Let's go…"
-msgstr "Vámonos…"
+msgstr ""
 
 #: tdx/mod.py:139
 msgid "Adding roles ({roles}) to {user}"
-msgstr "Añadiendo roles ({roles}) a {user}"
+msgstr ""
 
 #: tdx/mod.py:148 tdx/mod.py:176 tdx/mod.py:203 tdx/mod.py:542 tdx/mod.py:553
 #: tdx/mod.py:564
 msgid "{mod} ran the command `{command}`"
-msgstr "{mod} ejecutó el comando `{command}`"
+msgstr ""
 
 #: tdx/mod.py:157
 msgid "Added roles ({roles}) to {user}"
-msgstr "Añadiendo roles ({roles}) a {user}"
+msgstr ""
 
 #: tdx/mod.py:167
 msgid "Removing roles ({roles}) from {user}"
-msgstr "Removiendo roles ({roles}) a {user}"
+msgstr ""
 
 #: tdx/mod.py:185
 msgid "Removed roles ({roles}) from {user}"
-msgstr "Removiendo roles ({roles}) de {user}"
+msgstr ""
 
 #: tdx/mod.py:195
 msgid "Changing {user}‘s nick to {nickname}"
-msgstr "Cambiando el apodo de {user} a {nickname}"
+msgstr ""
 
 #: tdx/mod.py:212
 msgid "Changed {user}‘s nick to {nickname}"
-msgstr "Cambiando el apodo de {user} a {nickname}"
+msgstr ""
 
 #: tdx/mod.py:220
 msgid "{user} has been approved!\n"
-msgstr "{user} ha sido aprobado! \n"
+msgstr ""
 
 #: tdx/mod.py:227
 msgid "{count} role(s) added.\n"
-msgstr "{count} role(s) añadido(s).\n"
+msgstr ""
 
 #: tdx/mod.py:232
 msgid "Some roles could not be added. ({roles})\n"
-msgstr "Algunos roles no se han podido añadir. ({roles})\n"
+msgstr ""
 
 #: tdx/mod.py:238
 msgid "{count} role(s) removed.\n"
-msgstr "{count} role(s) removido(s).\n"
+msgstr ""
 
 #: tdx/mod.py:243
 msgid "Some roles could not be removed. ({roles})\n"
-msgstr "Algunos roles no se han podido remover. ({roles})\n"
+msgstr ""
 
 #: tdx/mod.py:249
 msgid "User nickname set.\n"
-msgstr "Se estableció su nombre de usuario.\n"
+msgstr ""
 
 #: tdx/mod.py:252
 msgid "User nickname could not be set. (`{nickname}`)\n"
-msgstr "No se pudo establecer el nombre de usuario. (`{nickname}`)\n"
+msgstr ""
 
 #: tdx/mod.py:265
 msgid "Checking for user in database"
-msgstr "Comprobando usuario en la base de datos"
+msgstr ""
 
 #: tdx/mod.py:283
 msgid "An existing record was found for {user}. Updating details…"
-msgstr "Se encontró un registro existente para {user}. Actualizando detalles…"
+msgstr ""
 
 #: tdx/mod.py:301
 msgid "Creating {user}"
-msgstr "Creando usuario {user}"
+msgstr ""
 
 #: tdx/mod.py:307
 msgid "Created {user}"
-msgstr "Usuario creado {user}"
+msgstr ""
 
 #: tdx/mod.py:312
 msgid "Setting Total XP for {user} to {total_xp}."
-msgstr "Ajustando Total de PX para {user} a {total_xp}."
+msgstr ""
 
 #: tdx/mod.py:324
 msgid "Won't set Total XP for {user}."
-msgstr "No se ha establecido el total de PX para {user}."
+msgstr ""
 
 #: tdx/mod.py:335 tdx/mod.py:348
 msgid "Successfully added {user} as {trainer}."
-msgstr "Exitosamente añadido {user} como {trainer}."
+msgstr ""
 
 #: tdx/mod.py:337
 msgid "Loading profile…"
-msgstr "Cargando perfil…"
+msgstr ""
 
 #: tdx/mod.py:357
 #, docstring
 msgid "⬎ TrainerDex-specific Moderation Commands"
-msgstr "⬎ TrainerDex-específico Comandos de Moderación"
+msgstr ""
 
 #: tdx/mod.py:363
 #, docstring
 msgid "Returns a reason why OCR would have failed"
-msgstr "Devuelve una razón por la que OCR habría fallado"
+msgstr ""
 
 #: tdx/mod.py:368
 msgid "Message {message.id} failed because the cog is disabled in the guild"
-msgstr "El mensaje {message.id} falló porque el módulo está deshabilitado en el servidor"
+msgstr ""
 
 #: tdx/mod.py:376
 msgid "Message {message.id} failed because there is no file attached."
-msgstr "El mensaje {message.id} falló porque no hay ningún archivo adjunto."
+msgstr ""
 
 #: tdx/mod.py:384
 msgid "Message {message.id} failed because there more than file attached."
-msgstr "El mensaje {message.id} falló porque hay más archivos adjuntos."
+msgstr ""
 
 #: tdx/mod.py:396
 msgid "Message {message.id} failed because the file is not jpg or png."
@@ -291,15 +289,15 @@ msgstr ""
 
 #: tdx/mod.py:405
 msgid "Message {message.id} failed because that channel is not enabled for OCR"
-msgstr "El mensaje {message.id} falló porque ese canal no está habilitado para OCR"
+msgstr ""
 
 #: tdx/mod.py:415
 msgid "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
-msgstr "El mensaje {message.id} falló porque no pude encontrar un usuario de TrainerDex para {message.author}"
+msgstr ""
 
 #: tdx/mod.py:428
 msgid "Message {message.id} failed because for an unknown reason"
-msgstr "El mensaje {message.id} falló por una razón desconocida"
+msgstr ""
 
 #: tdx/mod.py:472
 #, docstring
@@ -307,69 +305,64 @@ msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, 
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
 "        It can really mess with roles on a mass scale.\n"
 "        "
-msgstr "EXPERIMENTAL: Comprueba los usuarios existentes que no tienen los roles correctos, y los aplica\n\n"
-"        Advertencia: Este comando es lento y experimental. No se recomienda ejecutarlo sin comprobar primero su configuración en roles_to_assign_on_approvation.\n"
-"        Realmente puede alterar los roles a gran escala.\n"
-"        "
+msgstr ""
 
 #: tdx/profile.py:29 tdx/profile.py:90
 #, docstring
 msgid "Find a profile given a username."
-msgstr "Encuentra un perfil dado con un nombre de usuario."
+msgstr ""
 
 #: tdx/profile.py:40 tdx/profile.py:101
 msgid "Searching for profile…"
-msgstr "Buscando perfil…"
+msgstr ""
 
 #: tdx/profile.py:51 tdx/profile.py:69 tdx/profile.py:112 tdx/profile.py:125
 msgid "Profile not found."
-msgstr "Perfil no encontrado."
+msgstr ""
 
 #: tdx/profile.py:56 tdx/profile.py:61 tdx/profile.py:64
 msgid "Found profile. Loading…"
-msgstr "Perfil encontrado. Cargando…"
+msgstr ""
 
 #: tdx/profile.py:59 tdx/trainerdex.py:247
 msgid "Sending in DMs"
-msgstr "Enviando en Mensaje privado"
+msgstr ""
 
 #: tdx/profile.py:66 tdx/profile.py:122
 msgid "Profile deactivated or hidden."
-msgstr "Perfil desactivado u oculto."
+msgstr ""
 
 #: tdx/profile.py:75
 msgid "Checking progress…"
-msgstr "Comprobando progreso…"
+msgstr ""
 
 #: tdx/profile.py:77 tdx/trainerdex.py:269
 msgid "Loading leaderboards…"
-msgstr "Cargando tablas de clasificación…"
+msgstr ""
 
 #: tdx/profile.py:119
 msgid "Unknown."
-msgstr "Desconocido."
+msgstr ""
 
 #: tdx/profile.py:129
 #, docstring
 msgid "Edit various aspects about your profile"
-msgstr "Editar varios aspectos de tu perfil"
+msgstr ""
 
 #: tdx/profile.py:161
 #, docstring
 msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
-msgstr "Establece la fecha de inicio de tu perfil\n\n"
-"        Esta es la fecha en la que comenzaste a jugar Pokemon Go y está por debajo del Total de Experiencia\n"
-"        "
+msgstr ""
 
 #: tdx/profile.py:178
 msgid "Can't set `{key}` because {error}"
-msgstr "No se puede establecer `{key}` porque {error}"
+msgstr ""
 
 #: tdx/profile.py:187
 msgid "Can't set `{key}` because the date is too early"
-msgstr "No se puede establecer `{key}` porque la fecha es demasiado temprana"
+msgstr ""
 
 #: tdx/profile.py:196 tdx/profile.py:223 tdx/settings.py:36 tdx/settings.py:49
 #: tdx/settings.py:62 tdx/settings.py:82 tdx/settings.py:118
@@ -378,7 +371,7 @@ msgstr "No se puede establecer `{key}` porque la fecha es demasiado temprana"
 #: tdx/settings.py:314 tdx/settings.py:342 tdx/settings.py:365
 #: tdx/settings.py:382
 msgid "`{key}` set to {value}"
-msgstr "`{key}` ajustar a {value}"
+msgstr ""
 
 #: tdx/profile.py:202 tdx/profile.py:229 tdx/settings.py:125
 #: tdx/settings.py:147 tdx/settings.py:171 tdx/settings.py:235
@@ -386,76 +379,68 @@ msgstr "`{key}` ajustar a {value}"
 #: tdx/settings.py:321 tdx/settings.py:351 tdx/settings.py:371
 #: tdx/settings.py:388
 msgid "`{key}` is {value}"
-msgstr "`{key}` es {value}"
+msgstr ""
 
 #: tdx/profile.py:206
 #, docstring
 msgid "Set if you should appear in Leaderboards\n\n"
 "        Hide or show yourself on leaderboards at will!\n"
 "        "
-msgstr "Establezca si debes aparecer en las tablas de clasificación\n\n"
-"        ¡Oculta o muestrate en las tablas de clasificación!\n"
-"        "
+msgstr ""
 
 #: tdx/profile.py:260
 msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
-msgstr "Código del entrenador de {trainer.nickname} establecido a {trainer.trainer_code}"
+msgstr ""
 
 #: tdx/settings.py:25
 msgid "Looking for team roles…"
-msgstr "Buscando roles de equipo…"
+msgstr ""
 
 #: tdx/settings.py:29
 msgid "Mystic"
-msgstr "Sabiduría"
+msgstr ""
 
 #: tdx/settings.py:42
 msgid "Valor"
-msgstr "Valor"
+msgstr ""
 
 #: tdx/settings.py:55
 msgid "Instinct"
-msgstr "Instinto"
+msgstr ""
 
 #: tdx/settings.py:66
 msgid "Looking for TL40 role…"
-msgstr "Buscando roles TL40…"
+msgstr ""
 
 #: tdx/settings.py:73
 msgid "Level 40"
-msgstr "Nivel 40"
+msgstr ""
 
 #: tdx/settings.py:94
 #, docstring
 msgid "⬎ Set server and/or channel settings"
-msgstr "⬎ Establecer la configuración del servidor y/o canal"
+msgstr ""
 
 #: tdx/settings.py:110
 #, docstring
 msgid "Modify the roles of members when they're approved.\n\n"
 "        This is useful for granting users access to the rest of the server.\n"
 "        "
-msgstr "Modifique los roles de los miembros cuando sean aprobados.\n"
-"        Es útil para otorgar a los usuarios acceso al resto del servidor.\n"
-"        "
+msgstr ""
 
 #: tdx/settings.py:132
 #, docstring
 msgid "Modify the nickname of members when they're approved.\n\n"
 "        This is useful for ensuring players can be easily identified.\n"
 "        "
-msgstr "Modifique el apodo de los miembros cuando sean aprobados.\n\n"
-"        Esto es útil para asegurar que los jugadores puedan ser fácilmente identificados.\n"
-"        "
+msgstr ""
 
 #: tdx/settings.py:154
 #, docstring
 msgid "Modify the nickname of members when they update their Total XP.\n\n"
 "        This is useful for setting levels in their name.\n"
 "        "
-msgstr "Modificar el nick de los miembros cuando actualizan su XP Total.\n\n"
-"        Esto es útil para ajustar niveles en su nombre.\n"
-"        "
+msgstr ""
 
 #: tdx/settings.py:181
 #, docstring
@@ -466,67 +451,57 @@ msgid "Which roles to add/remove to a user on approval\n\n"
 "            [p]tdxset guild roles_to_assign_on_approval remove @Guest\n"
 "                Remove these roles from users when they are approved\n"
 "        "
-msgstr "Qué roles añadir/eliminar a un usuario en la aprobación\n\n"
-"        Uso:\n"
-"            [p]tdxset guild roles_to_assign_on_approval add @Verified, @Entrenador...\n"
-"                Asignar estos roles a los usuarios cuando sean aprobados\n"
-"            [p]tdxset guild roles_to_assign_on_approval remove @Guest\n"
-"                Eliminar estos roles de usuarios cuando sean aprobados\n"
-"        "
+msgstr ""
 
 #: tdx/settings.py:304
 #, docstring
 msgid "Send a note to a member upon running `profile create` (aka, `approve`)\n\n"
 "        Set value to `None` to empty it\n"
 "        "
-msgstr "Envía una nota a un miembro al ejecutar `profile create` (aka, `approve`)\n\n"
-"        Establece el valor a `None` para vaciarlo\n"
-"        "
+msgstr ""
 
 #: tdx/settings.py:337
 #, docstring
 msgid "Set if this channel should accept OCR commands."
-msgstr "Configure si este canal debe aceptar comandos OCR."
+msgstr ""
 
 #: tdx/trainerdex.py:160
 msgid "That's a nice image you have there, let's see…"
-msgstr "Es una buena imagen la que tienes ahí, veamos…"
+msgstr ""
 
 #: tdx/trainerdex.py:169
 msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
-msgstr "OCR Error al reconocer el texto de la captura de pantalla. Por favor, prueba una *nueva* captura de pantalla."
+msgstr ""
 
 #: tdx/trainerdex.py:187
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
-msgstr "{user}, hemos encontrado las siguientes estadísticas:\n"
-"{stats}\n"
-"Procesando…"
+msgstr ""
 
 #: tdx/trainerdex.py:199
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
-msgstr "Previamente has establecido tu XP como superior a lo que estás intentando configurar. Actualmente está establecido en {xp}."
+msgstr ""
 
 #: tdx/trainerdex.py:217
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
-msgstr "Ya haz configurado el XP en esta cifra. En el futuro, para volver a ver el resultado, ejecute el comando `progress`, ya que nos cuesta ejecutar OCR."
+msgstr ""
 
 #: tdx/trainerdex.py:248 tdx/trainerdex.py:252 tdx/trainerdex.py:263
 msgid "Loading output…"
-msgstr "Cargando salida…"
+msgstr ""
 
 #: tdx/trainerdex.py:280
 msgid "I could not find Total XP in your image. "
-msgstr "No he podido encontrar el total de XP en su imagen. "
+msgstr ""
 
 #: tdx/trainerdex.py:283
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
-msgstr "Usamos la API de Google Vision para leer sus imágenes. Asegúrese que el campo `Total de PX` esté visible. Si está visible y su imagen aún no se escanea después de un minuto, pruebe con otra imagen. Volver a publicar la misma imagen probablemente provocará otro error."
+msgstr ""
 
 #: tdx/utils.py:20
 msgid "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
-msgstr "Si no te parece bien, por favor contáctanos en Twitter. {twitter_handle}"
+msgstr ""
 
 #: tdx/utils.py:63
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
@@ -535,27 +510,20 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "<{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
-msgstr "**Estás recibiendo este mensaje porque has sido añadido a la base de datos de TrainerDex. *\n\n"
-"Esto sería en respuesta a que te unas a `{server.name}` y publicas tus capturas de pantalla para que un mod te pueda aprobar.\n\n"
-"TrainerDex es una base de datos de entrenadores y tablero de Pokemon Go. Vea nuestra política de privacidad aquí: <{privacy_policy_url}>\n\n"
-"{is_visible_note}\n\n"
-"Si tienes alguna pregunta, por favor contáctenos en Twitter (<{twitter_handle}>), pregunta al mod que te aprobó ({mod.mention}), o visita el soporte de TrainerDex Discord (<{invite_url}>)\n"
+msgstr ""
 
 #: tdx/utils.py:76
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
 "    `{p}profile edit visible false`"
-msgstr "Tu perfil es actualmente visible. Para ocultar sus datos a otros usuarios, ejecuta el siguiente comando en este chat:\n"
-"    `{p}profile edit visible false`"
+msgstr ""
 
 #: tdx/utils.py:80
 msgid "Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:\n"
 "    `{p}profile edit visible true`"
-msgstr "Tu perfil es actualmente no es visible. Para mostrar sus datos a otros usuarios, ejecuta el siguiente comando en este chat:\n"
-"    `{p}profile edit visible true`"
+msgstr ""
 
 #: tdx/utils.py:96
 msgid "Additionally, you have a message from `{server.name}`:\n"
 "{note}"
-msgstr "Adicionalmente, tienes un mensaje de `{server.name}`:\n"
-"{note}"
+msgstr ""
 
