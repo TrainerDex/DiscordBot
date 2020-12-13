@@ -4,10 +4,12 @@ import re
 from typing import Any, Union
 
 import discord
-
-import trainerdex as client
-from redbot.core.i18n import Translator
 from redbot.core import commands
+from redbot.core.i18n import Translator
+from trainerdex.client import Client
+from trainerdex.faction import Faction
+from trainerdex.trainer import Trainer
+from trainerdex.update import Level, get_level
 
 logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
@@ -66,7 +68,7 @@ class NicknameConverter(commands.Converter):
 
 
 class TrainerConverter(commands.Converter):
-    """Converts to a :class:`tdx.client.Trainer`.
+    """Converts to a :class:`trainerdex.Trainer`.
 
     The lookup strategy is as follows (in order):
     1. Lookup by nickname.
@@ -77,8 +79,8 @@ class TrainerConverter(commands.Converter):
         self,
         ctx: commands.Context,
         argument: Union[str, discord.User, discord.Member],
-        cli: client.Client = client.Client(),
-    ) -> client.Trainer:
+        cli: Client = Client(),
+    ) -> Trainer:
         logger.debug("TrainerConverter: argument: %s", argument)
 
         mention = None
@@ -86,7 +88,9 @@ class TrainerConverter(commands.Converter):
             is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
             if is_valid_nickname:
                 with contextlib.suppress(IndexError):
-                    return await cli.search_trainer(argument)
+                    trainer = await cli.search_trainer(argument)
+                    await trainer.fetch_updates()
+                    return trainer
 
             is_mention = await safe_convert(
                 discord.ext.commands.converter.UserConverter, ctx, argument
@@ -99,7 +103,9 @@ class TrainerConverter(commands.Converter):
         if mention:
             socialconnections = await cli.get_social_connections("discord", str(mention.id))
             if socialconnections:
-                return await socialconnections[0].trainer()
+                trainer = await socialconnections[0].trainer()
+                await trainer.fetch_updates()
+                return trainer
 
         raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
 
@@ -113,11 +119,11 @@ class TeamConverter(commands.Converter):
             3: ["Yellow", "Instinct", "Team Instinct"],
         }
 
-    async def convert(self, ctx: commands.Context, argument: str) -> client.Faction:
+    async def convert(self, ctx: commands.Context, argument: str) -> Faction:
         logger.debug("TeamConverter: argument: %s", argument)
         if isinstance(argument, int) or argument.isnumeric():
             if int(argument) in self.teams.keys():
-                result = client.Faction(int(argument))
+                result = Faction(int(argument))
                 result._update(self.teams[int(argument)])  # Ensures team names are translated
             else:
                 result = None
@@ -126,7 +132,7 @@ class TeamConverter(commands.Converter):
                 k for k, v in self.teams.items() if argument.casefold() in map(str.casefold, v)
             ]
             if len(options) == 1:
-                result: client.Faction = client.Faction(options[0])
+                result: Faction = Faction(options[0])
             else:
                 result = None
 
@@ -137,16 +143,16 @@ class TeamConverter(commands.Converter):
 
 
 class LevelConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+    async def convert(self, ctx: commands.Context, argument: str) -> Level:
         logger.debug("LevelConverter: argument: %s", argument)
         try:
-            return client.update.get_level(level=int(argument))
+            return get_level(level=int(argument))
         except KeyError:
             raise commands.BadArgument(_("Not a valid level. Please choose between 1-40"))
 
 
 class TotalXPConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> client.Level:
+    async def convert(self, ctx: commands.Context, argument: str) -> Level:
         logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
             raise commands.BadArgument(_("Not a valid number."))

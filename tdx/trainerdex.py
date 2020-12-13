@@ -5,20 +5,22 @@ from abc import ABC
 from typing import Dict, Final, Literal, Union
 
 import discord
-from redbot.core import commands, Config
+import PogoOCR
+from redbot.core import Config, commands
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
+from trainerdex.client import Client
+from trainerdex.trainer import Trainer
 
-import trainerdex as client
-import PogoOCR
-from . import converters, __version__
+from . import __version__, converters
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard
 from .mod import ModCmds
+from .post import Post
 from .profile import Profile
 from .settings import Settings
-from .utils import append_twitter, check_xp, loading
+from .utils import append_twitter, loading
 
 logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -35,7 +37,7 @@ class CompositeMetaClass(type(commands.Cog), type(ABC)):
 
 
 class TrainerDex(
-    ModCmds, Profile, Leaderboard, Settings, commands.Cog, metaclass=CompositeMetaClass
+    ModCmds, Post, Profile, Leaderboard, Settings, commands.Cog, metaclass=CompositeMetaClass
 ):
     def __init__(self, bot: Red) -> None:
         self.bot: Red = bot
@@ -62,7 +64,7 @@ class TrainerDex(
             }
         )
         self.config.register_channel(**{"profile_ocr": False})
-        self.client: client.Client = None
+        self.client: Client = None
         self.bot.loop.create_task(self.create_client())
         self.bot.loop.create_task(self.load_emojis())
         self.bot.loop.create_task(self.set_game_to_version())
@@ -95,6 +97,7 @@ class TrainerDex(
             "global": self.bot.get_emoji(743853198217052281),
             "gym": self.bot.get_emoji(743874196639056096),
             "gym_badge": self.bot.get_emoji(743853262469333042),
+            "gymbadges_gold": self.bot.get_emoji(743853262469333042),
             "number": "#",
             "profile": self.bot.get_emoji(743853381919178824),
             "date": self.bot.get_emoji(743874800547791023),
@@ -105,7 +108,7 @@ class TrainerDex(
         token = api_tokens.get("token", "")
         if not token:
             logger.warning("No valid token found")
-        self.client = client.Client(token=token)
+        self.client = Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")
     async def check_screenshot(self, message: discord.Message) -> None:
@@ -138,7 +141,7 @@ class TrainerDex(
             await ctx.message.add_reaction(self.emoji.get("loading"))
 
         try:
-            trainer: client.Trainer = await converters.TrainerConverter().convert(
+            trainer: Trainer = await converters.TrainerConverter().convert(
                 ctx, ctx.author, cli=self.client
             )
         except discord.ext.commands.errors.BadArgument:
@@ -192,7 +195,9 @@ class TrainerDex(
                     )
                 )
 
-                if max(trainer.updates, key=check_xp).total_xp > data_found.get("total_xp"):
+                await trainer.fetch_updates()
+                latest_update_with_total_xp = trainer.get_latest_update_for_stat("total_xp")
+                if latest_update_with_total_xp.total_xp > data_found.get("total_xp"):
                     await message.edit(
                         content=append_twitter(
                             cf.warning(
@@ -212,7 +217,7 @@ class TrainerDex(
                         await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
-                elif max(trainer.updates, key=check_xp).total_xp == data_found.get("total_xp"):
+                elif latest_update_with_total_xp.total_xp == data_found.get("total_xp"):
                     text: str = cf.warning(
                         _(
                             "You've already set your XP to this figure. "

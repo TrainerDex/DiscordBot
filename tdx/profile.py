@@ -8,8 +8,8 @@ import discord
 from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
+from trainerdex.trainer import Trainer
 
-import trainerdex as client
 from . import converters
 from .abc import MixinMeta
 from .embeds import ProfileCard
@@ -44,7 +44,7 @@ class Profile(MixinMeta):
             else:
                 try:
                     logger.debug("searching for trainer by username: %s", nickname)
-                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    trainer: Trainer = await converters.TrainerConverter().convert(
                         ctx, nickname, cli=self.client
                     )
                 except commands.BadArgument:
@@ -105,7 +105,7 @@ class Profile(MixinMeta):
             else:
                 try:
                     logger.debug("searching for trainer by username: %s", nickname)
-                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    trainer: Trainer = await converters.TrainerConverter().convert(
                         ctx, nickname, cli=self.client
                     )
                 except commands.BadArgument:

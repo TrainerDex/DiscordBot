@@ -3,7 +3,7 @@ from typing import Dict
 
 from redbot.core import Config
 from redbot.core.bot import Red
-from trainerdex import Client
+from trainerdex.client import Client
 
 
 class MixinMeta(ABC):

@@ -1,26 +1,26 @@
 import json
 import logging
 import os
-from typing import Final, Callable, Optional
+from typing import Callable, Final, Optional
 
 import discord
+import PogoOCR
 from discord.ext.alternatives import silent_delete
 from redbot.core import checks, commands
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf, predicates
+from redbot.core.utils import chat_formatting as cf
+from redbot.core.utils import predicates
+from trainerdex.trainer import Trainer
 
-import trainerdex as client
-import PogoOCR
 from . import converters
 from .abc import MixinMeta
 from .embeds import ProfileCard
 from .utils import (
     AbandonQuestionException,
-    check_xp,
-    introduction_notes,
-    loading,
     NoAnswerProvidedException,
     Question,
+    introduction_notes,
+    loading,
     success,
 )
 
@@ -265,12 +265,12 @@ class ModCmds(MixinMeta):
         await message.edit(content=loading(_("Checking for user in database")))
 
         try:
-            trainer: client.Trainer = await converters.TrainerConverter().convert(
+            trainer: Trainer = await converters.TrainerConverter().convert(
                 ctx, answers.get("nickname"), cli=self.client
             )
         except commands.BadArgument:
             try:
-                trainer: client.Trainer = await converters.TrainerConverter().convert(
+                trainer: Trainer = await converters.TrainerConverter().convert(
                     ctx, member, cli=self.client
                 )
             except commands.BadArgument:
@@ -291,15 +291,17 @@ class ModCmds(MixinMeta):
             await trainer.edit(faction=answers.get("team").id, is_verified=True)
 
             # Check if it's a good idea to update the stats
+            await trainer.fetch_updates()
+            latest_update_with_total_xp = trainer.get_latest_update_for_stat("total_xp")
             set_xp: bool = (
-                (answers.get("total_xp") > max(trainer.updates, key=check_xp).total_xp)
+                (answers.get("total_xp") > latest_update_with_total_xp.total_xp)
                 if trainer.updates
                 else True
             )
         else:
             logger.info("%s: No user found, creating profile", nickname)
             await message.edit(content=loading(_("Creating {user}")).format(user=nickname))
-            trainer: client.Trainer = await self.client.create_trainer(
+            trainer: Trainer = await self.client.create_trainer(
                 username=nickname, faction=answers.get("team").id, is_verified=True
             )
             user = await trainer.user()
@@ -521,7 +523,7 @@ class ModCmds(MixinMeta):
         async with ctx.typing():
             for index, member in enumerate(members_to_edit):
                 try:
-                    trainer: client.Trainer = await converters.TrainerConverter().convert(
+                    trainer: Trainer = await converters.TrainerConverter().convert(
                         ctx, member, cli=self.client
                     )
                 except commands.BadArgument:

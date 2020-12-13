@@ -10,8 +10,9 @@ from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from redbot.vendored.discord.ext import menus
+from trainerdex.faction import Faction
+from trainerdex.update import Level, get_level
 
-import trainerdex as client
 from . import converters
 from .abc import MixinMeta
 from .embeds import BaseCard
@@ -124,11 +125,11 @@ class Leaderboard(MixinMeta):
         }
 
         factions = (
-            {x for x in filters if isinstance(x, client.Faction)}
-            if [x for x in filters if isinstance(x, client.Faction)]
-            else {client.Faction(i) for i in range(0, 4)}
+            {x for x in filters if isinstance(x, Faction)}
+            if [x for x in filters if isinstance(x, Faction)]
+            else {Faction(i) for i in range(0, 4)}
         )
-        levels = {x.level for x in filters if isinstance(x, client.Level)}
+        levels = {x.level for x in filters if isinstance(x, Level)}
         if len(levels) > 1:
             levels = range(
                 min(levels),
@@ -139,7 +140,7 @@ class Leaderboard(MixinMeta):
         else:
             levels = range(1, 51)
 
-        levels = {client.update.get_level(level=i) for i in levels}
+        levels = {get_level(level=i) for i in levels}
 
         leaderboard_title = append_icon(
             icon=self.emoji.get(stat, ""),

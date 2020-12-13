@@ -10,6 +10,6 @@
     "humanize",
     "PogoOCR==0.3.6",
     "python-dateutil",
-    "git+https://github.com/TrainerDex/TrainerDex.py.git@release/3.7.0#trainerdex>=3.6.2,<3.8.0"
+    "git+https://github.com/TrainerDex/TrainerDex.py.git@release/3.7.0#trainerdex>=3.7.dev20201213213924,<3.8.0"
   ]
 }
