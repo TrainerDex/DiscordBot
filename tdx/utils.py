@@ -1,18 +1,13 @@
-from typing import Callable, Union, Optional
+from typing import Callable, Optional, Union
 
 import discord
-
 from redbot.core import commands
 from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf, predicates
-
-import trainerdex as client
+from redbot.core.utils import chat_formatting as cf
+from redbot.core.utils import predicates
+from trainerdex.trainer import Trainer
 
 _ = Translator("TrainerDex", __file__)
-
-
-def check_xp(x: client.Update) -> int:
-    return x.total_xp if x.total_xp is not None else 0
 
 
 def append_twitter(text: str) -> str:
@@ -58,7 +53,7 @@ def success(text: str) -> str:
 
 
 def introduction_notes(
-    ctx: commands.Context, member: discord.Member, trainer: client.Trainer, additional_message: str
+    ctx: commands.Context, member: discord.Member, trainer: Trainer, additional_message: str
 ) -> str:
     BASE_NOTE = _(
         """**You're getting this message because you have been added to the TrainerDex database.**
