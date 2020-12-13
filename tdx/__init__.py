@@ -11,7 +11,7 @@ TrainerDex cog for Red-DiscordBot 3
 
 from .version import get_version
 
-VERSION = (2020, 51, 0, "alpha", 0)
+VERSION = (2020, 51, 0, "final", 0)
 
 __version__ = get_version(VERSION)
 __red_end_user_data_statement__ = """We use several terms in this document which could be considered ambiguous so I would like to clear these up:
