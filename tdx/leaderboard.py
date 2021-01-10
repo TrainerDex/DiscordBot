@@ -179,7 +179,7 @@ class Leaderboard(MixinMeta):
             )
         )
         leaderboard.filter(lambda x: x.faction in factions).filter(
-            lambda x: client.update.get_level(level=int(str(x.level).split("-")[0])) in levels
+            lambda x: get_level(level=int(str(x.level).split("-")[0])) in levels
         )
 
         if len(leaderboard) < 1:
