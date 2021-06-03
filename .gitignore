@@ -105,3 +105,6 @@ tdx/data/key.json
 
 # RedBot Data Location
 redenv/
+
+# editor config
+.vscode

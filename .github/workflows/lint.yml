@@ -2,9 +2,9 @@ name: Lint & Style Check
 
 on:
   push:
-    branches: [ develop, production ]
+    branches: [ main ]
   pull_request:
-    branches: [ develop, production ]
+    branches: [ main ]
 
 jobs:
   lint:
