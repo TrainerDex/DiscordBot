@@ -27,7 +27,7 @@ jobs:
       run: |
         python -m redgettext -c tdx
     - name: Update Crowdin
-      uses: crowdin/github-action@1.1.0
+      uses: crowdin/github-action@1.4.0
       with:
         upload_sources: true
         source: 'tdx/locales/messages.pot'
