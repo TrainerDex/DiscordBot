@@ -1,6 +1,6 @@
 discord-ext-alternatives>=2020.10.11
 humanize
-git+https://github.com/TrainerDex/PogoOCR.git@0.3.x#PogoOCR
+PogoOCR==0.3.8
 python-dateutil
 Red-DiscordBot[postgres]>=3.4.9,<3.5.0
 git+https://github.com/TrainerDex/TrainerDex.py.git@release/3.7.0#trainerdex
