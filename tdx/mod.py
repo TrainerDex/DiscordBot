@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from contextlib import suppress
 from typing import Callable, Final, Optional
 
 import discord
@@ -329,9 +330,10 @@ class ModCmds(MixinMeta):
         custom_message: str = await self.config.guild(ctx.guild).introduction_note()
         notes = introduction_notes(ctx, member, trainer, additional_message=custom_message)
 
-        dm_message = await member.send(notes[0])
-        if len(notes) == 2:
-            await member.send(notes[1])
+        with suppress(discord.errors.Forbidden):
+            await member.send(notes[0])
+            if len(notes) == 2:
+                await member.send(notes[1])
         await message.edit(
             content=(
                 success(_("Successfully added {user} as {trainer}."))
@@ -345,7 +347,8 @@ class ModCmds(MixinMeta):
         embed: discord.Embed = await ProfileCard(
             ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
         )
-        await dm_message.edit(embed=embed)
+        with suppress(discord.errors.Forbidden):
+            await member.send(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
                 user=member.mention,
