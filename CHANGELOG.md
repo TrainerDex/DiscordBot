@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2021.43.0] - 2021-10-28
+### Changed
+- Fix an issue where an error might happen when approving a user that the bot can't DM
+- Fix an issue where some stats sometimes aren't read
+- Updated dependencies
+
+
 ## [2020.48.0] - 2020-11-26
 ### Changed
 - Fixed `[p]editprofile trainercode`
