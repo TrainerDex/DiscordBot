@@ -13,7 +13,7 @@ from redbot.core.utils import chat_formatting as cf
 from trainerdex.client import Client
 from trainerdex.trainer import Trainer
 
-from . import version, converters
+from . import VERSION, converters
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard
 from .mod import ModCmds
@@ -74,7 +74,7 @@ class TrainerDex(
 
     async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self.bot.change_presence(activity=discord.Game(name=get_version(version)))
+        await self.bot.change_presence(activity=discord.Game(name=get_version(VERSION)))
 
     async def load_emojis(self) -> None:
         await self.bot.wait_until_ready()
