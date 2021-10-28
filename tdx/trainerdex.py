@@ -13,7 +13,7 @@ from redbot.core.utils import chat_formatting as cf
 from trainerdex.client import Client
 from trainerdex.trainer import Trainer
 
-from . import __version__, converters
+from . import version, converters
 from .embeds import ProfileCard
 from .leaderboard import Leaderboard
 from .mod import ModCmds
@@ -21,6 +21,7 @@ from .post import Post
 from .profile import Profile
 from .settings import Settings
 from .utils import append_twitter, loading
+from .version import get_version
 
 logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
@@ -73,7 +74,7 @@ class TrainerDex(
 
     async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self.bot.change_presence(activity=discord.Game(name=__version__))
+        await self.bot.change_presence(activity=discord.Game(name=get_version(version)))
 
     async def load_emojis(self) -> None:
         await self.bot.wait_until_ready()

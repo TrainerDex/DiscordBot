@@ -9,11 +9,11 @@ TrainerDex cog for Red-DiscordBot 3
 
 """
 
-from .version import get_version
+from .version import get_complete_version
 
-VERSION = (2021, 22, 0, "final", 0)
+VERSION = (2021, 43, 0, "alpha", 0)
 
-__version__ = get_version(VERSION)
+__version__ = get_complete_version(VERSION)
 __red_end_user_data_statement__ = """We use several terms in this document which could be considered ambiguous so I would like to clear these up:
  * the Website - any website hosted on the trainerdex.co.uk domain or any subdomains thereof
  * the Discord Bot - Our official bot instance, TrainerDex#8522, on Discord, or any third party instances that may or may not launch in the future.
