@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-12-18 08:19+0000\n"
-"PO-Revision-Date: 2021-09-17 08:10\n"
+"POT-Creation-Date: 2021-10-29 08:11+0000\n"
+"PO-Revision-Date: 2021-10-29 08:11\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional, Hong Kong\n"
 "MIME-Version: 1.0\n"
@@ -167,7 +167,7 @@ msgstr "{tag}正在過濾{排行榜}…"
 msgid "No results to display!"
 msgstr "沒有結果可顯示！"
 
-#: tdx/mod.py:79
+#: tdx/mod.py:80
 #, docstring
 msgid "Create a profile in TrainerDex\n\n"
 "        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.\n\n"
@@ -180,158 +180,158 @@ msgstr "在TrainerDex中創建個人資料\n\n"
 "        該命令可能會問您幾個問題。要退出，請說 `[p]cancel`。\n\n"
 "        "
 
-#: tdx/mod.py:93
+#: tdx/mod.py:94
 msgid "What is the in-game username of {user}?"
 msgstr "{user}的遊戲內用戶名是什麼？"
 
-#: tdx/mod.py:97
+#: tdx/mod.py:98
 msgid "What team is {user} in?"
 msgstr "{user}隸屬哪個團隊？"
 
-#: tdx/mod.py:101
+#: tdx/mod.py:102
 msgid "What is {user}‘s Total XP?"
 msgstr "{user}的總XP是多少？"
 
-#: tdx/mod.py:117
+#: tdx/mod.py:118
 msgid "Answer could not be determined. Abandoning!"
 msgstr "無法確定答案。放棄！"
 
-#: tdx/mod.py:120
+#: tdx/mod.py:121
 msgid "Cancelled!"
 msgstr "取消！"
 
-#: tdx/mod.py:123
+#: tdx/mod.py:124
 msgid "Let's go…"
 msgstr "走吧…"
 
-#: tdx/mod.py:139
+#: tdx/mod.py:140
 msgid "Adding roles ({roles}) to {user}"
 msgstr "正在添加角色({roles})到{user}"
 
-#: tdx/mod.py:148 tdx/mod.py:176 tdx/mod.py:203 tdx/mod.py:544 tdx/mod.py:555
-#: tdx/mod.py:566
+#: tdx/mod.py:149 tdx/mod.py:177 tdx/mod.py:204 tdx/mod.py:547 tdx/mod.py:558
+#: tdx/mod.py:569
 msgid "{mod} ran the command `{command}`"
 msgstr "{mod}運行命令`{command}`"
 
-#: tdx/mod.py:157
+#: tdx/mod.py:158
 msgid "Added roles ({roles}) to {user}"
 msgstr "已添加角色({roles})到{user}了"
 
-#: tdx/mod.py:167
+#: tdx/mod.py:168
 msgid "Removing roles ({roles}) from {user}"
 msgstr "正在{user}刪除角色（{roles}）"
 
-#: tdx/mod.py:185
+#: tdx/mod.py:186
 msgid "Removed roles ({roles}) from {user}"
 msgstr "已添加角色({roles})到{user}了"
 
-#: tdx/mod.py:195
+#: tdx/mod.py:196
 msgid "Changing {user}‘s nick to {nickname}"
 msgstr "正在更改{user}的暱稱為{nickname}"
 
-#: tdx/mod.py:212
+#: tdx/mod.py:213
 msgid "Changed {user}‘s nick to {nickname}"
 msgstr "已更改{user}的暱稱{nickname}了"
 
-#: tdx/mod.py:220
+#: tdx/mod.py:221
 msgid "{user} has been approved!\n"
 msgstr "{user}已獲批准！\n"
 
-#: tdx/mod.py:227
+#: tdx/mod.py:228
 msgid "{count} role(s) added.\n"
 msgstr "添加了{count}個角色。\n"
 
-#: tdx/mod.py:232
+#: tdx/mod.py:233
 msgid "Some roles could not be added. ({roles})\n"
 msgstr "無法添加某些角色。({roles})\n"
 
-#: tdx/mod.py:238
+#: tdx/mod.py:239
 msgid "{count} role(s) removed.\n"
 msgstr "{count}個角色已刪除。\n"
 
-#: tdx/mod.py:243
+#: tdx/mod.py:244
 msgid "Some roles could not be removed. ({roles})\n"
 msgstr "某些角色無法刪除。 ({roles})\n"
 
-#: tdx/mod.py:249
+#: tdx/mod.py:250
 msgid "User nickname set.\n"
 msgstr "用戶暱稱設置。\n"
 
-#: tdx/mod.py:252
+#: tdx/mod.py:253
 msgid "User nickname could not be set. (`{nickname}`)\n"
 msgstr "無法設置用戶暱稱。 （`{nickname}`）\n"
 
-#: tdx/mod.py:265
+#: tdx/mod.py:266
 msgid "Checking for user in database"
 msgstr "正在檢查數據庫中的用戶"
 
-#: tdx/mod.py:283
+#: tdx/mod.py:284
 msgid "An existing record was found for {user}. Updating details…"
 msgstr "已找到{user}的現有記錄。正在更新詳情..."
 
-#: tdx/mod.py:303
+#: tdx/mod.py:304
 msgid "Creating {user}"
 msgstr "正在創建{user}"
 
-#: tdx/mod.py:309
+#: tdx/mod.py:310
 msgid "Created {user}"
 msgstr "已創建{user}了"
 
-#: tdx/mod.py:314
+#: tdx/mod.py:315
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr "正在將{user}的總XP設置為{total_xp}。"
 
-#: tdx/mod.py:326
+#: tdx/mod.py:327
 msgid "Won't set Total XP for {user}."
 msgstr "不會為{user}設置總XP。"
 
-#: tdx/mod.py:337 tdx/mod.py:350
+#: tdx/mod.py:339 tdx/mod.py:353
 msgid "Successfully added {user} as {trainer}."
 msgstr "成功將{user}添加為{trainer}。"
 
-#: tdx/mod.py:339
+#: tdx/mod.py:341
 msgid "Loading profile…"
 msgstr "正在載入個人資料…"
 
-#: tdx/mod.py:359
+#: tdx/mod.py:362
 #, docstring
 msgid "⬎ TrainerDex-specific Moderation Commands"
 msgstr "⬎TrainerDex特定的審核命令"
 
-#: tdx/mod.py:365
+#: tdx/mod.py:368
 #, docstring
 msgid "Returns a reason why OCR would have failed"
 msgstr "返回OCR失敗的原因"
 
-#: tdx/mod.py:370
+#: tdx/mod.py:373
 msgid "Message {message.id} failed because the cog is disabled in the guild"
 msgstr "消息{message.id}失敗，因為在行會中已禁用齒輪"
 
-#: tdx/mod.py:378
+#: tdx/mod.py:381
 msgid "Message {message.id} failed because there is no file attached."
 msgstr "消息{message.id}失敗，因為沒有附加文件。"
 
-#: tdx/mod.py:386
+#: tdx/mod.py:389
 msgid "Message {message.id} failed because there more than file attached."
 msgstr "消息{message.id}失敗，因為附加的文件過多。"
 
-#: tdx/mod.py:398
+#: tdx/mod.py:401
 msgid "Message {message.id} failed because the file is not jpg or png."
 msgstr "消息{message.id}失敗，因為文件不是jpg或png。"
 
-#: tdx/mod.py:407
+#: tdx/mod.py:410
 msgid "Message {message.id} failed because that channel is not enabled for OCR"
 msgstr "消息{message.id}失敗，因為該頻道未啟用OCR"
 
-#: tdx/mod.py:417
+#: tdx/mod.py:420
 msgid "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
 msgstr "消息{message.id}失敗，因為我找不到{message.author}的TrainerDex用戶"
 
-#: tdx/mod.py:430
+#: tdx/mod.py:433
 msgid "Message {message.id} failed because for an unknown reason"
 msgstr "消息{message.id}失敗，因為原因不明"
 
-#: tdx/mod.py:474
+#: tdx/mod.py:477
 #, docstring
 msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them\n\n"
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
@@ -351,12 +351,12 @@ msgstr "正在建立新訊息…"
 msgid "Updating a post from earlier today…"
 msgstr "正在更新今天早些時候的帖子…"
 
-#: tdx/post.py:72 tdx/profile.py:59 tdx/trainerdex.py:252
+#: tdx/post.py:72 tdx/profile.py:59 tdx/trainerdex.py:253
 msgid "Sending in DMs"
 msgstr "正在DM中發送"
 
 #: tdx/post.py:73 tdx/post.py:75 tdx/post.py:83 tdx/post.py:86
-#: tdx/trainerdex.py:253 tdx/trainerdex.py:257 tdx/trainerdex.py:268
+#: tdx/trainerdex.py:254 tdx/trainerdex.py:258 tdx/trainerdex.py:269
 msgid "Loading output…"
 msgstr "正在載入輸出…"
 
@@ -385,7 +385,7 @@ msgstr "個人資料已停用或隱藏。"
 msgid "Checking progress…"
 msgstr "正在檢查進度…"
 
-#: tdx/profile.py:77 tdx/trainerdex.py:274
+#: tdx/profile.py:77 tdx/trainerdex.py:275
 msgid "Loading leaderboards…"
 msgstr "正在載入排行榜…"
 
@@ -532,15 +532,15 @@ msgstr "在運行“個人資料創建”（又稱“批准”）後向成員發
 msgid "Set if this channel should accept OCR commands."
 msgstr "設置此通道是否應接受OCR命令。"
 
-#: tdx/trainerdex.py:163
+#: tdx/trainerdex.py:164
 msgid "That's a nice image you have there, let's see…"
 msgstr "那是一張不錯的照片你擁有的，看看..."
 
-#: tdx/trainerdex.py:172
+#: tdx/trainerdex.py:173
 msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
 msgstr ""
 
-#: tdx/trainerdex.py:190
+#: tdx/trainerdex.py:191
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
@@ -548,19 +548,19 @@ msgstr "{user}，我們發現以下統計信息：\n"
 "{stats}\n"
 "現在就處理..."
 
-#: tdx/trainerdex.py:204
+#: tdx/trainerdex.py:205
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "您先前已將XP設置為高於您要設置的XP。當前設置為{xp}。"
 
-#: tdx/trainerdex.py:222
+#: tdx/trainerdex.py:223
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "您已經將XP設置為此數字。將來，要再次查看輸出，請運行`progress`命令，因為運行OCR會花費我們很多錢。"
 
-#: tdx/trainerdex.py:285
+#: tdx/trainerdex.py:286
 msgid "I could not find Total XP in your image. "
 msgstr "我在您的圖片中找不到總XP。"
 
-#: tdx/trainerdex.py:288
+#: tdx/trainerdex.py:289
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr "我們使用Google Vision API讀取您的圖像。請確保“總XP”字段可見。如果可見，但在一分鐘後仍無法掃描圖像，請嘗試使用新圖像。再次發布相同的圖像，可能會導致另一個故障。"
 
