@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trainerdex\n"
-"POT-Creation-Date: 2020-12-18 08:19+0000\n"
-"PO-Revision-Date: 2021-05-25 17:28\n"
+"POT-Creation-Date: 2021-10-29 08:11+0000\n"
+"PO-Revision-Date: 2021-10-29 08:11\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "MIME-Version: 1.0\n"
@@ -144,7 +144,7 @@ msgstr ""
 msgid "No results to display!"
 msgstr ""
 
-#: tdx/mod.py:79
+#: tdx/mod.py:80
 #, docstring
 msgid "Create a profile in TrainerDex\n\n"
 "        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.\n\n"
@@ -153,158 +153,158 @@ msgid "Create a profile in TrainerDex\n\n"
 "        "
 msgstr ""
 
-#: tdx/mod.py:93
+#: tdx/mod.py:94
 msgid "What is the in-game username of {user}?"
 msgstr ""
 
-#: tdx/mod.py:97
+#: tdx/mod.py:98
 msgid "What team is {user} in?"
 msgstr ""
 
-#: tdx/mod.py:101
+#: tdx/mod.py:102
 msgid "What is {user}‘s Total XP?"
 msgstr ""
 
-#: tdx/mod.py:117
+#: tdx/mod.py:118
 msgid "Answer could not be determined. Abandoning!"
 msgstr ""
 
-#: tdx/mod.py:120
+#: tdx/mod.py:121
 msgid "Cancelled!"
 msgstr ""
 
-#: tdx/mod.py:123
+#: tdx/mod.py:124
 msgid "Let's go…"
 msgstr ""
 
-#: tdx/mod.py:139
+#: tdx/mod.py:140
 msgid "Adding roles ({roles}) to {user}"
 msgstr ""
 
-#: tdx/mod.py:148 tdx/mod.py:176 tdx/mod.py:203 tdx/mod.py:544 tdx/mod.py:555
-#: tdx/mod.py:566
+#: tdx/mod.py:149 tdx/mod.py:177 tdx/mod.py:204 tdx/mod.py:547 tdx/mod.py:558
+#: tdx/mod.py:569
 msgid "{mod} ran the command `{command}`"
 msgstr ""
 
-#: tdx/mod.py:157
+#: tdx/mod.py:158
 msgid "Added roles ({roles}) to {user}"
 msgstr ""
 
-#: tdx/mod.py:167
+#: tdx/mod.py:168
 msgid "Removing roles ({roles}) from {user}"
 msgstr ""
 
-#: tdx/mod.py:185
+#: tdx/mod.py:186
 msgid "Removed roles ({roles}) from {user}"
 msgstr ""
 
-#: tdx/mod.py:195
+#: tdx/mod.py:196
 msgid "Changing {user}‘s nick to {nickname}"
 msgstr ""
 
-#: tdx/mod.py:212
+#: tdx/mod.py:213
 msgid "Changed {user}‘s nick to {nickname}"
 msgstr ""
 
-#: tdx/mod.py:220
+#: tdx/mod.py:221
 msgid "{user} has been approved!\n"
 msgstr ""
 
-#: tdx/mod.py:227
+#: tdx/mod.py:228
 msgid "{count} role(s) added.\n"
 msgstr ""
 
-#: tdx/mod.py:232
+#: tdx/mod.py:233
 msgid "Some roles could not be added. ({roles})\n"
 msgstr ""
 
-#: tdx/mod.py:238
+#: tdx/mod.py:239
 msgid "{count} role(s) removed.\n"
 msgstr ""
 
-#: tdx/mod.py:243
+#: tdx/mod.py:244
 msgid "Some roles could not be removed. ({roles})\n"
 msgstr ""
 
-#: tdx/mod.py:249
+#: tdx/mod.py:250
 msgid "User nickname set.\n"
 msgstr ""
 
-#: tdx/mod.py:252
+#: tdx/mod.py:253
 msgid "User nickname could not be set. (`{nickname}`)\n"
 msgstr ""
 
-#: tdx/mod.py:265
+#: tdx/mod.py:266
 msgid "Checking for user in database"
 msgstr ""
 
-#: tdx/mod.py:283
+#: tdx/mod.py:284
 msgid "An existing record was found for {user}. Updating details…"
 msgstr ""
 
-#: tdx/mod.py:303
+#: tdx/mod.py:304
 msgid "Creating {user}"
 msgstr ""
 
-#: tdx/mod.py:309
+#: tdx/mod.py:310
 msgid "Created {user}"
 msgstr ""
 
-#: tdx/mod.py:314
+#: tdx/mod.py:315
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr ""
 
-#: tdx/mod.py:326
+#: tdx/mod.py:327
 msgid "Won't set Total XP for {user}."
 msgstr ""
 
-#: tdx/mod.py:337 tdx/mod.py:350
+#: tdx/mod.py:339 tdx/mod.py:353
 msgid "Successfully added {user} as {trainer}."
 msgstr ""
 
-#: tdx/mod.py:339
+#: tdx/mod.py:341
 msgid "Loading profile…"
 msgstr ""
 
-#: tdx/mod.py:359
+#: tdx/mod.py:362
 #, docstring
 msgid "⬎ TrainerDex-specific Moderation Commands"
 msgstr ""
 
-#: tdx/mod.py:365
+#: tdx/mod.py:368
 #, docstring
 msgid "Returns a reason why OCR would have failed"
 msgstr ""
 
-#: tdx/mod.py:370
+#: tdx/mod.py:373
 msgid "Message {message.id} failed because the cog is disabled in the guild"
 msgstr ""
 
-#: tdx/mod.py:378
+#: tdx/mod.py:381
 msgid "Message {message.id} failed because there is no file attached."
 msgstr ""
 
-#: tdx/mod.py:386
+#: tdx/mod.py:389
 msgid "Message {message.id} failed because there more than file attached."
 msgstr ""
 
-#: tdx/mod.py:398
+#: tdx/mod.py:401
 msgid "Message {message.id} failed because the file is not jpg or png."
 msgstr ""
 
-#: tdx/mod.py:407
+#: tdx/mod.py:410
 msgid "Message {message.id} failed because that channel is not enabled for OCR"
 msgstr ""
 
-#: tdx/mod.py:417
+#: tdx/mod.py:420
 msgid "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
 msgstr ""
 
-#: tdx/mod.py:430
+#: tdx/mod.py:433
 msgid "Message {message.id} failed because for an unknown reason"
 msgstr ""
 
-#: tdx/mod.py:474
+#: tdx/mod.py:477
 #, docstring
 msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them\n\n"
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
@@ -320,12 +320,12 @@ msgstr ""
 msgid "Updating a post from earlier today…"
 msgstr ""
 
-#: tdx/post.py:72 tdx/profile.py:59 tdx/trainerdex.py:252
+#: tdx/post.py:72 tdx/profile.py:59 tdx/trainerdex.py:253
 msgid "Sending in DMs"
 msgstr ""
 
 #: tdx/post.py:73 tdx/post.py:75 tdx/post.py:83 tdx/post.py:86
-#: tdx/trainerdex.py:253 tdx/trainerdex.py:257 tdx/trainerdex.py:268
+#: tdx/trainerdex.py:254 tdx/trainerdex.py:258 tdx/trainerdex.py:269
 msgid "Loading output…"
 msgstr ""
 
@@ -354,7 +354,7 @@ msgstr ""
 msgid "Checking progress…"
 msgstr ""
 
-#: tdx/profile.py:77 tdx/trainerdex.py:274
+#: tdx/profile.py:77 tdx/trainerdex.py:275
 msgid "Loading leaderboards…"
 msgstr ""
 
@@ -483,33 +483,33 @@ msgstr ""
 msgid "Set if this channel should accept OCR commands."
 msgstr ""
 
-#: tdx/trainerdex.py:163
+#: tdx/trainerdex.py:164
 msgid "That's a nice image you have there, let's see…"
 msgstr ""
 
-#: tdx/trainerdex.py:172
+#: tdx/trainerdex.py:173
 msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
 msgstr ""
 
-#: tdx/trainerdex.py:190
+#: tdx/trainerdex.py:191
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
 msgstr ""
 
-#: tdx/trainerdex.py:204
+#: tdx/trainerdex.py:205
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr ""
 
-#: tdx/trainerdex.py:222
+#: tdx/trainerdex.py:223
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr ""
 
-#: tdx/trainerdex.py:285
+#: tdx/trainerdex.py:286
 msgid "I could not find Total XP in your image. "
 msgstr ""
 
-#: tdx/trainerdex.py:288
+#: tdx/trainerdex.py:289
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr ""
 
