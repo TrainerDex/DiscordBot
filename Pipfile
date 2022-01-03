@@ -9,7 +9,7 @@ humanize = "*"
 python-dateutil = "*"
 trainerdex = "==3.7b2"
 PogoOCR = "==0.3.8"
-Red-DiscordBot = {version = "<3.5.0,>=3.4.9", extras = ["postgres"]}
+Red-DiscordBot = {version = "==3.4.16", extras = ["postgres"]}
 
 [dev-packages]
 black = "*"
