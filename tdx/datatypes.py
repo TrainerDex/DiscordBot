@@ -24,7 +24,7 @@ class GuildConfig:
     assign_roles_on_join: bool
     set_nickname_on_join: bool
     set_nickname_on_update: bool
-    roles_to_assign_on_approval: StoredRoles = StoredRoles(add=[], remove=[])
+    roles_to_assign_on_approval: StoredRoles
     mystic_role: Optional[int] = None
     valor_role: Optional[int] = None
     instinct_role: Optional[int] = None

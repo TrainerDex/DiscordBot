@@ -20,7 +20,7 @@ from typing import Dict, Final, Literal, Union
 
 from trainerdex.update import Update
 
-from tdx.datatypes import ChannelConfig, GlobalConfig, GuildConfig
+from tdx.datatypes import ChannelConfig, GlobalConfig, GuildConfig, StoredRoles
 
 from . import VERSION, converters
 from .embeds import ProfileCard
@@ -52,6 +52,7 @@ DEFAULT_GUILD_CONFIG: GuildConfig = GuildConfig(
     assign_roles_on_join=True,
     set_nickname_on_join=True,
     set_nickname_on_update=True,
+    roles_to_assign_on_approval=StoredRoles(add=[], remove=[]),
 )
 DEFAULT_CHANNEL_CONFIG: ChannelConfig = ChannelConfig(profile_ocr=True)
 
