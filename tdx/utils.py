@@ -79,7 +79,7 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
     BASE_NOTE = BASE_NOTE.format(
         server=ctx.guild,
         mod=ctx.author,
-        privacy_policy_url="https://blog.trainerdex.co.uk/privacy-policy/",
+        privacy_policy_url="https://blog.trainerdex.app/privacy-policy/",
         is_visible_note=(IS_VISIBLE_TRUE if trainer.is_visible else IS_VISIBLE_FALSE).format(
             p=ctx.prefix
         ),

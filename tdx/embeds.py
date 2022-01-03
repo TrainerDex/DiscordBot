@@ -61,14 +61,14 @@ class BaseCard(discord.Embed):
         # Default _author
         self._footer: Dict[str, str] = {
             "text": await config.embed_footer(),
-            "icon_url": "https://www.trainerdex.co.uk/static/img/android-chrome-512x512.png",
+            "icon_url": "https://trainerdex.app/static/img/android-chrome-512x512.png",
         }
 
         # Default _author
         self._author: Dict[str, str] = {
             "name": "TrainerDex",
-            "url": "https://www.trainerdex.co.uk/",
-            "icon_url": "https://www.trainerdex.co.uk/static/img/android-chrome-512x512.png",
+            "url": "https://trainerdex.app/",
+            "icon_url": "https://trainerdex.app/static/img/android-chrome-512x512.png",
         }
 
         if isinstance(ctx, commands.Context):
@@ -103,12 +103,12 @@ class ProfileCard(BaseCard):
             nickname=self.trainer.username,
             level=self.trainer.level,
         )
-        self.url: str = "https://www.trainerdex.co.uk/profile?id={}".format(self.trainer.old_id)
+        self.url: str = "https://trainerdex.app/profile?id={}".format(self.trainer.old_id)
         if self.update:
             self.timestamp = self.update.update_time
 
         self.set_thumbnail(
-            url=f"https://trainerdex.co.uk/static/img/faction/{self.trainer.team.id}.png"
+            url=f"https://trainerdex.app/static/img/faction/{self.trainer.team.id}.png"
         )
 
         if self.trainer.trainer_code:
