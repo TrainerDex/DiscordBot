@@ -1,6 +1,0 @@
-discord-ext-alternatives>=2020.10.11
-humanize
-PogoOCR==0.3.8
-python-dateutil
-Red-DiscordBot[postgres]>=3.4.9,<3.5.0
-trainerdex==3.7b2
