@@ -1,29 +1,30 @@
 import contextlib
 import logging
 import re
-from typing import Any, Union
-
-import discord
+from discord.abc import User
+from discord.ext.commands.converter import UserConverter
 from redbot.core import commands
 from redbot.core.i18n import Translator
 from trainerdex.client import Client
 from trainerdex.faction import Faction
+from trainerdex.socialconnection import SocialConnection
 from trainerdex.trainer import Trainer
 from trainerdex.update import Level, get_level
+from typing import Any, Dict, List, Literal, Union
 
 logger: logging.Logger = logging.getLogger(__name__)
-_ = Translator("TrainerDex", __file__)
+_: Translator = Translator("TrainerDex", __file__)
 
 
 class SafeConvertObject:
-    def __init__(self, e: str):
+    def __init__(self, e: str) -> None:
         self.e: str = str(e)
 
-    def __bool__(self) -> bool:
+    def __bool__(self) -> Literal[False]:
         return False
 
     def __repr__(self) -> str:
-        return f"SafeConvertObject: {self.e}"
+        return f"<{__name__}: {self.e}>"
 
     def __str__(self) -> str:
         return self.e
@@ -78,32 +79,41 @@ class TrainerConverter(commands.Converter):
     async def convert(
         self,
         ctx: commands.Context,
-        argument: Union[str, discord.User, discord.Member],
+        argument: Union[str, User],
         cli: Client = Client(),
     ) -> Trainer:
         logger.debug("TrainerConverter: argument: %s", argument)
 
-        mention = None
+        mention: Union[User, None] = None
         if isinstance(argument, str):
-            is_valid_nickname = await safe_convert(NicknameConverter, ctx, argument)
+            is_valid_nickname: Union[str, SafeConvertObject] = await safe_convert(
+                NicknameConverter,
+                ctx,
+                argument,
+            )
             if is_valid_nickname:
                 with contextlib.suppress(IndexError):
-                    trainer = await cli.search_trainer(argument)
+                    trainer: Trainer = await cli.search_trainer(argument)
                     await trainer.fetch_updates()
                     return trainer
 
-            is_mention = await safe_convert(
-                discord.ext.commands.converter.UserConverter, ctx, argument
+            is_mention: Union[User, SafeConvertObject] = await safe_convert(
+                UserConverter,
+                ctx,
+                argument,
             )
             if is_mention:
                 mention = is_mention
-        elif isinstance(argument, (discord.User, discord.Member)):
+        elif isinstance(argument, User):
             mention = argument
 
         if mention:
-            socialconnections = await cli.get_social_connections("discord", str(mention.id))
+            socialconnections: List[SocialConnection] = await cli.get_social_connections(
+                "discord",
+                str(mention.id),
+            )
             if socialconnections:
-                trainer = await socialconnections[0].trainer()
+                trainer: Trainer = await socialconnections[0].trainer()
                 await trainer.fetch_updates()
                 return trainer
 
@@ -112,7 +122,7 @@ class TrainerConverter(commands.Converter):
 
 class TeamConverter(commands.Converter):
     def __init__(self):
-        self.teams = {
+        self.teams: Dict[int, List[str]] = {
             0: ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
             1: ["Blue", "Mystic", "Team Mystic"],
             2: ["Red", "Valor", "Team Valor"],
@@ -121,20 +131,19 @@ class TeamConverter(commands.Converter):
 
     async def convert(self, ctx: commands.Context, argument: str) -> Faction:
         logger.debug("TeamConverter: argument: %s", argument)
+
+        result: Union[Faction, None] = None
+
         if isinstance(argument, int) or argument.isnumeric():
             if int(argument) in self.teams.keys():
                 result = Faction(int(argument))
                 result._update(self.teams[int(argument)])  # Ensures team names are translated
-            else:
-                result = None
         else:
             options = [
                 k for k, v in self.teams.items() if argument.casefold() in map(str.casefold, v)
             ]
             if len(options) == 1:
-                result: Faction = Faction(options[0])
-            else:
-                result = None
+                result = Faction(options[0])
 
         if result is None:
             raise commands.BadArgument(_("Team `{}` not found").format(argument))
@@ -152,7 +161,7 @@ class LevelConverter(commands.Converter):
 
 
 class TotalXPConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> Level:
+    async def convert(self, ctx: commands.Context, argument: str) -> int:
         logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
             raise commands.BadArgument(_("Not a valid number."))

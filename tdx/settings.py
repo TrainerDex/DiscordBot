@@ -1,15 +1,16 @@
 import json
 import logging
-from typing import Dict, List, Optional
-
-import discord
 from discord.ext.alternatives import silent_delete
+from discord.message import Message
+from discord.role import Role
 from redbot.core import checks, commands
 from redbot.core.commands.converter import Literal
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
+from typing import Dict, Optional
 
 from .abc import MixinMeta
+from .datatypes import ChannelConfig, GuildConfig, StoredRoles
 
 logger: logging.Logger = logging.getLogger(__name__)
 _ = Translator("TrainerDex", __file__)
@@ -21,42 +22,42 @@ class Settings(MixinMeta):
     @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
         await ctx.tick()
-        message = await ctx.send(_("Looking for team roles…"))
+        message: Message = await ctx.send(_("Looking for team roles…"))
 
         try:
-            mystic_role: discord.Role = min(
+            mystic_role: Role = min(
                 [x for x in ctx.guild.roles if _("Mystic").casefold() in x.name.casefold()]
             )
         except ValueError:
             mystic_role = None
         if mystic_role:
-            await getattr(self.config.guild(ctx.guild), "mystic_role").set(mystic_role.id)
+            await self.config.guild(ctx.guild).mystic_role.set(mystic_role.id)
             await ctx.send(
                 _("`{key}` set to {value}").format(key="mystic_role", value=mystic_role),
                 delete_after=30,
             )
 
         try:
-            valor_role: discord.Role = min(
+            valor_role: Role = min(
                 [x for x in ctx.guild.roles if _("Valor").casefold() in x.name.casefold()]
             )
         except ValueError:
             valor_role = None
         if valor_role:
-            await getattr(self.config.guild(ctx.guild), "valor_role").set(valor_role.id)
+            await self.config.guild(ctx.guild).valor_role.set(valor_role.id)
             await ctx.send(
                 _("`{key}` set to {value}").format(key="valor_role", value=valor_role),
                 delete_after=30,
             )
 
         try:
-            instinct_role: discord.Role = min(
+            instinct_role: Role = min(
                 [x for x in ctx.guild.roles if _("Instinct").casefold() in x.name.casefold()]
             )
         except ValueError:
             instinct_role = None
         if instinct_role:
-            await getattr(self.config.guild(ctx.guild), "instinct_role").set(instinct_role.id)
+            await self.config.guild(ctx.guild).instinct_role.set(instinct_role.id)
             await ctx.send(
                 _("`{key}` set to {value}").format(key="instinct_role", value=instinct_role),
                 delete_after=30,
@@ -65,7 +66,7 @@ class Settings(MixinMeta):
         await message.edit(content=_("Looking for TL40 role…"))
 
         try:
-            tl40_role: discord.Role = min(
+            tl40_role: Role = min(
                 [
                     x
                     for x in ctx.guild.roles
@@ -76,7 +77,7 @@ class Settings(MixinMeta):
         except ValueError:
             tl40_role = None
         if tl40_role:
-            await getattr(self.config.guild(ctx.guild), "tl40_role").set(tl40_role.id)
+            await self.config.guild(ctx.guild).tl40_role.set(tl40_role.id)
             await ctx.send(
                 _("`{key}` set to {value}").format(key="tl40_role", value=tl40_role),
                 delete_after=30,
@@ -84,9 +85,9 @@ class Settings(MixinMeta):
 
         await message.delete(silent=True)
 
-        tdxset: Dict = await self.config.guild(ctx.guild).all()
-        tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
-        await ctx.send(cf.box(tdxset, "json"))
+        guild_config: GuildConfig = GuildConfig(**(await self.config.guild(ctx.guild).all()))
+        output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
+        await ctx.send(cf.box(output, "json"))
 
     @commands.group(name="tdxset", aliases=["config"], case_insensitive=True)
     async def tdxset(self, ctx: commands.Context) -> None:
@@ -98,9 +99,9 @@ class Settings(MixinMeta):
     @checks.bot_in_a_guild()
     async def tdxset__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            tdxset: Dict = await self.config.guild(ctx.guild).all()
-            tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(tdxset, "json"))
+            guild_config: GuildConfig = GuildConfig(**(await self.config.guild(ctx.guild).all()))
+            output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(output, "json"))
 
     @tdxset__guild.command(name="assign_roles_on_join")
     async def tdxset__guild__assign_roles_on_join(
@@ -175,7 +176,7 @@ class Settings(MixinMeta):
         self,
         ctx: commands.Context,
         action: Optional[Literal["add", "remove"]] = None,
-        roles: Optional[discord.Role] = None,
+        roles: Optional[Role] = None,
     ) -> None:
         """Which roles to add/remove to a user on approval
 
@@ -185,40 +186,38 @@ class Settings(MixinMeta):
             [p]tdxset guild roles_to_assign_on_approval remove @Guest
                 Remove these roles from users when they are approved
         """
-        roledict: Dict[str, List[int]] = await self.config.guild(
+        stored_roles: StoredRoles = await self.config.guild(
             ctx.guild
         ).roles_to_assign_on_approval()
+
         if action == "add":
             if roles:
-                roledict["add"]: List[int] = [x.id for x in ctx.message.role_mentions]
-                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(roledict)
+                stored_roles["add"] = [x.id for x in ctx.message.role_mentions]
+                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(stored_roles)
                 await ctx.tick()
-                value: Dict[str, List[int]] = await self.config.guild(
+                stored_roles: StoredRoles = await self.config.guild(
                     ctx.guild
                 ).roles_to_assign_on_approval()
-                value: str = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(cf.box(value, "json"), delete_after=30)
+                stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
+                await ctx.send(cf.box(stored_roles_json, "json"), delete_after=30)
         elif action == "remove":
             if roles:
-                roledict["remove"]: List[int] = [x.id for x in ctx.message.role_mentions]
-                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(roledict)
+                stored_roles["remove"] = [x.id for x in ctx.message.role_mentions]
+                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(stored_roles)
                 await ctx.tick()
-                value: Dict[str, List[int]] = await self.config.guild(
+                stored_roles: StoredRoles = await self.config.guild(
                     ctx.guild
                 ).roles_to_assign_on_approval()
-                value: str = json.dumps(value, indent=2, ensure_ascii=False)
-                await ctx.send(cf.box(value, "json"), delete_after=30)
+                stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
+                await ctx.send(cf.box(stored_roles_json, "json"), delete_after=30)
         else:
             await ctx.send_help()
-            value: Dict[str, List[int]] = await self.config.guild(
-                ctx.guild
-            ).roles_to_assign_on_approval()
-            value: str = json.dumps(value, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(value, "json"))
+            stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(stored_roles_json, "json"))
 
     @tdxset__guild.command(name="mystic_role", aliases=["mystic"])
     async def tdxset__guild__mystic_role(
-        self, ctx: commands.Context, value: Optional[discord.Role] = None
+        self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).mystic_role.set(value.id)
@@ -238,7 +237,7 @@ class Settings(MixinMeta):
 
     @tdxset__guild.command(name="valor_role", aliases=["valor"])
     async def tdxset__guild__valor_role(
-        self, ctx: commands.Context, value: Optional[discord.Role] = None
+        self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).valor_role.set(value.id)
@@ -258,7 +257,7 @@ class Settings(MixinMeta):
 
     @tdxset__guild.command(name="instinct_role", aliases=["instinct"])
     async def tdxset__guild__instinct_role(
-        self, ctx: commands.Context, value: Optional[discord.Role] = None
+        self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).instinct_role.set(value.id)
@@ -278,7 +277,7 @@ class Settings(MixinMeta):
 
     @tdxset__guild.command(name="tl40_role", aliases=["tl40"])
     async def tdxset__guild__tl40_role(
-        self, ctx: commands.Context, value: Optional[discord.Role] = None
+        self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         if value is not None:
             await self.config.guild(ctx.guild).tl40_role.set(value.id)
@@ -325,9 +324,11 @@ class Settings(MixinMeta):
     @checks.bot_in_a_guild()
     async def tdxset__channel(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            tdxset: Dict = await self.config.channel(ctx.channel).all()
-            tdxset: str = json.dumps(tdxset, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(tdxset, "json"))
+            channel_config: ChannelConfig = ChannelConfig(
+                **(await self.config.channel(ctx.channel).all())
+            )
+            output: str = json.dumps(channel_config.__dict__, indent=2, ensure_ascii=False)
+            await ctx.send(cf.box(output, "json"))
 
     @tdxset__channel.command(name="profile_ocr", aliases=["ocr"])
     async def tdxset__channel__profile_ocr(

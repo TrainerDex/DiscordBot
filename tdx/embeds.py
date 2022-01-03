@@ -1,26 +1,31 @@
+from __future__ import annotations
 import datetime
+import humanize
 import logging
 from decimal import Decimal
-from typing import Dict, Union
-
-import discord
-import humanize
 from dateutil.relativedelta import MO
 from dateutil.rrule import WEEKLY, rrule
 from dateutil.tz import UTC
-from discord.embeds import EmptyEmbed
+from discord.channel import TextChannel
+from discord.colour import Colour
+from discord.embeds import Embed, EmptyEmbed
+from discord.emoji import Emoji
+from discord.guild import Guild
+from discord.message import Message
 from redbot.core import Config, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from trainerdex.client import Client
+from trainerdex.leaderboard import Leaderboard, GuildLeaderboard, LeaderboardEntry
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
+from typing import Dict, List, Tuple, Union
 
 from .utils import append_icon
 
 logger: logging.Logger = logging.getLogger(__name__)
-_ = Translator("TrainerDex", __file__)
-config = Config.get_conf(
+_: Translator = Translator("TrainerDex", __file__)
+config: Config = Config.get_conf(
     None,
     cog_name="trainerdex",
     identifier=8124637339,
@@ -28,26 +33,24 @@ config = Config.get_conf(
 )
 
 
-class BaseCard(discord.Embed):
-    async def __new__(cls, *args, **kwargs):
+class BaseCard(Embed):
+    async def __new__(cls, *args, **kwargs) -> BaseCard:
         instance = super().__new__(cls)
         await instance.__init__(*args, **kwargs)
         return instance
 
-    async def __init__(self, ctx: commands.Context, **kwargs) -> None:
+    async def __init__(self, ctx: Union[commands.Context, Message], **kwargs) -> None:
         super().__init__(**kwargs)
 
-        # Set default colour to TrainerDex brand colour
-        try:
-            colour: Union[discord.Colour, int] = kwargs["colour"]
-        except KeyError:
-            colour: Union[discord.Colour, int] = kwargs.get("color", 13252437)
-        self.colour: Union[discord.Colour, int] = colour
-        self.title: str = kwargs.get("title", EmptyEmbed)
+        self.colour: Union[Colour, int] = kwargs.get(
+            "colour",
+            kwargs.get("color", 13252437),
+        )
+        self.title: Union[str, EmptyEmbed] = kwargs.get("title", EmptyEmbed)
         self.type: str = kwargs.get("type", "rich")
-        self.url: str = kwargs.get("url", EmptyEmbed)
-        self.description: str = kwargs.get("description", EmptyEmbed)
-        self.timestamp = kwargs.get("timestamp", EmptyEmbed)
+        self.url: Union[str, EmptyEmbed] = kwargs.get("url", EmptyEmbed)
+        self.description: Union[str, EmptyEmbed] = kwargs.get("description", EmptyEmbed)
+        self.timestamp: Union[datetime.datetime, EmptyEmbed] = kwargs.get("timestamp", EmptyEmbed)
 
         notice: str = await config.notice()
         if notice:
@@ -72,13 +75,13 @@ class BaseCard(discord.Embed):
         }
 
         if isinstance(ctx, commands.Context):
-            self._message: discord.Message = ctx.message
-            self._channel: discord.TextChannel = ctx.channel
-            self._guild: discord.Guild = ctx.guild
-        elif isinstance(ctx, discord.Message):
-            self._message: discord.Message = ctx
-            self._channel: discord.TextChannel = ctx.channel
-            self._guild: discord.Guild = ctx.channel.guild
+            self._message: Message = ctx.message
+            self._channel: TextChannel = ctx.channel
+            self._guild: Guild = ctx.guild
+        elif isinstance(ctx, Message):
+            self._message: Message = ctx
+            self._channel: TextChannel = ctx.channel
+            self._guild: Guild = ctx.channel.guild
 
 
 class ProfileCard(BaseCard):
@@ -87,16 +90,16 @@ class ProfileCard(BaseCard):
         ctx: commands.Context,
         client: Client,
         trainer: Trainer,
-        emoji: Dict[str, Union[discord.Emoji, str]],
+        emoji: Dict[str, Union[Emoji, str]],
         update: Update = None,
         **kwargs,
     ):
         await super().__init__(ctx, **kwargs)
-        self.emoji = emoji
-        self.client = client
-        self.trainer = trainer
+        self.emoji: Dict[str, Union[Emoji, str]] = emoji
+        self.client: Client = client
+        self.trainer: Trainer = trainer
         await self.trainer.fetch_updates()
-        self.update = update or self.trainer.get_latest_update_for_stat("total_xp")
+        self.update: Update = update or self.trainer.get_latest_update_for_stat("total_xp")
 
         self.colour: int = self.trainer.team.colour
         self.title: str = _("{nickname} | TL{level}").format(
@@ -105,15 +108,16 @@ class ProfileCard(BaseCard):
         )
         self.url: str = "https://trainerdex.app/profile?id={}".format(self.trainer.old_id)
         if self.update:
-            self.timestamp = self.update.update_time
+            self.timestamp: datetime.datetime = self.update.update_time
 
         self.set_thumbnail(
             url=f"https://trainerdex.app/static/img/faction/{self.trainer.team.id}.png"
         )
 
         if self.trainer.trainer_code:
-            trainer_code_text = append_icon(
-                icon=self.emoji.get("add_friend"), text=f"`{self.trainer.trainer_code}`"
+            trainer_code_text: str = append_icon(
+                icon=self.emoji.get("add_friend"),
+                text=f"`{self.trainer.trainer_code}`",
             )
 
             if self.description:
@@ -154,9 +158,9 @@ class ProfileCard(BaseCard):
                 inline=False,
             )
 
-    async def add_guild_leaderboard(self, guild: discord.Guild) -> None:
-        entries = []
-        stats = [
+    async def add_guild_leaderboard(self, guild: Guild) -> None:
+        entries: List[str] = []
+        stats: List[str] = [
             "badge_travel_km",
             "badge_capture_total",
             "badge_pokestops_visited",
@@ -164,8 +168,12 @@ class ProfileCard(BaseCard):
             "gymbadges_gold",
         ]
         for stat in stats:
-            leaderboard = await self.client.get_leaderboard(stat=stat, guild=guild)
-            entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+            leaderboard: GuildLeaderboard = await self.client.get_leaderboard(
+                stat=stat, guild=guild
+            )
+            entry: LeaderboardEntry = await leaderboard.find(
+                lambda x: x._trainer_id == self.trainer.old_id
+            )
             if entry:
                 entries.append(
                     append_icon(
@@ -184,16 +192,18 @@ class ProfileCard(BaseCard):
             )
 
     async def add_leaderboard(self) -> None:
-        entries = []
-        stats = [
+        entries: List[str] = []
+        stats: List[str] = [
             "badge_travel_km",
             "badge_capture_total",
             "badge_pokestops_visited",
             "total_xp",
         ]
         for stat in stats:
-            leaderboard = await self.client.get_leaderboard(stat=stat)
-            entry = await leaderboard.find(lambda x: x._trainer_id == self.trainer.old_id)
+            leaderboard: Leaderboard = await self.client.get_leaderboard(stat=stat)
+            entry: LeaderboardEntry = await leaderboard.find(
+                lambda x: x._trainer_id == self.trainer.old_id
+            )
             if entry:
                 entries.append(append_icon(self.emoji.get(stat), f"{entry.position:,}"))
             del leaderboard
@@ -217,13 +227,13 @@ class ProfileCard(BaseCard):
             WEEKLY, dtstart=datetime.datetime(2016, 7, 4, 12, 0, tzinfo=UTC), byweekday=MO
         )
 
-        current_period = (
+        current_period: Tuple[rrule, rrule] = (
             RRULE.before(this_update.update_time, inc=True),
             RRULE.after(this_update.update_time),
         )
 
         try:
-            last_update = max(
+            last_update: Update = max(
                 [
                     x
                     for x in self.trainer.updates
@@ -260,13 +270,13 @@ class ProfileCard(BaseCard):
                     "total_xp": 0,
                 },
             )
-            data_inacuracy_notice = cf.info(_("No data old enough found, using start date."))
+            data_inacuracy_notice: str = cf.info(_("No data old enough found, using start date."))
             if self.description:
                 self.description = "\n".join([self.description, data_inacuracy_notice])
             else:
                 self.description = data_inacuracy_notice
 
-        time_delta = this_update.update_time - last_update.update_time
+        time_delta: datetime.timedelta = this_update.update_time - last_update.update_time
         days: float = max((time_delta.total_seconds() / 86400), 1)
 
         self.clear_fields()

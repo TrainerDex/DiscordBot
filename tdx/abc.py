@@ -1,6 +1,6 @@
 from abc import ABC
-from typing import Dict
-
+from typing import Dict, Union
+from discord.emoji import Emoji
 from redbot.core import Config
 from redbot.core.bot import Red
 from trainerdex.client import Client
@@ -17,4 +17,4 @@ class MixinMeta(ABC):
         self.bot: Red
         self.config: Config
         self.client: Client
-        self.emoji: Dict
+        self.emoji: Dict[str, Union[str, Emoji]]

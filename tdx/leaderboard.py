@@ -1,9 +1,11 @@
 import logging
 import math
 import os
-from typing import Final, Optional, Union
+from typing import Dict, Final, Iterable, Set, Union
 
-import discord
+from discord.embeds import Embed
+from discord.emoji import Emoji
+from discord.message import Message
 import humanize
 from redbot.core import commands
 from redbot.core.commands.converter import Literal
@@ -11,6 +13,7 @@ from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from redbot.vendored.discord.ext import menus
 from trainerdex.faction import Faction
+from trainerdex.leaderboard import GuildLeaderboard, Leaderboard as LeaderboardObject
 from trainerdex.update import Level, get_level
 
 from . import converters
@@ -19,19 +22,25 @@ from .embeds import BaseCard
 from .utils import append_icon, loading
 
 logger: logging.Logger = logging.getLogger(__name__)
-POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
-_ = Translator("TrainerDex", __file__)
+_: Translator = Translator("TrainerDex", __file__)
+
+POGOOCR_TOKEN_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
 class LeaderboardPages(menus.AsyncIteratorPageSource):
-    def __init__(self, *args, **kwargs):
-        self.base = kwargs.pop("base")
-        self.emoji = kwargs.pop("emoji")
-        self.stat = kwargs.pop("stat")
+    def __init__(self, *args, **kwargs) -> None:
+        self.base: Embed = kwargs.pop("base")
+        self.emoji: Dict[str, Union[str, Emoji]] = kwargs.pop("emoji")
+        self.stat: Literal[
+            "travel_km",
+            "capture_total",
+            "pokestops_visited",
+            "total_xp",
+        ] = kwargs.pop("stat")
         super().__init__(*args, **kwargs)
 
-    async def format_page(self, menu, page):
-        emb: discord.Embed = self.base.copy()
+    async def format_page(self, menu, page) -> Dict[str, Embed]:
+        emb: Embed = self.base.copy()
         for entry in page:
             emb.add_field(
                 name="{pos} {handle} {faction}".format(
@@ -74,10 +83,8 @@ class Leaderboard(MixinMeta):
     async def leaderboard(
         self,
         ctx: commands.Context,
-        leaderboard: Optional[Literal["global", "guild", "server"]] = "guild",
-        stat: Optional[
-            Literal["travel_km", "capture_total", "pokestops_visited", "total_xp"]
-        ] = "total_xp",
+        leaderboard: Literal["global", "guild", "server"] = "guild",
+        stat: Literal["travel_km", "capture_total", "pokestops_visited", "total_xp"] = "total_xp",
         *filters: Union[converters.TeamConverter, converters.LevelConverter],
     ) -> None:
         """Leaderboards
@@ -106,60 +113,64 @@ class Leaderboard(MixinMeta):
             Shows the server leaderboard, post-filtered to only show players between level 15 and 24 (inclusive)
         """
 
-        leaderboard = leaderboard if ctx.guild else "global"
-        is_guild = True if leaderboard == "guild" else False
+        leaderboard: Literal["global", "guild", "server"] = leaderboard if ctx.guild else "global"
+        is_guild: bool = True if leaderboard == "guild" else False
 
         # Convert stat_name for API
-        stat = {
+        stat: str = {
             "travel_km": "badge_travel_km",
             "capture_total": "badge_capture_total",
             "pokestops_visited": "badge_pokestops_visited",
             "total_xp": "total_xp",
         }[stat]
 
-        stat_name = {
+        stat_name: Dict[str, str] = {
             "badge_travel_km": _("Distance Walked"),
             "badge_capture_total": _("Pokémon Caught"),
             "badge_pokestops_visited": _("PokéStops Visited"),
             "total_xp": _("Total XP"),
         }
 
-        factions = (
+        factions: Set[Faction] = (
             {x for x in filters if isinstance(x, Faction)}
             if [x for x in filters if isinstance(x, Faction)]
             else {Faction(i) for i in range(0, 4)}
         )
-        levels = {x.level for x in filters if isinstance(x, Level)}
+        levels: Set[Level] = {x.level for x in filters if isinstance(x, Level)}
         if len(levels) > 1:
-            levels = range(
+            levels: Iterable[Level] = range(
                 min(levels),
                 max(levels) + 1,
             )
         elif len(levels) == 1:
-            levels = range(levels.pop() + 1)
+            levels: Iterable[Level] = range(levels.pop() + 1)
         else:
-            levels = range(1, 51)
+            levels: Iterable[Level] = range(1, 51)
 
-        levels = {get_level(level=i) for i in levels}
+        levels: Set[Level] = {get_level(level=i) for i in levels}
 
-        leaderboard_title = append_icon(
+        leaderboard_title: str = append_icon(
             icon=self.emoji.get(stat, ""),
             text=_("{stat} Leaderboard").format(stat=stat_name.get(stat, stat)),
         )
 
-        emb = await BaseCard(ctx, title=leaderboard_title)
+        emb: BaseCard = await BaseCard(ctx, title=leaderboard_title)
         if leaderboard in ("guild", "server"):
             emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 
         await ctx.tick()
 
-        message = await ctx.send(
+        message: Message = await ctx.send(
             loading(_("{tag} Downloading {leaderboard}…")).format(
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
         )
-        leaderboard = await self.client.get_leaderboard(
-            stat=stat, guild=ctx.guild if leaderboard in ("guild", "server") else None
+        leaderboard: Union[
+            LeaderboardObject,
+            GuildLeaderboard,
+        ] = await self.client.get_leaderboard(
+            stat=stat,
+            guild=ctx.guild if leaderboard in ("guild", "server") else None,
         )
         if is_guild:
             emb.description = _(

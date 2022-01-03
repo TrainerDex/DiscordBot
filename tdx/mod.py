@@ -1,20 +1,27 @@
 import json
 import logging
 import os
-from contextlib import suppress
-from typing import Callable, Final, Optional
-
-import discord
 import PogoOCR
+from contextlib import suppress
+from discord.errors import DiscordException, Forbidden, HTTPException
 from discord.ext.alternatives import silent_delete
+from discord.ext.commands.errors import BadArgument
+from discord.member import Member
+from discord.message import Message
+from discord.role import Role
 from redbot.core import checks, commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from redbot.core.utils import predicates
+from trainerdex.faction import Faction
 from trainerdex.trainer import Trainer
+from trainerdex.user import User
+from trainerdex.update import Update
+from typing import Any, Callable, Dict, Final, List, Literal, Optional, TypedDict, Union
 
 from . import converters
 from .abc import MixinMeta
+from .datatypes import StoredRoles, TransformedRoles
 from .embeds import ProfileCard
 from .utils import (
     AbandonQuestionException,
@@ -26,8 +33,9 @@ from .utils import (
 )
 
 logger: logging.Logger = logging.getLogger(__name__)
-_ = Translator("TrainerDex", __file__)
-POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
+_: Translator = Translator("TrainerDex", __file__)
+
+POGOOCR_TOKEN_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
 class ModCmds(MixinMeta):
@@ -37,17 +45,17 @@ class ModCmds(MixinMeta):
         question: str,
         optional: bool = False,
         predicate: Optional[Callable] = None,
-        converter: commands.Converter = None,
-    ):
-        m = await ctx.send(content=self.emoji.get("loading"))
-        attempts_remaining = 5
+        converter: Optional[commands.Converter] = None,
+    ) -> Union[str, Any]:
+        m: Message = await ctx.send(content=self.emoji.get("loading"))
+        attempts_remaining: int = 5
 
         while attempts_remaining > 0:
             attempts_remaining -= 1
-            q = Question(ctx, question, message=m, predicate=predicate)
+            q: Question = Question(ctx, question, message=m, predicate=predicate)
 
             try:
-                answer = await q.ask()
+                answer: str = await q.ask()
             except AbandonQuestionException as e:
                 raise AbandonQuestionException(e)
 
@@ -56,7 +64,7 @@ class ModCmds(MixinMeta):
 
             if converter:
                 try:
-                    answer = await converter().convert(ctx, answer)
+                    answer: Any = await converter().convert(ctx, answer)
                 except commands.BadArgument as e:
                     await ctx.send(content=e, delete_after=30.0)
                     continue
@@ -72,7 +80,7 @@ class ModCmds(MixinMeta):
     async def approve_trainer(
         self,
         ctx: commands.Context,
-        member: discord.Member,
+        member: Member,
         nickname: Optional[converters.NicknameConverter] = None,
         team: Optional[converters.TeamConverter] = None,
         total_xp: Optional[converters.TotalXPConverter] = None,
@@ -89,7 +97,12 @@ class ModCmds(MixinMeta):
         assign_roles: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
         set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
 
-        questions = {
+        class QuestionType(TypedDict):
+            question: str
+            converter: commands.Converter
+            predicate: Optional[predicates.MessagePredicate]
+
+        questions: Dict[str, QuestionType] = {
             "nickname": {
                 "question": _("What is the in-game username of {user}?").format(user=member),
                 "converter": converters.NicknameConverter,
@@ -104,7 +117,13 @@ class ModCmds(MixinMeta):
                 "converter": converters.TotalXPConverter,
             },
         }
-        answers = {
+
+        class AnswersFormats(TypedDict):
+            nickname: str
+            team: Faction
+            total_xp: int
+
+        answers: AnswersFormats = {
             "nickname": nickname,
             "team": team,
             "total_xp": total_xp,
@@ -121,16 +140,25 @@ class ModCmds(MixinMeta):
                     await ctx.send(_("Cancelled!"))
                     return
 
-        message: discord.Message = await ctx.send(loading(_("Let's go…")))
+        message: Message = await ctx.send(loading(_("Let's go…")))
 
         if assign_roles:
             async with ctx.typing():
-                roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
-                roles["add"] = [ctx.guild.get_role(x) for x in roles["add"]]
-                if answers.get("team").id > 0:
-                    team_role = await getattr(
+
+                stored_roles: StoredRoles = await self.config.guild(
+                    ctx.guild
+                ).roles_to_assign_on_approval()
+
+                # Transform stored roles to a list of roles
+                roles: TransformedRoles = {
+                    key: [ctx.guild.get_role(role_id) for role_id in stored_roles[key]]
+                    for key in stored_roles
+                }
+
+                if answers["team"].id > 0:
+                    team_role: int = await getattr(
                         self.config.guild(ctx.guild),
-                        ["", "mystic_role", "valor_role", "instinct_role"][answers.get("team").id],
+                        ["", "mystic_role", "valor_role", "instinct_role"][answers["team"].id],
                     )()
                     if team_role:
                         roles["add"].append(ctx.guild.get_role(team_role))
@@ -150,9 +178,9 @@ class ModCmds(MixinMeta):
                                 mod=ctx.author, command=ctx.invoked_with
                             ),
                         )
-                    except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
-                        roles_added = False
-                        roles_added_error = e
+                    except (Forbidden, HTTPException) as e:
+                        roles_added: bool = False
+                        roles_added_error: DiscordException = e
                     else:
                         await message.edit(
                             content=success(_("Added roles ({roles}) to {user}")).format(
@@ -160,9 +188,8 @@ class ModCmds(MixinMeta):
                                 user=member.mention,
                             )
                         )
-                        roles_added = len(roles["add"])
+                        roles_added: int = len(roles["add"])
 
-                roles["remove"] = [ctx.guild.get_role(x) for x in roles["remove"]]
                 if roles["remove"]:
                     await message.edit(
                         content=loading(_("Removing roles ({roles}) from {user}")).format(
@@ -178,9 +205,9 @@ class ModCmds(MixinMeta):
                                 mod=ctx.author, command=ctx.invoked_with
                             ),
                         )
-                    except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
-                        roles_removed = False
-                        roles_removed_error = e
+                    except (Forbidden, HTTPException) as e:
+                        roles_removed: bool = False
+                        roles_removed_error: DiscordException = e
                     else:
                         await message.edit(
                             content=success(_("Removed roles ({roles}) from {user}")).format(
@@ -188,7 +215,7 @@ class ModCmds(MixinMeta):
                                 user=member.mention,
                             )
                         )
-                        roles_removed = len(roles["remove"])
+                        roles_removed: int = len(roles["remove"])
 
         if set_nickname:
             async with ctx.typing():
@@ -205,20 +232,20 @@ class ModCmds(MixinMeta):
                             mod=ctx.author, command=ctx.invoked_with
                         ),
                     )
-                except (discord.errors.Forbidden, discord.errors.HTTPException) as e:
-                    nick_set = False
-                    nick_set_error = e
+                except (Forbidden, HTTPException) as e:
+                    nick_set: bool = False
+                    nick_set_error: DiscordException = e
                 else:
                     await message.edit(
                         content=success(_("Changed {user}‘s nick to {nickname}")).format(
                             user=member.mention, nickname=answers.get("nickname")
                         )
                     )
-                    nick_set = True
+                    nick_set: bool = True
 
         async with ctx.typing():
             if assign_roles or set_nickname:
-                approval_message = success(_("{user} has been approved!\n")).format(
+                approval_message: str = success(_("{user} has been approved!\n")).format(
                     user=member.mention
                 )
 
@@ -256,7 +283,7 @@ class ModCmds(MixinMeta):
 
             if assign_roles or set_nickname:
                 await message.edit(content=approval_message)
-                message: discord.Message = await ctx.send(loading(""))
+                message: Message = await ctx.send(loading(""))
 
         logger.info(
             "Attempting to add %(user)s to database, checking if they already exist",
@@ -293,7 +320,7 @@ class ModCmds(MixinMeta):
 
             # Check if it's a good idea to update the stats
             await trainer.fetch_updates()
-            latest_update_with_total_xp = trainer.get_latest_update_for_stat("total_xp")
+            latest_update_with_total_xp: Update = trainer.get_latest_update_for_stat("total_xp")
             set_xp: bool = (
                 (answers.get("total_xp") > latest_update_with_total_xp.total_xp)
                 if trainer.updates
@@ -305,7 +332,7 @@ class ModCmds(MixinMeta):
             trainer: Trainer = await self.client.create_trainer(
                 username=nickname, faction=answers.get("team").id, is_verified=True
             )
-            user = await trainer.user()
+            user: User = await trainer.user()
             await user.add_discord(member)
             await message.edit(content=loading(_("Created {user}")).format(user=nickname))
             set_xp: bool = True
@@ -328,9 +355,9 @@ class ModCmds(MixinMeta):
             )
 
         custom_message: str = await self.config.guild(ctx.guild).introduction_note()
-        notes = introduction_notes(ctx, member, trainer, additional_message=custom_message)
+        notes: str = introduction_notes(ctx, member, trainer, additional_message=custom_message)
 
-        with suppress(discord.errors.Forbidden):
+        with suppress(Forbidden):
             await member.send(notes[0])
             if len(notes) == 2:
                 await member.send(notes[1])
@@ -344,10 +371,10 @@ class ModCmds(MixinMeta):
                 trainer=trainer.username,
             )
         )
-        embed: discord.Embed = await ProfileCard(
+        embed: ProfileCard = await ProfileCard(
             ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
         )
-        with suppress(discord.errors.Forbidden):
+        with suppress(Forbidden):
             await member.send(embed=embed)
         await message.edit(
             content=success(_("Successfully added {user} as {trainer}.")).format(
@@ -364,11 +391,11 @@ class ModCmds(MixinMeta):
 
     @tdxmod.command(name="debug")
     @checks.mod()
-    async def tdxmod__debug(self, ctx: commands.Context, message: discord.Message) -> None:
+    async def tdxmod__debug(self, ctx: commands.Context, message: Message) -> None:
         """Returns a reason why OCR would have failed"""
-        octx = await self.bot.get_context(message)
+        original_context: commands.Context = await self.bot.get_context(message)
         async with ctx.channel.typing():
-            if await self.bot.cog_disabled_in_guild(self, octx.guild):
+            if await self.bot.cog_disabled_in_guild(self, original_context.guild):
                 await ctx.send(
                     _(
                         "Message {message.id} failed because the cog is disabled in the guild"
@@ -376,7 +403,7 @@ class ModCmds(MixinMeta):
                 )
                 return
 
-            if len(octx.message.attachments) == 0:
+            if len(original_context.message.attachments) == 0:
                 await ctx.send(
                     _("Message {message.id} failed because there is no file attached.").format(
                         message=message
@@ -384,7 +411,7 @@ class ModCmds(MixinMeta):
                 )
                 return
 
-            if len(octx.message.attachments) > 1:
+            if len(original_context.message.attachments) > 1:
                 await ctx.send(
                     _("Message {message.id} failed because there more than file attached.").format(
                         message=message
@@ -392,7 +419,9 @@ class ModCmds(MixinMeta):
                 )
                 return
 
-            if os.path.splitext(octx.message.attachments[0].proxy_url)[1].lower() not in [
+            if os.path.splitext(original_context.message.attachments[0].proxy_url)[
+                1
+            ].lower() not in [
                 ".jpeg",
                 ".jpg",
                 ".png",
@@ -404,7 +433,7 @@ class ModCmds(MixinMeta):
                 )
                 return
 
-            profile_ocr: bool = await self.config.channel(octx.channel).profile_ocr()
+            profile_ocr: bool = await self.config.channel(original_context.channel).profile_ocr()
             if not profile_ocr:
                 await ctx.send(
                     _(
@@ -414,8 +443,10 @@ class ModCmds(MixinMeta):
                 return
 
             try:
-                await converters.TrainerConverter().convert(octx, octx.author, cli=self.client)
-            except discord.ext.commands.errors.BadArgument:
+                await converters.TrainerConverter().convert(
+                    original_context, original_context.author, cli=self.client
+                )
+            except BadArgument:
                 await ctx.send(
                     _(
                         "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
@@ -424,28 +455,30 @@ class ModCmds(MixinMeta):
                 return
 
             try:
-                ocr = PogoOCR.ProfileSelf(
-                    POGOOCR_TOKEN_PATH, image_uri=octx.message.attachments[0].proxy_url
+                ocr: PogoOCR.ProfileSelf = PogoOCR.ProfileSelf(
+                    POGOOCR_TOKEN_PATH, image_uri=original_context.message.attachments[0].proxy_url
                 )
                 ocr.get_text()
             except Exception as e:
-                n = await ctx.send(
+                message: Message = await ctx.send(
                     _("Message {message.id} failed because for an unknown reason").format(
                         message=message
                     )
                 )
                 await ctx.send(cf.box(e))
-                msg = str(ocr.text_found[0].description)
-                if len(msg) <= 1994:
-                    await ctx.send(cf.box(msg))
+                message_content: str = str(ocr.text_found[0].description)
+                if len(message_content) <= 1994:
+                    await ctx.send(cf.box(message_content))
                 else:
-                    await n.edit(
-                        file=cf.text_to_file(msg, filename=f"full_debug_{message.id}.txt")
+                    await message.edit(
+                        file=cf.text_to_file(
+                            message_content, filename=f"full_debug_{message.id}.txt"
+                        )
                     )
                 return
             else:
-                msg = str(ocr.text_found[0].description)
-                data_found = {
+                message_content: str = str(ocr.text_found[0].description)
+                data_found: Dict[str, Any] = {
                     "locale": ocr.locale,
                     "numeric_locale": ocr.numeric_locale,
                     "username": ocr.username,
@@ -456,19 +489,36 @@ class ModCmds(MixinMeta):
                     "total_xp": ocr.total_xp,
                     "start_date": ocr.start_date,
                 }
-                if len(msg) <= 1994:
-                    await ctx.send(cf.box(msg))
+                if len(message_content) <= 1994:
+                    await ctx.send(cf.box(message_content))
                 else:
-                    await ctx.send(file=cf.text_to_file(msg, filename=f"debug_{message.id}.txt"))
+                    await ctx.send(
+                        file=cf.text_to_file(message_content, filename=f"debug_{message.id}.txt")
+                    )
 
                 try:
-                    df = json.dumps(data_found, default=repr)
+                    data_found_jsonish_string: str = json.dumps(data_found, default=repr)
                 except (TypeError, OverflowError, TypeError):
-                    df = data_found
-                if len(cf.box(df, lang=("json" if isinstance(df, str) else "py"))) <= 2000:
-                    await ctx.send(cf.box(df, lang=("json" if isinstance(df, str) else "py")))
+                    data_found_jsonish_string: str = str(data_found)
+
+                data_found_string_format: Literal["json", "py"] = (
+                    "json" if isinstance(data_found_jsonish_string, str) else "py"
+                )
+
+                formatted_output: str = cf.box(
+                    data_found_jsonish_string,
+                    lang=data_found_string_format,
+                )
+
+                if len(formatted_output) <= 2000:
+                    await ctx.send(formatted_output)
                 else:
-                    await ctx.send(file=cf.text_to_file(df, filename=f"debug_{message.id}.json"))
+                    await ctx.send(
+                        file=cf.text_to_file(
+                            data_found_jsonish_string,
+                            filename=f"debug_{message.id}.{data_found_string_format}",
+                        )
+                    )
                 return
 
     @tdxmod.command(name="auto-role")
@@ -483,22 +533,21 @@ class ModCmds(MixinMeta):
         if assign_roles is False:
             return
         set_nickname: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
-        roles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
-        add_roles = [ctx.guild.get_role(x) for x in roles["add"]]
-        del_roles = [ctx.guild.get_role(x) for x in roles["remove"]]
-        team_roles = [
+        roles: StoredRoles = await self.config.guild(ctx.guild).roles_to_assign_on_approval()
+        add_roles: List[Role] = [ctx.guild.get_role(x) for x in roles["add"]]
+        del_roles: List[Role] = [ctx.guild.get_role(x) for x in roles["remove"]]
+        team_roles: List[Union[None, Role]] = [
             None,
             ctx.guild.get_role(await self.config.guild(ctx.guild).mystic_role()),
             ctx.guild.get_role(await self.config.guild(ctx.guild).valor_role()),
             ctx.guild.get_role(await self.config.guild(ctx.guild).instinct_role()),
         ]
-        print(team_roles)
-        members = [x for x in ctx.guild.members if not x.bot]
+        members: List[Member] = [x for x in ctx.guild.members if not x.bot]
 
-        members_to_edit = []
+        members_to_edit: List[Member] = []
         await ctx.send("Starting ({}/{})".format(len(set(members_to_edit)), len(members)))
         for role in add_roles:
-            message = await ctx.send(
+            message: Message = await ctx.send(
                 "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
             )
             members_to_edit += [m for m in members if role not in m.roles]
@@ -508,7 +557,7 @@ class ModCmds(MixinMeta):
                 )
             )
         for role in del_roles:
-            message = await ctx.send(
+            message: Message = await ctx.send(
                 "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
             )
             members_to_edit += [m for m in members if role in m.roles]
@@ -519,9 +568,9 @@ class ModCmds(MixinMeta):
             )
         members_to_edit = list(set(members_to_edit))
 
-        members_approve = 0
-        message = await ctx.send(
-            "{} approved, {} checked, {} total".format(members_approve, 0, len(members_to_edit))
+        members_approved: int = 0
+        message: Message = await ctx.send(
+            "{} approved, {} checked, {} total".format(members_approved, 0, len(members_to_edit))
         )
         async with ctx.typing():
             for index, member in enumerate(members_to_edit):
@@ -532,12 +581,12 @@ class ModCmds(MixinMeta):
                 except commands.BadArgument:
                     await message.edit(
                         content="{} approved, {} checked, {} total".format(
-                            members_approve, index + 1, len(members_to_edit)
+                            members_approved, index + 1, len(members_to_edit)
                         )
                     )
                     continue
                 if trainer.is_verified:
-                    roles_to_add = list(set(add_roles))
+                    roles_to_add: List[Role] = list(set(add_roles))
                     if trainer.faction > 0:
                         roles_to_add.append(team_roles[trainer.faction])
                     if roles_to_add:
@@ -548,7 +597,7 @@ class ModCmds(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except (discord.Forbidden, discord.HTTPException):
+                        except (Forbidden, HTTPException):
                             pass
 
                     if del_roles:
@@ -559,7 +608,7 @@ class ModCmds(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except (discord.Forbidden, discord.HTTPException):
+                        except (Forbidden, HTTPException):
                             pass
 
                     if set_nickname:
@@ -570,11 +619,11 @@ class ModCmds(MixinMeta):
                                     mod=ctx.author, command=ctx.invoked_with
                                 ),
                             )
-                        except (discord.Forbidden, discord.HTTPException):
+                        except (Forbidden, HTTPException):
                             pass
-                    members_approve += 1
+                    members_approved += 1
                 await message.edit(
                     content="{} approved, {} checked, {} total".format(
-                        members_approve, index + 1, len(members_to_edit)
+                        members_approved, index + 1, len(members_to_edit)
                     )
                 )

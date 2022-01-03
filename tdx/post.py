@@ -1,11 +1,12 @@
 import datetime
 import logging
-
-import discord
+from discord.embeds import Embed
+from discord.message import Message
 from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from trainerdex.trainer import Trainer
+from trainerdex.update import Update
 
 from . import converters
 from .abc import MixinMeta
@@ -13,7 +14,7 @@ from .embeds import ProfileCard
 from .utils import loading
 
 logger: logging.Logger = logging.getLogger(__name__)
-_ = Translator("TrainerDex", __file__)
+_: Translator = Translator("TrainerDex", __file__)
 
 
 class Post(MixinMeta):
@@ -39,38 +40,40 @@ class Post(MixinMeta):
                 return
 
             await trainer.fetch_updates()
-            latest_update = trainer.get_latest_update()
+            latest_update: Update = trainer.get_latest_update()
             if latest_update and latest_update.update_time > (
                 datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=12)
             ):
                 if latest_update.gymbadges_gold:
-                    post_new = True
+                    post_new: bool = True
                 else:
-                    post_new = False
-                    update = latest_update
+                    post_new: bool = False
+                    update: Update = latest_update
             else:
-                post_new = True
+                post_new: bool = True
 
             if post_new:
-                message = await ctx.send(loading(_("Creating a new post…")))
-                update = await trainer.post(
+                message: Message = await ctx.send(loading(_("Creating a new post…")))
+                update: Update = await trainer.post(
                     stats={"gymbadges_gold": value},
                     data_source="ts_social_discord",
                     update_time=ctx.message.created_at,
                     submission_date=datetime.datetime.now(tz=datetime.timezone.utc),
                 )
             else:
-                message = await ctx.send(loading(_("Updating a post from earlier today…")))
+                message: Message = await ctx.send(
+                    loading(_("Updating a post from earlier today…"))
+                )
                 await update.edit(
                     **{"update_time": ctx.message.created_at, "gymbadges_gold": value}
                 )
 
             if ctx.guild and not trainer.is_visible:
                 await message.edit(_("Sending in DMs"))
-                message = await ctx.author.send(content=loading(_("Loading output…")))
+                message: Message = await ctx.author.send(content=loading(_("Loading output…")))
 
             await message.edit(content=loading(_("Loading output…")))
-            embed: discord.Embed = await ProfileCard(
+            embed: Embed = await ProfileCard(
                 ctx=ctx,
                 client=self.client,
                 trainer=trainer,

@@ -2,13 +2,13 @@ import datetime
 import json
 import logging
 import re
-from typing import Optional
-
-import discord
+from discord.ext.commands.context import Context
+from discord.message import Message
 from redbot.core import commands
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from trainerdex.trainer import Trainer
+from typing import Optional
 
 from . import converters
 from .abc import MixinMeta
@@ -16,7 +16,7 @@ from .embeds import ProfileCard
 from .utils import loading
 
 logger: logging.Logger = logging.getLogger(__name__)
-_ = Translator("TrainerDex", __file__)
+_: Translator = Translator("TrainerDex", __file__)
 
 
 class Profile(MixinMeta):
@@ -31,13 +31,13 @@ class Profile(MixinMeta):
         async with ctx.typing():
             try:
                 logger.debug("searching for trainer by discord uid: %s", ctx.author.id)
-                author_profile = await converters.TrainerConverter().convert(
+                author_profile: Trainer = await converters.TrainerConverter().convert(
                     ctx, ctx.author, cli=self.client
                 )
             except commands.BadArgument:
                 author_profile = None
 
-            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
+            message: Message = await ctx.send(loading(_("Searching for profile…")))
 
             if nickname is None:
                 trainer = author_profile
@@ -57,7 +57,7 @@ class Profile(MixinMeta):
                 elif trainer == author_profile:
                     if ctx.guild:
                         await message.edit(content=_("Sending in DMs"))
-                        message = await ctx.author.send(
+                        message: Message = await ctx.author.send(
                             content=loading(_("Found profile. Loading…"))
                         )
                     else:
@@ -69,7 +69,7 @@ class Profile(MixinMeta):
                 await message.edit(content=cf.warning(_("Profile not found.")))
                 return
 
-            embed: discord.Embed = await ProfileCard(
+            embed: ProfileCard = await ProfileCard(
                 ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji
             )
             await message.edit(content=loading(_("Checking progress…")), embed=embed)
@@ -98,7 +98,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 author_profile = None
 
-            message: discord.Message = await ctx.send(loading(_("Searching for profile…")))
+            message: Message = await ctx.send(loading(_("Searching for profile…")))
 
             if nickname is None:
                 trainer = author_profile
@@ -263,8 +263,8 @@ class Profile(MixinMeta):
                 )
 
     @commands.Cog.listener("on_message_without_command")
-    async def pokenav_set_trainer_code(self, message: discord.Message) -> None:
-        ctx = await self.bot.get_context(message)
+    async def pokenav_set_trainer_code(self, message: Message) -> None:
+        ctx: Context = await self.bot.get_context(message)
         del message
         if not (await self.bot.message_eligible_as_command(ctx.message)):
             return

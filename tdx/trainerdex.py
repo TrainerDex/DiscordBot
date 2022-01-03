@@ -1,17 +1,26 @@
 import contextlib
+from decimal import Context, Decimal
 import logging
 import os
-from abc import ABC
-from typing import Dict, Final, Literal, Union
-
-import discord
 import PogoOCR
+from abc import ABC
+from discord.activity import Game
+from discord.emoji import Emoji
+from discord.errors import Forbidden, HTTPException, InvalidArgument, NotFound
+from discord.ext.commands.errors import BadArgument
+from discord.message import Message
 from redbot.core import Config, commands
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator
 from redbot.core.utils import chat_formatting as cf
 from trainerdex.client import Client
+from trainerdex.socialconnection import SocialConnection
 from trainerdex.trainer import Trainer
+from typing import Dict, Final, Literal, Union
+
+from trainerdex.update import Update
+
+from tdx.datatypes import ChannelConfig, GlobalConfig, GuildConfig
 
 from . import VERSION, converters
 from .embeds import ProfileCard
@@ -24,8 +33,9 @@ from .utils import append_twitter, loading
 from .version import get_version
 
 logger: logging.Logger = logging.getLogger(__name__)
+_: Translator = Translator("TrainerDex", __file__)
+
 POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
-_ = Translator("TrainerDex", __file__)
 
 
 class CompositeMetaClass(type(commands.Cog), type(ABC)):
@@ -35,6 +45,15 @@ class CompositeMetaClass(type(commands.Cog), type(ABC)):
     """
 
     pass
+
+
+DEFAULT_GLOBAL_CONFIG: GlobalConfig = GlobalConfig(embed_footer="Provided with ❤️ by TrainerDex")
+DEFAULT_GUILD_CONFIG: GuildConfig = GuildConfig(
+    assign_roles_on_join=True,
+    set_nickname_on_join=True,
+    set_nickname_on_update=True,
+)
+DEFAULT_CHANNEL_CONFIG: ChannelConfig = ChannelConfig(profile_ocr=True)
 
 
 class TrainerDex(
@@ -48,23 +67,9 @@ class TrainerDex(
             identifier=8124637339,
             force_registration=True,
         )
-        self.config.register_global(
-            **{"embed_footer": "Provided with ❤️ by TrainerDex", "notice": None}
-        )
-        self.config.register_guild(
-            **{
-                "assign_roles_on_join": True,
-                "set_nickname_on_join": True,
-                "set_nickname_on_update": True,
-                "roles_to_assign_on_approval": {"add": [], "remove": []},
-                "mystic_role": None,
-                "valor_role": None,
-                "instinct_role": None,
-                "tl40_role": None,
-                "introduction_note": None,
-            }
-        )
-        self.config.register_channel(**{"profile_ocr": False})
+        self.config.register_global(**DEFAULT_GLOBAL_CONFIG.__dict__)
+        self.config.register_guild(**DEFAULT_GUILD_CONFIG.__dict__)
+        self.config.register_channel(**DEFAULT_CHANNEL_CONFIG.__dict__)
         self.client: Client = None
         self.bot.loop.create_task(self.create_client())
         self.bot.loop.create_task(self.load_emojis())
@@ -74,11 +79,11 @@ class TrainerDex(
 
     async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self.bot.change_presence(activity=discord.Game(name=get_version(VERSION)))
+        await self.bot.change_presence(activity=Game(name=get_version(VERSION)))
 
     async def load_emojis(self) -> None:
         await self.bot.wait_until_ready()
-        self.emoji: Dict[str, Union[str, discord.Emoji]] = {
+        self.emoji: Dict[str, Union[str, Emoji]] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
             "valor": self.bot.get_emoji(430113457149575168),
@@ -105,15 +110,15 @@ class TrainerDex(
         }
 
     async def create_client(self) -> None:
-        api_tokens = await self.bot.get_shared_api_tokens("trainerdex")
-        token = api_tokens.get("token", "")
+        api_tokens: Dict[str, str] = await self.bot.get_shared_api_tokens("trainerdex")
+        token: str = api_tokens.get("token", "")
         if not token:
             logger.warning("No valid token found")
-        self.client = Client(token=token)
+        self.client: Client = Client(token=token)
 
     @commands.Cog.listener("on_message_without_command")
-    async def check_screenshot(self, message: discord.Message) -> None:
-        ctx = await self.bot.get_context(message)
+    async def check_screenshot(self, message: Message) -> None:
+        ctx: Context = await self.bot.get_context(message)
         del message
         if not (await self.bot.message_eligible_as_command(ctx.message)):
             return
@@ -136,19 +141,15 @@ class TrainerDex(
         if not profile_ocr:
             return
 
-        with contextlib.suppress(
-            discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
-        ):
+        with contextlib.suppress(HTTPException, Forbidden, NotFound, InvalidArgument):
             await ctx.message.add_reaction(self.emoji.get("loading"))
 
         try:
             trainer: Trainer = await converters.TrainerConverter().convert(
                 ctx, ctx.author, cli=self.client
             )
-        except discord.ext.commands.errors.BadArgument:
-            with contextlib.suppress(
-                discord.HTTPException, discord.Forbidden, discord.NotFound, discord.InvalidArgument
-            ):
+        except BadArgument:
+            with contextlib.suppress(HTTPException, Forbidden, NotFound, InvalidArgument):
                 await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                 await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             await ctx.send(
@@ -161,8 +162,10 @@ class TrainerDex(
             return
 
         async with ctx.channel.typing():
-            message = await ctx.send(loading(_("That's a nice image you have there, let's see…")))
-            ocr = PogoOCR.ProfileSelf(
+            message: Message = await ctx.send(
+                loading(_("That's a nice image you have there, let's see…"))
+            )
+            ocr: PogoOCR.ProfileSelf = PogoOCR.ProfileSelf(
                 POGOOCR_TOKEN_PATH, image_uri=ctx.message.attachments[0].proxy_url
             )
             try:
@@ -177,7 +180,7 @@ class TrainerDex(
                 )
                 return
 
-            data_found = {
+            data_found: Dict[str, Union[Decimal, int, None]] = {
                 "travel_km": ocr.travel_km,
                 "capture_total": ocr.capture_total,
                 "pokestops_visited": ocr.pokestops_visited,
@@ -197,7 +200,9 @@ class TrainerDex(
                 )
 
                 await trainer.fetch_updates()
-                latest_update_with_total_xp = trainer.get_latest_update_for_stat("total_xp")
+                latest_update_with_total_xp: Update = trainer.get_latest_update_for_stat(
+                    "total_xp"
+                )
                 if latest_update_with_total_xp.total_xp > data_found.get("total_xp"):
                     await message.edit(
                         content=append_twitter(
@@ -210,10 +215,10 @@ class TrainerDex(
                         ).format(xp=cf.humanize_number(data_found.get("total_xp")))
                     )
                     with contextlib.suppress(
-                        discord.HTTPException,
-                        discord.Forbidden,
-                        discord.NotFound,
-                        discord.InvalidArgument,
+                        HTTPException,
+                        Forbidden,
+                        NotFound,
+                        InvalidArgument,
                     ):
                         await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
@@ -226,10 +231,10 @@ class TrainerDex(
                         )
                     )
                     with contextlib.suppress(
-                        discord.HTTPException,
-                        discord.Forbidden,
-                        discord.NotFound,
-                        discord.InvalidArgument,
+                        HTTPException,
+                        Forbidden,
+                        NotFound,
+                        InvalidArgument,
                     ):
                         await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
@@ -240,10 +245,10 @@ class TrainerDex(
                         update_time=ctx.message.created_at,
                     )
                     with contextlib.suppress(
-                        discord.HTTPException,
-                        discord.Forbidden,
-                        discord.NotFound,
-                        discord.InvalidArgument,
+                        HTTPException,
+                        Forbidden,
+                        NotFound,
+                        InvalidArgument,
                     ):
                         await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                         await ctx.message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
@@ -251,14 +256,14 @@ class TrainerDex(
 
                 if ctx.guild and not trainer.is_visible:
                     await message.edit(_("Sending in DMs"))
-                    message = await ctx.author.send(content=loading(_("Loading output…")))
+                    message: Message = await ctx.author.send(content=loading(_("Loading output…")))
 
                 await message.edit(
                     content="\n".join(
                         [x for x in [text, loading(_("Loading output…"))] if x is not None]
                     )
                 )
-                embed: discord.Embed = await ProfileCard(
+                embed: ProfileCard = await ProfileCard(
                     ctx=ctx,
                     client=self.client,
                     trainer=trainer,
@@ -295,10 +300,10 @@ class TrainerDex(
                     )
                 )
                 with contextlib.suppress(
-                    discord.HTTPException,
-                    discord.Forbidden,
-                    discord.NotFound,
-                    discord.InvalidArgument,
+                    HTTPException,
+                    Forbidden,
+                    NotFound,
+                    InvalidArgument,
                 ):
                     await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                     await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
@@ -311,12 +316,14 @@ class TrainerDex(
     ):
         if requester in ("discord_deleted_user", "owner", "user", "user_strict"):
             # TODO: Create different cases for each requester type.
-            # discord_deleted_user should alert out database that a duid is not valid anymore
+            # discord_deleted_user should alert our database that a discord uid is not valid anymore
             # owner and user should probably just hide a user
-            # user_strict should probably hide the user and remove duid association
+            # user_strict should probably hide the user and remove discord uid association
             # But for now, they all just hide the user
-            socialconnections = await self.client.get_social_connections("discord", str(user_id))
+            socialconnections: SocialConnection = await self.client.get_social_connections(
+                "discord", str(user_id)
+            )
             if socialconnections:
-                trainer = await socialconnections[0].trainer()
+                trainer: Trainer = await socialconnections[0].trainer()
             if trainer:
                 await trainer.edit(is_visible=False)
