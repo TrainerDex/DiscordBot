@@ -1,7 +1,7 @@
 import datetime
 import logging
 from decimal import Decimal
-from typing import Dict, List, Union
+from typing import Dict, Union
 
 import discord
 import humanize
