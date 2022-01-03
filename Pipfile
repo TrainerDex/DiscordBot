@@ -12,10 +12,9 @@ PogoOCR = "==0.3.8"
 Red-DiscordBot = {version = "<3.5.0,>=3.4.9", extras = ["postgres"]}
 
 [dev-packages]
-Red-DiscordBot = {version = "<3.5.0,>=3.4.9"}
 black = "*"
 flake8 = "*"
 redgettext = "*"
 
 [requires]
-python_version = ">=3.8"
+python_version = "3.8"
