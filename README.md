@@ -6,7 +6,7 @@ Requires API Key for any write actions. Can be obtained by emailing support [at]
 
 ### Note regarding branches
 
-As of 2021-06-03, the tho branches "production" and "development" will be merged into one "main" branch with development running from feature branches and the production copy of the bot will run from tags/releases.
+As of 2021-06-03, the the branches "production" and "development" will be merged into one "main" branch with development running from feature branches and the production copy of the bot will run from tags/releases.
 
 ### Running git blame?
 
