@@ -54,7 +54,7 @@ DEFAULT_GUILD_CONFIG: GuildConfig = GuildConfig(
     set_nickname_on_update=True,
     roles_to_assign_on_approval=StoredRoles(add=[], remove=[]),
 )
-DEFAULT_CHANNEL_CONFIG: ChannelConfig = ChannelConfig(profile_ocr=True)
+DEFAULT_CHANNEL_CONFIG: ChannelConfig = ChannelConfig(profile_ocr=False)
 
 
 class TrainerDex(
