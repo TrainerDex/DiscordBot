@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
-        run: sudo apt-get install pipenv -y && pipenv install --dev
+        run: sudo apt-get install pipenv python3-pip -y && pipenv install --dev --three
       - name: Generate pot files
         run: pipenv run python -m redgettext -c tdx
       - name: Update Crowdin
