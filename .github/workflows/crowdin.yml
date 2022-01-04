@@ -20,11 +20,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
-        run: |
-          pipenv install --dev
+        run: sudo apt-get install pipenv -y && pipenv install --dev
       - name: Generate pot files
-        run: |
-          pipenv run python -m redgettext -c tdx
+        run: pipenv run python -m redgettext -c tdx
       - name: Update Crowdin
         uses: crowdin/github-action@1.4.0
         with:
