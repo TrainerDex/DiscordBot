@@ -156,8 +156,8 @@ class TrainerDex(
             await ctx.send(
                 _(
                     "{author.mention} No TrainerDex profile found for this Discord account."
-                    + " A moderator for this server can set you up."
-                    + " If it still doesn't work after that, please contact {bot_owner}."
+                    " A moderator for this server can set you up."
+                    " If it still doesn't work after that, please contact {bot_owner}."
                 ).format(author=ctx.author, bot_owner=ctx.bot.get_user(319792326958514176))
             )
             return
