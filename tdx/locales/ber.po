@@ -3,13 +3,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2022-01-11 18:24+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2022-01-11 19:05+0000\n"
+"Last-Translator: Jay Turner <jaynicholasturner@gmail.com>\n"
+"Language-Team: Berber <https://hosted.weblate.org/projects/trainerdex/"
+"discord-bot/ber/>\n"
 "Language: ber\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10.1\n"
 "Generated-By: redgettext 3.3\n"
 
 #: tdx/converters.py:63
@@ -438,8 +441,9 @@ msgid "Mystic"
 msgstr ""
 
 #: tdx/settings.py:42
+#, fuzzy
 msgid "Valor"
-msgstr ""
+msgstr "Valor"
 
 #: tdx/settings.py:55
 msgid "Instinct"
