@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: 3.8
       - name: Install Dependencies
-        run: sudo apt-get install pipenv python3-pip -y && pip install pipenv && pipenv install --dev --three
+        run: pip install pipenv && pipenv install --dev --three
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
