@@ -1,17 +1,17 @@
+from typing import Callable, Optional, Union
+
 from discord.abc import User
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from discord.message import Message
+
+from trainerdex.discord.constants import SOCIAL_TWITTER
 from trainerdex.discord.utils import chat_formatting
 from trainerdex.trainer import Trainer
-from typing import Callable, Optional, Union
 
 
 def append_twitter(text: str) -> str:
-    TWITTER_MESSAGE = chat_formatting.info(
-        "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
-    ).format(twitter_handle="@TrainerDexApp")
-    return f"{text}\n\n{TWITTER_MESSAGE}"
+    return f"{text}\n\nIf that doesn't look right, please contact us on Twitter. {SOCIAL_TWITTER}"
 
 
 def introduction_notes(
