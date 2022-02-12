@@ -2,19 +2,16 @@ import datetime
 import logging
 from discord.embeds import Embed
 from discord.message import Message
-from redbot.core import commands
-from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
+from discord.ext import commands
+from trainerdex.discord.utils import chat_formatting
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
 
-from . import converters
-from .abc import MixinMeta
-from .embeds import ProfileCard
-from .utils import loading
+from trainerdex.discord import converters
+from trainerdex.discord.abc import MixinMeta
+from trainerdex.discord.embeds import ProfileCard
 
 logger: logging.Logger = logging.getLogger(__name__)
-_: Translator = Translator("TrainerDex", __file__)
 
 
 class Post(MixinMeta):
@@ -36,7 +33,7 @@ class Post(MixinMeta):
                     ctx, ctx.author, cli=self.client
                 )
             except commands.BadArgument:
-                await ctx.send(cf.error("No profile found."))
+                await ctx.send(chat_formatting.error("No profile found."))
                 return
 
             await trainer.fetch_updates()
@@ -53,7 +50,7 @@ class Post(MixinMeta):
                 post_new: bool = True
 
             if post_new:
-                message: Message = await ctx.send(loading(_("Creating a new post…")))
+                message: Message = await ctx.send(chat_formatting.loading("Creating a new post…"))
                 update: Update = await trainer.post(
                     stats={"gymbadges_gold": value},
                     data_source="ts_social_discord",
@@ -62,17 +59,19 @@ class Post(MixinMeta):
                 )
             else:
                 message: Message = await ctx.send(
-                    loading(_("Updating a post from earlier today…"))
+                    chat_formatting.loading("Updating a post from earlier today…")
                 )
                 await update.edit(
                     **{"update_time": ctx.message.created_at, "gymbadges_gold": value}
                 )
 
             if ctx.guild and not trainer.is_visible:
-                await message.edit(_("Sending in DMs"))
-                message: Message = await ctx.author.send(content=loading(_("Loading output…")))
+                await message.edit("Sending in DMs")
+                message: Message = await ctx.author.send(
+                    content=chat_formatting.loading("Loading output…")
+                )
 
-            await message.edit(content=loading(_("Loading output…")))
+            await message.edit(content=chat_formatting.loading("Loading output…"))
             embed: Embed = await ProfileCard(
                 ctx=ctx,
                 client=self.client,
@@ -80,10 +79,10 @@ class Post(MixinMeta):
                 update=update,
                 emoji=self.emoji,
             )
-            await message.edit(content=loading(_("Loading output…")))
+            await message.edit(content=chat_formatting.loading("Loading output…"))
             await embed.show_progress()
             await message.edit(
-                content=loading(_("Loading output…")),
+                content=chat_formatting.loading("Loading output…"),
                 embed=embed,
             )
             await embed.add_leaderboard()

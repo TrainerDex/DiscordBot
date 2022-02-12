@@ -3,8 +3,7 @@ import logging
 import re
 from discord.abc import User
 from discord.ext.commands.converter import UserConverter
-from redbot.core import commands
-from redbot.core.i18n import Translator
+from discord.ext import commands
 from trainerdex.client import Client
 from trainerdex.faction import Faction
 from trainerdex.socialconnection import SocialConnection
@@ -13,7 +12,6 @@ from trainerdex.update import Level, get_level
 from typing import Any, Dict, List, Literal, Union
 
 logger: logging.Logger = logging.getLogger(__name__)
-_: Translator = Translator("TrainerDex", __file__)
 
 
 class SafeConvertObject:
@@ -60,10 +58,7 @@ class NicknameConverter(commands.Converter):
         match: Union[re.Match, None] = re.match(self.regex, argument)
         if match is None:
             raise commands.BadArgument(
-                _(
-                    "{} is not a valid Pokémon Go username. "
-                    "A Pokémon Go username is 3-15 letters or numbers long."
-                ).format(argument)
+                f"{argument} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
             )
         return argument
 
@@ -117,7 +112,7 @@ class TrainerConverter(commands.Converter):
                 await trainer.fetch_updates()
                 return trainer
 
-        raise commands.BadArgument(_("Trainer `{}` not found").format(argument))
+        raise commands.BadArgument(f"Trainer `{argument}` not found")
 
 
 class TeamConverter(commands.Converter):
@@ -146,7 +141,7 @@ class TeamConverter(commands.Converter):
                 result = Faction(options[0])
 
         if result is None:
-            raise commands.BadArgument(_("Team `{}` not found").format(argument))
+            raise commands.BadArgument(f"Team `{argument}` not found")
 
         return result
 
@@ -157,16 +152,16 @@ class LevelConverter(commands.Converter):
         try:
             return get_level(level=int(argument))
         except KeyError:
-            raise commands.BadArgument(_("Not a valid level. Please choose between 1-40"))
+            raise commands.BadArgument("Not a valid level. Please choose between 1-40")
 
 
 class TotalXPConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> int:
         logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
-            raise commands.BadArgument(_("Not a valid number."))
+            raise commands.BadArgument("Not a valid number.")
         elif int(argument) < 100:
-            raise commands.BadArgument(_("Value too low."))
+            raise commands.BadArgument("Value too low.")
         else:
             return int(argument)
 
@@ -178,5 +173,5 @@ class TrainerCodeValidator(commands.Converter):
             return re.sub(r"[\s-]", "", argument)
         else:
             raise commands.BadArgument(
-                _("Trainer Code must be 12 digits long and contain only numbers and whitespace.")
+                "Trainer Code must be 12 digits long and contain only numbers and whitespace."
             )

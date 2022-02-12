@@ -1,64 +1,23 @@
 from discord.abc import User
-from discord.emoji import Emoji
+from discord.ext import commands
 from discord.ext.commands.context import Context
 from discord.message import Message
-from redbot.core import commands
-from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
-from redbot.core.utils import predicates
+from trainerdex.discord.utils import chat_formatting
 from trainerdex.trainer import Trainer
 from typing import Callable, Optional, Union
 
-_ = Translator("TrainerDex", __file__)
-
 
 def append_twitter(text: str) -> str:
-    TWITTER_MESSAGE = cf.info(
-        _("If that doesn't look right, please contact us on Twitter. {twitter_handle}")
+    TWITTER_MESSAGE = chat_formatting.info(
+        "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
     ).format(twitter_handle="@TrainerDexApp")
     return f"{text}\n\n{TWITTER_MESSAGE}"
-
-
-def append_icon(icon: Union[Emoji, str], text: str) -> str:
-    return f"{icon} {text}" if icon else text
-
-
-def quote(text: str) -> str:
-    return "> " + text.rstrip("\n").replace("\n", "\n> ")
-
-
-def loading(text: str) -> str:
-    """Get text prefixed with a loading emoji if the bot has access to it.
-
-    Returns
-    -------
-    str
-    The new message.
-
-    """
-
-    emoji: str = "<a:loading:471298325904359434>"
-    return append_icon(emoji, text)
-
-
-def success(text: str) -> str:
-    """Get text prefixed with a white checkmark.
-
-    Returns
-    -------
-    str
-    The new message.
-
-    """
-    emoji: str = "\N{WHITE HEAVY CHECK MARK}"
-    return append_icon(emoji, text)
 
 
 def introduction_notes(
     ctx: commands.Context, member: User, trainer: Trainer, additional_message: str
 ) -> str:
-    BASE_NOTE = _(
-        """**You're getting this message because you have been added to the TrainerDex database.**
+    BASE_NOTE = """**You're getting this message because you have been added to the TrainerDex database.**
 
 This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.
 
@@ -69,15 +28,10 @@ TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy p
 
 If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)
 """
-    )
-    IS_VISIBLE_TRUE = _(
-        """Your profile is currently visible. To hide your data from other users, please run the following command in this chat:
+    IS_VISIBLE_TRUE = """Your profile is currently visible. To hide your data from other users, please run the following command in this chat:
     `{p}profile edit visible false`"""
-    )
-    IS_VISIBLE_FALSE = _(
-        """Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:
+    IS_VISIBLE_FALSE = """Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:
     `{p}profile edit visible true`"""
-    )
     BASE_NOTE = BASE_NOTE.format(
         server=ctx.guild,
         mod=ctx.author,
@@ -90,9 +44,9 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
     )
 
     if additional_message:
-        ADDITIONAL_NOTE = _(
+        ADDITIONAL_NOTE = (
             "Additionally, you have a message from `{server.name}`:\n{note}"
-        ).format(server=ctx.guild, note=quote(additional_message))
+        ).format(server=ctx.guild, note=chat_formatting.quote(additional_message))
         return (BASE_NOTE, ADDITIONAL_NOTE)
     else:
         return (BASE_NOTE,)
@@ -113,17 +67,17 @@ class Question:
         self._ctx: Context = ctx
         self.question: str = question
         self.message: Message = message
-        self.predicate: Callable = predicate or predicates.MessagePredicate.same_context(self._ctx)
+        self.predicate: Callable = predicate  # FIXME
         self.response: Message = None
 
     async def ask(self) -> str:
         if self.message:
             await self.message.edit(
-                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
+                content=chat_formatting.question(f"{self._ctx.author.mention}: {self.question}")
             )
         else:
             self.message: Message = await self._ctx.send(
-                content=cf.question(f"{self._ctx.author.mention}: {self.question}")
+                content=chat_formatting.question(f"{self._ctx.author.mention}: {self.question}")
             )
         self.response: Message = await self._ctx.bot.wait_for("message", check=self.predicate)
         if self.response.content.lower() == f"{self._ctx.prefix}cancel":
@@ -134,7 +88,8 @@ class Question:
 
     async def append_answer(self, answer: Optional[str] = None) -> None:
         content: str = "{q}\n{a}".format(
-            q=self.question, a=quote(str(answer) if answer is not None else self.answer)
+            q=self.question,
+            a=chat_formatting.quote(str(answer) if answer is not None else self.answer),
         )
         await self.message.edit(content=content)
 

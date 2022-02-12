@@ -4,38 +4,34 @@ import logging
 import os
 import PogoOCR
 from abc import ABC
+from typing import Literal
+from discord import Bot
+
 from discord.activity import Game
 from discord.emoji import Emoji
 from discord.errors import Forbidden, HTTPException, InvalidArgument, NotFound
+from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
 from discord.message import Message
-from redbot.core import Config, commands
-from redbot.core.bot import Red
-from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
+
 from trainerdex.client import Client
 from trainerdex.socialconnection import SocialConnection
 from trainerdex.trainer import Trainer
-from typing import Dict, Final, Literal, Union
-
 from trainerdex.update import Update
-
-from tdx.datatypes import ChannelConfig, GlobalConfig, GuildConfig, StoredRoles
-
-from . import VERSION, converters
-from .embeds import ProfileCard
-from .leaderboard import Leaderboard
-from .mod import ModCmds
-from .post import Post
-from .profile import Profile
-from .settings import Settings
-from .utils import append_twitter, loading
-from .version import get_version
+from trainerdex.discord import __version__, converters
+from trainerdex.discord.embeds import ProfileCard
+from trainerdex.discord.datatypes import ChannelConfig, GlobalConfig, GuildConfig, StoredRoles
+from trainerdex.discord.leaderboard import Leaderboard
+from trainerdex.discord.mod import ModCmds
+from trainerdex.discord.post import Post
+from trainerdex.discord.profile import Profile
+from trainerdex.discord.settings import Settings
+from trainerdex.discord.utils import chat_formatting
+from trainerdex.discord.utils.general import append_twitter, loading
 
 logger: logging.Logger = logging.getLogger(__name__)
-_: Translator = Translator("TrainerDex", __file__)
 
-POGOOCR_TOKEN_PATH: Final = os.path.join(os.path.dirname(__file__), "data/key.json")
+POGOOCR_TOKEN_PATH: str = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
 class CompositeMetaClass(type(commands.Cog), type(ABC)):
@@ -60,17 +56,17 @@ DEFAULT_CHANNEL_CONFIG: ChannelConfig = ChannelConfig(profile_ocr=False)
 class TrainerDex(
     ModCmds, Post, Profile, Leaderboard, Settings, commands.Cog, metaclass=CompositeMetaClass
 ):
-    def __init__(self, bot: Red) -> None:
-        self.bot: Red = bot
-        self.config: Config = Config.get_conf(
-            None,
-            cog_name="trainerdex",
-            identifier=8124637339,
-            force_registration=True,
-        )
-        self.config.register_global(**DEFAULT_GLOBAL_CONFIG.__dict__)
-        self.config.register_guild(**DEFAULT_GUILD_CONFIG.__dict__)
-        self.config.register_channel(**DEFAULT_CHANNEL_CONFIG.__dict__)
+    def __init__(self, bot: Bot) -> None:
+        self.bot: Bot = bot
+        # self.config: Config = Config.get_conf(
+        #     None,
+        #     cog_name="trainerdex",
+        #     identifier=8124637339,
+        #     force_registration=True,
+        # )
+        # self.config.register_global(**DEFAULT_GLOBAL_CONFIG.__dict__)
+        # self.config.register_guild(**DEFAULT_GUILD_CONFIG.__dict__)
+        # self.config.register_channel(**DEFAULT_CHANNEL_CONFIG.__dict__)
         self.client: Client = None
         self.bot.loop.create_task(self.create_client())
         self.bot.loop.create_task(self.load_emojis())
@@ -80,11 +76,11 @@ class TrainerDex(
 
     async def set_game_to_version(self) -> None:
         await self.bot.wait_until_ready()
-        await self.bot.change_presence(activity=Game(name=get_version(VERSION)))
+        await self.bot.change_presence(activity=Game(name=__version__))
 
     async def load_emojis(self) -> None:
         await self.bot.wait_until_ready()
-        self.emoji: Dict[str, Union[str, Emoji]] = {
+        self.emoji: dict[str, str | Emoji] = {
             "teamless": self.bot.get_emoji(743873748029145209),
             "mystic": self.bot.get_emoji(430113444558274560),
             "valor": self.bot.get_emoji(430113457149575168),
@@ -111,7 +107,7 @@ class TrainerDex(
         }
 
     async def create_client(self) -> None:
-        api_tokens: Dict[str, str] = await self.bot.get_shared_api_tokens("trainerdex")
+        api_tokens: dict[str, str] = await self.bot.get_shared_api_tokens("trainerdex")
         token: str = api_tokens.get("token", "")
         if not token:
             logger.warning("No valid token found")
@@ -154,17 +150,17 @@ class TrainerDex(
                 await ctx.message.remove_reaction(self.emoji.get("loading"), self.bot.user)
                 await ctx.message.add_reaction("\N{THUMBS DOWN SIGN}")
             await ctx.send(
-                _(
-                    "{author.mention} No TrainerDex profile found for this Discord account."
-                    " A moderator for this server can set you up."
-                    " If it still doesn't work after that, please contact {bot_owner}."
-                ).format(author=ctx.author, bot_owner=ctx.bot.get_user(319792326958514176))
+                "{author.mention} No TrainerDex profile found for this Discord account."
+                " A moderator for this server can set you up."
+                " If it still doesn't work after that, please contact {bot_owner}.".format(
+                    author=ctx.author, bot_owner=ctx.bot.get_user(319792326958514176)
+                )
             )
             return
 
         async with ctx.channel.typing():
             message: Message = await ctx.send(
-                loading(_("That's a nice image you have there, let's see…"))
+                loading("That's a nice image you have there, let's see…")
             )
             ocr: PogoOCR.ProfileSelf = PogoOCR.ProfileSelf(
                 POGOOCR_TOKEN_PATH, image_uri=ctx.message.attachments[0].proxy_url
@@ -173,15 +169,13 @@ class TrainerDex(
                 ocr.get_text()
             except PogoOCR.OutOfRetriesException:
                 await ctx.send(
-                    cf.error(
-                        _(
-                            "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
-                        )
+                    chat_formatting.error(
+                        "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
                     )
                 )
                 return
 
-            data_found: Dict[str, Union[Decimal, int, None]] = {
+            data_found: dict[str, Decimal | int | None] = {
                 "travel_km": ocr.travel_km,
                 "capture_total": ocr.capture_total,
                 "pokestops_visited": ocr.pokestops_visited,
@@ -192,11 +186,9 @@ class TrainerDex(
                 await message.edit(
                     content=append_twitter(
                         loading(
-                            _(
-                                "{user}, we found the following stats:\n"
-                                "{stats}\nJust processing that now…"
-                            )
-                        ).format(user=ctx.author.mention, stats=cf.box(data_found))
+                            "{user}, we found the following stats:\n"
+                            "{stats}\nJust processing that now…"
+                        ).format(user=ctx.author.mention, stats=chat_formatting.box(data_found))
                     )
                 )
 
@@ -207,13 +199,11 @@ class TrainerDex(
                 if latest_update_with_total_xp.total_xp > data_found.get("total_xp"):
                     await message.edit(
                         content=append_twitter(
-                            cf.warning(
-                                _(
-                                    "You've previously set your XP to higher than what you're trying to set it to. "
-                                    "It's currently set to {xp}."
-                                )
+                            chat_formatting.warning(
+                                "You've previously set your XP to higher than what you're trying to set it to. "
+                                "It's currently set to {xp}."
                             )
-                        ).format(xp=cf.humanize_number(data_found.get("total_xp")))
+                        ).format(xp=chat_formatting.humanize_number(data_found.get("total_xp")))
                     )
                     with contextlib.suppress(
                         HTTPException,
@@ -225,11 +215,9 @@ class TrainerDex(
                         await ctx.message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
                 elif latest_update_with_total_xp.total_xp == data_found.get("total_xp"):
-                    text: str = cf.warning(
-                        _(
-                            "You've already set your XP to this figure. "
-                            "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
-                        )
+                    text: str = chat_formatting.warning(
+                        "You've already set your XP to this figure. "
+                        "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                     )
                     with contextlib.suppress(
                         HTTPException,
@@ -256,12 +244,12 @@ class TrainerDex(
                     text = None
 
                 if ctx.guild and not trainer.is_visible:
-                    await message.edit(_("Sending in DMs"))
-                    message: Message = await ctx.author.send(content=loading(_("Loading output…")))
+                    await message.edit("Sending in DMs")
+                    message: Message = await ctx.author.send(content=loading("Loading output…"))
 
                 await message.edit(
                     content="\n".join(
-                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                        [x for x in [text, loading("Loading output…")] if x is not None]
                     )
                 )
                 embed: ProfileCard = await ProfileCard(
@@ -272,13 +260,13 @@ class TrainerDex(
                 )
                 await message.edit(
                     content="\n".join(
-                        [x for x in [text, loading(_("Loading output…"))] if x is not None]
+                        [x for x in [text, loading("Loading output…")] if x is not None]
                     )
                 )
                 await embed.show_progress()
                 await message.edit(
                     content="\n".join(
-                        [x for x in [text, loading(_("Loading leaderboards…"))] if x is not None]
+                        [x for x in [text, loading("Loading leaderboards…")] if x is not None]
                     ),
                     embed=embed,
                 )
@@ -289,15 +277,13 @@ class TrainerDex(
                 await message.edit(content=text, embed=embed)
             else:
                 await message.edit(
-                    content=cf.error(_("I could not find Total XP in your image. "))
+                    content=chat_formatting.error("I could not find Total XP in your image. ")
                     + "\n\n"
-                    + cf.info(
-                        _(
-                            "We use Google Vision API to read your images. "
-                            "Please ensure that the ‘Total XP’ field is visible. "
-                            "If it is visible and your image still doesn't scan after a minute, try a new image. "
-                            "Posting the same image again, will likely cause another failure."
-                        )
+                    + chat_formatting.info(
+                        "We use Google Vision API to read your images. "
+                        "Please ensure that the ‘Total XP’ field is visible. "
+                        "If it is visible and your image still doesn't scan after a minute, try a new image. "
+                        "Posting the same image again, will likely cause another failure."
                     )
                 )
                 with contextlib.suppress(

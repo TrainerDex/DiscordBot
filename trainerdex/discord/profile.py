@@ -4,19 +4,17 @@ import logging
 import re
 from discord.ext.commands.context import Context
 from discord.message import Message
-from redbot.core import commands
-from redbot.core.i18n import Translator
-from redbot.core.utils import chat_formatting as cf
+from discord.ext import commands
+from trainerdex.discord.utils import chat_formatting
 from trainerdex.trainer import Trainer
 from typing import Optional
 
-from . import converters
-from .abc import MixinMeta
-from .embeds import ProfileCard
-from .utils import loading
+from trainerdex.discord import converters
+from trainerdex.discord.abc import MixinMeta
+from trainerdex.discord.embeds import ProfileCard
+from trainerdex.discord.utils.general import loading
 
 logger: logging.Logger = logging.getLogger(__name__)
-_: Translator = Translator("TrainerDex", __file__)
 
 
 class Profile(MixinMeta):
@@ -37,7 +35,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 author_profile = None
 
-            message: Message = await ctx.send(loading(_("Searching for profile…")))
+            message: Message = await ctx.send(loading("Searching for profile…"))
 
             if nickname is None:
                 trainer = author_profile
@@ -48,33 +46,35 @@ class Profile(MixinMeta):
                         ctx, nickname, cli=self.client
                     )
                 except commands.BadArgument:
-                    await message.edit(content=cf.warning(_("Profile not found.")))
+                    await message.edit(content=chat_formatting.warning("Profile not found."))
                     return
 
             if trainer:
                 if trainer.is_visible:
-                    await message.edit(content=loading(_("Found profile. Loading…")))
+                    await message.edit(content=loading("Found profile. Loading…"))
                 elif trainer == author_profile:
                     if ctx.guild:
-                        await message.edit(content=_("Sending in DMs"))
+                        await message.edit(content="Sending in DMs")
                         message: Message = await ctx.author.send(
-                            content=loading(_("Found profile. Loading…"))
+                            content=loading("Found profile. Loading…")
                         )
                     else:
-                        await message.edit(content=loading(_("Found profile. Loading…")))
+                        await message.edit(content=loading("Found profile. Loading…"))
                 else:
-                    await message.edit(content=cf.warning(_("Profile deactivated or hidden.")))
+                    await message.edit(
+                        content=chat_formatting.warning("Profile deactivated or hidden.")
+                    )
                     return
             else:
-                await message.edit(content=cf.warning(_("Profile not found.")))
+                await message.edit(content=chat_formatting.warning("Profile not found."))
                 return
 
             embed: ProfileCard = await ProfileCard(
                 ctx=ctx, client=self.client, trainer=trainer, emoji=self.emoji
             )
-            await message.edit(content=loading(_("Checking progress…")), embed=embed)
+            await message.edit(content=loading("Checking progress…"), embed=embed)
             await embed.show_progress()
-            await message.edit(content=loading(_("Loading leaderboards…")), embed=embed)
+            await message.edit(content=loading("Loading leaderboards…"), embed=embed)
             await embed.add_leaderboard()
             if ctx.guild:
                 await message.edit(embed=embed)
@@ -98,7 +98,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 author_profile = None
 
-            message: Message = await ctx.send(loading(_("Searching for profile…")))
+            message: Message = await ctx.send(loading("Searching for profile…"))
 
             if nickname is None:
                 trainer = author_profile
@@ -109,20 +109,20 @@ class Profile(MixinMeta):
                         ctx, nickname, cli=self.client
                     )
                 except commands.BadArgument:
-                    await message.edit(content=cf.warning(_("Profile not found.")))
+                    await message.edit(content=chat_formatting.warning("Profile not found."))
                     return
 
             if trainer:
                 if trainer.is_visible and trainer.trainer_code:
                     await message.edit(content=trainer.trainer_code)
                 elif trainer.is_visible and not trainer.trainer_code:
-                    await message.edit(content=cf.warning(_("Unknown.")))
+                    await message.edit(content=chat_formatting.warning("Unknown."))
                 else:
                     await message.edit(
-                        content=cf.warningloading(_("Profile deactivated or hidden."))
+                        content=chat_formatting.warningloading("Profile deactivated or hidden.")
                     )
             else:
-                await message.edit(content=cf.warning(_("Profile not found.")))
+                await message.edit(content=chat_formatting.warning("Profile not found."))
 
     @commands.group(name="editprofile", case_insensitive=True)
     async def edit_profile(self, ctx: commands.Context) -> None:
@@ -134,7 +134,7 @@ class Profile(MixinMeta):
                         ctx, ctx.author, cli=self.client
                     )
                 except commands.BadArgument:
-                    await ctx.send(cf.error("No profile found."))
+                    await ctx.send(chat_formatting.error("No profile found."))
                     return
 
             data = {
@@ -148,7 +148,7 @@ class Profile(MixinMeta):
                 "updates__len": len(trainer._updates),
             }
             data: str = json.dumps(data, indent=2, ensure_ascii=False)
-            await ctx.send(cf.box(data, "json"))
+            await ctx.send(chat_formatting.box(data, "json"))
 
     @edit_profile.command(name="startdate")
     async def edit_start_date(
@@ -168,23 +168,21 @@ class Profile(MixinMeta):
                     ctx, ctx.author, cli=self.client
                 )
             except commands.BadArgument:
-                await ctx.send(cf.error("No profile found."))
+                await ctx.send(chat_formatting.error("No profile found."))
 
         if year and month and day:
             try:
                 start_date = datetime.date(year, month, day)
             except ValueError as e:
                 await ctx.send(
-                    _("Can't set `{key}` because {error}").format(
-                        key="trainer.start_date", error=e
-                    )
+                    "Can't set `{key}` because {error}".format(key="trainer.start_date", error=e)
                 )
                 return
 
             async with ctx.typing():
                 if start_date < datetime.date(2016, 7, 5):
                     await ctx.send(
-                        _("Can't set `{key}` because the date is too early").format(
+                        "Can't set `{key}` because the date is too early".format(
                             key="trainer.start_date"
                         )
                     )
@@ -193,13 +191,13 @@ class Profile(MixinMeta):
                 await trainer.edit(start_date=start_date)
                 await ctx.tick()
                 await ctx.send(
-                    _("`{key}` set to {value}").format(key="trainer.start_date", value=start_date),
+                    "`{key}` set to {value}".format(key="trainer.start_date", value=start_date),
                     delete_after=30,
                 )
         else:
             await ctx.send_help()
             value: datetime.date = trainer.start_date
-            await ctx.send(_("`{key}` is {value}").format(key="trainer.start_date", value=value))
+            await ctx.send("`{key}` is {value}".format(key="trainer.start_date", value=value))
 
     @edit_profile.command(name="visible", aliases=["gdpr"])
     async def toggle_gdpr(self, ctx: commands.Context, value: Optional[bool] = None) -> None:
@@ -213,20 +211,20 @@ class Profile(MixinMeta):
                     ctx, ctx.author, cli=self.client
                 )
             except commands.BadArgument:
-                await ctx.send(cf.error("No profile found."))
+                await ctx.send(chat_formatting.error("No profile found."))
 
         if value is not None:
             async with ctx.typing():
                 await trainer.edit(is_visible=value)
                 await ctx.tick()
                 await ctx.send(
-                    _("`{key}` set to {value}").format(key="trainer.is_visible", value=value),
+                    "`{key}` set to {value}".format(key="trainer.is_visible", value=value),
                     delete_after=30,
                 )
         else:
             await ctx.send_help()
             value: datetime.date = trainer.is_visible
-            await ctx.send(_("`{key}` is {value}").format(key="trainer.is_visible", value=value))
+            await ctx.send("`{key}` is {value}".format(key="trainer.is_visible", value=value))
 
     @edit_profile.command(
         name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"]
@@ -250,14 +248,14 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 if no_error:
                     return
-                await ctx.send(cf.error("No profile found."))
+                await ctx.send(chat_formatting.error("No profile found."))
 
         if value:
             async with ctx.typing():
                 await trainer.edit(trainer_code=value)
                 await ctx.tick()
                 await ctx.send(
-                    _("{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}").format(
+                    "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}".format(
                         trainer=trainer
                     )
                 )
