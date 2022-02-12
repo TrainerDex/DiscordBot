@@ -1,22 +1,18 @@
 name: Lint & Style Check
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: push
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.4.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v2.3.2
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Install Dependencies
-        run: pip install pipenv && pipenv install --dev --three
+        run: pip install pipenv && pipenv install --dev
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -27,11 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.4.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v2.3.2
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Install Dependencies
-        run: pip install pipenv && pipenv install --dev --three
+        run: pip install pipenv && pipenv install --dev
       - name: Style with Black
         run: pipenv run black -l 99 --check --diff  --color .

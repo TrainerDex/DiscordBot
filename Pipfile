@@ -4,17 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-discord-ext-alternatives = ">=2020.10.11"
 humanize = "*"
 python-dateutil = "*"
 trainerdex = "==3.7b2"
 PogoOCR = "==0.3.8"
-Red-DiscordBot = {version = "==3.4.16"}
+py-cord = "==2.0.0b3"
+pymongo = "==4.0.1"
 
 [dev-packages]
 black = "*"
 flake8 = "*"
-redgettext = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
