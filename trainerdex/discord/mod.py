@@ -350,7 +350,7 @@ class ModCmds(MixinMeta):
             )
         )
         embed: ProfileCard = await ProfileCard(
-            ctx=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
+            ctx_or_message=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
         )
         with suppress(Forbidden):
             await member.send(embed=embed)

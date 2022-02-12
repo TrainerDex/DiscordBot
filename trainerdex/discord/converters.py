@@ -1,69 +1,68 @@
 import contextlib
 import logging
 import re
+from typing import Any, Dict, List, Literal, Union
+
 from discord.abc import User
-from discord.ext.commands.converter import UserConverter
-from discord.ext import commands
+from discord.ext.commands import BadArgument, Converter, Context, UserConverter
+
 from trainerdex.client import Client
 from trainerdex.faction import Faction
 from trainerdex.socialconnection import SocialConnection
 from trainerdex.trainer import Trainer
 from trainerdex.update import Level, get_level
-from typing import Any, Dict, List, Literal, Union
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 class SafeConvertObject:
-    def __init__(self, e: str) -> None:
-        self.e: str = str(e)
+    def __init__(self, exception: str) -> None:
+        self.exception: str = str(exception)
 
     def __bool__(self) -> Literal[False]:
         return False
 
     def __repr__(self) -> str:
-        return f"<{__name__}: {self.e}>"
+        return f"<{__name__}: {self.exception}>"
 
     def __str__(self) -> str:
-        return self.e
+        return self.exception
 
     def __eq__(self, other: Any) -> bool:
         if other is None:
             return True
         if isinstance(other, SafeConvertObject):
-            return self.e == other.e
+            return self.exception == other.exception
 
     def __hash__(self):
-        return hash(self.e)
+        return hash(self.exception)
 
 
-async def safe_convert(
-    converter: commands.Converter, *args, **kwargs
-) -> Union[Any, SafeConvertObject]:
+async def safe_convert(converter: Converter, *args, **kwargs) -> Union[Any, SafeConvertObject]:
     """Convenience method for returning None or a default if the conversion failed"""
     try:
         return await converter().convert(*args, **kwargs)
-    except commands.BadArgument as e:
+    except BadArgument as e:
         return kwargs.get("default", SafeConvertObject(e))
 
 
-class NicknameConverter(commands.Converter):
+class NicknameConverter(Converter):
     @property
     def regex(self) -> str:
         return r"[A-Za-z0-9]{3,15}$"
 
-    async def convert(self, ctx: commands.Context, argument: str) -> str:
+    async def convert(self, ctx: Context, argument: str) -> str:
         logger.debug("NicknameConverter: argument: %s", argument)
 
         match: Union[re.Match, None] = re.match(self.regex, argument)
         if match is None:
-            raise commands.BadArgument(
+            raise BadArgument(
                 f"{argument} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
             )
         return argument
 
 
-class TrainerConverter(commands.Converter):
+class TrainerConverter(Converter):
     """Converts to a :class:`trainerdex.Trainer`.
 
     The lookup strategy is as follows (in order):
@@ -73,7 +72,7 @@ class TrainerConverter(commands.Converter):
 
     async def convert(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         argument: Union[str, User],
         cli: Client = Client(),
     ) -> Trainer:
@@ -112,10 +111,10 @@ class TrainerConverter(commands.Converter):
                 await trainer.fetch_updates()
                 return trainer
 
-        raise commands.BadArgument(f"Trainer `{argument}` not found")
+        raise BadArgument(f"Trainer `{argument}` not found")
 
 
-class TeamConverter(commands.Converter):
+class TeamConverter(Converter):
     def __init__(self):
         self.teams: Dict[int, List[str]] = {
             0: ["Gray", "Green", "Teamless", "No Team", "Team Harmony"],
@@ -124,7 +123,7 @@ class TeamConverter(commands.Converter):
             3: ["Yellow", "Instinct", "Team Instinct"],
         }
 
-    async def convert(self, ctx: commands.Context, argument: str) -> Faction:
+    async def convert(self, ctx: Context, argument: str) -> Faction:
         logger.debug("TeamConverter: argument: %s", argument)
 
         result: Union[Faction, None] = None
@@ -141,37 +140,37 @@ class TeamConverter(commands.Converter):
                 result = Faction(options[0])
 
         if result is None:
-            raise commands.BadArgument(f"Team `{argument}` not found")
+            raise BadArgument(f"Team `{argument}` not found")
 
         return result
 
 
-class LevelConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> Level:
+class LevelConverter(Converter):
+    async def convert(self, ctx: Context, argument: str) -> Level:
         logger.debug("LevelConverter: argument: %s", argument)
         try:
             return get_level(level=int(argument))
         except KeyError:
-            raise commands.BadArgument("Not a valid level. Please choose between 1-40")
+            raise BadArgument("Not a valid level. Please choose between 1-40")
 
 
-class TotalXPConverter(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> int:
+class TotalXPConverter(Converter):
+    async def convert(self, ctx: Context, argument: str) -> int:
         logger.debug("TotalXPConverter: argument: %s", argument)
         if not argument.isdigit():
-            raise commands.BadArgument("Not a valid number.")
+            raise BadArgument("Not a valid number.")
         elif int(argument) < 100:
-            raise commands.BadArgument("Value too low.")
+            raise BadArgument("Value too low.")
         else:
             return int(argument)
 
 
-class TrainerCodeValidator(commands.Converter):
-    async def convert(self, ctx: commands.Context, argument: str) -> str:
+class TrainerCodeValidator(Converter):
+    async def convert(self, ctx: Context, argument: str) -> str:
         logger.debug("TrainerCodeValidator: argument: %s", argument)
         if re.match(r"^(\d{4}[\s-]?){3}$", argument):
             return re.sub(r"[\s-]", "", argument)
         else:
-            raise commands.BadArgument(
+            raise BadArgument(
                 "Trainer Code must be 12 digits long and contain only numbers and whitespace."
             )

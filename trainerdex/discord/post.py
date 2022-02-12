@@ -73,7 +73,7 @@ class Post(MixinMeta):
 
             await message.edit(content=chat_formatting.loading("Loading output…"))
             embed: Embed = await ProfileCard(
-                ctx=ctx,
+                ctx_or_message=ctx,
                 client=self.client,
                 trainer=trainer,
                 update=update,

@@ -1,13 +1,12 @@
 from abc import ABC
-from typing import Dict, Union
-from discord import Bot
-from discord.emoji import Emoji
+
+from discord.ext.commands import Bot
 from trainerdex.client import Client
+from trainerdex.discord.config import Config
 
 
 class MixinMeta(ABC):
     def __init__(self, *_args):
         self.bot: Bot
-        self.config: None  # TBD
+        self.config: Config
         self.client: Client
-        self.emoji: Dict[str, Union[str, Emoji]]

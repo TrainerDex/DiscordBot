@@ -1,20 +1,20 @@
 import logging
-import math
+import humanize
 import os
-from typing import Dict, Final, Iterable, Set, Union, Literal
+from itertools import islice
+from typing import AsyncIterable, Final, Iterable, Union, Literal
 
 from discord.embeds import Embed
-from discord.emoji import Emoji
+from discord.ext.commands import Bot, command, Context
+from discord.ext.pages import Paginator
 from discord.message import Message
-import humanize
-from discord.ext import commands
-from discord.ext import pages
 
 from trainerdex.faction import Faction
-from trainerdex.leaderboard import GuildLeaderboard, Leaderboard as LeaderboardObject
+from trainerdex.leaderboard import BaseLeaderboard
 from trainerdex.update import Level, get_level
 from trainerdex.discord import converters
 from trainerdex.discord.abc import MixinMeta
+from trainerdex.discord.constants import CUSTOM_EMOJI
 from trainerdex.discord.embeds import BaseCard
 from trainerdex.discord.utils import chat_formatting
 
@@ -23,43 +23,38 @@ logger: logging.Logger = logging.getLogger(__name__)
 POGOOCR_TOKEN_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "data/key.json")
 
 
-class LeaderboardPages(pages.AsyncIteratorPageSource):
-    def __init__(self, *args, **kwargs) -> None:
-        self.base: Embed = kwargs.pop("base")
-        self.emoji: Dict[str, Union[str, Emoji]] = kwargs.pop("emoji")
-        self.stat: Literal[
-            "travel_km",
-            "capture_total",
-            "pokestops_visited",
-            "total_xp",
-        ] = kwargs.pop("stat")
-        super().__init__(*args, **kwargs)
+async def split_async_iter(n: int, iterable: AsyncIterable) -> AsyncIterable:
+    i = iter(iterable)
+    piece = list(islice(i, n))
+    while piece:
+        yield piece
+        piece = list(islice(i, n))
 
-    async def format_page(self, menu, page) -> Dict[str, Embed]:
-        emb: Embed = self.base.copy()
-        for entry in page:
-            emb.add_field(
-                name="{pos} {handle} {faction}".format(
-                    pos=f"{self.emoji.get('number', '#')} {entry.position}",
-                    handle=entry.username,
-                    faction=self.emoji.get(entry.faction.verbose_name.lower()),
-                ),
-                value="{value} • TL{level} • {dt}".format(
-                    value=f"{self.emoji.get(self.stat)} {humanize.intcomma(entry.value)}",
-                    level=entry.level,
-                    dt=humanize.naturaldate(entry.last_updated),
-                ),
-                inline=False,
-            )
-        emb.set_footer(
-            text="Page {page} of {pages} | {footer}".format(
-                page=menu.current_page + 1,
-                pages=math.ceil(len(menu.source.iterator) / menu.source.per_page),
-                footer=emb.footer.text,
-            ),
-            icon_url=emb.footer.icon_url,
+
+async def format_page(slice, stat: str, bot: Bot, base_embed: Embed = Embed()) -> Embed:
+    embed: Embed = base_embed.copy()
+    stat_emoji = bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()))
+    for entry in slice:
+        team_emoji = bot.get_emoji(getattr(CUSTOM_EMOJI, entry.faction.verbose_name.upper()))
+        embed.add_field(
+            name=f"# {entry.position} {entry.username} {team_emoji}",
+            value=f"{stat_emoji} {humanize.intcomma(entry.value)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
+            inline=False,
         )
-        return {"embed": emb}
+    embed.set_footer(
+        text=embed.footer.text,
+        icon_url=embed.footer.icon_url,
+    )
+    return embed
+
+
+async def get_pages(
+    leaderboard: BaseLeaderboard, bot: Bot, base_embed: Embed = Embed()
+) -> Iterable[Embed]:
+    embeds: Iterable[Embed] = []
+    for page in await split_async_iter(10, leaderboard):
+        embeds.append(await format_page(page, leaderboard.stat, bot, base_embed))
+    return embeds
 
 
 class Leaderboard(MixinMeta):
@@ -75,10 +70,10 @@ class Leaderboard(MixinMeta):
     leaderboard_aliases.extend(["ลีดเดอร์บอร์ด"])  # th-TH Thai
     leaderboard_aliases.extend(["排行榜"])  # zh-HK Chinese (Traditional)
 
-    @commands.command(name="leaderboard", aliases=list(set(leaderboard_aliases)))
+    @command(name="leaderboard", aliases=list(set(leaderboard_aliases)))
     async def leaderboard(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         leaderboard: Literal["global", "guild", "server"] = "guild",
         stat: Literal["travel_km", "capture_total", "pokestops_visited", "total_xp"] = "total_xp",
         *filters: Union[converters.TeamConverter, converters.LevelConverter],
@@ -120,19 +115,19 @@ class Leaderboard(MixinMeta):
             "total_xp": "total_xp",
         }[stat]
 
-        stat_name: Dict[str, str] = {
+        stat_name: dict[str, str] = {
             "badge_travel_km": "Distance Walked",
             "badge_capture_total": "Pokémon Caught",
             "badge_pokestops_visited": "PokéStops Visited",
             "total_xp": "Total XP",
         }
 
-        factions: Set[Faction] = (
+        factions: set[Faction] = (
             {x for x in filters if isinstance(x, Faction)}
             if [x for x in filters if isinstance(x, Faction)]
             else {Faction(i) for i in range(0, 4)}
         )
-        levels: Set[Level] = {x.level for x in filters if isinstance(x, Level)}
+        levels: set[Level] = {x.level for x in filters if isinstance(x, Level)}
         if len(levels) > 1:
             levels: Iterable[Level] = range(
                 min(levels),
@@ -143,43 +138,37 @@ class Leaderboard(MixinMeta):
         else:
             levels: Iterable[Level] = range(1, 51)
 
-        levels: Set[Level] = {get_level(level=i) for i in levels}
+        levels: set[Level] = {get_level(level=i) for i in levels}
 
-        leaderboard_title: str = (
-            f"{self.emoji.get(stat, '')} {stat_name.get(stat, stat)} Leaderboard"
-        )
+        stat_emoji = self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()))
+        leaderboard_title: str = f"{stat_emoji} {stat_name.get(stat, stat)} Leaderboard"
 
-        emb: BaseCard = await BaseCard(ctx, title=leaderboard_title)
+        embed: BaseCard = await BaseCard(ctx, title=leaderboard_title)
         if leaderboard in ("guild", "server"):
-            emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+            embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 
         await ctx.tick()
 
-        message: Message = await ctx.send(
-            chat_formatting.loading("{tag} Downloading {leaderboard}…").format(
-                tag=ctx.author.mention, leaderboard=leaderboard_title
-            )
+        reply: Message = await ctx.reply(
+            chat_formatting.loading(f"Downloading {leaderboard_title}…")
         )
-        leaderboard: Union[
-            LeaderboardObject,
-            GuildLeaderboard,
-        ] = await self.client.get_leaderboard(
+        leaderboard: BaseLeaderboard = await self.client.get_leaderboard(
             stat=stat,
             guild=ctx.guild if leaderboard in ("guild", "server") else None,
         )
         if is_guild:
-            emb.description = (
+            embed.description = (
                 """Average {stat_name}: {stat_avg}
                 Trainers: {stat_count}
                 Sum of all Trainers: {stat_sum}"""
             ).format(
                 stat_name=stat_name.get(stat, stat),
-                stat_avg=chat_formatting.humanize_number(leaderboard.avg),
-                stat_count=chat_formatting.humanize_number(leaderboard.count),
-                stat_sum=chat_formatting.humanize_number(leaderboard.sum),
+                stat_avg=humanize.intcomma(leaderboard.avg),
+                stat_count=humanize.intcomma(leaderboard.count),
+                stat_sum=humanize.intcomma(leaderboard.sum),
             )
 
-        await message.edit(
+        await reply.edit(
             content=chat_formatting.loading("{tag} Filtering {leaderboard}…").format(
                 tag=ctx.author.mention, leaderboard=leaderboard_title
             )
@@ -189,14 +178,9 @@ class Leaderboard(MixinMeta):
         )
 
         if len(leaderboard) < 1:
-            await message.edit(content="No results to display!")
+            await reply.edit(content="No results to display!")
         else:
-            embeds = LeaderboardPages(
-                leaderboard, per_page=10, base=emb, emoji=self.emoji, stat=stat
-            )
-            menu = pages.MenuPages(
-                source=embeds, timeout=300.0, message=message, clear_reactions_after=True
-            )
-            await message.edit(content=ctx.author.mention)
-            await menu.show_page(0)
-            await menu.start(ctx)
+            pages: Iterable[Embed] = await get_pages(leaderboard, self.bot, base_embed=embed)
+
+            paginator = Paginator(pages, disable_on_timeout=True)
+            await paginator.send(ctx)

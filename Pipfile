@@ -9,6 +9,7 @@ python-dateutil = "*"
 trainerdex = "==3.7b2"
 PogoOCR = "==0.3.8"
 py-cord = "==2.0.0b3"
+pymongo = "==4.0.1"
 
 [dev-packages]
 black = "*"

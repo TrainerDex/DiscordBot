@@ -1,37 +1,66 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from uuid import UUID, uuid4
 from discord.role import Role
-from typing import List, Optional, TypedDict
 
-
-class StoredRoles(TypedDict):
-    add: List[int]
-    remove: List[int]
-
-
-class TransformedRoles(TypedDict):
-    add: List[Role]
-    remove: List[Role]
+from trainerdex.discord.constants import DEFAULT_PREFIX
 
 
 @dataclass
-class GlobalConfig:
-    embed_footer: str
-    notice: Optional[str] = None
+class StoredRoles:
+    add: list[int] = field(default_factory=list)
+    remove: list[int] = field(default_factory=list)
 
 
 @dataclass
-class GuildConfig:
-    assign_roles_on_join: bool
-    set_nickname_on_join: bool
-    set_nickname_on_update: bool
-    roles_to_assign_on_approval: StoredRoles
-    mystic_role: Optional[int] = None
-    valor_role: Optional[int] = None
-    instinct_role: Optional[int] = None
-    tl40_role: Optional[int] = None
-    introduction_note: Optional[str] = None
+class TransformedRoles:
+    add: list[Role] = field(default_factory=list)
+    remove: list[Role] = field(default_factory=list)
 
 
 @dataclass
-class ChannelConfig:
-    profile_ocr: bool
+class _MongoDBDocument:
+    _id: int
+
+
+@dataclass
+class GlobalConfig(_MongoDBDocument):
+    embed_footer: str = "Provided with ❤️ by TrainerDex"
+    notice: str | None = None
+
+
+@dataclass
+class GuildConfig(_MongoDBDocument):
+    assign_roles_on_join: bool = True
+    set_nickname_on_join: bool = True
+    set_nickname_on_update: bool = True
+    roles_to_assign_on_approval: StoredRoles = field(default_factory=StoredRoles)
+    mystic_role: int | None = None
+    valor_role: int | None = None
+    instinct_role: int | None = None
+    tl40_role: int | None = None
+    introduction_note: str | None = None
+    enabled: bool = True
+    prefix: str = DEFAULT_PREFIX
+
+
+@dataclass
+class ChannelConfig(_MongoDBDocument):
+    profile_ocr: bool = False
+
+
+@dataclass
+class UserConfig(_MongoDBDocument):
+    pass
+
+
+@dataclass
+class MemberConfig(UserConfig):
+    _uid: UUID
+    user_id: int
+    guild_id: int
+
+    @classmethod
+    def create(cls, *args, **kwargs) -> MemberConfig:
+        return cls(uuid=uuid4(), *args, **kwargs)
