@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Mapping, MutableMapping
 
@@ -21,9 +22,12 @@ if TYPE_CHECKING:
 
 GLOBAL_CONFIG_ID = 0
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 class Config:
     def __init__(self):
+        logger.info("Initializing Config Client...")
         self.mongo: MongoClient = MongoClient(os.environ.get("MONGODB_URI"))
         self.database: Database = self.mongo[os.environ.get("MONGODB_NAME")]
 

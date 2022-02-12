@@ -1,18 +1,20 @@
+from __future__ import annotations
+
 import datetime
 import json
 import logging
 import re
+from typing import Optional
+
 from discord.ext.commands.context import Context
 from discord.message import Message
 from discord.ext import commands
-from trainerdex_discord_bot.utils import chat_formatting
-from trainerdex.trainer import Trainer
-from typing import Optional
 
+from trainerdex.trainer import Trainer
 from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.abc import MixinMeta
 from trainerdex_discord_bot.embeds import ProfileCard
-from trainerdex_discord_bot.utils.general import loading
+from trainerdex_discord_bot.utils import chat_formatting
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 author_profile = None
 
-            message: Message = await ctx.send(loading("Searching for profile…"))
+            message: Message = await ctx.send(chat_formatting.loading("Searching for profile…"))
 
             if nickname is None:
                 trainer = author_profile
@@ -51,15 +53,17 @@ class Profile(MixinMeta):
 
             if trainer:
                 if trainer.is_visible:
-                    await message.edit(content=loading("Found profile. Loading…"))
+                    await message.edit(content=chat_formatting.loading("Found profile. Loading…"))
                 elif trainer == author_profile:
                     if ctx.guild:
                         await message.edit(content="Sending in DMs")
                         message: Message = await ctx.author.send(
-                            content=loading("Found profile. Loading…")
+                            content=chat_formatting.loading("Found profile. Loading…")
                         )
                     else:
-                        await message.edit(content=loading("Found profile. Loading…"))
+                        await message.edit(
+                            content=chat_formatting.loading("Found profile. Loading…")
+                        )
                 else:
                     await message.edit(
                         content=chat_formatting.warning("Profile deactivated or hidden.")
@@ -72,9 +76,11 @@ class Profile(MixinMeta):
             embed: ProfileCard = await ProfileCard(
                 ctx_or_message=ctx, client=self.client, trainer=trainer, emoji=self.emoji
             )
-            await message.edit(content=loading("Checking progress…"), embed=embed)
+            await message.edit(content=chat_formatting.loading("Checking progress…"), embed=embed)
             await embed.show_progress()
-            await message.edit(content=loading("Loading leaderboards…"), embed=embed)
+            await message.edit(
+                content=chat_formatting.loading("Loading leaderboards…"), embed=embed
+            )
             await embed.add_leaderboard()
             if ctx.guild:
                 await message.edit(embed=embed)
@@ -98,7 +104,7 @@ class Profile(MixinMeta):
             except commands.BadArgument:
                 author_profile = None
 
-            message: Message = await ctx.send(loading("Searching for profile…"))
+            message: Message = await ctx.send(chat_formatting.loading("Searching for profile…"))
 
             if nickname is None:
                 trainer = author_profile

@@ -1,13 +1,15 @@
 import json
 import logging
+from dataclasses import asdict
+from typing import Optional, Literal
+
 from discord.message import Message
 from discord.role import Role
 from discord.ext import commands
-from trainerdex_discord_bot.utils import chat_formatting
-from typing import Optional, Literal
 
 from trainerdex_discord_bot.abc import MixinMeta
-from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig, StoredRoles
+from trainerdex_discord_bot.datatypes import ChannelConfig, GlobalConfig, GuildConfig
+from trainerdex_discord_bot.utils import chat_formatting
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -17,8 +19,10 @@ class Settings(MixinMeta):
     # @checks.mod_or_permissions(manage_guild=True)
     # @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
-        await ctx.tick()
+        await ctx.message.add_reaction("✅")
         message: Message = await ctx.send("Looking for team roles…")
+
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
 
         try:
             mystic_role: Role = min(
@@ -27,7 +31,7 @@ class Settings(MixinMeta):
         except ValueError:
             mystic_role = None
         if mystic_role:
-            await self.config.guild(ctx.guild).mystic_role.set(mystic_role.id)
+            guild_config.mystic_role = mystic_role.id
             await ctx.send(
                 "`{key}` set to {value}".format(key="mystic_role", value=mystic_role),
                 delete_after=30,
@@ -40,7 +44,7 @@ class Settings(MixinMeta):
         except ValueError:
             valor_role = None
         if valor_role:
-            await self.config.guild(ctx.guild).valor_role.set(valor_role.id)
+            guild_config.valor_role = valor_role.id
             await ctx.send(
                 "`{key}` set to {value}".format(key="valor_role", value=valor_role),
                 delete_after=30,
@@ -53,7 +57,7 @@ class Settings(MixinMeta):
         except ValueError:
             instinct_role = None
         if instinct_role:
-            await self.config.guild(ctx.guild).instinct_role.set(instinct_role.id)
+            guild_config.instinct_role = instinct_role.id
             await ctx.send(
                 "`{key}` set to {value}".format(key="instinct_role", value=instinct_role),
                 delete_after=30,
@@ -73,7 +77,7 @@ class Settings(MixinMeta):
         except ValueError:
             tl40_role = None
         if tl40_role:
-            await self.config.guild(ctx.guild).tl40_role.set(tl40_role.id)
+            guild_config.tl40_role = tl40_role.id
             await ctx.send(
                 "`{key}` set to {value}".format(key="tl40_role", value=tl40_role),
                 delete_after=30,
@@ -81,7 +85,7 @@ class Settings(MixinMeta):
 
         await message.delete(silent=True)
 
-        guild_config: GuildConfig = GuildConfig(**(await self.config.guild(ctx.guild).all()))
+        self.config.set_guild(guild_config)
         output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
         await ctx.send(chat_formatting.box(output, "json"))
 
@@ -95,8 +99,8 @@ class Settings(MixinMeta):
     # @checks.bot_in_a_guild()
     async def tdxset__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            guild_config: GuildConfig = GuildConfig(**(await self.config.guild(ctx.guild).all()))
-            output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
+            guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+            output: str = json.dumps(asdict(guild_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
     @tdxset__guild.command(name="assign_roles_on_join")
@@ -107,19 +111,13 @@ class Settings(MixinMeta):
 
         This is useful for granting users access to the rest of the server.
         """
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            await self.config.guild(ctx.guild).assign_roles_on_join.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.assign_roles_on_join", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: bool = await self.config.guild(ctx.guild).assign_roles_on_join()
-            await ctx.send(
-                "`{key}` is {value}".format(key="guild.assign_roles_on_join", value=value)
-            )
+            guild_config.assign_roles_on_join = value
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.assign_roles_on_join=}")
 
     @tdxset__guild.command(name="set_nickname_on_join")
     async def tdxset__guild__set_nickname_on_join(
@@ -129,41 +127,29 @@ class Settings(MixinMeta):
 
         This is useful for ensuring players can be easily identified.
         """
-        if value is not None:
-            await self.config.guild(ctx.guild).set_nickname_on_join.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.set_nickname_on_join", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: bool = await self.config.guild(ctx.guild).set_nickname_on_join()
-            await ctx.send(
-                "`{key}` is {value}".format(key="guild.set_nickname_on_join", value=value)
-            )
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
 
-    @tdxset__guild.command(name="set_nickname_on_update")
-    async def tdxset__guild__set_nickname_on_update(
-        self, ctx: commands.Context, value: Optional[bool] = None
-    ) -> None:
-        """Modify the nickname of members when they update their Total XP.
-
-        This is useful for setting levels in their name.
-        """
         if value is not None:
-            await self.config.guild(ctx.guild).set_nickname_on_update.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.set_nickname_on_update", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: bool = await self.config.guild(ctx.guild).set_nickname_on_update()
-            await ctx.send(
-                "`{key}` is {value}".format(key="guild.set_nickname_on_update", value=value)
-            )
+            guild_config.set_nickname_on_join = value
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.set_nickname_on_join=}")
+
+    # @tdxset__guild.command(name="set_nickname_on_update")
+    # async def tdxset__guild__set_nickname_on_update(
+    #     self, ctx: commands.Context, value: Optional[bool] = None
+    # ) -> None:
+    #     """Modify the nickname of members when they update their Total XP.
+
+    #     This is useful for setting levels in their name.
+    #     """
+    #     guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
+    #     if value is not None:
+    #         guild_config.set_nickname_on_update = value
+    #         self.config.set_guild(guild_config)
+    #         await ctx.message.add_reaction("✅")
+    #     await ctx.reply(f"{guild_config.set_nickname_on_update=}")
 
     @tdxset__guild.command(name="roles_to_assign_on_approval")
     async def tdxset__guild__roles_to_assign_on_approval(
@@ -180,112 +166,71 @@ class Settings(MixinMeta):
             [p]tdxset guild roles_to_assign_on_approval remove @Guest
                 Remove these roles from users when they are approved
         """
-        stored_roles: StoredRoles = await self.config.guild(
-            ctx.guild
-        ).roles_to_assign_on_approval()
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
 
         if action == "add":
             if roles:
-                stored_roles["add"] = [x.id for x in ctx.message.role_mentions]
-                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(stored_roles)
-                await ctx.tick()
-                stored_roles: StoredRoles = await self.config.guild(
-                    ctx.guild
-                ).roles_to_assign_on_approval()
-                stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
-                await ctx.send(chat_formatting.box(stored_roles_json, "json"), delete_after=30)
+                guild_config.roles_to_assign_on_approval.add = [
+                    x.id for x in ctx.message.role_mentions
+                ]
+                self.config.set_guild(guild_config)
+                await ctx.message.add_reaction("✅")
         elif action == "remove":
             if roles:
-                stored_roles["remove"] = [x.id for x in ctx.message.role_mentions]
-                await self.config.guild(ctx.guild).roles_to_assign_on_approval.set(stored_roles)
-                await ctx.tick()
-                stored_roles: StoredRoles = await self.config.guild(
-                    ctx.guild
-                ).roles_to_assign_on_approval()
-                stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
-                await ctx.send(chat_formatting.box(stored_roles_json, "json"), delete_after=30)
-        else:
-            await ctx.send_help()
-            stored_roles_json: str = json.dumps(stored_roles, indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(stored_roles_json, "json"))
+                guild_config.roles_to_assign_on_approval.remove = [
+                    x.id for x in ctx.message.role_mentions
+                ]
+                self.config.set_guild(guild_config)
+                await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
 
     @tdxset__guild.command(name="mystic_role", aliases=["mystic"])
     async def tdxset__guild__mystic_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            await self.config.guild(ctx.guild).mystic_role.set(value.id)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.mystic_role", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: int = await self.config.guild(ctx.guild).mystic_role()
-            await ctx.send(
-                "`{key}` is {value}".format(
-                    key="guild.mystic_role", value=ctx.guild.get_role(value)
-                )
-            )
+            guild_config.mystic_role = value.id
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.mystic_role=}")
 
     @tdxset__guild.command(name="valor_role", aliases=["valor"])
     async def tdxset__guild__valor_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            await self.config.guild(ctx.guild).valor_role.set(value.id)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.valor_role", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: int = await self.config.guild(ctx.guild).valor_role()
-            await ctx.send(
-                "`{key}` is {value}".format(
-                    key="guild.valor_role", value=ctx.guild.get_role(value)
-                )
-            )
+            guild_config.valor_role = value.id
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.valor_role=}")
 
     @tdxset__guild.command(name="instinct_role", aliases=["instinct"])
     async def tdxset__guild__instinct_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            await self.config.guild(ctx.guild).instinct_role.set(value.id)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.instinct_role", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: int = await self.config.guild(ctx.guild).instinct_role()
-            await ctx.send(
-                "`{key}` is {value}".format(
-                    key="guild.instinct_role", value=ctx.guild.get_role(value)
-                )
-            )
+            guild_config.instinct_role = value.id
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.instinct_role=}")
 
     @tdxset__guild.command(name="tl40_role", aliases=["tl40"])
     async def tdxset__guild__tl40_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            await self.config.guild(ctx.guild).tl40_role.set(value.id)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.tl40_role", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: int = await self.config.guild(ctx.guild).tl40_role()
-            await ctx.send(
-                "`{key}` is {value}".format(key="guild.tl40_role", value=ctx.guild.get_role(value))
-            )
+            guild_config.tl40_role = value.id
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.tl40_role=}")
 
     @tdxset__guild.command(name="introduction_note")
     async def tdxset__guild__introduction_note(
@@ -295,29 +240,23 @@ class Settings(MixinMeta):
 
         Set value to `None` to empty it
         """
+        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+
         if value is not None:
-            if value == "None":
+            if value.lower() == "none":
                 value = None
-            await self.config.guild(ctx.guild).introduction_note.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="guild.introduction_note", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: str = await self.config.guild(ctx.guild).introduction_note()
-            await ctx.send("`{key}` is {value}".format(key="guild.introduction_note", value=value))
+            guild_config.introduction_note = value
+            self.config.set_guild(guild_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{guild_config.introduction_note=}")
 
     @tdxset.group(name="channel", case_insensitive=True)
     # @checks.mod_or_permissions(manage_guild=True)
     # @checks.bot_in_a_guild()
     async def tdxset__channel(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            channel_config: ChannelConfig = ChannelConfig(
-                **(await self.config.channel(ctx.channel).all())
-            )
-            output: str = json.dumps(channel_config.__dict__, indent=2, ensure_ascii=False)
+            channel_config: ChannelConfig = self.config.get_channel(ctx.channel)
+            output: str = json.dumps(asdict(channel_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
     @tdxset__channel.command(name="profile_ocr", aliases=["ocr"])
@@ -325,54 +264,36 @@ class Settings(MixinMeta):
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Set if this channel should accept OCR commands."""
+        channel_config: ChannelConfig = self.config.get_channel(ctx.channel)
+
         if value is not None:
-            await self.config.channel(ctx.channel).profile_ocr.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(
-                    key=f"channel[{ctx.channel.id}].profile_ocr", value=value
-                ),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: bool = await self.config.channel(ctx.channel).profile_ocr()
-            await ctx.send(
-                "`{key}` is {value}".format(
-                    key=f"channel[{ctx.channel.id}].profile_ocr", value=value
-                )
-            )
+            channel_config.profile_ocr = value
+            self.config.set_channel(channel_config)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"[{ctx.channel.id}] {channel_config.profile_ocr=}")
 
     @tdxset.command(name="notice")
     # @checks.is_owner()
     async def tdxset__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+        global_config: GlobalConfig = self.config.get_global()
+
         if value is not None:
-            if value == "None":
-                value = None
-            await self.config.notice.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="notice", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: str = await self.config.notice()
-            await ctx.send("`{key}` is {value}".format(key="notice", value=value))
+            if value.lower() == "none":
+                value = GlobalConfig.notice
+            global_config.notice = value
+            self.config.set_global(GlobalConfig)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{global_config.notice=}")
 
     @tdxset.command(name="footer")
     # @checks.is_owner()
     async def tdxset__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+        global_config: GlobalConfig = self.config.get_global()
+
         if value is not None:
-            if value == "None":
-                value = None
-            await self.config.embed_footer.set(value)
-            await ctx.tick()
-            await ctx.send(
-                "`{key}` set to {value}".format(key="embed_footer", value=value),
-                delete_after=30,
-            )
-        else:
-            await ctx.send_help()
-            value: str = await self.config.embed_footer()
-            await ctx.send("`{key}` is {value}".format(key="embed_footer", value=value))
+            if value.lower() == "none":
+                value = GlobalConfig.embed_footer
+            global_config.embed_footer = value
+            self.config.set_global(GlobalConfig)
+            await ctx.message.add_reaction("✅")
+        await ctx.reply(f"{global_config.embed_footer=}")

@@ -16,7 +16,6 @@ DEBUG_GUILDS: Optional[list[int]] = [int(x) for x in os.environ.get("DEBUG_GUILD
 DISCORD_OWNER_IDS: Optional[set[int]] = set(
     [int(x) for x in os.environ.get("DISCORD_OWNER_IDS", "").split(",")]
 )
-"""A comma-separated (and parsed) list of user IDs that are considered to be Admins over the bot. Type: int"""
 
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 

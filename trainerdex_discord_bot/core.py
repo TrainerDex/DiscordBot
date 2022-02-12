@@ -41,19 +41,22 @@ class CompositeMetaClass(type(Cog), type(ABC)):
 
 class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=CompositeMetaClass):
     def __init__(self, bot: Bot) -> None:
+        logger.info("Initializing TrainerDex Cog Core...")
         self.bot: Bot = bot
         self.config: Config = Config()
         self.client: Client = None
         self.bot.loop.create_task(self.create_client())
-        self.bot.loop.create_task(self.set_game_to_version())
+        self.bot.loop.create_task(self.set_presence_to_version())
 
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
 
-    async def set_game_to_version(self) -> None:
+    async def set_presence_to_version(self) -> None:
         await self.bot.wait_until_ready()
+        logger.info("Setting presence to version %s...", __version__)
         await self.bot.change_presence(activity=Game(name=__version__))
 
     async def create_client(self) -> None:
+        logger.info("Initializing TrainerDex API Client...")
         self.client: Client = Client(token=TRAINERDEX_API_TOKEN)
 
     @Cog.listener("on_message_without_command")

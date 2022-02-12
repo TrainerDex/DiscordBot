@@ -61,7 +61,7 @@ class Leaderboard(MixinMeta):
     leaderboard_aliases = []
     leaderboard_aliases.extend(["bestenliste", "bl"])  # de-DE German
     leaderboard_aliases.extend(["clasificación"])  # es-ES Spanish
-    leaderboard_aliases.extend(["lb", "LB"])  # en-US English
+    leaderboard_aliases.extend(["lb"])  # en-US English
     leaderboard_aliases.extend(["classement"])  # fr-FR French
     leaderboard_aliases.extend(["classifica"])  # it-IT Italian
     leaderboard_aliases.extend(["リーダーボード"])  # ja-JP Japanese
