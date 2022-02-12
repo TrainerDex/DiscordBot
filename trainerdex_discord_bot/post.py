@@ -3,13 +3,13 @@ import logging
 from discord.embeds import Embed
 from discord.message import Message
 from discord.ext import commands
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
 
-from trainerdex.discord import converters
-from trainerdex.discord.abc import MixinMeta
-from trainerdex.discord.embeds import ProfileCard
+from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.abc import MixinMeta
+from trainerdex_discord_bot.embeds import ProfileCard
 
 logger: logging.Logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ from abc import ABC
 
 from discord.ext.commands import Bot
 from trainerdex.client import Client
-from trainerdex.discord.config import Config
+from trainerdex_discord_bot.config import Config
 
 
 class MixinMeta(ABC):

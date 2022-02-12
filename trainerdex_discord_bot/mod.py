@@ -9,18 +9,18 @@ from discord.member import Member
 from discord.message import Message
 from discord.role import Role
 from discord.ext import commands
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex.faction import Faction
 from trainerdex.trainer import Trainer
 from trainerdex.user import User
 from trainerdex.update import Update
 from typing import Any, Callable, Final, Literal, Optional, TypedDict, Union
 
-from trainerdex.discord import converters
-from trainerdex.discord.abc import MixinMeta
-from trainerdex.discord.datatypes import StoredRoles, TransformedRoles
-from trainerdex.discord.embeds import ProfileCard
-from trainerdex.discord.utils.general import (
+from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.abc import MixinMeta
+from trainerdex_discord_bot.datatypes import StoredRoles, TransformedRoles
+from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.utils.general import (
     AbandonQuestionException,
     NoAnswerProvidedException,
     Question,

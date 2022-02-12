@@ -5,8 +5,8 @@ from discord.ext import commands
 from discord.ext.commands.context import Context
 from discord.message import Message
 
-from trainerdex.discord.constants import SOCIAL_TWITTER
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.constants import SOCIAL_TWITTER
+from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex.trainer import Trainer
 
 

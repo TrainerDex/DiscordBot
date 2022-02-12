@@ -1,8 +1,8 @@
 from discord import Message
 from discord.ext.commands import Bot
-from trainerdex.discord.config import Config
-from trainerdex.discord.constants import DEBUG, DEBUG_GUILDS, DEFAULT_PREFIX, DISCORD_OWNER_IDS
-from trainerdex.discord.core import TrainerDex
+from trainerdex_discord_bot.config import Config
+from trainerdex_discord_bot.constants import DEBUG, DEBUG_GUILDS, DEFAULT_PREFIX, DISCORD_OWNER_IDS
+from trainerdex_discord_bot.core import TrainerDex
 
 bot = Bot()
 

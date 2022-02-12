@@ -17,88 +17,88 @@ msgstr ""
 "X-Crowdin-File-ID: 34\n"
 "Language: nl_BE\n"
 
-#: trainerdex.discord/converters.py:62
+#: trainerdex_discord_bot/converters.py:62
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
 msgstr "{} is geen geldige Pokémon Go gebruikersnaam. Een Pokémon Go gebruikersnaam is 3-15 letters of cijfers lang."
 
-#: trainerdex.discord/converters.py:110
+#: trainerdex_discord_bot/converters.py:110
 msgid "Trainer `{}` not found"
 msgstr "Trainer `{}` niet gevonden"
 
-#: trainerdex.discord/converters.py:140
+#: trainerdex_discord_bot/converters.py:140
 msgid "Team `{}` not found"
 msgstr "Team `{}` niet gevonden"
 
-#: trainerdex.discord/converters.py:151
+#: trainerdex_discord_bot/converters.py:151
 msgid "Not a valid level. Please choose between 1-40"
 msgstr "Geen geldig level. Kies een level tussen 1-40"
 
-#: trainerdex.discord/converters.py:158
+#: trainerdex_discord_bot/converters.py:158
 msgid "Not a valid number."
 msgstr "Geen geldig getal."
 
-#: trainerdex.discord/converters.py:160
+#: trainerdex_discord_bot/converters.py:160
 msgid "Value too low."
 msgstr "Waarde te laag."
 
-#: trainerdex.discord/converters.py:172
+#: trainerdex_discord_bot/converters.py:172
 msgid "Trainer Code must be 12 digits long and contain only numbers and whitespace."
 msgstr ""
 
-#: trainerdex.discord/embeds.py:102
+#: trainerdex_discord_bot/embeds.py:102
 msgid "{nickname} | TL{level}"
 msgstr "{nickname} | TL{level}"
 
-#: trainerdex.discord/embeds.py:126 trainerdex.discord/embeds.py:286 trainerdex.discord/embeds.py:302
-#: trainerdex.discord/leaderboard.py:121
+#: trainerdex_discord_bot/embeds.py:126 trainerdex_discord_bot/embeds.py:286 trainerdex_discord_bot/embeds.py:302
+#: trainerdex_discord_bot/leaderboard.py:121
 msgid "Distance Walked"
 msgstr "Gewandelde afstand"
 
-#: trainerdex.discord/embeds.py:132 trainerdex.discord/embeds.py:310 trainerdex.discord/embeds.py:329
-#: trainerdex.discord/leaderboard.py:122
+#: trainerdex_discord_bot/embeds.py:132 trainerdex_discord_bot/embeds.py:310 trainerdex_discord_bot/embeds.py:329
+#: trainerdex_discord_bot/leaderboard.py:122
 msgid "Pokémon Caught"
 msgstr "Gevangen Pokémon"
 
-#: trainerdex.discord/embeds.py:139 trainerdex.discord/embeds.py:338 trainerdex.discord/embeds.py:358
-#: trainerdex.discord/leaderboard.py:123
+#: trainerdex_discord_bot/embeds.py:139 trainerdex_discord_bot/embeds.py:338 trainerdex_discord_bot/embeds.py:358
+#: trainerdex_discord_bot/leaderboard.py:123
 msgid "PokéStops Visited"
 msgstr "Bezochte Pokéstops"
 
-#: trainerdex.discord/embeds.py:146 trainerdex.discord/embeds.py:366 trainerdex.discord/embeds.py:381
-#: trainerdex.discord/leaderboard.py:124
+#: trainerdex_discord_bot/embeds.py:146 trainerdex_discord_bot/embeds.py:366 trainerdex_discord_bot/embeds.py:381
+#: trainerdex_discord_bot/leaderboard.py:124
 msgid "Total XP"
 msgstr "Total XP"
 
-#: trainerdex.discord/embeds.py:152 trainerdex.discord/embeds.py:388 trainerdex.discord/embeds.py:405
+#: trainerdex_discord_bot/embeds.py:152 trainerdex_discord_bot/embeds.py:388 trainerdex_discord_bot/embeds.py:405
 msgid "Gold Gyms"
 msgstr ""
 
-#: trainerdex.discord/embeds.py:182
+#: trainerdex_discord_bot/embeds.py:182
 msgid "{guild.name} Leaderboard (All)"
 msgstr "{guild.name} Klassement (All)"
 
-#: trainerdex.discord/embeds.py:205
+#: trainerdex_discord_bot/embeds.py:205
 msgid "Leaderboard (Top 1000)"
 msgstr "Klassement (Top 1000)"
 
-#: trainerdex.discord/embeds.py:263
+#: trainerdex_discord_bot/embeds.py:263
 msgid "No data old enough found, using start date."
 msgstr "Geen voldoende oude data gevonden, startdatum wordt gebruikt."
 
-#: trainerdex.discord/embeds.py:275
+#: trainerdex_discord_bot/embeds.py:275
 msgid "Interval"
 msgstr "Tijdsstap"
 
-#: trainerdex.discord/embeds.py:291 trainerdex.discord/embeds.py:318 trainerdex.discord/embeds.py:346 trainerdex.discord/embeds.py:371
-#: trainerdex.discord/embeds.py:395
+#: trainerdex_discord_bot/embeds.py:291 trainerdex_discord_bot/embeds.py:318 trainerdex_discord_bot/embeds.py:346 trainerdex_discord_bot/embeds.py:371
+#: trainerdex_discord_bot/embeds.py:395
 msgid "{gain}/day"
 msgstr "{gain}/dag"
 
-#: trainerdex.discord/leaderboard.py:50
+#: trainerdex_discord_bot/leaderboard.py:50
 msgid "Page {page} of {pages} | {footer}"
 msgstr "Pagina {page} van {pages} | {footer}"
 
-#: trainerdex.discord/leaderboard.py:83
+#: trainerdex_discord_bot/leaderboard.py:83
 #, docstring
 msgid "Leaderboards\n\n"
 "        Parameters:\n"
@@ -141,15 +141,15 @@ msgstr "Klassementen\n\n"
 "            Toont het klassement voor de server, gefilterd om alleen de spelers tussen level 15 en 24 weer te geven (uitersten inbegrepen)\n"
 "        "
 
-#: trainerdex.discord/leaderboard.py:147
+#: trainerdex_discord_bot/leaderboard.py:147
 msgid "{stat} Leaderboard"
 msgstr "{stat} Klassement"
 
-#: trainerdex.discord/leaderboard.py:157
+#: trainerdex_discord_bot/leaderboard.py:157
 msgid "{tag} Downloading {leaderboard}…"
 msgstr "{tag} {leaderboard} aan het downloaden…"
 
-#: trainerdex.discord/leaderboard.py:165
+#: trainerdex_discord_bot/leaderboard.py:165
 msgid "Average {stat_name}: {stat_avg}\n"
 "                Trainers: {stat_count}\n"
 "                Sum of all Trainers: {stat_sum}"
@@ -157,15 +157,15 @@ msgstr "Gemiddelde {stat_name}: {stat_avg}\n"
 "                Trainers: {stat_count}\n"
 "                Som van alle trainers: {stat_sum}"
 
-#: trainerdex.discord/leaderboard.py:177
+#: trainerdex_discord_bot/leaderboard.py:177
 msgid "{tag} Filtering {leaderboard}…"
 msgstr "{tag} {leaderboard} aan het filteren…"
 
-#: trainerdex.discord/leaderboard.py:186
+#: trainerdex_discord_bot/leaderboard.py:186
 msgid "No results to display!"
 msgstr "Geen resultaten om weer te geven!"
 
-#: trainerdex.discord/mod.py:80
+#: trainerdex_discord_bot/mod.py:80
 #, docstring
 msgid "Create a profile in TrainerDex\n\n"
 "        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.\n\n"
@@ -178,158 +178,158 @@ msgstr "Een TrainerDex profiel aanmaken\n\n"
 "        Het commando kan je een aantal vragen stellen. Om te verlaten type `[p]cancel`.\n\n"
 "        "
 
-#: trainerdex.discord/mod.py:94
+#: trainerdex_discord_bot/mod.py:94
 msgid "What is the in-game username of {user}?"
 msgstr "Wat is de in-game gebruikersnaam van {user}?"
 
-#: trainerdex.discord/mod.py:98
+#: trainerdex_discord_bot/mod.py:98
 msgid "What team is {user} in?"
 msgstr "Van welk team maakt {user} deel uit?"
 
-#: trainerdex.discord/mod.py:102
+#: trainerdex_discord_bot/mod.py:102
 msgid "What is {user}‘s Total XP?"
 msgstr "Wat is {user}'s Total XP?"
 
-#: trainerdex.discord/mod.py:118
+#: trainerdex_discord_bot/mod.py:118
 msgid "Answer could not be determined. Abandoning!"
 msgstr "Er kon geen antwoord bepaald worden. Script wordt onderbroken!"
 
-#: trainerdex.discord/mod.py:121
+#: trainerdex_discord_bot/mod.py:121
 msgid "Cancelled!"
 msgstr "Geanullueerd!"
 
-#: trainerdex.discord/mod.py:124
+#: trainerdex_discord_bot/mod.py:124
 msgid "Let's go…"
 msgstr "Hier gaan we…"
 
-#: trainerdex.discord/mod.py:140
+#: trainerdex_discord_bot/mod.py:140
 msgid "Adding roles ({roles}) to {user}"
 msgstr "Rollen ({roles}) toevoegen aan {user}"
 
-#: trainerdex.discord/mod.py:149 trainerdex.discord/mod.py:177 trainerdex.discord/mod.py:204 trainerdex.discord/mod.py:547 trainerdex.discord/mod.py:558
-#: trainerdex.discord/mod.py:569
+#: trainerdex_discord_bot/mod.py:149 trainerdex_discord_bot/mod.py:177 trainerdex_discord_bot/mod.py:204 trainerdex_discord_bot/mod.py:547 trainerdex_discord_bot/mod.py:558
+#: trainerdex_discord_bot/mod.py:569
 msgid "{mod} ran the command `{command}`"
 msgstr "{mod} gebruikte het commando `{command}`"
 
-#: trainerdex.discord/mod.py:158
+#: trainerdex_discord_bot/mod.py:158
 msgid "Added roles ({roles}) to {user}"
 msgstr "Rollen ({roles}) toegevoegd aan {user}"
 
-#: trainerdex.discord/mod.py:168
+#: trainerdex_discord_bot/mod.py:168
 msgid "Removing roles ({roles}) from {user}"
 msgstr "Rollen ({roles}) verwijderen van {user}"
 
-#: trainerdex.discord/mod.py:186
+#: trainerdex_discord_bot/mod.py:186
 msgid "Removed roles ({roles}) from {user}"
 msgstr "Rollen ({roles}) verwijderd van {user}"
 
-#: trainerdex.discord/mod.py:196
+#: trainerdex_discord_bot/mod.py:196
 msgid "Changing {user}‘s nick to {nickname}"
 msgstr "Gebruiker {user}'s nick veranderen naar {nickname}"
 
-#: trainerdex.discord/mod.py:213
+#: trainerdex_discord_bot/mod.py:213
 msgid "Changed {user}‘s nick to {nickname}"
 msgstr "Gebruiker {user}'s nick veranderd naar {nickname}"
 
-#: trainerdex.discord/mod.py:221
+#: trainerdex_discord_bot/mod.py:221
 msgid "{user} has been approved!\n"
 msgstr "{user} werd goedgekeurd!\n"
 
-#: trainerdex.discord/mod.py:228
+#: trainerdex_discord_bot/mod.py:228
 msgid "{count} role(s) added.\n"
 msgstr "{count} rol(len) toevoegd.\n"
 
-#: trainerdex.discord/mod.py:233
+#: trainerdex_discord_bot/mod.py:233
 msgid "Some roles could not be added. ({roles})\n"
 msgstr "Een aantal rollen kon niet worden toegevoegd. ({roles})\n"
 
-#: trainerdex.discord/mod.py:239
+#: trainerdex_discord_bot/mod.py:239
 msgid "{count} role(s) removed.\n"
 msgstr "{count} rol(len) verwijderd.\n"
 
-#: trainerdex.discord/mod.py:244
+#: trainerdex_discord_bot/mod.py:244
 msgid "Some roles could not be removed. ({roles})\n"
 msgstr "Een aantal rollen kon niet worden verwijderd. ({roles})\n"
 
-#: trainerdex.discord/mod.py:250
+#: trainerdex_discord_bot/mod.py:250
 msgid "User nickname set.\n"
 msgstr "Nickname van gebruiker ingesteld.\n"
 
-#: trainerdex.discord/mod.py:253
+#: trainerdex_discord_bot/mod.py:253
 msgid "User nickname could not be set. (`{nickname}`)\n"
 msgstr "Nickname van gebruiker kon niet worden ingesteld. (`{nickname}`)\n"
 
-#: trainerdex.discord/mod.py:266
+#: trainerdex_discord_bot/mod.py:266
 msgid "Checking for user in database"
 msgstr "In database aan het zoeken naar gebruiker"
 
-#: trainerdex.discord/mod.py:284
+#: trainerdex_discord_bot/mod.py:284
 msgid "An existing record was found for {user}. Updating details…"
 msgstr "Een bestaande record werd gevonden voor {user}. Details updaten…"
 
-#: trainerdex.discord/mod.py:304
+#: trainerdex_discord_bot/mod.py:304
 msgid "Creating {user}"
 msgstr "{user} aan het aanmaken"
 
-#: trainerdex.discord/mod.py:310
+#: trainerdex_discord_bot/mod.py:310
 msgid "Created {user}"
 msgstr "{user} aangemaakt"
 
-#: trainerdex.discord/mod.py:315
+#: trainerdex_discord_bot/mod.py:315
 msgid "Setting Total XP for {user} to {total_xp}."
 msgstr "Total XP voor {user} instellen op {total_xp}."
 
-#: trainerdex.discord/mod.py:327
+#: trainerdex_discord_bot/mod.py:327
 msgid "Won't set Total XP for {user}."
 msgstr "Total XP voor {user} wordt niet ingesteld."
 
-#: trainerdex.discord/mod.py:339 trainerdex.discord/mod.py:353
+#: trainerdex_discord_bot/mod.py:339 trainerdex_discord_bot/mod.py:353
 msgid "Successfully added {user} as {trainer}."
 msgstr "Succesvol {user} toegevoegd als {trainer}."
 
-#: trainerdex.discord/mod.py:341
+#: trainerdex_discord_bot/mod.py:341
 msgid "Loading profile…"
 msgstr "Profiel aan het laden…"
 
-#: trainerdex.discord/mod.py:362
+#: trainerdex_discord_bot/mod.py:362
 #, docstring
 msgid "⬎ TrainerDex-specific Moderation Commands"
 msgstr "⬎ TrainerDex-specifieke Moderatie Commando's"
 
-#: trainerdex.discord/mod.py:368
+#: trainerdex_discord_bot/mod.py:368
 #, docstring
 msgid "Returns a reason why OCR would have failed"
 msgstr "Geeft een reden terug waarom OCR zou gefaald hebben"
 
-#: trainerdex.discord/mod.py:373
+#: trainerdex_discord_bot/mod.py:373
 msgid "Message {message.id} failed because the cog is disabled in the guild"
 msgstr "Bericht {message.id} mislukt omdat de 'cog' uitgeschakeld is in deze server"
 
-#: trainerdex.discord/mod.py:381
+#: trainerdex_discord_bot/mod.py:381
 msgid "Message {message.id} failed because there is no file attached."
 msgstr "Bericht {message.id} mislukt omdat er geen bestand is toegevoegd."
 
-#: trainerdex.discord/mod.py:389
+#: trainerdex_discord_bot/mod.py:389
 msgid "Message {message.id} failed because there more than file attached."
 msgstr "Bericht {message.id} mislukt omdat er meer dan één bestand werd toegevoegd."
 
-#: trainerdex.discord/mod.py:401
+#: trainerdex_discord_bot/mod.py:401
 msgid "Message {message.id} failed because the file is not jpg or png."
 msgstr "Boodschap {message.id} mislukt omdat het bestand geen jpg of png is."
 
-#: trainerdex.discord/mod.py:410
+#: trainerdex_discord_bot/mod.py:410
 msgid "Message {message.id} failed because that channel is not enabled for OCR"
 msgstr "Bericht {message.id} mislukt omdat OCR niet ingeschakeld is voor dit kanaal"
 
-#: trainerdex.discord/mod.py:420
+#: trainerdex_discord_bot/mod.py:420
 msgid "Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
 msgstr "Bericht {message.id} mislukt omdat ik geen TrainerDex gebruiker kon vinden voor {message.author}"
 
-#: trainerdex.discord/mod.py:433
+#: trainerdex_discord_bot/mod.py:433
 msgid "Message {message.id} failed because for an unknown reason"
 msgstr "Bericht {message.id} mislukt om een onbekende reden"
 
-#: trainerdex.discord/mod.py:477
+#: trainerdex_discord_bot/mod.py:477
 #, docstring
 msgid "EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them\n\n"
 "        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.\n"
@@ -340,62 +340,62 @@ msgstr "EXPERIMENTEEL: Controleert op bestaande gebruikers die de juiste rollen 
 "        Het kan ingrijpend rollen overhoop gooien op grote schaal.\n"
 "        "
 
-#: trainerdex.discord/post.py:58
+#: trainerdex_discord_bot/post.py:58
 msgid "Creating a new post…"
 msgstr ""
 
-#: trainerdex.discord/post.py:66
+#: trainerdex_discord_bot/post.py:66
 msgid "Updating a post from earlier today…"
 msgstr ""
 
-#: trainerdex.discord/post.py:72 trainerdex.discord/profile.py:59 trainerdex.discord/trainerdex.py:253
+#: trainerdex_discord_bot/post.py:72 trainerdex_discord_bot/profile.py:59 trainerdex_discord_bot/trainerdex.py:253
 msgid "Sending in DMs"
 msgstr "Naar DM's aan het sturen"
 
-#: trainerdex.discord/post.py:73 trainerdex.discord/post.py:75 trainerdex.discord/post.py:83 trainerdex.discord/post.py:86
-#: trainerdex.discord/trainerdex.py:254 trainerdex.discord/trainerdex.py:258 trainerdex.discord/trainerdex.py:269
+#: trainerdex_discord_bot/post.py:73 trainerdex_discord_bot/post.py:75 trainerdex_discord_bot/post.py:83 trainerdex_discord_bot/post.py:86
+#: trainerdex_discord_bot/trainerdex.py:254 trainerdex_discord_bot/trainerdex.py:258 trainerdex_discord_bot/trainerdex.py:269
 msgid "Loading output…"
 msgstr "Uitvoer aan het laden…"
 
-#: trainerdex.discord/profile.py:29 trainerdex.discord/profile.py:90
+#: trainerdex_discord_bot/profile.py:29 trainerdex_discord_bot/profile.py:90
 #, docstring
 msgid "Find a profile given a username."
 msgstr "Vind een profiel op basis van een gebruikersnaam."
 
-#: trainerdex.discord/profile.py:40 trainerdex.discord/profile.py:101
+#: trainerdex_discord_bot/profile.py:40 trainerdex_discord_bot/profile.py:101
 msgid "Searching for profile…"
 msgstr "Aan het zoeken naar profiel…"
 
-#: trainerdex.discord/profile.py:51 trainerdex.discord/profile.py:69 trainerdex.discord/profile.py:112 trainerdex.discord/profile.py:125
+#: trainerdex_discord_bot/profile.py:51 trainerdex_discord_bot/profile.py:69 trainerdex_discord_bot/profile.py:112 trainerdex_discord_bot/profile.py:125
 msgid "Profile not found."
 msgstr "Profiel niet gevonden."
 
-#: trainerdex.discord/profile.py:56 trainerdex.discord/profile.py:61 trainerdex.discord/profile.py:64
+#: trainerdex_discord_bot/profile.py:56 trainerdex_discord_bot/profile.py:61 trainerdex_discord_bot/profile.py:64
 msgid "Found profile. Loading…"
 msgstr "Profiel gevonden. Aan het laden…"
 
-#: trainerdex.discord/profile.py:66 trainerdex.discord/profile.py:122
+#: trainerdex_discord_bot/profile.py:66 trainerdex_discord_bot/profile.py:122
 msgid "Profile deactivated or hidden."
 msgstr "Profiel gedeactiveerd of verborgen."
 
-#: trainerdex.discord/profile.py:75
+#: trainerdex_discord_bot/profile.py:75
 msgid "Checking progress…"
 msgstr "Voortgang aan het controleren…"
 
-#: trainerdex.discord/profile.py:77 trainerdex.discord/trainerdex.py:275
+#: trainerdex_discord_bot/profile.py:77 trainerdex_discord_bot/trainerdex.py:275
 msgid "Loading leaderboards…"
 msgstr "Klassement aan het laden…"
 
-#: trainerdex.discord/profile.py:119
+#: trainerdex_discord_bot/profile.py:119
 msgid "Unknown."
 msgstr ""
 
-#: trainerdex.discord/profile.py:129
+#: trainerdex_discord_bot/profile.py:129
 #, docstring
 msgid "Edit various aspects about your profile"
 msgstr "Bewerk diverse aspecten van je profiel"
 
-#: trainerdex.discord/profile.py:161
+#: trainerdex_discord_bot/profile.py:161
 #, docstring
 msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
@@ -404,32 +404,32 @@ msgstr "Zet de startdatum op je profiel\n\n"
 "        Dit is de dag waarop je Pokémon Go begon te spelen, en staat vlak onder je 'Total XP'\n"
 "        "
 
-#: trainerdex.discord/profile.py:178
+#: trainerdex_discord_bot/profile.py:178
 msgid "Can't set `{key}` because {error}"
 msgstr ""
 
-#: trainerdex.discord/profile.py:187
+#: trainerdex_discord_bot/profile.py:187
 msgid "Can't set `{key}` because the date is too early"
 msgstr ""
 
-#: trainerdex.discord/profile.py:196 trainerdex.discord/profile.py:223 trainerdex.discord/settings.py:35 trainerdex.discord/settings.py:48
-#: trainerdex.discord/settings.py:61 trainerdex.discord/settings.py:81 trainerdex.discord/settings.py:117
-#: trainerdex.discord/settings.py:139 trainerdex.discord/settings.py:161 trainerdex.discord/settings.py:227
-#: trainerdex.discord/settings.py:247 trainerdex.discord/settings.py:267 trainerdex.discord/settings.py:287
-#: trainerdex.discord/settings.py:313 trainerdex.discord/settings.py:341 trainerdex.discord/settings.py:364
-#: trainerdex.discord/settings.py:381
+#: trainerdex_discord_bot/profile.py:196 trainerdex_discord_bot/profile.py:223 trainerdex_discord_bot/settings.py:35 trainerdex_discord_bot/settings.py:48
+#: trainerdex_discord_bot/settings.py:61 trainerdex_discord_bot/settings.py:81 trainerdex_discord_bot/settings.py:117
+#: trainerdex_discord_bot/settings.py:139 trainerdex_discord_bot/settings.py:161 trainerdex_discord_bot/settings.py:227
+#: trainerdex_discord_bot/settings.py:247 trainerdex_discord_bot/settings.py:267 trainerdex_discord_bot/settings.py:287
+#: trainerdex_discord_bot/settings.py:313 trainerdex_discord_bot/settings.py:341 trainerdex_discord_bot/settings.py:364
+#: trainerdex_discord_bot/settings.py:381
 msgid "`{key}` set to {value}"
 msgstr "`{key}` ingesteld als {value}"
 
-#: trainerdex.discord/profile.py:202 trainerdex.discord/profile.py:229 trainerdex.discord/settings.py:124
-#: trainerdex.discord/settings.py:146 trainerdex.discord/settings.py:170 trainerdex.discord/settings.py:234
-#: trainerdex.discord/settings.py:254 trainerdex.discord/settings.py:274 trainerdex.discord/settings.py:294
-#: trainerdex.discord/settings.py:320 trainerdex.discord/settings.py:350 trainerdex.discord/settings.py:370
-#: trainerdex.discord/settings.py:387
+#: trainerdex_discord_bot/profile.py:202 trainerdex_discord_bot/profile.py:229 trainerdex_discord_bot/settings.py:124
+#: trainerdex_discord_bot/settings.py:146 trainerdex_discord_bot/settings.py:170 trainerdex_discord_bot/settings.py:234
+#: trainerdex_discord_bot/settings.py:254 trainerdex_discord_bot/settings.py:274 trainerdex_discord_bot/settings.py:294
+#: trainerdex_discord_bot/settings.py:320 trainerdex_discord_bot/settings.py:350 trainerdex_discord_bot/settings.py:370
+#: trainerdex_discord_bot/settings.py:387
 msgid "`{key}` is {value}"
 msgstr "`{key}` is {value}"
 
-#: trainerdex.discord/profile.py:206
+#: trainerdex_discord_bot/profile.py:206
 #, docstring
 msgid "Set if you should appear in Leaderboards\n\n"
 "        Hide or show yourself on leaderboards at will!\n"
@@ -438,40 +438,40 @@ msgstr "Stel in of je in het klassement wil verschijnen\n\n"
 "        Verberg of toon jezelf in het klassement volgens eigen voorkeur!\n"
 "        "
 
-#: trainerdex.discord/profile.py:260
+#: trainerdex_discord_bot/profile.py:260
 msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
 msgstr "{trainer.nickname}'s Trainer Code ingesteld als {trainer.trainer_code}"
 
-#: trainerdex.discord/settings.py:24
+#: trainerdex_discord_bot/settings.py:24
 msgid "Looking for team roles…"
 msgstr "Aan het zoeken naar team-rollen…"
 
-#: trainerdex.discord/settings.py:28
+#: trainerdex_discord_bot/settings.py:28
 msgid "Mystic"
 msgstr "Mystic"
 
-#: trainerdex.discord/settings.py:41
+#: trainerdex_discord_bot/settings.py:41
 msgid "Valor"
 msgstr "Valor"
 
-#: trainerdex.discord/settings.py:54
+#: trainerdex_discord_bot/settings.py:54
 msgid "Instinct"
 msgstr "Instinct"
 
-#: trainerdex.discord/settings.py:65
+#: trainerdex_discord_bot/settings.py:65
 msgid "Looking for TL40 role…"
 msgstr "Aan het zoeken naar rol voor trainer level 40…"
 
-#: trainerdex.discord/settings.py:72
+#: trainerdex_discord_bot/settings.py:72
 msgid "Level 40"
 msgstr "Level 40"
 
-#: trainerdex.discord/settings.py:93
+#: trainerdex_discord_bot/settings.py:93
 #, docstring
 msgid "⬎ Set server and/or channel settings"
 msgstr "⬎ Stel server en/of kanaal voorkeuren in"
 
-#: trainerdex.discord/settings.py:109
+#: trainerdex_discord_bot/settings.py:109
 #, docstring
 msgid "Modify the roles of members when they're approved.\n\n"
 "        This is useful for granting users access to the rest of the server.\n"
@@ -480,7 +480,7 @@ msgstr "Pas de rollen aan van leden wanneer ze goedgekeurd worden.\n\n"
 "        Dit is nuttig om gebruikers toegang te geven tot de rest van de server.\n"
 "        "
 
-#: trainerdex.discord/settings.py:131
+#: trainerdex_discord_bot/settings.py:131
 #, docstring
 msgid "Modify the nickname of members when they're approved.\n\n"
 "        This is useful for ensuring players can be easily identified.\n"
@@ -489,7 +489,7 @@ msgstr "Pas de nickname van gebruikers aan wanneer ze goedgekeurd worden.\n\n"
 "        Dit is nuttig om te verzekeren dat spelers eenvoudig herkend kunnen worden.\n"
 "        "
 
-#: trainerdex.discord/settings.py:153
+#: trainerdex_discord_bot/settings.py:153
 #, docstring
 msgid "Modify the nickname of members when they update their Total XP.\n\n"
 "        This is useful for setting levels in their name.\n"
@@ -498,7 +498,7 @@ msgstr "Pas de nickname van leden aan wanneer ze hun Total XP updaten.\n\n"
 "        Dit is nuttig om levels in hun naam automatisch mee in te stellen.\n"
 "        "
 
-#: trainerdex.discord/settings.py:180
+#: trainerdex_discord_bot/settings.py:180
 #, docstring
 msgid "Which roles to add/remove to a user on approval\n\n"
 "        Usage:\n"
@@ -515,7 +515,7 @@ msgstr "Welke rollen toe te voegen / te verwijderen aan een gebruiker bij goedke
 "                Verwijder deze rollen van gebruikers wanneer ze goedgekeurd worden\n"
 "        "
 
-#: trainerdex.discord/settings.py:303
+#: trainerdex_discord_bot/settings.py:303
 #, docstring
 msgid "Send a note to a member upon running `profile create` (aka, `approve`)\n\n"
 "        Set value to `None` to empty it\n"
@@ -524,20 +524,20 @@ msgstr "Stuur een bericht naar een lid wanneer je `profile create` (ofte `approv
 "        Zet de waarde op  `None` om het leeg te maken\n"
 "        "
 
-#: trainerdex.discord/settings.py:336
+#: trainerdex_discord_bot/settings.py:336
 #, docstring
 msgid "Set if this channel should accept OCR commands."
 msgstr "Stel in of dit kanaal OCR (tekstherkenning) commando's moet accepteren."
 
-#: trainerdex.discord/trainerdex.py:164
+#: trainerdex_discord_bot/trainerdex.py:164
 msgid "That's a nice image you have there, let's see…"
 msgstr "Dat is een leuke afbeelding, even kijken…"
 
-#: trainerdex.discord/trainerdex.py:173
+#: trainerdex_discord_bot/trainerdex.py:173
 msgid "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
 msgstr "OCR faalde om tekst van de schermafbeelding te herkennen. Probeer alstublieft een *nieuwe* schermafbeelding."
 
-#: trainerdex.discord/trainerdex.py:191
+#: trainerdex_discord_bot/trainerdex.py:191
 msgid "{user}, we found the following stats:\n"
 "{stats}\n"
 "Just processing that now…"
@@ -545,27 +545,27 @@ msgstr "{user}, we vonden volgende statistieken;\n"
 "{stats}\n"
 "Dit wordt nu even verwerkt…"
 
-#: trainerdex.discord/trainerdex.py:205
+#: trainerdex_discord_bot/trainerdex.py:205
 msgid "You've previously set your XP to higher than what you're trying to set it to. It's currently set to {xp}."
 msgstr "Je hebt eerder al XP op een hogere waarde gezet dan je nu probeert in te stellen. Deze is momenteel ingesteld op {xp}."
 
-#: trainerdex.discord/trainerdex.py:223
+#: trainerdex_discord_bot/trainerdex.py:223
 msgid "You've already set your XP to this figure. In future, to see the output again, please run the `progress` command as it costs us to run OCR."
 msgstr "Je hebt je XP al op dit cijfer ingesteld. In de toekomst, om de resultaten te herbekijken, gebruik het 'progress' commando, gezien de tekstherkenning op de afbeeldingen kosten voor ons met zich meebrengt."
 
-#: trainerdex.discord/trainerdex.py:286
+#: trainerdex_discord_bot/trainerdex.py:286
 msgid "I could not find Total XP in your image. "
 msgstr "Ik kon geen Total XP in je afbeelding vinden. "
 
-#: trainerdex.discord/trainerdex.py:289
+#: trainerdex_discord_bot/trainerdex.py:289
 msgid "We use Google Vision API to read your images. Please ensure that the ‘Total XP’ field is visible. If it is visible and your image still doesn't scan after a minute, try a new image. Posting the same image again, will likely cause another failure."
 msgstr "We gebruiken de Google Vision API om je afbeeldingen te lezen. Zorg er alstublieft voor dat het veld 'Total XP' zichtbaar is. Als het zichtbaar is, en je afbeelding wordt na een minuut nog altijd niet gescand, probeer dan een nieuwe afbeelding. Dezelfde afbeelding opnieuw posten, zal hoogstwaarschijnlijk een nieuwe mislukking opleveren."
 
-#: trainerdex.discord/utils.py:15
+#: trainerdex_discord_bot/utils.py:15
 msgid "If that doesn't look right, please contact us on Twitter. {twitter_handle}"
 msgstr "Als dat er niet juist uit ziet, gelieve ons dan te contacteren op Twitter. {twitter_handle}"
 
-#: trainerdex.discord/utils.py:58
+#: trainerdex_discord_bot/utils.py:58
 msgid "**You're getting this message because you have been added to the TrainerDex database.**\n\n"
 "This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.\n\n"
 "TrainerDex is a Pokémon Go trainer database and leaderboard. View our privacy policy here:\n"
@@ -579,19 +579,19 @@ msgstr "**Je krijgt dit bericht omdat je toevoegd werd aan de TrainerDex databas
 "{is_visible_note}\n\n"
 "Als je vragen hebt, gelieve ons te contacteren op Twitter (<{twitter_handle}>), stel ze aan de moderator die je toegelaten heeft ({mod.mention}), of bezoek de TrainerDex Support Discord (<{invite_url}>)\n"
 
-#: trainerdex.discord/utils.py:71
+#: trainerdex_discord_bot/utils.py:71
 msgid "Your profile is currently visible. To hide your data from other users, please run the following command in this chat:\n"
 "    `{p}profile edit visible false`"
 msgstr "Je profiel is momenteel zichtbaar. Om je data te verbergen voor andere gebruikers, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible false`"
 
-#: trainerdex.discord/utils.py:75
+#: trainerdex_discord_bot/utils.py:75
 msgid "Your profile is not currently visible. To allow your data to be used, please run the following command in this chat:\n"
 "    `{p}profile edit visible true`"
 msgstr "Je profiel is momenteel niet zichtbaar. Om toe te staan dat je data gebruikt wordt, typ volgend commando in deze chat:\n"
 "    `{p}profile edit visible true`"
 
-#: trainerdex.discord/utils.py:91
+#: trainerdex_discord_bot/utils.py:91
 msgid "Additionally, you have a message from `{server.name}`:\n"
 "{note}"
 msgstr "Aanvullend heb je een bericht van `{server.name}`:\n"

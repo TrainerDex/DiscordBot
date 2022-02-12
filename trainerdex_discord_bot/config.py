@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Mapping, MutableMapping
 from discord import Guild, Member, TextChannel, User
 from pymongo import MongoClient
 
-from trainerdex.discord.datatypes import (
+from trainerdex_discord_bot.datatypes import (
     ChannelConfig,
     GlobalConfig,
     GuildConfig,

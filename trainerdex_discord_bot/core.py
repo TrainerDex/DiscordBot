@@ -14,18 +14,18 @@ from discord.message import Message
 from trainerdex.client import Client
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
-from trainerdex.discord import __version__, converters
-from trainerdex.discord.config import Config
-from trainerdex.discord.constants import POGOOCR_TOKEN_PATH, TRAINERDEX_API_TOKEN, CUSTOM_EMOJI
-from trainerdex.discord.embeds import ProfileCard
-from trainerdex.discord.datatypes import ChannelConfig, GuildConfig
-from trainerdex.discord.leaderboard import Leaderboard
-from trainerdex.discord.mod import ModCmds
-from trainerdex.discord.post import Post
-from trainerdex.discord.profile import Profile
-from trainerdex.discord.settings import Settings
-from trainerdex.discord.utils import chat_formatting
-from trainerdex.discord.utils.general import append_twitter
+from trainerdex_discord_bot import __version__, converters
+from trainerdex_discord_bot.config import Config
+from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH, TRAINERDEX_API_TOKEN, CUSTOM_EMOJI
+from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig
+from trainerdex_discord_bot.leaderboard import Leaderboard
+from trainerdex_discord_bot.mod import ModCmds
+from trainerdex_discord_bot.post import Post
+from trainerdex_discord_bot.profile import Profile
+from trainerdex_discord_bot.settings import Settings
+from trainerdex_discord_bot.utils import chat_formatting
+from trainerdex_discord_bot.utils.general import append_twitter
 
 logger: logging.Logger = logging.getLogger(__name__)
 

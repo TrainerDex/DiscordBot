@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 from discord.role import Role
 
-from trainerdex.discord.constants import DEFAULT_PREFIX
+from trainerdex_discord_bot.constants import DEFAULT_PREFIX
 
 
 @dataclass

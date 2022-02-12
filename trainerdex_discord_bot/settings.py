@@ -3,11 +3,11 @@ import logging
 from discord.message import Message
 from discord.role import Role
 from discord.ext import commands
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.utils import chat_formatting
 from typing import Optional, Literal
 
-from trainerdex.discord.abc import MixinMeta
-from trainerdex.discord.datatypes import ChannelConfig, GuildConfig, StoredRoles
+from trainerdex_discord_bot.abc import MixinMeta
+from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig, StoredRoles
 
 logger: logging.Logger = logging.getLogger(__name__)
 

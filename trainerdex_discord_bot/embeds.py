@@ -20,9 +20,9 @@ from trainerdex.client import Client
 from trainerdex.leaderboard import Leaderboard, GuildLeaderboard, LeaderboardEntry
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
-from trainerdex.discord.config import Config
-from trainerdex.discord.constants import WEBSITE_DOMAIN, CUSTOM_EMOJI
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.config import Config
+from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CUSTOM_EMOJI
+from trainerdex_discord_bot.utils import chat_formatting
 
 
 logger: logging.Logger = logging.getLogger(__name__)

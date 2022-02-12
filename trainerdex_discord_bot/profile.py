@@ -5,14 +5,14 @@ import re
 from discord.ext.commands.context import Context
 from discord.message import Message
 from discord.ext import commands
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex.trainer import Trainer
 from typing import Optional
 
-from trainerdex.discord import converters
-from trainerdex.discord.abc import MixinMeta
-from trainerdex.discord.embeds import ProfileCard
-from trainerdex.discord.utils.general import loading
+from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.abc import MixinMeta
+from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.utils.general import loading
 
 logger: logging.Logger = logging.getLogger(__name__)
 

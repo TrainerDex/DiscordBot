@@ -12,11 +12,11 @@ from discord.message import Message
 from trainerdex.faction import Faction
 from trainerdex.leaderboard import BaseLeaderboard
 from trainerdex.update import Level, get_level
-from trainerdex.discord import converters
-from trainerdex.discord.abc import MixinMeta
-from trainerdex.discord.constants import CUSTOM_EMOJI
-from trainerdex.discord.embeds import BaseCard
-from trainerdex.discord.utils import chat_formatting
+from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.abc import MixinMeta
+from trainerdex_discord_bot.constants import CUSTOM_EMOJI
+from trainerdex_discord_bot.embeds import BaseCard
+from trainerdex_discord_bot.utils import chat_formatting
 
 logger: logging.Logger = logging.getLogger(__name__)
 
