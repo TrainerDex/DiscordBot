@@ -1,13 +1,12 @@
-import logging
+from __future__ import annotations
 
+import logging
 import humanize
-import os
 from aiostream import stream
-from typing import Final, Iterable, Literal
+from typing import Iterable, Literal
 
 from discord.commands import ApplicationContext, slash_command, Option, OptionChoice
 from discord.embeds import Embed
-from discord.ext.commands import Bot, Context
 from discord.ext.pages import Paginator
 
 from trainerdex.faction import Faction
@@ -51,28 +50,35 @@ async def get_pages(leaderboard: BaseLeaderboard, ctx: ApplicationContext) -> It
 
 
 class Leaderboard(MixinMeta):
-    @slash_command(name="leaderboard", description="Returns a leaderboard")
+    @slash_command(
+        name="leaderboard",
+        description="Returns a leaderboard",
+        options=[
+            Option(
+                str,
+                name="leaderboard",
+                choices=[
+                    OptionChoice(name="Server", value="guild"),
+                    OptionChoice(name="Global", value="global"),
+                ],
+                default="guild",
+            ),
+            Option(
+                str,
+                name="stat",
+                choices=[
+                    OptionChoice(name=verbose, value=stat)
+                    for stat, verbose in STAT_VERBOSE_MAPPING.items()
+                ],
+                default=Stats.TOTAL_XP.value,
+            ),
+        ],
+    )
     async def leaderboard(
         self,
         ctx: ApplicationContext,
-        leaderboard: Option(
-            str,
-            description="Leaderboard Class",
-            choices=[
-                OptionChoice(name="Server", value="guild"),
-                OptionChoice(name="Global", value="global"),
-            ],
-            default="guild",
-        ) = "guild",
-        stat: Option(
-            str,
-            description="Stat",
-            choices=[
-                OptionChoice(name=verbose, value=stat)
-                for stat, verbose in STAT_VERBOSE_MAPPING.items()
-            ],
-            default=Stats.TOTAL_XP.value,
-        ) = Stats.TOTAL_XP.value,
+        leaderboard: str = "guild",
+        stat: str = Stats.TOTAL_XP.value,
     ) -> None:
         leaderboard: Literal["global", "guild"] = (
             leaderboard if ctx.interaction.guild else "global"

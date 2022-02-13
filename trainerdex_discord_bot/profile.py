@@ -6,9 +6,12 @@ import logging
 import re
 from typing import Optional
 
-from discord.ext.commands.context import Context
-from discord.message import Message
+from discord.commands import ApplicationContext, slash_command, Option
 from discord.ext import commands
+from discord.ext.commands import BadArgument, Context
+from discord.message import Message
+from discord.user import User
+from discord.webhook import WebhookMessage
 
 from trainerdex.trainer import Trainer
 from trainerdex_discord_bot import converters
@@ -20,70 +23,53 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Profile(MixinMeta):
-    @commands.command(name="profile", aliases=["trainer", "progress", "trnr", "whois"])
+    @slash_command(
+        name="profile",
+        options=[
+            Option(str, name="username", required=False),
+            Option(User, name="user", required=False),
+        ],
+    )
     async def view_profile(
         self,
-        ctx: commands.Context,
-        nickname: str = None,
+        ctx: ApplicationContext,
+        username: Optional[str] = None,
+        user: Optional[User] = None,
     ) -> None:
-        """Find a profile given a username."""
-
-        async with ctx.typing():
-            try:
-                logger.debug("searching for trainer by discord uid: %s", ctx.author.id)
-                author_profile: Trainer = await converters.TrainerConverter().convert(
-                    ctx, ctx.author, cli=self.client
+        """Find a profile given a username or user mention."""
+        await ctx.defer()
+        try:
+            if username:
+                trainer: Trainer = await converters.TrainerConverter().convert(
+                    ctx, username, cli=self.client
                 )
-            except commands.BadArgument:
-                author_profile = None
-
-            message: Message = await ctx.send(chat_formatting.loading("Searching for profile…"))
-
-            if nickname is None:
-                trainer = author_profile
+            elif user:
+                trainer: Trainer = await converters.TrainerConverter().convert(
+                    ctx, user, cli=self.client
+                )
             else:
-                try:
-                    logger.debug("searching for trainer by username: %s", nickname)
-                    trainer: Trainer = await converters.TrainerConverter().convert(
-                        ctx, nickname, cli=self.client
-                    )
-                except commands.BadArgument:
-                    await message.edit(content=chat_formatting.warning("Profile not found."))
-                    return
+                trainer: Trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.interaction.user, cli=self.client
+                )
+        except BadArgument:
+            await ctx.followup.send(chat_formatting.error("No profile found."))
+            return
 
-            if trainer:
-                if trainer.is_visible:
-                    await message.edit(content=chat_formatting.loading("Found profile. Loading…"))
-                elif trainer == author_profile:
-                    if ctx.guild:
-                        await message.edit(content="Sending in DMs")
-                        message: Message = await ctx.author.send(
-                            content=chat_formatting.loading("Found profile. Loading…")
-                        )
-                    else:
-                        await message.edit(
-                            content=chat_formatting.loading("Found profile. Loading…")
-                        )
-                else:
-                    await message.edit(
-                        content=chat_formatting.warning("Profile deactivated or hidden.")
-                    )
-                    return
-            else:
-                await message.edit(content=chat_formatting.warning("Profile not found."))
-                return
-
-            embed: ProfileCard = await ProfileCard(ctx, client=self.client, trainer=trainer)
-            await message.edit(content=chat_formatting.loading("Checking progress…"), embed=embed)
-            await embed.show_progress()
-            await message.edit(
-                content=chat_formatting.loading("Loading leaderboards…"), embed=embed
-            )
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await message.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-            await message.edit(content=None, embed=embed)
+        embed: ProfileCard = await ProfileCard(ctx, client=self.client, trainer=trainer)
+        response: WebhookMessage = await ctx.followup.send(
+            content=chat_formatting.loading("Checking progress…"),
+            embed=embed,
+        )
+        await embed.show_progress()
+        await response.edit(
+            content=chat_formatting.loading("Loading leaderboards…"),
+            embed=embed,
+        )
+        await embed.add_leaderboard()
+        if ctx.guild:
+            await response.edit(embed=embed)
+            await embed.add_guild_leaderboard(ctx.guild)
+        await response.edit(content=None, embed=embed)
 
     @commands.command(name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"])
     async def get_trainer_code(
