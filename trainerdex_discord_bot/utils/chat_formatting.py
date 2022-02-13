@@ -2,7 +2,7 @@ import discord
 import textwrap
 from io import BytesIO
 from typing import Iterator, Sequence
-from trainerdex_discord_bot.constants import CUSTOM_EMOJI
+from trainerdex_discord_bot.constants import CustomEmoji
 
 
 def loading(text: str) -> str:
@@ -19,8 +19,7 @@ def loading(text: str) -> str:
         The marked up text.
 
     """
-    emoji = f"<a:loading:{CUSTOM_EMOJI.LOADING.value}>"
-    return f"{emoji} {text}"
+    return f"{CustomEmoji.LOADING.value} {text}"
 
 
 def error(text: str) -> str:

@@ -7,29 +7,27 @@ from decimal import Decimal
 from dateutil.relativedelta import MO
 from dateutil.rrule import WEEKLY, rrule
 from dateutil.tz import UTC
-from typing import Union, overload
+from typing import TYPE_CHECKING, Union
 
 from discord.channel import TextChannel
 from discord.commands import ApplicationContext
 from discord.colour import Colour
 from discord.embeds import Embed, EmptyEmbed
-from discord.ext.commands import Bot, Context
+from discord.ext.commands import Context
 from discord.guild import Guild
 from discord.message import Message
 
-from trainerdex.client import Client
-from trainerdex.leaderboard import Leaderboard, GuildLeaderboard, LeaderboardEntry
-from trainerdex.trainer import Trainer
 from trainerdex.update import Update
-from trainerdex_discord_bot.config import Config
-from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CUSTOM_EMOJI
-from trainerdex_discord_bot.datatypes import GlobalConfig
+from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CustomEmoji
 from trainerdex_discord_bot.utils import chat_formatting
+
+if TYPE_CHECKING:
+    from trainerdex.leaderboard import Leaderboard, GuildLeaderboard, LeaderboardEntry
+    from trainerdex.trainer import Trainer
+    from trainerdex_discord_bot.datatypes import Common, GlobalConfig
 
 
 logger: logging.Logger = logging.getLogger(__name__)
-config: Config = Config()
-global_config: GlobalConfig = config.get_global()
 
 
 class BaseCard(Embed):
@@ -38,23 +36,15 @@ class BaseCard(Embed):
         await instance.__init__(*args, **kwargs)
         return instance
 
-    @overload
-    async def __init__(self, ctx_or_message: Context | ApplicationContext, /, **kwargs) -> None:
-        ...
-
-    @overload
-    async def __init__(self, ctx_or_message: Message, bot: Bot, /, **kwargs) -> None:
-        ...
-
     async def __init__(
         self,
+        common: Common,
         ctx_or_message: Context | Message | ApplicationContext,
-        bot: Bot | None = None,
         /,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-
+        global_config: GlobalConfig = common.config.get_global()
         self.colour: Union[Colour, int] = kwargs.get(
             "colour",
             kwargs.get("color", 13252437),
@@ -91,60 +81,29 @@ class BaseCard(Embed):
             self._message: Message = ctx_or_message.message
             self._channel: TextChannel = ctx_or_message.channel
             self._guild: Guild = ctx_or_message.guild
-            self._bot: Bot = ctx_or_message.bot
         elif isinstance(ctx_or_message, ApplicationContext):
             self._message: Message = ctx_or_message.interaction.message
             self._channel: TextChannel = ctx_or_message.interaction.channel
             self._guild: Guild = ctx_or_message.interaction.guild
-            self._bot: Bot = ctx_or_message.bot
         elif isinstance(ctx_or_message, Message):
             self._message: Message = ctx_or_message
             self._channel: TextChannel = ctx_or_message.channel
             self._guild: Guild = ctx_or_message.channel.guild
-            self._bot: Bot = bot
+        self._common: Common = common
 
 
 class ProfileCard(BaseCard):
-    @overload
     async def __init__(
         self,
-        ctx_or_message: Context | ApplicationContext,
-        /,
-        *,
-        client: Client,
-        trainer: Trainer,
-        update: Update = None,
-        **kwargs,
-    ) -> None:
-        ...
-
-    @overload
-    async def __init__(
-        self,
-        ctx_or_message: Message,
-        bot: Bot,
-        /,
-        *,
-        client: Client,
-        trainer: Trainer,
-        update: Update = None,
-        **kwargs,
-    ) -> None:
-        ...
-
-    async def __init__(
-        self,
+        common: Common,
         ctx_or_message: Context | Message | ApplicationContext,
-        bot: Bot | None = None,
         /,
         *,
-        client: Client,
         trainer: Trainer,
         update: Update = None,
         **kwargs,
     ):
-        await super().__init__(ctx_or_message, bot, **kwargs)
-        self.client: Client = client
+        await super().__init__(common, ctx_or_message, **kwargs)
         self.trainer: Trainer = trainer
         await self.trainer.fetch_updates()
         self.update: Update = update or self.trainer.get_latest_update_for_stat("total_xp")
@@ -161,9 +120,7 @@ class ProfileCard(BaseCard):
         self.set_thumbnail(url=f"{WEBSITE_DOMAIN}/static/img/faction/{self.trainer.team.id}.png")
 
         if self.trainer.trainer_code:
-            trainer_code_text: str = (
-                f"{self._bot.get_emoji(CUSTOM_EMOJI.ADD_FRIEND.value)} {self.trainer.trainer_code}"
-            )
+            trainer_code_text: str = f"{CustomEmoji.ADD_FRIEND.value} {self.trainer.trainer_code}"
 
             if self.description:
                 self.description = "\n".join([self.description, trainer_code_text])
@@ -172,31 +129,31 @@ class ProfileCard(BaseCard):
 
         if self.update.travel_km:
             self.add_field(
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TRAVEL_KM.value)} Distance Walked",
+                name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
                 value=humanize.intcomma(self.update.travel_km) + " km",
                 inline=False,
             )
         if self.update.capture_total:
             self.add_field(
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.CAPTURE_TOTAL.value)} Pokémon Caught",
+                name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
                 value=humanize.intcomma(self.update.capture_total),
                 inline=False,
             )
         if self.update.pokestops_visited:
             self.add_field(
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.POKESTOPS_VISITED.value)} PokéStops Visited",
+                name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
                 value=humanize.intcomma(self.update.pokestops_visited),
                 inline=False,
             )
         if self.update.total_xp:
             self.add_field(
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TOTAL_XP.value)} Total XP",
+                name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
                 value=humanize.intcomma(self.update.total_xp),
                 inline=False,
             )
         if self.update.gymbadges_gold:
             self.add_field(
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.GYMBADGES_GOLD.value)} Gold Gyms",
+                name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
                 value=humanize.intcomma(self.update.gymbadges_gold),
                 inline=False,
             )
@@ -211,7 +168,7 @@ class ProfileCard(BaseCard):
             "gymbadges_gold",
         ]
         for stat in stats:
-            leaderboard: GuildLeaderboard = await self.client.get_leaderboard(
+            leaderboard: GuildLeaderboard = await self._common.client.get_leaderboard(
                 stat=stat, guild=guild
             )
             entry: LeaderboardEntry = await leaderboard.find(
@@ -219,7 +176,7 @@ class ProfileCard(BaseCard):
             )
             if entry:
                 entries.append(
-                    f"{self._bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)} {entry.position:,} / {len(leaderboard):,}"
+                    f"{getattr(CustomEmoji, stat.upper()).value} {entry.position:,} / {len(leaderboard):,}"
                 )
             del leaderboard
             del entry
@@ -240,21 +197,19 @@ class ProfileCard(BaseCard):
             "total_xp",
         ]
         for stat in stats:
-            leaderboard: Leaderboard = await self.client.get_leaderboard(stat=stat)
+            leaderboard: Leaderboard = await self._common.client.get_leaderboard(stat=stat)
             entry: LeaderboardEntry = await leaderboard.find(
                 lambda x: x._trainer_id == self.trainer.old_id
             )
             if entry:
-                entries.append(
-                    f"{self._bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)} {entry.position:,}"
-                )
+                entries.append(f"{getattr(CustomEmoji, stat.upper()).value} {entry.position:,}")
             del leaderboard
             del entry
 
         if entries:
             self.insert_field_at(
                 index=0,
-                name=f"{self._bot.get_emoji(CUSTOM_EMOJI.GLOBAL.value)} Leaderboard (Top 1000)",
+                name=f"{CustomEmoji.GLOBAL.value} Leaderboard (Top 1000)",
                 value="\n".join(entries),
             )
 
@@ -326,7 +281,7 @@ class ProfileCard(BaseCard):
         self.clear_fields()
 
         self.add_field(
-            name=f"{self._bot.get_emoji(CUSTOM_EMOJI.DATE.value)} Interval",
+            name=f"{CustomEmoji.DATE.value} Interval",
             value="{then} ⇒ {now} (+{days} days)".format(
                 then=humanize.naturaldate(last_update.update_time),
                 now=humanize.naturaldate(this_update.update_time),
@@ -337,7 +292,7 @@ class ProfileCard(BaseCard):
         if this_update.travel_km:
             if last_update.travel_km is not None:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TRAVEL_KM.value)} Distance Walked",
+                    name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
                     value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
                         then=humanize.intcomma(last_update.travel_km),
                         now=humanize.intcomma(this_update.travel_km),
@@ -353,14 +308,14 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TRAVEL_KM.value)} Distance Walked",
+                    name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
                     value=humanize.intcomma(this_update.travel_km) + " km",
                     inline=False,
                 )
         if this_update.capture_total:
             if last_update.capture_total is not None:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.CAPTURE_TOTAL.value)} Pokémon Caught",
+                    name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=humanize.intcomma(last_update.capture_total),
                         now=humanize.intcomma(this_update.capture_total),
@@ -377,14 +332,14 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.CAPTURE_TOTAL.value)} Pokémon Caught",
+                    name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
                     value=humanize.intcomma(this_update.capture_total),
                     inline=False,
                 )
         if this_update.pokestops_visited:
             if last_update.pokestops_visited is not None:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.POKESTOPS_VISITED.value)} PokéStops Visited",
+                    name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=humanize.intcomma(last_update.pokestops_visited),
                         now=humanize.intcomma(this_update.pokestops_visited),
@@ -402,14 +357,14 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.POKESTOPS_VISITED.value)} PokéStops Visited",
+                    name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
                     value=humanize.intcomma(this_update.pokestops_visited),
                     inline=False,
                 )
         if this_update.total_xp:
             if last_update.total_xp is not None:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TOTAL_XP.value)} Total XP",
+                    name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=humanize.intcomma(last_update.total_xp),
                         now=humanize.intcomma(this_update.total_xp),
@@ -424,14 +379,14 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.TOTAL_XP.value)} Total XP",
+                    name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
                     value=humanize.intcomma(this_update.total_xp),
                     inline=False,
                 )
         if this_update.gymbadges_gold:
             if last_update.gymbadges_gold is not None:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.GYMBADGES_GOLD.value)} Gold Gyms",
+                    name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=humanize.intcomma(last_update.gymbadges_gold),
                         now=humanize.intcomma(this_update.gymbadges_gold),
@@ -448,7 +403,7 @@ class ProfileCard(BaseCard):
                 )
             else:
                 self.add_field(
-                    name=f"{self._bot.get_emoji(CUSTOM_EMOJI.GYMBADGES_GOLD.value)} Gold Gyms",
+                    name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
                     value=humanize.intcomma(this_update.gymbadges_gold),
                     inline=False,
                 )

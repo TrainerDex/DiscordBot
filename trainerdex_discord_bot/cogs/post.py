@@ -1,63 +1,51 @@
+from __future__ import annotations
+
 import contextlib
+import datetime
 import humanize
 import logging
 import os
 import PogoOCR
-from abc import ABC
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
-from discord.activity import Game
+from discord.embeds import Embed
 from discord.errors import DiscordException
-from discord.ext.commands import BadArgument, Bot, Cog
+from discord.ext.commands import (
+    BadArgument,
+    Bot,
+    Cog,
+    Context,
+    group as old_group,
+    command as old_command,
+)
 from discord.message import Message
 
-from trainerdex.client import Client
-from trainerdex.trainer import Trainer
-from trainerdex.update import Update
-from trainerdex_discord_bot import __version__, converters
-from trainerdex_discord_bot.config import Config
-from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH, TRAINERDEX_API_TOKEN, CUSTOM_EMOJI
+from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH, CustomEmoji
 from trainerdex_discord_bot.embeds import ProfileCard
-from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig
-from trainerdex_discord_bot.leaderboard import Leaderboard
-from trainerdex_discord_bot.mod import ModCmds
-from trainerdex_discord_bot.post import Post
-from trainerdex_discord_bot.profile import Profile
-from trainerdex_discord_bot.settings import Settings
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.general import append_twitter
+
+if TYPE_CHECKING:
+    from trainerdex.client import Client
+    from trainerdex.trainer import Trainer
+    from trainerdex.update import Update
+    from trainerdex_discord_bot.config import Config
+    from trainerdex_discord_bot.datatypes import ChannelConfig, Common, GuildConfig
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-class CompositeMetaClass(type(Cog), type(ABC)):
-    """
-    This allows the metaclass used for proper type detection to
-    coexist with discord.py's metaclass
-    """
-
-    pass
-
-
-class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=CompositeMetaClass):
-    def __init__(self, bot: Bot) -> None:
-        logger.info("Initializing TrainerDex Cog Core...")
-        self.bot: Bot = bot
-        self.config: Config = Config()
-        self.client: Client = None
-        self.bot.loop.create_task(self.create_client())
-        self.bot.loop.create_task(self.set_presence_to_version())
+class PostCog(Cog):
+    def __init__(self, common: Common) -> None:
+        logger.info("Initializing Post cog...")
+        self._common: Common = common
+        self.bot: Bot = common.bot
+        self.config: Config = common.config
+        self.client: Client = common.client
 
         assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
-
-    async def set_presence_to_version(self) -> None:
-        await self.bot.wait_until_ready()
-        logger.info("Setting presence to version %s...", __version__)
-        await self.bot.change_presence(activity=Game(name=__version__))
-
-    async def create_client(self) -> None:
-        logger.info("Initializing TrainerDex API Client...")
-        self.client: Client = Client(token=TRAINERDEX_API_TOKEN)
 
     @Cog.listener("on_message")
     async def check_screenshot(self, message: Message) -> None:
@@ -82,7 +70,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
             return
 
         with contextlib.suppress(DiscordException):
-            await message.add_reaction(self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value))
+            await message.add_reaction(CustomEmoji.LOADING.value)
 
         try:
             trainer: Trainer = await converters.TrainerConverter().convert(
@@ -90,9 +78,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
             )
         except BadArgument:
             with contextlib.suppress(DiscordException):
-                await message.remove_reaction(
-                    self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
-                )
+                await message.remove_reaction(CustomEmoji.LOADING.value, self.bot.user)
                 await message.add_reaction("\N{THUMBS DOWN SIGN}")
             await message.reply(
                 "No TrainerDex profile found for this Discord account. A moderator for this server can set you up."
@@ -140,9 +126,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                         ).format(xp=humanize.intcomma(latest_update.total_xp))
                     )
                     with contextlib.suppress(DiscordException):
-                        await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
-                        )
+                        await message.remove_reaction(CustomEmoji.LOADING.value, self.bot.user)
                         await message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
                 elif latest_update.total_xp == data_found.get("total_xp"):
@@ -151,9 +135,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                         "In future, to see the output again, please run the `progress` command as it costs us to run OCR."
                     )
                     with contextlib.suppress(DiscordException):
-                        await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
-                        )
+                        await message.remove_reaction(CustomEmoji.LOADING.value, self.bot.user)
                         await message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                 else:
                     await trainer.post(
@@ -162,9 +144,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                         update_time=message.created_at,
                     )
                     with contextlib.suppress(DiscordException):
-                        await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
-                        )
+                        await message.remove_reaction(CustomEmoji.LOADING.value, self.bot.user)
                         await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                     text = None
                 if message.guild and not trainer.is_visible:
@@ -182,9 +162,8 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                 )
                 embed: ProfileCard = await ProfileCard(
+                    self._common,
                     message,
-                    self.bot,
-                    client=self.client,
                     trainer=trainer,
                 )
                 await reply.edit(
@@ -224,7 +203,80 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                 )
                 with contextlib.suppress(DiscordException):
-                    await message.remove_reaction(
-                        self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
-                    )
+                    await message.remove_reaction(CustomEmoji.LOADING.value, self.bot.user)
                     await message.add_reaction("\N{THUMBS DOWN SIGN}")
+
+    @old_group(name="update", case_insensitive=True)
+    async def update(self, ctx: Context) -> None:
+        pass
+
+    @old_command(
+        name="gyms", brief="Run this after posting your XP for the best results.", hidden=True
+    )
+    async def post__gyms(
+        self,
+        ctx: Context,
+        value: int,
+    ) -> None:
+        async with ctx.typing():
+            try:
+                trainer: Trainer = await converters.TrainerConverter().convert(
+                    ctx, ctx.author, cli=self.client
+                )
+            except BadArgument:
+                await ctx.send(chat_formatting.error("No profile found."))
+                return
+
+            await trainer.fetch_updates()
+            latest_update: Update = trainer.get_latest_update()
+            if latest_update and latest_update.update_time > (
+                datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=12)
+            ):
+                if latest_update.gymbadges_gold:
+                    post_new: bool = True
+                else:
+                    post_new: bool = False
+                    update: Update = latest_update
+            else:
+                post_new: bool = True
+
+            if post_new:
+                message: Message = await ctx.send(chat_formatting.loading("Creating a new post…"))
+                update: Update = await trainer.post(
+                    stats={"gymbadges_gold": value},
+                    data_source="ts_social_discord",
+                    update_time=ctx.message.created_at,
+                    submission_date=datetime.datetime.now(tz=datetime.timezone.utc),
+                )
+            else:
+                message: Message = await ctx.send(
+                    chat_formatting.loading("Updating a post from earlier today…")
+                )
+                await update.edit(
+                    **{"update_time": ctx.message.created_at, "gymbadges_gold": value}
+                )
+
+            if ctx.guild and not trainer.is_visible:
+                await message.edit("Sending in DMs")
+                message: Message = await ctx.author.send(
+                    content=chat_formatting.loading("Loading output…")
+                )
+
+            await message.edit(content=chat_formatting.loading("Loading output…"))
+            embed: Embed = await ProfileCard(
+                self._common,
+                ctx,
+                trainer=trainer,
+                update=update,
+            )
+            await message.edit(content=chat_formatting.loading("Loading output…"))
+            await embed.show_progress()
+            await message.edit(
+                content=chat_formatting.loading("Loading output…"),
+                embed=embed,
+            )
+            await embed.add_leaderboard()
+            if ctx.guild:
+                await message.edit(embed=embed)
+                await embed.add_guild_leaderboard(ctx.guild)
+            await message.edit(content=None, embed=embed)

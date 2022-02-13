@@ -3,53 +3,74 @@ from __future__ import annotations
 import logging
 import humanize
 from aiostream import stream
-from typing import Iterable, Literal
+from typing import TYPE_CHECKING, Iterable, Literal
 
 from discord.commands import ApplicationContext, slash_command, Option, OptionChoice
 from discord.embeds import Embed
+from discord.ext.commands import Bot, Cog
 from discord.ext.pages import Paginator
 
-from trainerdex.faction import Faction
-from trainerdex.leaderboard import BaseLeaderboard
+
 from trainerdex.update import Level, get_level
-from trainerdex_discord_bot.abc import MixinMeta
-from trainerdex_discord_bot.constants import CUSTOM_EMOJI, STAT_VERBOSE_MAPPING, Stats
+from trainerdex_discord_bot.constants import CustomEmoji, STAT_VERBOSE_MAPPING, Stats
 from trainerdex_discord_bot.embeds import BaseCard
 from trainerdex_discord_bot.utils import chat_formatting
+
+if TYPE_CHECKING:
+    from trainerdex.client import Client
+    from trainerdex.faction import Faction
+    from trainerdex.leaderboard import BaseLeaderboard
+    from trainerdex_discord_bot.config import Config
+    from trainerdex_discord_bot.datatypes import Common
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-async def format_page(slice, stat: str, ctx: ApplicationContext) -> Embed:
-    stat_emoji = ctx.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)
-    embed: Embed = await BaseCard(
-        ctx, title=f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard"
-    )
-    stat_emoji = ctx.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)
-    for entry in slice:
-        team_emoji = ctx.bot.get_emoji(
-            getattr(CUSTOM_EMOJI, entry.faction.verbose_name.upper()).value
+class LeaderboardCog(Cog):
+    def __init__(self, common: Common) -> None:
+        logger.info(f"Initializing {self.__class__.__cog_name__} cog...")
+        self._common: Common = common
+        self.bot: Bot = common.bot
+        self.config: Config = common.config
+        self.client: Client = common.client
+
+    async def _format_page(
+        self,
+        ctx: ApplicationContext,
+        slice,
+        stat: str,
+    ) -> Embed:
+        stat_emoji = getattr(CustomEmoji, stat.upper()).value
+        embed: Embed = await BaseCard(
+            self._common,
+            ctx,
+            title=f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard",
         )
-        embed.add_field(
-            name=f"# {entry.position} {entry.username} {team_emoji}",
-            value=f"{stat_emoji} {humanize.intcomma(entry.value)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
-            inline=False,
+        stat_emoji = getattr(CustomEmoji, stat.upper()).value
+        for entry in slice:
+            team_emoji = getattr(CustomEmoji, entry.faction.verbose_name.upper()).value
+            embed.add_field(
+                name=f"# {entry.position} {entry.username} {team_emoji}",
+                value=f"{stat_emoji} {humanize.intcomma(entry.value)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
+                inline=False,
+            )
+        embed.set_footer(
+            text=embed.footer.text,
+            icon_url=embed.footer.icon_url,
         )
-    embed.set_footer(
-        text=embed.footer.text,
-        icon_url=embed.footer.icon_url,
-    )
-    return embed
+        return embed
 
+    async def _get_pages(
+        self,
+        ctx: ApplicationContext,
+        leaderboard: BaseLeaderboard,
+    ) -> Iterable[Embed]:
+        embeds: Iterable[Embed] = []
+        async for page in stream.chunks(leaderboard, 10):
+            embeds.append(await self._format_page(ctx, page, leaderboard.stat))
+        return embeds
 
-async def get_pages(leaderboard: BaseLeaderboard, ctx: ApplicationContext) -> Iterable[Embed]:
-    embeds: Iterable[Embed] = []
-    async for page in stream.chunks(leaderboard, 10):
-        embeds.append(await format_page(page, leaderboard.stat, ctx))
-    return embeds
-
-
-class Leaderboard(MixinMeta):
     @slash_command(
         name="leaderboard",
         description="Returns a leaderboard",
@@ -105,7 +126,7 @@ class Leaderboard(MixinMeta):
 
         levels: set[Level] = {get_level(level=i) for i in levels}
 
-        stat_emoji = self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)
+        stat_emoji = getattr(CustomEmoji, stat.upper()).value
         leaderboard_title: str = f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard"
 
         leaderboard: BaseLeaderboard = await self.client.get_leaderboard(
@@ -121,7 +142,7 @@ class Leaderboard(MixinMeta):
         if len(leaderboard) < 1:
             await ctx.respond(content="No results to display!")
         else:
-            pages: Iterable[Embed] = await get_pages(leaderboard, ctx)
+            pages: Iterable[Embed] = await self._get_pages(ctx, leaderboard)
 
             for embed in pages:
                 if is_guild:

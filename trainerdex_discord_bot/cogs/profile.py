@@ -1,30 +1,39 @@
 from __future__ import annotations
-from calendar import month_name
 
 import datetime
 import logging
-import re
-from typing import Optional
 from aiohttp import ClientResponseError
-from discord import OptionChoice
+from calendar import month_name
+from typing import TYPE_CHECKING, Optional
 
+from discord import Bot, Cog, OptionChoice
 from discord.commands import ApplicationContext, slash_command, Option
 from discord.ext import commands
-from discord.ext.commands import BadArgument, Context
-from discord.message import Message
+from discord.ext.commands import BadArgument
 from discord.user import User
 from discord.webhook import WebhookMessage
 
-from trainerdex.trainer import Trainer
 from trainerdex_discord_bot import converters
-from trainerdex_discord_bot.abc import MixinMeta
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
+
+if TYPE_CHECKING:
+    from trainerdex.client import Client
+    from trainerdex.trainer import Trainer
+    from trainerdex_discord_bot.datatypes import Common
+    from trainerdex_discord_bot.config import Config
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-class Profile(MixinMeta):
+class ProfileCog(Cog):
+    def __init__(self, common: Common) -> None:
+        logger.info(f"Initializing {self.__class__.__cog_name__} cog...")
+        self._common: Common = common
+        self.bot: Bot = common.bot
+        self.config: Config = common.config
+        self.client: Client = common.client
+
     @slash_command(
         name="profile",
         options=[
@@ -57,7 +66,7 @@ class Profile(MixinMeta):
             await ctx.followup.send(chat_formatting.error("No profile found."))
             return
 
-        embed: ProfileCard = await ProfileCard(ctx, client=self.client, trainer=trainer)
+        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
         response: WebhookMessage = await ctx.followup.send(
             content=chat_formatting.loading("Checking progress…"),
             embed=embed,

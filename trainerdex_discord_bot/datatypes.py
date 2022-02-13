@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
+
+from discord import Bot
 from discord.role import Role
 
 from trainerdex_discord_bot.constants import DEFAULT_PREFIX
+
+if TYPE_CHECKING:
+    from trainerdex.client import Client
+    from trainerdex_discord_bot.config import Config
 
 
 @dataclass
@@ -64,3 +71,10 @@ class MemberConfig(UserConfig):
     @classmethod
     def create(cls, *args, **kwargs) -> MemberConfig:
         return cls(uuid=uuid4(), *args, **kwargs)
+
+
+@dataclass
+class Common:
+    bot: Bot
+    config: Config
+    client: Client
