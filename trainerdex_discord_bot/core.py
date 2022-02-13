@@ -183,8 +183,8 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                 )
                 embed: ProfileCard = await ProfileCard(
-                    ctx_or_message=message,
-                    bot=self.bot,
+                    message,
+                    self.bot,
                     client=self.client,
                     trainer=trainer,
                 )
