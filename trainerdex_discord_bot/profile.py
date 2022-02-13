@@ -74,7 +74,7 @@ class Profile(MixinMeta):
                 return
 
             embed: ProfileCard = await ProfileCard(
-                ctx_or_message=ctx, client=self.client, trainer=trainer, emoji=self.emoji
+                ctx_or_message=ctx, client=self.client, trainer=trainer
             )
             await message.edit(content=chat_formatting.loading("Checking progress…"), embed=embed)
             await embed.show_progress()

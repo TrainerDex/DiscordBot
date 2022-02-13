@@ -77,7 +77,6 @@ class Post(MixinMeta):
                 client=self.client,
                 trainer=trainer,
                 update=update,
-                emoji=self.emoji,
             )
             await message.edit(content=chat_formatting.loading("Loading output…"))
             await embed.show_progress()

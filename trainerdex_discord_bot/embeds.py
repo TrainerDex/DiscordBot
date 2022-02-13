@@ -218,7 +218,9 @@ class ProfileCard(BaseCard):
                 lambda x: x._trainer_id == self.trainer.old_id
             )
             if entry:
-                entries.append(f"{self.emoji.get(stat)} {entry.position:,} / {len(leaderboard):,}")
+                entries.append(
+                    f"{self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)} {entry.position:,} / {len(leaderboard):,}"
+                )
             del leaderboard
             del entry
 
@@ -243,7 +245,9 @@ class ProfileCard(BaseCard):
                 lambda x: x._trainer_id == self.trainer.old_id
             )
             if entry:
-                entries.append(f"{self.emoji.get(stat)} {entry.position:,}")
+                entries.append(
+                    f"{self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)} {entry.position:,}"
+                )
             del leaderboard
             del entry
 
