@@ -1,41 +1,212 @@
+import discord
 import textwrap
 from io import BytesIO
-from typing import Iterator, Optional, Sequence
+from typing import Iterator, Sequence
+from trainerdex_discord_bot.constants import CUSTOM_EMOJI
 
-import discord
-from babel.lists import format_list as babel_list
+
+def loading(text: str) -> str:
+    """Get the given text with a loading indicator.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
+    emoji = f"<a:loading:{CUSTOM_EMOJI.LOADING.value}>"
+    return f"{emoji} {text}"
 
 
 def error(text: str) -> str:
+    """Get text prefixed with an error emoji.
+
+    Parameters
+    ----------
+    text : str
+        The text to be prefixed.
+
+    Returns
+    -------
+    str
+        The new message.
+
+    """
     return f"\N{NO ENTRY SIGN} {text}"
 
 
 def warning(text: str) -> str:
+    """Get text prefixed with a warning emoji.
+
+    Parameters
+    ----------
+    text : str
+        The text to be prefixed.
+
+    Returns
+    -------
+    str
+        The new message.
+
+    """
     return f"\N{WARNING SIGN}\N{VARIATION SELECTOR-16} {text}"
 
 
 def info(text: str) -> str:
+    """Get text prefixed with an info emoji.
+
+    Parameters
+    ----------
+    text : str
+        The text to be prefixed.
+
+    Returns
+    -------
+    str
+        The new message.
+
+    """
     return f"\N{INFORMATION SOURCE}\N{VARIATION SELECTOR-16} {text}"
 
 
-def loading(text: str) -> str:
-    emoji: str = "<a:loading:471298325904359434>"
-    return f"{emoji} {text}"
-
-
 def success(text: str) -> str:
+    """Get text prefixed with a success emoji.
+
+    Parameters
+    ----------
+    text : str
+        The text to be prefixed.
+
+    Returns
+    -------
+    str
+        The new message.
+
+    """
     return f"\N{WHITE HEAVY CHECK MARK} {text}"
 
 
 def question(text: str) -> str:
+    """Get text prefixed with a question emoji.
+
+    Parameters
+    ----------
+    text : str
+        The text to be prefixed.
+
+    Returns
+    -------
+    str
+        The new message.
+
+    """
     return f"\N{BLACK QUESTION MARK ORNAMENT}\N{VARIATION SELECTOR-16} {text}"
 
 
+def bold(text: str, escape_formatting: bool = True) -> str:
+    """Get the given text in bold.
+
+    Note: By default, this function will escape ``text`` prior to emboldening.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    escape_formatting : `bool`, optional
+        Set to :code:`False` to not escape markdown formatting in the text.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
+    return f"**{escape(text, formatting=escape_formatting)}**"
+
+
 def box(text: str, lang: str = "") -> str:
+    """Get the given text in a code block.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    lang : `str`, optional
+        The syntax highlighting language for the codeblock.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
     return f"```{lang}\n{text}\n```"
 
 
+def inline(text: str) -> str:
+    """Get the given text as inline code.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
+    if "`" in text:
+        return f"``{text}``"
+    else:
+        return f"`{text}`"
+
+
+def italics(text: str, escape_formatting: bool = True) -> str:
+    """Get the given text in italics.
+
+    Note: By default, this function will escape ``text`` prior to italicising.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    escape_formatting : `bool`, optional
+        Set to :code:`False` to not escape markdown formatting in the text.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
+    return f"*{escape(text, formatting=escape_formatting)}*"
+
+
 def spoiler(text: str, escape_formatting: bool = True) -> str:
+    """Get the given text as a spoiler.
+
+    Note: By default, this function will escape ``text`` prior to making the text a spoiler.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    escape_formatting : `bool`, optional
+        Set to :code:`False` to not escape markdown formatting in the text.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
     return f"||{escape(text, formatting=escape_formatting)}||"
 
 
@@ -113,14 +284,61 @@ def pagify(
 
 
 def strikethrough(text: str, escape_formatting: bool = True) -> str:
+    """Get the given text with a strikethrough.
+
+    Note: By default, this function will escape ``text`` prior to applying a strikethrough.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    escape_formatting : `bool`, optional
+        Set to :code:`False` to not escape markdown formatting in the text.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
     return f"~~{escape(text, formatting=escape_formatting)}~~"
 
 
 def underline(text: str, escape_formatting: bool = True) -> str:
+    """Get the given text with an underline.
+
+    Note: By default, this function will escape ``text`` prior to underlining.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+    escape_formatting : `bool`, optional
+        Set to :code:`False` to not escape markdown formatting in the text.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
     return f"__{escape(text, formatting=escape_formatting)}__"
 
 
 def quote(text: str) -> str:
+    """Quotes the given text.
+
+    Parameters
+    ----------
+    text : str
+        The text to be marked up.
+
+    Returns
+    -------
+    str
+        The marked up text.
+
+    """
     return textwrap.indent(text, "> ", lambda l: True)
 
 
@@ -148,71 +366,6 @@ def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) 
     if formatting:
         text = discord.utils.escape_markdown(text)
     return text
-
-
-def humanize_list(
-    items: Sequence[str], *, locale: Optional[str] = None, style: str = "standard"
-) -> str:
-    """Get comma-separated list, with the last element joined with *and*.
-
-    Parameters
-    ----------
-    items : Sequence[str]
-        The items of the list to join together.
-    locale : Optional[str]
-        The locale to convert, if not specified it defaults to the bot's locale.
-    style : str
-        The style to format the list with.
-
-        Note: Not all styles are necessarily available in all locales,
-        see documentation of `babel.lists.format_list` for more details.
-
-        standard
-            A typical 'and' list for arbitrary placeholders.
-            eg. "January, February, and March"
-        standard-short
-             A short version of a 'and' list, suitable for use with short or
-             abbreviated placeholder values.
-             eg. "Jan., Feb., and Mar."
-        or
-            A typical 'or' list for arbitrary placeholders.
-            eg. "January, February, or March"
-        or-short
-            A short version of an 'or' list.
-            eg. "Jan., Feb., or Mar."
-        unit
-            A list suitable for wide units.
-            eg. "3 feet, 7 inches"
-        unit-short
-            A list suitable for short units
-            eg. "3 ft, 7 in"
-        unit-narrow
-            A list suitable for narrow units, where space on the screen is very limited.
-            eg. "3′ 7″"
-
-    Raises
-    ------
-    ValueError
-        The locale does not support the specified style.
-
-    Examples
-    --------
-    .. testsetup::
-
-        from redbot.core.utils.chat_formatting import humanize_list
-
-    .. doctest::
-
-        >>> humanize_list(['One', 'Two', 'Three'])
-        'One, Two, and Three'
-        >>> humanize_list(['One'])
-        'One'
-        >>> humanize_list(['omena', 'peruna', 'aplari'], style='or', locale='fi')
-        'omena, peruna tai aplari'
-
-    """
-
-    return babel_list(items, style=style)
 
 
 def text_to_file(
