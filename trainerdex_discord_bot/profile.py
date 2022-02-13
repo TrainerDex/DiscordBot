@@ -195,7 +195,7 @@ class Profile(MixinMeta):
                     return
 
                 await trainer.edit(start_date=start_date)
-                await ctx.tick()
+                await ctx.message.add_reaction("✅")
                 await ctx.send(
                     "`{key}` set to {value}".format(key="trainer.start_date", value=start_date),
                     delete_after=30,
@@ -222,7 +222,7 @@ class Profile(MixinMeta):
         if value is not None:
             async with ctx.typing():
                 await trainer.edit(is_visible=value)
-                await ctx.tick()
+                await ctx.message.add_reaction("✅")
                 await ctx.send(
                     "`{key}` set to {value}".format(key="trainer.is_visible", value=value),
                     delete_after=30,
@@ -259,7 +259,7 @@ class Profile(MixinMeta):
         if value:
             async with ctx.typing():
                 await trainer.edit(trainer_code=value)
-                await ctx.tick()
+                await ctx.message.add_reaction("✅")
                 await ctx.send(
                     "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}".format(
                         trainer=trainer

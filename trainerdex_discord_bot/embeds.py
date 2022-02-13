@@ -10,6 +10,7 @@ from dateutil.tz import UTC
 from typing import Union, overload
 
 from discord.channel import TextChannel
+from discord.commands import ApplicationContext
 from discord.colour import Colour
 from discord.embeds import Embed, EmptyEmbed
 from discord.ext.commands import Bot, Context
@@ -22,11 +23,13 @@ from trainerdex.trainer import Trainer
 from trainerdex.update import Update
 from trainerdex_discord_bot.config import Config
 from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CUSTOM_EMOJI
+from trainerdex_discord_bot.datatypes import GlobalConfig
 from trainerdex_discord_bot.utils import chat_formatting
 
 
 logger: logging.Logger = logging.getLogger(__name__)
 config: Config = Config()
+global_config: GlobalConfig = config.get_global()
 
 
 class BaseCard(Embed):
@@ -36,7 +39,7 @@ class BaseCard(Embed):
         return instance
 
     @overload
-    async def __init__(self, ctx_or_message: Context, /, **kwargs) -> None:
+    async def __init__(self, ctx_or_message: Context | ApplicationContext, /, **kwargs) -> None:
         ...
 
     @overload
@@ -45,7 +48,7 @@ class BaseCard(Embed):
 
     async def __init__(
         self,
-        ctx_or_message: Union[Context, Message],
+        ctx_or_message: Context | Message | ApplicationContext,
         bot: Bot | None = None,
         /,
         **kwargs,
@@ -62,7 +65,7 @@ class BaseCard(Embed):
         self.description: Union[str, EmptyEmbed] = kwargs.get("description", EmptyEmbed)
         self.timestamp: Union[datetime.datetime, EmptyEmbed] = kwargs.get("timestamp", EmptyEmbed)
 
-        notice: str = ""  # await config.notice()
+        notice: str = global_config.notice
         if notice:
             notice: str = chat_formatting.info(notice)
 
@@ -73,21 +76,26 @@ class BaseCard(Embed):
 
         # Default _author
         self._footer: dict[str, str] = {
-            "text": await config.embed_footer(),
-            "icon_url": f"https://{WEBSITE_DOMAIN}/static/img/android-chrome-512x512.png",
+            "text": global_config.embed_footer,
+            "icon_url": f"{WEBSITE_DOMAIN}/static/img/android-chrome-512x512.png",
         }
 
         # Default _author
         self._author: dict[str, str] = {
             "name": "TrainerDex",
-            "url": f"https://{WEBSITE_DOMAIN}/",
-            "icon_url": f"https://{WEBSITE_DOMAIN}/static/img/android-chrome-512x512.png",
+            "url": f"{WEBSITE_DOMAIN}/",
+            "icon_url": f"{WEBSITE_DOMAIN}/static/img/android-chrome-512x512.png",
         }
 
         if isinstance(ctx_or_message, Context):
             self._message: Message = ctx_or_message.message
             self._channel: TextChannel = ctx_or_message.channel
             self._guild: Guild = ctx_or_message.guild
+            self._bot: Bot = ctx_or_message.bot
+        elif isinstance(ctx_or_message, ApplicationContext):
+            self._message: Message = ctx_or_message.interaction.message
+            self._channel: TextChannel = ctx_or_message.interaction.channel
+            self._guild: Guild = ctx_or_message.interaction.guild
             self._bot: Bot = ctx_or_message.bot
         elif isinstance(ctx_or_message, Message):
             self._message: Message = ctx_or_message
@@ -100,7 +108,7 @@ class ProfileCard(BaseCard):
     @overload
     async def __init__(
         self,
-        ctx_or_message: Context,
+        ctx_or_message: Context | ApplicationContext,
         /,
         *,
         client: Client,
@@ -126,7 +134,7 @@ class ProfileCard(BaseCard):
 
     async def __init__(
         self,
-        ctx_or_message: Context,
+        ctx_or_message: Context | Message | ApplicationContext,
         bot: Bot | None = None,
         /,
         *,
@@ -146,13 +154,11 @@ class ProfileCard(BaseCard):
             nickname=self.trainer.username,
             level=self.trainer.level,
         )
-        self.url: str = f"https://{WEBSITE_DOMAIN}/profile?id={self.trainer.old_id}"
+        self.url: str = f"{WEBSITE_DOMAIN}/profile?id={self.trainer.old_id}"
         if self.update:
             self.timestamp: datetime.datetime = self.update.update_time
 
-        self.set_thumbnail(
-            url=f"https://{WEBSITE_DOMAIN}/static/img/faction/{self.trainer.team.id}.png"
-        )
+        self.set_thumbnail(url=f"{WEBSITE_DOMAIN}/static/img/faction/{self.trainer.team.id}.png")
 
         if self.trainer.trainer_code:
             trainer_code_text: str = (

@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from distutils.util import strtobool
 from enum import Enum
-from typing import Optional
+from typing import Mapping, Optional
 
 
 SOCIAL_TWITTER: str = "@TrainerDexApp"
@@ -48,3 +48,14 @@ class CUSTOM_EMOJI(Enum):
     GYMBADGES_GOLD = 743853262469333042
     PROFILE = 43853381919178824
     DATE = 743874800547791023
+
+
+class Stats(Enum):
+    TOTAL_XP = "total_xp"
+    TRAVEL_KM = "badge_travel_km"
+
+
+STAT_VERBOSE_MAPPING: Mapping[str, str] = {
+    Stats.TOTAL_XP.value: "Total XP",
+    Stats.TRAVEL_KM.value: "Jogger",
+}
