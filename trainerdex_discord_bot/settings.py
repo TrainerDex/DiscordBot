@@ -89,22 +89,22 @@ class Settings(MixinMeta):
         output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
         await ctx.send(chat_formatting.box(output, "json"))
 
-    @commands.group(name="tdxset", aliases=["config"], case_insensitive=True)
-    async def tdxset(self, ctx: commands.Context) -> None:
+    @commands.group(name="set", aliases=["config"], case_insensitive=True)
+    async def set_(self, ctx: commands.Context) -> None:
         """⬎ Set server and/or channel settings"""
         pass
 
-    @tdxset.group(name="guild", aliases=["server"], case_insensitive=True)
+    @set_.group(name="guild", aliases=["server"], case_insensitive=True)
     # @checks.mod_or_permissions(manage_guild=True)
     # @checks.bot_in_a_guild()
-    async def tdxset__guild(self, ctx: commands.Context) -> None:
+    async def set__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
             guild_config: GuildConfig = self.config.get_guild(ctx.guild)
             output: str = json.dumps(asdict(guild_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
-    @tdxset__guild.command(name="assign_roles_on_join")
-    async def tdxset__guild__assign_roles_on_join(
+    @set__guild.command(name="assign_roles_on_join")
+    async def set__guild__assign_roles_on_join(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the roles of members when they're approved.
@@ -119,8 +119,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.assign_roles_on_join=}")
 
-    @tdxset__guild.command(name="set_nickname_on_join")
-    async def tdxset__guild__set_nickname_on_join(
+    @set__guild.command(name="set_nickname_on_join")
+    async def set__guild__set_nickname_on_join(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Modify the nickname of members when they're approved.
@@ -135,8 +135,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.set_nickname_on_join=}")
 
-    # @tdxset__guild.command(name="set_nickname_on_update")
-    # async def tdxset__guild__set_nickname_on_update(
+    # @set__guild.command(name="set_nickname_on_update")
+    # async def set__guild__set_nickname_on_update(
     #     self, ctx: commands.Context, value: Optional[bool] = None
     # ) -> None:
     #     """Modify the nickname of members when they update their Total XP.
@@ -151,8 +151,8 @@ class Settings(MixinMeta):
     #         await ctx.message.add_reaction("✅")
     #     await ctx.reply(f"{guild_config.set_nickname_on_update=}")
 
-    @tdxset__guild.command(name="roles_to_assign_on_approval")
-    async def tdxset__guild__roles_to_assign_on_approval(
+    @set__guild.command(name="roles_to_assign_on_approval")
+    async def set__guild__roles_to_assign_on_approval(
         self,
         ctx: commands.Context,
         action: Optional[Literal["add", "remove"]] = None,
@@ -161,9 +161,9 @@ class Settings(MixinMeta):
         """Which roles to add/remove to a user on approval
 
         Usage:
-            [p]tdxset guild roles_to_assign_on_approval add @Verified, @Trainer ...
+            [p]set guild roles_to_assign_on_approval add @Verified, @Trainer ...
                 Assign these roles to users when they are approved
-            [p]tdxset guild roles_to_assign_on_approval remove @Guest
+            [p]set guild roles_to_assign_on_approval remove @Guest
                 Remove these roles from users when they are approved
         """
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
@@ -184,8 +184,8 @@ class Settings(MixinMeta):
                 await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
 
-    @tdxset__guild.command(name="mystic_role", aliases=["mystic"])
-    async def tdxset__guild__mystic_role(
+    @set__guild.command(name="mystic_role", aliases=["mystic"])
+    async def set__guild__mystic_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
@@ -196,8 +196,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.mystic_role=}")
 
-    @tdxset__guild.command(name="valor_role", aliases=["valor"])
-    async def tdxset__guild__valor_role(
+    @set__guild.command(name="valor_role", aliases=["valor"])
+    async def set__guild__valor_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
@@ -208,8 +208,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.valor_role=}")
 
-    @tdxset__guild.command(name="instinct_role", aliases=["instinct"])
-    async def tdxset__guild__instinct_role(
+    @set__guild.command(name="instinct_role", aliases=["instinct"])
+    async def set__guild__instinct_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
@@ -220,8 +220,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.instinct_role=}")
 
-    @tdxset__guild.command(name="tl40_role", aliases=["tl40"])
-    async def tdxset__guild__tl40_role(
+    @set__guild.command(name="tl40_role", aliases=["tl40"])
+    async def set__guild__tl40_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
@@ -232,8 +232,8 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.tl40_role=}")
 
-    @tdxset__guild.command(name="introduction_note")
-    async def tdxset__guild__introduction_note(
+    @set__guild.command(name="introduction_note")
+    async def set__guild__introduction_note(
         self, ctx: commands.Context, value: Optional[str] = None
     ) -> None:
         """Send a note to a member upon running `profile create` (aka, `approve`)
@@ -250,17 +250,17 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.introduction_note=}")
 
-    @tdxset.group(name="channel", case_insensitive=True)
+    @set_.group(name="channel", case_insensitive=True)
     # @checks.mod_or_permissions(manage_guild=True)
     # @checks.bot_in_a_guild()
-    async def tdxset__channel(self, ctx: commands.Context) -> None:
+    async def set__channel(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
             channel_config: ChannelConfig = self.config.get_channel(ctx.channel)
             output: str = json.dumps(asdict(channel_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
-    @tdxset__channel.command(name="profile_ocr", aliases=["ocr"])
-    async def tdxset__channel__profile_ocr(
+    @set__channel.command(name="profile_ocr", aliases=["ocr"])
+    async def set__channel__profile_ocr(
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Set if this channel should accept OCR commands."""
@@ -272,9 +272,9 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"[{ctx.channel.id}] {channel_config.profile_ocr=}")
 
-    @tdxset.command(name="notice")
+    @set_.command(name="notice")
     # @checks.is_owner()
-    async def tdxset__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    async def set__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
         global_config: GlobalConfig = self.config.get_global()
 
         if value is not None:
@@ -285,9 +285,9 @@ class Settings(MixinMeta):
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{global_config.notice=}")
 
-    @tdxset.command(name="footer")
+    @set_.command(name="footer")
     # @checks.is_owner()
-    async def tdxset__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    async def set__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
         global_config: GlobalConfig = self.config.get_global()
 
         if value is not None:

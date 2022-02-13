@@ -322,14 +322,14 @@ class ModCmds(MixinMeta):
             embed=embed,
         )
 
-    @commands.group(name="tdxmod", case_insensitive=True)
-    async def tdxmod(self, ctx: commands.Context) -> None:
+    @commands.group(name="mod", case_insensitive=True)
+    async def mod(self, ctx: commands.Context) -> None:
         """⬎ TrainerDex-specific Moderation Commands"""
         pass
 
-    @tdxmod.command(name="debug")
+    @mod.command(name="debug")
     # @checks.mod()
-    async def tdxmod__debug(self, ctx: commands.Context, reply: Message) -> None:
+    async def mod__debug(self, ctx: commands.Context, reply: Message) -> None:
         """Returns a reason why OCR would have failed"""
         original_context: commands.Context = await self.bot.get_context(reply)
         async with ctx.channel.typing():
@@ -415,7 +415,7 @@ class ModCmds(MixinMeta):
                     await asyncio.sleep(0.5)
                 return
 
-    @tdxmod.command(name="auto-role")
+    @mod.command(name="auto-role")
     # @checks.mod_or_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context) -> None:
         """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
