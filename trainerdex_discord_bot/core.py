@@ -59,7 +59,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
         logger.info("Initializing TrainerDex API Client...")
         self.client: Client = Client(token=TRAINERDEX_API_TOKEN)
 
-    @Cog.listener("on_message_without_command")
+    @Cog.listener("on_message")
     async def check_screenshot(self, message: Message) -> None:
         guild_config: GuildConfig = self.config.get_guild(message.guild)
         channel_config: ChannelConfig = self.config.get_channel(message.channel)
