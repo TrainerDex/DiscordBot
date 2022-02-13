@@ -79,7 +79,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
             return
 
         with contextlib.suppress(DiscordException):
-            await message.add_reaction(self.bot.get_emoji(CUSTOM_EMOJI.LOADING))
+            await message.add_reaction(self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value))
 
         try:
             trainer: Trainer = await converters.TrainerConverter().convert(
@@ -88,7 +88,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
         except BadArgument:
             with contextlib.suppress(DiscordException):
                 await message.remove_reaction(
-                    self.bot.get_emoji(CUSTOM_EMOJI.LOADING), self.bot.user
+                    self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
                 )
                 await message.add_reaction("\N{THUMBS DOWN SIGN}")
             await message.reply(
@@ -142,7 +142,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                     with contextlib.suppress(DiscordException):
                         await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING), self.bot.user
+                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
                         )
                         await message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                         return
@@ -153,7 +153,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                     with contextlib.suppress(DiscordException):
                         await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING), self.bot.user
+                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
                         )
                         await message.add_reaction("\N{WARNING SIGN}\N{VARIATION SELECTOR-16}")
                 else:
@@ -164,7 +164,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                     )
                     with contextlib.suppress(DiscordException):
                         await message.remove_reaction(
-                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING), self.bot.user
+                            self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
                         )
                         await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                     text = None
@@ -226,6 +226,6 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
                 )
                 with contextlib.suppress(DiscordException):
                     await message.remove_reaction(
-                        self.bot.get_emoji(CUSTOM_EMOJI.LOADING), self.bot.user
+                        self.bot.get_emoji(CUSTOM_EMOJI.LOADING.value), self.bot.user
                     )
                     await message.add_reaction("\N{THUMBS DOWN SIGN}")

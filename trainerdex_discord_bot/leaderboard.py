@@ -101,7 +101,7 @@ class Leaderboard(MixinMeta):
 
         levels: set[Level] = {get_level(level=i) for i in levels}
 
-        stat_emoji = self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()))
+        stat_emoji = self.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)
         leaderboard_title: str = f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard"
 
         leaderboard: BaseLeaderboard = await self.client.get_leaderboard(
@@ -136,6 +136,4 @@ class Leaderboard(MixinMeta):
                     )
 
             paginator = Paginator(pages, disable_on_timeout=True)
-            msg = await ctx.interaction.channel.send(content="test")
-            fake_context: Context = await Bot.get_context(ctx.bot, msg)
-            await paginator.send(fake_context, target=ctx.interaction.channel)
+            await paginator.respond(ctx.interaction)
