@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "dc2135ac1b22806da32919cce7fb5c77b966a3b2786147fbb4d0eea08e45e8af"
+            "sha256": "46762ab385f5fe0d95ff4b3bad7810d98f105bcc4a7818afbe4820a122469454"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -437,11 +437,11 @@
         },
         "pogoocr": {
             "hashes": [
-                "sha256:4b95e60f6695312f611e25c68518eee4101622411512b8cda7cba1d3c62c7d02",
-                "sha256:88dae62a85b84f63e7b89dad4a7e179383390f6da99fc1483281f78ab3896e39"
+                "sha256:6c56e5cb4ccf918029db41102cc0ff28ad4be96c02485a8e2b8cede7deafe31a",
+                "sha256:f4357f463eb20d7a9024b8f5d50265abd8d30f03bc456f999e657b749fb38f55"
             ],
             "index": "pypi",
-            "version": "==0.3.8"
+            "version": "==0.3.9"
         },
         "protobuf": {
             "hashes": [

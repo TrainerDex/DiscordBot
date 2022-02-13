@@ -64,7 +64,10 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
         guild_config: GuildConfig = self.config.get_guild(message.guild)
         channel_config: ChannelConfig = self.config.get_channel(message.channel)
 
-        if not guild_config.enabled or not channel_config.profile_ocr:
+        if not guild_config.enabled:
+            return
+
+        if not channel_config.profile_ocr:
             return
 
         if len(message.attachments) != 1:
@@ -123,11 +126,7 @@ class TrainerDex(ModCmds, Post, Profile, Leaderboard, Settings, Cog, metaclass=C
 
             if data_found.get("total_xp"):
                 await reply.edit(
-                    content=append_twitter(
-                        chat_formatting.loading(
-                            "We found the following stats:\n {stats}\nJust processing that now…"
-                        ).format(stats=chat_formatting.box(data_found))
-                    )
+                    content=append_twitter(chat_formatting.loading("Just processing that now…"))
                 )
                 await trainer.fetch_updates()
                 latest_update: Update = trainer.get_latest_update_for_stat("total_xp")

@@ -20,8 +20,6 @@ from trainerdex_discord_bot.utils import chat_formatting
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-POGOOCR_TOKEN_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "data/key.json")
-
 
 async def format_page(slice, stat: str, ctx: ApplicationContext) -> Embed:
     stat_emoji = ctx.bot.get_emoji(getattr(CUSTOM_EMOJI, stat.upper()).value)

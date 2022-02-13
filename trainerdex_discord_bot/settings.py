@@ -1,7 +1,9 @@
+import contextlib
 import json
 import logging
 from dataclasses import asdict
 from typing import Optional, Literal
+from discord import DiscordException
 
 from discord.message import Message
 from discord.role import Role
@@ -20,7 +22,7 @@ class Settings(MixinMeta):
     # @checks.bot_in_a_guild()
     async def quickstart(self, ctx: commands.Context) -> None:
         await ctx.message.add_reaction("✅")
-        message: Message = await ctx.send("Looking for team roles…")
+        reply: Message = await ctx.reply("Looking for team roles…")
 
         guild_config: GuildConfig = self.config.get_guild(ctx.guild)
 
@@ -32,7 +34,7 @@ class Settings(MixinMeta):
             mystic_role = None
         if mystic_role:
             guild_config.mystic_role = mystic_role.id
-            await ctx.send(
+            await ctx.reply(
                 "`{key}` set to {value}".format(key="mystic_role", value=mystic_role),
                 delete_after=30,
             )
@@ -45,7 +47,7 @@ class Settings(MixinMeta):
             valor_role = None
         if valor_role:
             guild_config.valor_role = valor_role.id
-            await ctx.send(
+            await ctx.reply(
                 "`{key}` set to {value}".format(key="valor_role", value=valor_role),
                 delete_after=30,
             )
@@ -58,12 +60,12 @@ class Settings(MixinMeta):
             instinct_role = None
         if instinct_role:
             guild_config.instinct_role = instinct_role.id
-            await ctx.send(
+            await ctx.reply(
                 "`{key}` set to {value}".format(key="instinct_role", value=instinct_role),
                 delete_after=30,
             )
 
-        await message.edit(content="Looking for TL40 role…")
+        await reply.edit(content="Looking for TL40 role…")
 
         try:
             tl40_role: Role = min(
@@ -83,7 +85,8 @@ class Settings(MixinMeta):
                 delete_after=30,
             )
 
-        await message.delete(silent=True)
+        with contextlib.suppress(DiscordException):
+            await reply.delete()
 
         self.config.set_guild(guild_config)
         output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
