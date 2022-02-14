@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import humanize
 from aiostream import stream
+from lenum import LabeledEnum
 from typing import TYPE_CHECKING, Iterable, Literal
 
 from discord.commands import ApplicationContext, slash_command, Option, OptionChoice
@@ -10,20 +11,22 @@ from discord.embeds import Embed
 from discord.ext.commands import Bot, Cog
 from discord.ext.pages import Paginator
 
-
-from trainerdex.faction import Faction
-from trainerdex.update import Level, get_level
-from trainerdex_discord_bot.constants import CustomEmoji, STAT_VERBOSE_MAPPING, Stats
+from trainerdex_discord_bot.constants import CustomEmoji, Stats
 from trainerdex_discord_bot.embeds import BaseCard
 
 if TYPE_CHECKING:
     from trainerdex.client import Client
-    from trainerdex.leaderboard import BaseLeaderboard
+    from trainerdex.leaderboard import BaseLeaderboard, LeaderboardEntry
     from trainerdex_discord_bot.config import Config
     from trainerdex_discord_bot.datatypes import Common
 
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+class LeaderboardType(LabeledEnum):
+    GUILD = "guild", "Discord Server"
+    GLOBAL = "global", "Global"
 
 
 class LeaderboardCog(Cog):
@@ -37,21 +40,22 @@ class LeaderboardCog(Cog):
     async def _format_page(
         self,
         ctx: ApplicationContext,
-        slice,
+        slice: Iterable[LeaderboardEntry],
         stat: str,
     ) -> Embed:
-        stat_emoji = getattr(CustomEmoji, stat.upper()).value
+        stat_emoji = getattr(CustomEmoji, stat.upper(), CustomEmoji.TRAINERDEX).value
         embed: Embed = await BaseCard(
             self._common,
             ctx,
-            title=f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard",
+            title=f"{stat_emoji} {Stats.__members__.get(stat, stat)} Leaderboard",
         )
-        stat_emoji = getattr(CustomEmoji, stat.upper()).value
         for entry in slice:
-            team_emoji = getattr(CustomEmoji, entry.faction.verbose_name.upper()).value
+            team_emoji = getattr(
+                CustomEmoji, entry.faction.verbose_name.upper(), CustomEmoji.TRAINERDEX
+            ).value
             embed.add_field(
                 name=f"# {entry.position} {entry.username} {team_emoji}",
-                value=f"{stat_emoji} {humanize.intcomma(entry.value)} • TL{entry.level} • {humanize.naturaldate(entry.last_updated)}",
+                value=f"{stat_emoji} {humanize.intcomma(entry.value)} • {humanize.naturaldate(entry.last_updated)}",
                 inline=False,
             )
         embed.set_footer(
@@ -77,53 +81,24 @@ class LeaderboardCog(Cog):
             Option(
                 str,
                 name="leaderboard",
-                choices=[
-                    OptionChoice(name="Discord Guild", value="guild"),
-                    OptionChoice(name="Global", value="global"),
-                ],
-                default="guild",
+                choices=[OptionChoice(name, value) for value, name in LeaderboardType],
+                default=LeaderboardType.GUILD,
             ),
             Option(
                 str,
                 name="stat",
-                choices=[
-                    OptionChoice(name=verbose, value=stat)
-                    for stat, verbose in STAT_VERBOSE_MAPPING.items()
-                ],
-                default=Stats.TOTAL_XP.value,
+                choices=[OptionChoice(name, value) for value, name in Stats][:25],
+                default=Stats.TOTAL_XP,
             ),
         ],
     )
     async def leaderboard(
         self,
         ctx: ApplicationContext,
-        leaderboard: str = "guild",
-        stat: str = Stats.TOTAL_XP.value,
+        leaderboard: str,
+        stat: str,
     ) -> None:
-        leaderboard: Literal["global", "guild"] = (
-            leaderboard if ctx.interaction.guild else "global"
-        )
-        is_guild: bool = True if leaderboard == "guild" else False
-
-        filters = []
-
-        factions: set[Faction] = (
-            {x for x in filters if isinstance(x, Faction)}
-            if [x for x in filters if isinstance(x, Faction)]
-            else {Faction(i) for i in range(0, 4)}
-        )
-        levels: set[Level] = {x.level for x in filters if isinstance(x, Level)}
-        if len(levels) > 1:
-            levels: Iterable[Level] = range(
-                min(levels),
-                max(levels) + 1,
-            )
-        elif len(levels) == 1:
-            levels: Iterable[Level] = range(levels.pop() + 1)
-        else:
-            levels: Iterable[Level] = range(1, 51)
-
-        levels: set[Level] = {get_level(level=i) for i in levels}
+        leaderboard: Literal["global", "guild"] = ctx.interaction.guild and leaderboard or "global"
 
         leaderboard: BaseLeaderboard = await self.client.get_leaderboard(
             stat=stat,
@@ -131,9 +106,6 @@ class LeaderboardCog(Cog):
         )
 
         await ctx.defer()
-        leaderboard.filter(lambda x: x.faction in factions).filter(
-            lambda x: get_level(level=int(str(x.level).split("-")[0])) in levels
-        )
 
         if len(leaderboard) < 1:
             await ctx.followup.send(content="No results to display!")
@@ -141,7 +113,7 @@ class LeaderboardCog(Cog):
             pages: Iterable[Embed] = await self._get_pages(ctx, leaderboard)
 
             for embed in pages:
-                if is_guild:
+                if leaderboard == "guild":
                     embed.set_author(
                         name=ctx.interaction.guild.name, icon_url=ctx.interaction.guild.icon.url
                     )
@@ -150,7 +122,7 @@ class LeaderboardCog(Cog):
                         Trainers: {stat_count}
                         Sum of all Trainers: {stat_sum}"""
                     ).format(
-                        stat_name=STAT_VERBOSE_MAPPING.get(stat, stat),
+                        stat_name=Stats[getattr(Stats, stat)],
                         stat_avg=humanize.intcomma(leaderboard.avg),
                         stat_count=humanize.intcomma(leaderboard.count),
                         stat_sum=humanize.intcomma(leaderboard.sum),
