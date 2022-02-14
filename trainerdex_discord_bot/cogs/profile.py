@@ -6,7 +6,7 @@ from aiohttp import ClientResponseError
 from calendar import month_name
 from typing import TYPE_CHECKING, Optional
 
-from discord import Bot, Cog, OptionChoice
+from discord import Bot, Cog, OptionChoice, user_command
 from discord.commands import ApplicationContext, slash_command, Option
 from discord.ext import commands
 from discord.ext.commands import BadArgument
@@ -41,7 +41,7 @@ class ProfileCog(Cog):
             Option(User, name="user", required=False),
         ],
     )
-    async def view_profile(
+    async def slash__profile(
         self,
         ctx: ApplicationContext,
         username: Optional[str] = None,
@@ -62,6 +62,37 @@ class ProfileCog(Cog):
                 trainer: Trainer = await converters.TrainerConverter().convert(
                     ctx, ctx.interaction.user, cli=self.client
                 )
+        except BadArgument:
+            await ctx.followup.send(chat_formatting.error("No profile found."))
+            return
+
+        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
+        response: WebhookMessage = await ctx.followup.send(
+            content=chat_formatting.loading("Checking progress…"),
+            embed=embed,
+        )
+        await embed.show_progress()
+        await response.edit(
+            content=chat_formatting.loading("Loading leaderboards…"),
+            embed=embed,
+        )
+        await embed.add_leaderboard()
+        if ctx.guild:
+            await response.edit(embed=embed)
+            await embed.add_guild_leaderboard(ctx.guild)
+        await response.edit(content=None, embed=embed)
+
+    @user_command(name="View Profile")
+    async def user__profile(
+        self,
+        ctx: ApplicationContext,
+        user: User,
+    ) -> None:
+        await ctx.defer()
+        try:
+            trainer: Trainer = await converters.TrainerConverter().convert(
+                ctx, user, cli=self.client
+            )
         except BadArgument:
             await ctx.followup.send(chat_formatting.error("No profile found."))
             return
