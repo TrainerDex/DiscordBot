@@ -15,7 +15,6 @@ from trainerdex.faction import Faction
 from trainerdex.update import Level, get_level
 from trainerdex_discord_bot.constants import CustomEmoji, STAT_VERBOSE_MAPPING, Stats
 from trainerdex_discord_bot.embeds import BaseCard
-from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
     from trainerdex.client import Client
@@ -79,7 +78,7 @@ class LeaderboardCog(Cog):
                 str,
                 name="leaderboard",
                 choices=[
-                    OptionChoice(name="Server", value="guild"),
+                    OptionChoice(name="Discord Guild", value="guild"),
                     OptionChoice(name="Global", value="global"),
                 ],
                 default="guild",
@@ -126,21 +125,18 @@ class LeaderboardCog(Cog):
 
         levels: set[Level] = {get_level(level=i) for i in levels}
 
-        stat_emoji = getattr(CustomEmoji, stat.upper()).value
-        leaderboard_title: str = f"{stat_emoji} {STAT_VERBOSE_MAPPING.get(stat, stat)} Leaderboard"
-
         leaderboard: BaseLeaderboard = await self.client.get_leaderboard(
             stat=stat,
             guild=ctx.guild if leaderboard in ("guild", "server") else None,
         )
 
-        await ctx.respond(content=chat_formatting.loading(f"Loading {leaderboard_title}…"))
+        await ctx.defer()
         leaderboard.filter(lambda x: x.faction in factions).filter(
             lambda x: get_level(level=int(str(x.level).split("-")[0])) in levels
         )
 
         if len(leaderboard) < 1:
-            await ctx.respond(content="No results to display!")
+            await ctx.followup.send(content="No results to display!")
         else:
             pages: Iterable[Embed] = await self._get_pages(ctx, leaderboard)
 
