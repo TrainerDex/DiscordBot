@@ -96,7 +96,7 @@ class ModCog(Cog):
                 }
 
                 if answers["team"].id > 0:
-                    team_role: int = self.config.get_guild(ctx.guild).get(
+                    team_role: int = await self.config.get_guild(ctx.guild).get(
                         ["", "mystic_role", "valor_role", "instinct_role"][answers["team"].id]
                     )
                     if team_role:
@@ -347,8 +347,8 @@ class ModCog(Cog):
     # @checks.mod()
     async def mod__debug(self, ctx: commands.Context, message: Message) -> None:
         """Returns a reason why OCR would have failed"""
-        guild_config: GuildConfig = self.config.get_guild(message.guild)
-        channel_config: ChannelConfig = self.config.get_channel(message.channel)
+        guild_config: GuildConfig = await self.config.get_guild(message.guild)
+        channel_config: ChannelConfig = await self.config.get_channel(message.channel)
 
         thread: Thread = await ctx.message.create_thread(
             name=f"Debugging OCR for {message.id}", auto_archive_duration=60
@@ -445,7 +445,7 @@ class ModCog(Cog):
         Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.
         It can really mess with roles on a mass scale.
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         if not guild_config.assign_roles_on_join:
             return
         add_roles: list[Role] = [

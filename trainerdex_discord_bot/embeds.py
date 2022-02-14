@@ -44,7 +44,7 @@ class BaseCard(Embed):
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-        global_config: GlobalConfig = common.config.get_global()
+        global_config: GlobalConfig = await common.config.get_global()
         self.colour: Union[Colour, int] = kwargs.get(
             "colour",
             kwargs.get("color", 13252437),

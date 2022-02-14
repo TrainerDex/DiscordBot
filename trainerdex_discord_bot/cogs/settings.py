@@ -37,7 +37,7 @@ class SettingsCog(Cog):
         await ctx.message.add_reaction("✅")
         reply: Message = await ctx.reply("Looking for team roles…")
 
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         try:
             mystic_role: Role = min(
@@ -101,7 +101,7 @@ class SettingsCog(Cog):
         with contextlib.suppress(DiscordException):
             await reply.delete()
 
-        self.config.set_guild(guild_config)
+        await self.config.set_guild(guild_config)
         output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
         await ctx.send(chat_formatting.box(output, "json"))
 
@@ -115,7 +115,7 @@ class SettingsCog(Cog):
     # @checks.bot_in_a_guild()
     async def set__guild(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+            guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
             output: str = json.dumps(asdict(guild_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
@@ -127,11 +127,11 @@ class SettingsCog(Cog):
 
         This is useful for granting users access to the rest of the server.
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.assign_roles_on_join = value
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.assign_roles_on_join=}")
 
@@ -143,11 +143,11 @@ class SettingsCog(Cog):
 
         This is useful for ensuring players can be easily identified.
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.set_nickname_on_join = value
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.set_nickname_on_join=}")
 
@@ -159,11 +159,11 @@ class SettingsCog(Cog):
 
     #     This is useful for setting levels in their name.
     #     """
-    #     guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+    #     guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
     #     if value is not None:
     #         guild_config.set_nickname_on_update = value
-    #         self.config.set_guild(guild_config)
+    #         await self.config.set_guild(guild_config)
     #         await ctx.message.add_reaction("✅")
     #     await ctx.reply(f"{guild_config.set_nickname_on_update=}")
 
@@ -182,21 +182,21 @@ class SettingsCog(Cog):
             [p]set guild roles_to_assign_on_approval remove @Guest
                 Remove these roles from users when they are approved
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if action == "add":
             if roles:
                 guild_config.roles_to_assign_on_approval.add = [
                     x.id for x in ctx.message.role_mentions
                 ]
-                self.config.set_guild(guild_config)
+                await self.config.set_guild(guild_config)
                 await ctx.message.add_reaction("✅")
         elif action == "remove":
             if roles:
                 guild_config.roles_to_assign_on_approval.remove = [
                     x.id for x in ctx.message.role_mentions
                 ]
-                self.config.set_guild(guild_config)
+                await self.config.set_guild(guild_config)
                 await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
 
@@ -204,11 +204,11 @@ class SettingsCog(Cog):
     async def set__guild__mystic_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.mystic_role = value.id
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.mystic_role=}")
 
@@ -216,11 +216,11 @@ class SettingsCog(Cog):
     async def set__guild__valor_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.valor_role = value.id
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.valor_role=}")
 
@@ -228,11 +228,11 @@ class SettingsCog(Cog):
     async def set__guild__instinct_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.instinct_role = value.id
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.instinct_role=}")
 
@@ -240,11 +240,11 @@ class SettingsCog(Cog):
     async def set__guild__tl40_role(
         self, ctx: commands.Context, value: Optional[Role] = None
     ) -> None:
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             guild_config.tl40_role = value.id
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.tl40_role=}")
 
@@ -256,13 +256,13 @@ class SettingsCog(Cog):
 
         Set value to `None` to empty it
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if value is not None:
             if value.lower() == "none":
                 value = None
             guild_config.introduction_note = value
-            self.config.set_guild(guild_config)
+            await self.config.set_guild(guild_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{guild_config.introduction_note=}")
 
@@ -271,7 +271,7 @@ class SettingsCog(Cog):
     # @checks.bot_in_a_guild()
     async def set__channel(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
-            channel_config: ChannelConfig = self.config.get_channel(ctx.channel)
+            channel_config: ChannelConfig = await self.config.get_channel(ctx.channel)
             output: str = json.dumps(asdict(channel_config), indent=2, ensure_ascii=False)
             await ctx.send(chat_formatting.box(output, "json"))
 
@@ -280,36 +280,36 @@ class SettingsCog(Cog):
         self, ctx: commands.Context, value: Optional[bool] = None
     ) -> None:
         """Set if this channel should accept OCR commands."""
-        channel_config: ChannelConfig = self.config.get_channel(ctx.channel)
+        channel_config: ChannelConfig = await self.config.get_channel(ctx.channel)
 
         if value is not None:
             channel_config.profile_ocr = value
-            self.config.set_channel(channel_config)
+            await self.config.set_channel(channel_config)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"[{ctx.channel.id}] {channel_config.profile_ocr=}")
 
     @set_.command(name="notice")
     # @checks.is_owner()
     async def set__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
-        global_config: GlobalConfig = self.config.get_global()
+        global_config: GlobalConfig = await self.config.get_global()
 
         if value is not None:
             if value.lower() == "none":
                 value = GlobalConfig.notice
             global_config.notice = value
-            self.config.set_global(GlobalConfig)
+            await self.config.set_global(GlobalConfig)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{global_config.notice=}")
 
     @set_.command(name="footer")
     # @checks.is_owner()
     async def set__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
-        global_config: GlobalConfig = self.config.get_global()
+        global_config: GlobalConfig = await self.config.get_global()
 
         if value is not None:
             if value.lower() == "none":
                 value = GlobalConfig.embed_footer
             global_config.embed_footer = value
-            self.config.set_global(GlobalConfig)
+            await self.config.set_global(GlobalConfig)
             await ctx.message.add_reaction("✅")
         await ctx.reply(f"{global_config.embed_footer=}")

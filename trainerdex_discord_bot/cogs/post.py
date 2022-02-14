@@ -49,8 +49,8 @@ class PostCog(Cog):
 
     @Cog.listener("on_message")
     async def check_screenshot(self, message: Message) -> None:
-        guild_config: GuildConfig = self.config.get_guild(message.guild)
-        channel_config: ChannelConfig = self.config.get_channel(message.channel)
+        guild_config: GuildConfig = await self.config.get_guild(message.guild)
+        channel_config: ChannelConfig = await self.config.get_channel(message.channel)
 
         if not guild_config.enabled:
             return

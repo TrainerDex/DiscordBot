@@ -31,10 +31,11 @@ logger.debug("Initializing Event Loop...")
 loop = asyncio.get_event_loop()
 
 
-def get_prefix(bot: Bot, message: Message) -> str:
+async def get_prefix(bot: Bot, message: Message) -> str:
     config = Config()
     if message.guild:
-        return config.get_guild(message.guild).prefix
+        config = await config.get_guild(message.guild)
+        return config.prefix
     return DEFAULT_PREFIX
 
 
