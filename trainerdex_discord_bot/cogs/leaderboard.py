@@ -11,6 +11,7 @@ from discord.ext.commands import Bot, Cog
 from discord.ext.pages import Paginator
 
 
+from trainerdex.faction import Faction
 from trainerdex.update import Level, get_level
 from trainerdex_discord_bot.constants import CustomEmoji, STAT_VERBOSE_MAPPING, Stats
 from trainerdex_discord_bot.embeds import BaseCard
@@ -18,7 +19,6 @@ from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
     from trainerdex.client import Client
-    from trainerdex.faction import Faction
     from trainerdex.leaderboard import BaseLeaderboard
     from trainerdex_discord_bot.config import Config
     from trainerdex_discord_bot.datatypes import Common
