@@ -5,17 +5,8 @@ import PogoOCR
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
-from discord import ApplicationContext, Attachment, Option, WebhookMessage, slash_command
-from discord.embeds import Embed
-from discord.ext.commands import (
-    BadArgument,
-    Bot,
-    Cog,
-    Context,
-    group as old_group,
-    command as old_command,
-)
-from discord.message import Message
+from discord import ApplicationContext, Attachment, WebhookMessage, slash_command
+from discord.ext.commands import BadArgument, Bot, Cog
 from discord.utils import snowflake_time
 
 from trainerdex_discord_bot import converters
