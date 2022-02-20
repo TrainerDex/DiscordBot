@@ -1,36 +1,54 @@
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
 import os
 import PogoOCR
 from contextlib import suppress
-from typing import Any, Final, TypedDict, Union
+from typing import TYPE_CHECKING, Any, TypedDict, Union
+from discord import Thread
 
 from discord.errors import DiscordException, Forbidden, HTTPException
+from discord.ext.commands import Bot, Cog
 from discord.ext.commands.errors import BadArgument
 from discord.member import Member
 from discord.message import Message
 from discord.role import Role
 from discord.ext import commands
 
-from trainerdex.faction import Faction
-from trainerdex.trainer import Trainer
-from trainerdex.user import User
-from trainerdex.update import Update
-
 from trainerdex_discord_bot import converters
-from trainerdex_discord_bot.abc import MixinMeta
-from trainerdex_discord_bot.datatypes import GuildConfig, StoredRoles, TransformedRoles
+from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.general import introduction_notes
 
+if TYPE_CHECKING:
+    from trainerdex.client import Client
+    from trainerdex.faction import Faction
+    from trainerdex.trainer import Trainer
+    from trainerdex.user import User
+    from trainerdex.update import Update
+    from trainerdex_discord_bot.config import Config
+    from trainerdex_discord_bot.datatypes import (
+        ChannelConfig,
+        Common,
+        GuildConfig,
+        StoredRoles,
+        TransformedRoles,
+    )
+
 logger: logging.Logger = logging.getLogger(__name__)
 
-POGOOCR_TOKEN_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "data/key.json")
 
+class ModCog(Cog):
+    def __init__(self, common: Common) -> None:
+        logger.info(f"Initializing {self.__class__.__cog_name__} cog...")
+        self._common: Common = common
+        self.bot: Bot = common.bot
+        self.config: Config = common.config
+        self.client: Client = common.client
 
-class ModCmds(MixinMeta):
     @commands.command(name="approve", aliases=["ap", "register", "verify"])
     # @checks.mod_or_permissions(manage_roles=True)
     async def approve_trainer(
@@ -78,7 +96,7 @@ class ModCmds(MixinMeta):
                 }
 
                 if answers["team"].id > 0:
-                    team_role: int = self.config.get_guild(ctx.guild).get(
+                    team_role: int = await self.config.get_guild(ctx.guild).get(
                         ["", "mystic_role", "valor_role", "instinct_role"][answers["team"].id]
                     )
                     if team_role:
@@ -309,9 +327,7 @@ class ModCmds(MixinMeta):
                 trainer=trainer.username,
             )
         )
-        embed: ProfileCard = await ProfileCard(
-            ctx_or_message=ctx, bot=self.bot, client=self.client, trainer=trainer, emoji=self.emoji
-        )
+        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
         with suppress(Forbidden):
             await member.send(embed=embed)
         await reply.edit(
@@ -322,32 +338,43 @@ class ModCmds(MixinMeta):
             embed=embed,
         )
 
-    @commands.group(name="tdxmod", case_insensitive=True)
-    async def tdxmod(self, ctx: commands.Context) -> None:
+    @commands.group(name="mod", case_insensitive=True)
+    async def mod(self, ctx: commands.Context) -> None:
         """⬎ TrainerDex-specific Moderation Commands"""
         pass
 
-    @tdxmod.command(name="debug")
+    @mod.command(name="debug")
     # @checks.mod()
-    async def tdxmod__debug(self, ctx: commands.Context, reply: Message) -> None:
+    async def mod__debug(self, ctx: commands.Context, message: Message) -> None:
         """Returns a reason why OCR would have failed"""
-        original_context: commands.Context = await self.bot.get_context(reply)
-        async with ctx.channel.typing():
-            if await self.bot.cog_disabled_in_guild(self, original_context.guild):
-                await ctx.reply(
-                    f"Message {reply.id} failed because the cog is disabled in the guild"
+        guild_config: GuildConfig = await self.config.get_guild(message.guild)
+        channel_config: ChannelConfig = await self.config.get_channel(message.channel)
+
+        thread: Thread = await ctx.message.create_thread(
+            name=f"Debugging OCR for {message.id}", auto_archive_duration=60
+        )
+
+        original_context: commands.Context = await self.bot.get_context(message)
+        async with thread.typing():
+            if not guild_config.enabled:
+                await thread.send(
+                    f"Message {message.id} failed because the cog is disabled in the guild"
                 )
-                return
+
+            if not channel_config.profile_ocr:
+                await thread.send(
+                    f"Message {message.id} failed because OCR is disabled in the channel"
+                )
 
             if len(original_context.message.attachments) == 0:
-                await ctx.reply(f"Message {reply.id} failed because there is no file attached.")
-                return
+                await thread.send(
+                    f"Message {message.id} failed because there is no file attached."
+                )
 
             if len(original_context.message.attachments) > 1:
-                await ctx.reply(
-                    f"Message {reply.id} failed because there more than file attached."
+                await thread.send(
+                    f"Message {message.id} failed because there more than file attached."
                 )
-                return
 
             if os.path.splitext(original_context.message.attachments[0].proxy_url)[
                 1
@@ -356,13 +383,8 @@ class ModCmds(MixinMeta):
                 ".jpg",
                 ".png",
             ]:
-                await ctx.reply(f"Message {reply.id} failed because the file is not jpg or png.")
-                return
-
-            profile_ocr: bool = await self.config.get_channel(original_context.channel).profile_ocr
-            if not profile_ocr:
-                await ctx.reply(
-                    f"Message {reply.id} failed because that channel is not enabled for OCR"
+                await thread.send(
+                    f"Message {message.id} failed because the file is not jpg or png."
                 )
                 return
 
@@ -371,8 +393,8 @@ class ModCmds(MixinMeta):
                     original_context, original_context.author, cli=self.client
                 )
             except BadArgument:
-                await ctx.reply(
-                    f"Message {reply.id} failed because I couldn't find a TrainerDex user for {reply.author}"
+                await thread.send(
+                    f"Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
                 )
                 return
 
@@ -382,8 +404,8 @@ class ModCmds(MixinMeta):
                 )
                 ocr.get_text()
             except Exception as e:
-                reply: Message = await ctx.reply(
-                    f"Message {reply.id} failed because for an unknown reason"
+                reply: Message = await thread.send(
+                    f"Message {message.id} failed because for an unknown reason"
                 )
                 reply = await reply.reply(chat_formatting.box(e))
 
@@ -394,7 +416,7 @@ class ModCmds(MixinMeta):
                 return
             else:
                 message_content: str = str(ocr.text_found[0].description)
-                reply: Message = await ctx.reply(f"Message {reply.id} should have succeeded")
+                reply: Message = await thread.send(f"Message {message.id} should have succeeded")
                 for page in chat_formatting.pagify(message_content, page_length=1994):
                     reply = await reply.reply(chat_formatting.box(page))
                     await asyncio.sleep(0.5)
@@ -402,7 +424,7 @@ class ModCmds(MixinMeta):
                 data_found: dict[str, Any] = {
                     "username": ocr.username,
                     "buddy_name": ocr.buddy_name,
-                    "travel_km": ocr.travel_km,
+                    "travel_km": str(ocr.travel_km),
                     "capture_total": ocr.capture_total,
                     "pokestops_visited": ocr.pokestops_visited,
                     "total_xp": ocr.total_xp,
@@ -415,7 +437,7 @@ class ModCmds(MixinMeta):
                     await asyncio.sleep(0.5)
                 return
 
-    @tdxmod.command(name="auto-role")
+    @mod.command(name="auto-role")
     # @checks.mod_or_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context) -> None:
         """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
@@ -423,7 +445,7 @@ class ModCmds(MixinMeta):
         Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.
         It can really mess with roles on a mass scale.
         """
-        guild_config: GuildConfig = self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         if not guild_config.assign_roles_on_join:
             return
         add_roles: list[Role] = [
