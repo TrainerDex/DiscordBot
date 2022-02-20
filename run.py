@@ -30,9 +30,13 @@ logger: logging.Logger = logging.getLogger(__name__)
 logger.debug("Initializing Event Loop...")
 loop = asyncio.get_event_loop()
 
+logger.info("Initializing Config...")
+config: Config = Config()
+logger.info("Config initialized.")
+
 
 async def get_prefix(bot: Bot, message: Message) -> str:
-    config = Config()
+    global config
     if message.guild:
         config = await config.get_guild(message.guild)
         return config.prefix
@@ -66,7 +70,7 @@ loop.create_task(set_presence_to_version(bot))
 # Construct Common dataclass
 common: Common = Common(
     bot=bot,
-    config=Config(),
+    config=config,
     client=client,
 )
 
