@@ -47,7 +47,7 @@ class Config:
             )
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return GlobalConfig(**data)
+        return GlobalConfig.from_mapping(data)
 
     async def get_guild(self, guild: Guild | int, *, create: bool = True) -> GuildConfig:
         if isinstance(guild, Guild):
@@ -60,7 +60,7 @@ class Config:
             data: MutableMapping = await self._get_collection("guilds").find_one({"_id": guild})
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return GuildConfig(**data)
+        return GuildConfig.from_mapping(data)
 
     async def get_channel(
         self, channel: TextChannel | int, *, create: bool = True
@@ -77,7 +77,7 @@ class Config:
             )
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return ChannelConfig(**data)
+        return ChannelConfig.from_mapping(data)
 
     async def get_user(self, user: User | int, *, create: bool = True) -> UserConfig:
         if isinstance(user, User):
@@ -90,7 +90,7 @@ class Config:
             data: MutableMapping = await self._get_collection("users").find_one({"_id": user})
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return UserConfig(**data)
+        return UserConfig.from_mapping(data)
 
     async def get_member(
         self,
@@ -121,7 +121,7 @@ class Config:
             data: MutableMapping = await self._get_collection("members").find_one(query)
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return MemberConfig(**data)
+        return MemberConfig.from_mapping(data)
 
     async def set_global(self, document: GlobalConfig):
         data: MutableMapping = asdict(document)

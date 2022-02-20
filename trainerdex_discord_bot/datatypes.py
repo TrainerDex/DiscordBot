@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 from uuid import UUID, uuid4
 
 from discord import Bot
@@ -12,6 +13,7 @@ from trainerdex_discord_bot.constants import DEFAULT_PREFIX
 if TYPE_CHECKING:
     from trainerdex.client import Client
     from trainerdex_discord_bot.config import Config
+    from typing_extensions import Self
 
 
 @dataclass
@@ -29,6 +31,10 @@ class TransformedRoles:
 @dataclass
 class _MongoDBDocument:
     _id: int
+
+    @classmethod
+    def from_mapping(cls, mapping: Mapping) -> Self:
+        return cls(**{k: v for k, v in mapping.items() if k in inspect.signature(cls).parameters})
 
 
 @dataclass
@@ -54,7 +60,7 @@ class GuildConfig(_MongoDBDocument):
 
 @dataclass
 class ChannelConfig(_MongoDBDocument):
-    profile_ocr: bool = False
+    pass
 
 
 @dataclass
