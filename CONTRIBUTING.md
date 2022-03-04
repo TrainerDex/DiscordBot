@@ -9,15 +9,5 @@ Our style checker of choice, [black](https://github.com/ambv/black), actually ha
 Use the command `black --help` to see how to use this tool. The full style guide is explained in detail on [black's GitHub repository](https://github.com/ambv/black). **There is one exception to this**, however, which is that we set the line length to 99, instead of black's default 88. This is already set in `pyproject.toml` configuration file in the repo so you can simply format code with Black like so: `black <src>`.
 
 
-## Commit Messages
-We are using [Semantic Commit Messages](https://seesparkbox.com/foundry/semantic_commit_messages).
-
-```
-feat: add hat wobble
-
-^--^ ^------------^
-| |
-| +-> Summary in present tense.
-|
-+-------> Type: chore, docs, deps, feat, fix, refactor, style, or test.
-```
+## Environments
+We use [pipenv](https://github.com/pypa/pipenv) to manage dependencies.
