@@ -28,3 +28,6 @@ services:
 networks:
   default:
     name: discordbot_default
+
+volumes:
+  mongodb_store: null
