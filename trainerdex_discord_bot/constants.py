@@ -15,10 +15,6 @@ SOCIAL_REDDIT: str = "https://reddit.com/r/TrainerDex"
 DEBUG: bool = strtobool(str(os.environ.get("DEBUG", False)).lower())
 DEBUG_GUILDS: Optional[list[int]] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").split(",")]
 
-DISCORD_OWNER_IDS: Optional[set[int]] = set(
-    [int(x) for x in os.environ.get("DISCORD_OWNER_IDS", "").split(",")]
-)
-
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
 TRAINERDEX_API_TOKEN: str = os.environ.get("TRAINERDEX_API_TOKEN")

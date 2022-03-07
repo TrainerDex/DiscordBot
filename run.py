@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 
-from discord import Game, Message
+from discord import Game, Intents, Message
 from discord.ext.commands import Bot
 from trainerdex.client import Client
 
@@ -13,7 +13,6 @@ from trainerdex_discord_bot.constants import (
     DEBUG,
     DEBUG_GUILDS,
     DEFAULT_PREFIX,
-    DISCORD_OWNER_IDS,
     TRAINERDEX_API_TOKEN,
 )
 from trainerdex_discord_bot.datatypes import Common
@@ -45,13 +44,18 @@ async def set_presence_to_version(bot: Bot) -> None:
 
 
 logger.info("Initializing Pycord...")
+intents = Intents.default()
+intents.members = True
+intents.message_content = True
+
+
 bot: Bot = Bot(
     debug_guilds=DEBUG_GUILDS if DEBUG else None,
     description="TrainerDex, a Discord bot for Pokemon Go.",
     case_insensitive=True,
     command_prefix=get_prefix,
+    intents=intents,
     strip_after_prefix=True,  # Set true as iPhone is a bitch.
-    owner_ids=DISCORD_OWNER_IDS,
     loop=loop,
 )
 logger.info("Pycord initialized.")
