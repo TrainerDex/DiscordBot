@@ -19,8 +19,8 @@ services:
     image: mongo:5.0.6
     networks:
       default: null
-    ports:
-      - "27017:27017"
+    # ports:
+    #   - "27017:27017"  # Don't expose on production
     restart: always
 
 networks:
