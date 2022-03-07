@@ -1,22 +1,24 @@
 import datetime
 import logging
 from decimal import Decimal
-from typing import TYPE_CHECKING, NoReturn, Optional
+from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
-import PogoOCR
 from discord import ApplicationContext, Attachment, WebhookMessage, slash_command
 from discord.ext.commands import BadArgument
 from discord.utils import snowflake_time
+from google.oauth2 import service_account
+from PogoOCR import OCRClient, Screenshot, ScreenshotClass
+from PogoOCR.providers import Providers
 
 from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import TokenDocuments
-from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
+    from PogoOCR.images.actitvity_view import ActivityViewData
     from trainerdex.trainer import Trainer
     from trainerdex.update import Update
 
@@ -28,6 +30,14 @@ class PostCog(Cog):
         token = await self.config.get_token(TokenDocuments.GOOGLE.value)
         if token is None:
             raise CogHealthcheckException("Google Cloud token not found.")
+        else:
+            await self._load_ocr_client(token)
+
+    async def _load_ocr_client(self, token: Mapping) -> None:
+        credentials: service_account.Credentials = (
+            service_account.Credentials.from_service_account_info(token)
+        )
+        self.ocr = OCRClient(credentials=credentials, provider=Providers.GOOGLE)
 
     @slash_command(
         name="update",
@@ -44,6 +54,11 @@ class PostCog(Cog):
 
         await ctx.defer()
 
+        await ctx.followup.send(
+            content=chat_formatting.loading(f"{ctx.interaction.user.mention} shared an image."),
+            file=await image.to_file(),
+        )
+
         try:
             trainer: Trainer = await converters.TrainerConverter().convert(
                 None, ctx.interaction.user, cli=self.client
@@ -57,25 +72,20 @@ class PostCog(Cog):
             )
             return
 
-        ocr: PogoOCR.ProfileSelf = PogoOCR.ProfileSelf(
-            POGOOCR_TOKEN_PATH, image_uri=image.proxy_url
+        screenshot = await Screenshot.from_url(
+            image.url,
+            klass=ScreenshotClass.ACTIVITY_VIEW,
+            asyncronous=True,
         )
 
-        try:
-            ocr.get_text()
-        except PogoOCR.OutOfRetriesException:
-            await ctx.followup.send(
-                chat_formatting.error(
-                    "OCR Failed to recognise text from screenshot. Please try a *new* screenshot."
-                )
-            )
-            return
+        request = self.ocr.open_request(screenshot)
+        result: ActivityViewData = self.ocr.process_ocr(request)
 
         data_found: dict[str, Decimal | int | None] = {
-            "travel_km": ocr.travel_km,
-            "capture_total": ocr.capture_total,
-            "pokestops_visited": ocr.pokestops_visited,
-            "total_xp": ocr.total_xp,
+            "travel_km": result.travel_km,
+            "capture_total": result.capture_total,
+            "pokestops_visited": result.pokestops_visited,
+            "total_xp": result.total_xp,
         }
         stats_to_update: dict[str, Decimal | int] = {
             k: v for k, v in data_found.items() if v is not None
@@ -84,7 +94,7 @@ class PostCog(Cog):
         if not stats_to_update:
             await ctx.followup.send(
                 chat_formatting.error(
-                    "OCR Failed to find any stats from yours screenshot. Please try a *new* screenshot."
+                    "OCR Failed to find any stats from your screenshot. Please try a *new* screenshot."
                 )
             )
             return
@@ -108,7 +118,6 @@ class PostCog(Cog):
                 chat_formatting.success(
                     "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
                 ),
-                ephemeral=image.ephemeral,
             )
         else:
             # Otherwise, check that stats have changed since then.
@@ -120,7 +129,6 @@ class PostCog(Cog):
                         chat_formatting.error(
                             "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
                         ),
-                        ephemeral=image.ephemeral,
                     )
                     return
 
@@ -135,7 +143,6 @@ class PostCog(Cog):
         response: WebhookMessage = await ctx.followup.send(
             content=chat_formatting.loading("Checking progress…"),
             embed=embed,
-            ephemeral=image.ephemeral,
         )
         await embed.show_progress()
         await response.edit(

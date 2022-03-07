@@ -7,7 +7,12 @@ from prettytable import PrettyTable
 
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import TokenDocuments
-from trainerdex_discord_bot.utils.chat_formatting import bool_to_emoji, error, italics, code
+from trainerdex_discord_bot.utils.chat_formatting import (
+    bool_to_emoji,
+    code,
+    error,
+    italics,
+)
 
 if TYPE_CHECKING:
     from trainerdex_discord_bot.datatypes import CogMeta

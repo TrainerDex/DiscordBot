@@ -1,24 +1,17 @@
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
-import os
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, TypedDict, Union
+from typing import TYPE_CHECKING, TypedDict, Union
 
-import PogoOCR
-from discord import Thread
 from discord.errors import DiscordException, Forbidden, HTTPException
 from discord.ext import commands
-from discord.ext.commands.errors import BadArgument
 from discord.member import Member
 from discord.message import Message
 from discord.role import Role
 
 from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.cogs.interface import Cog
-from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.general import introduction_notes
@@ -30,7 +23,6 @@ if TYPE_CHECKING:
     from trainerdex.user import User
 
     from trainerdex_discord_bot.datatypes import (
-        ChannelConfig,
         GuildConfig,
         StoredRoles,
         TransformedRoles,
@@ -333,100 +325,6 @@ class ModCog(Cog):
     async def mod(self, ctx: commands.Context) -> None:
         """⬎ TrainerDex-specific Moderation Commands"""
         pass
-
-    @mod.command(name="debug")
-    # @checks.mod()
-    async def mod__debug(self, ctx: commands.Context, message: Message) -> None:
-        """Returns a reason why OCR would have failed"""
-        guild_config: GuildConfig = await self.config.get_guild(message.guild)
-        channel_config: ChannelConfig = await self.config.get_channel(message.channel)
-
-        thread: Thread = await ctx.message.create_thread(
-            name=f"Debugging OCR for {message.id}", auto_archive_duration=60
-        )
-
-        original_context: commands.Context = await self.bot.get_context(message)
-        async with thread.typing():
-            if not guild_config.enabled:
-                await thread.send(
-                    f"Message {message.id} failed because the cog is disabled in the guild"
-                )
-
-            if not channel_config.profile_ocr:
-                await thread.send(
-                    f"Message {message.id} failed because OCR is disabled in the channel"
-                )
-
-            if len(original_context.message.attachments) == 0:
-                await thread.send(
-                    f"Message {message.id} failed because there is no file attached."
-                )
-
-            if len(original_context.message.attachments) > 1:
-                await thread.send(
-                    f"Message {message.id} failed because there more than file attached."
-                )
-
-            if os.path.splitext(original_context.message.attachments[0].proxy_url)[
-                1
-            ].lower() not in [
-                ".jpeg",
-                ".jpg",
-                ".png",
-            ]:
-                await thread.send(
-                    f"Message {message.id} failed because the file is not jpg or png."
-                )
-                return
-
-            try:
-                await converters.TrainerConverter().convert(
-                    original_context, original_context.author, cli=self.client
-                )
-            except BadArgument:
-                await thread.send(
-                    f"Message {message.id} failed because I couldn't find a TrainerDex user for {message.author}"
-                )
-                return
-
-            try:
-                ocr: PogoOCR.ProfileSelf = PogoOCR.ProfileSelf(
-                    POGOOCR_TOKEN_PATH, image_uri=original_context.message.attachments[0].proxy_url
-                )
-                ocr.get_text()
-            except Exception as e:
-                reply: Message = await thread.send(
-                    f"Message {message.id} failed because for an unknown reason"
-                )
-                reply = await reply.reply(chat_formatting.box(e))
-
-                message_content: str = str(ocr.text_found[0].description)
-                for page in chat_formatting.pagify(message_content, page_length=1994):
-                    reply = await reply.reply(chat_formatting.box(page))
-                    await asyncio.sleep(0.5)
-                return
-            else:
-                message_content: str = str(ocr.text_found[0].description)
-                reply: Message = await thread.send(f"Message {message.id} should have succeeded")
-                for page in chat_formatting.pagify(message_content, page_length=1994):
-                    reply = await reply.reply(chat_formatting.box(page))
-                    await asyncio.sleep(0.5)
-
-                data_found: dict[str, Any] = {
-                    "username": ocr.username,
-                    "buddy_name": ocr.buddy_name,
-                    "travel_km": str(ocr.travel_km),
-                    "capture_total": ocr.capture_total,
-                    "pokestops_visited": ocr.pokestops_visited,
-                    "total_xp": ocr.total_xp,
-                    "start_date": ocr.start_date and ocr.start_date.isoformat(),
-                }
-
-                message_content: str = str(ocr.text_found[0].description)
-                for page in chat_formatting.pagify(json.dumps(data_found), page_length=1994):
-                    reply = await reply.reply(chat_formatting.box(page, lang="json"))
-                    await asyncio.sleep(0.5)
-                return
 
     @mod.command(name="auto-role")
     # @checks.mod_or_permissions(manage_roles=True)
