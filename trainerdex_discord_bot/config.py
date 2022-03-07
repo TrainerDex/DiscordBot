@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Mapping, MutableMapping
+from enum import Enum
+from typing import TYPE_CHECKING, AsyncIterator, Mapping, MutableMapping, Union
 
 from discord import Guild, Member, TextChannel, User
 from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
+from pymongo.cursor import Cursor
 
+from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import (
     ChannelConfig,
+    CogMeta,
     GlobalConfig,
     GuildConfig,
     MemberConfig,
@@ -20,7 +24,18 @@ if TYPE_CHECKING:
     from pymongo.collection import Collection
     from pymongo.database import Database
 
-GLOBAL_CONFIG_ID = 0
+
+class StaticDocuments(Enum):
+    GLOBAL_CONFIG = 0
+    TOKENS = 1
+
+
+class TokenDocuments(Enum):
+    GOOGLE = "google_cloud"
+    TRAINERDEX = "trainerdex"
+
+
+JSONObject = Union[None, int, str, bool, list["JSONObject"], dict[str, "JSONObject"]]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -28,26 +43,62 @@ logger: logging.Logger = logging.getLogger(__name__)
 class Config:
     def __init__(self):
         logger.info("Initializing Config Client...")
-        self.mongo: MotorClient = MotorClient(os.environ.get("MONGODB_URI"))
-        self.database: Database = self.mongo[os.environ.get("MONGODB_NAME")]
+        self.mongo: MotorClient = MotorClient(
+            os.environ.get("MONGODB_URI", "mongodb://tdx:tdx@mongo:27017/")
+        )
+        self.database: Database = self.mongo[os.environ.get("MONGODB_NAME", "trainerdex")]
 
     def _get_collection(self, collection: str) -> Collection:
         return self.database[collection]
 
     async def get_global(self, *, create: bool = True) -> GlobalConfig:
         data: MutableMapping = await self._get_collection("global").find_one(
-            {"_id": GLOBAL_CONFIG_ID}
+            {"_id": StaticDocuments.GLOBAL_CONFIG.value}
         )
 
         if data is None and create:
-            document: GlobalConfig = GlobalConfig(_id=GLOBAL_CONFIG_ID)
+            document: GlobalConfig = GlobalConfig(_id=StaticDocuments.GLOBAL_CONFIG.value)
             self._get_collection("global").insert_one(asdict(document))
             data: MutableMapping = await self._get_collection("global").find_one(
-                {"_id": GLOBAL_CONFIG_ID}
+                {"_id": StaticDocuments.GLOBAL_CONFIG.value}
             )
         elif data is None and not create:
             raise ValueError("No entry found.")
         return GlobalConfig.from_mapping(data)
+
+    async def get_token(self, service: str) -> Union[JSONObject, None]:
+        data: MutableMapping = await self._get_collection("global").find_one(
+            {"_id": StaticDocuments.TOKENS.value}
+        )
+
+        if data is None:
+            return None
+        else:
+            return data.get(service, None)
+
+    async def get_cog_meta(self, cog: Cog | type[Cog], create: bool = True) -> CogMeta:
+        if isinstance(cog, Cog):
+            cog: type[Cog] = cog.__class__
+        elif not issubclass(cog, Cog):
+            raise ValueError("cog must be a subclass of Cog.")
+
+        data: MutableMapping = await self._get_collection("cogs").find_one({"_id": cog.__name__})
+
+        if data is None and create:
+
+            document: CogMeta = CogMeta(_id=cog.__name__, enabled=True, last_loaded=None)
+            self._get_collection("cogs").insert_one(asdict(document))
+            data: MutableMapping = await self._get_collection("cogs").find_one(
+                {"_id": cog.__name__}
+            )
+        elif data is None and not create:
+            raise ValueError("No entry found.")
+        return CogMeta.from_mapping(data)
+
+    async def get_many_cog_meta(self, filter: Mapping = None) -> AsyncIterator[CogMeta]:
+        curser: Cursor = self._get_collection("cogs").find(filter)
+        async for document in curser:
+            yield CogMeta.from_mapping(document)
 
     async def get_guild(self, guild: Guild | int, *, create: bool = True) -> GuildConfig:
         if isinstance(guild, Guild):
@@ -129,6 +180,18 @@ class Config:
             {"_id": document._id}, {"$set": data}, upsert=True
         )
 
+    async def set_token(self, service: str, token: JSONObject):
+        data: dict[str, JSONObject] = {service: token}
+        await self._get_collection("global").update_one(
+            {"_id": StaticDocuments.TOKENS.value}, {"$set": data}, upsert=True
+        )
+
+    async def set_cog_meta(self, document: CogMeta):
+        data: MutableMapping = asdict(document)
+        await self._get_collection("cogs").update_one(
+            {"_id": document._id}, {"$set": data}, upsert=True
+        )
+
     async def set_guild(self, document: GuildConfig):
         data: MutableMapping = asdict(document)
         await self._get_collection("guilds").update_one(
@@ -149,7 +212,7 @@ class Config:
 
     async def set_member(self, document: MemberConfig):
         data: MutableMapping = asdict(document)
-        await self._get_collection("users").update_one(
+        await self._get_collection("members").update_one(
             {"user_id": document.user_id, "guild_id": document.guild_id},
             {"$set": data},
             upsert=True,

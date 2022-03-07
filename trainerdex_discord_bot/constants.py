@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import os
 from distutils.util import strtobool
-from discord import PartialEmoji
 from enum import Enum
-from lenum import LabeledEnum
 from typing import Optional
 
+from discord import PartialEmoji
+from lenum import LabeledEnum
 
 SOCIAL_TWITTER: str = "@TrainerDexApp"
 SOCIAL_INSTAGRAM: str = "@TrainerDexApp"

@@ -1,24 +1,21 @@
 from __future__ import annotations
 
 import logging
-import humanize
-from aiostream import stream
-from lenum import LabeledEnum
 from typing import TYPE_CHECKING, Iterable, Literal
 
-from discord.commands import ApplicationContext, slash_command, Option, OptionChoice
+import humanize
+from aiostream import stream
+from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.embeds import Embed
-from discord.ext.commands import Bot, Cog
 from discord.ext.pages import Paginator
+from lenum import LabeledEnum
 
+from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.constants import CustomEmoji, Stats
 from trainerdex_discord_bot.embeds import BaseCard
 
 if TYPE_CHECKING:
-    from trainerdex.client import Client
     from trainerdex.leaderboard import BaseLeaderboard, LeaderboardEntry
-    from trainerdex_discord_bot.config import Config
-    from trainerdex_discord_bot.datatypes import Common
 
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -30,13 +27,6 @@ class LeaderboardType(LabeledEnum):
 
 
 class LeaderboardCog(Cog):
-    def __init__(self, common: Common) -> None:
-        logger.info(f"Initializing {self.__class__.__cog_name__} cog...")
-        self._common: Common = common
-        self.bot: Bot = common.bot
-        self.config: Config = common.config
-        self.client: Client = common.client
-
     async def _format_page(
         self,
         ctx: ApplicationContext,

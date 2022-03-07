@@ -1,3 +1,5 @@
+from trainerdex_discord_bot.cogs.admin import Admin  # noqa: F401
+from trainerdex_discord_bot.cogs.interface import Cog  # noqa: F401
 from trainerdex_discord_bot.cogs.leaderboard import LeaderboardCog  # noqa: F401
 from trainerdex_discord_bot.cogs.mod import ModCog  # noqa: F401
 from trainerdex_discord_bot.cogs.post import PostCog  # noqa: F401

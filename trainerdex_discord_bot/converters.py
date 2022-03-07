@@ -4,8 +4,7 @@ import re
 from typing import Any, Dict, List, Literal, Union
 
 from discord.abc import User
-from discord.ext.commands import BadArgument, Converter, Context, UserConverter
-
+from discord.ext.commands import BadArgument, Context, Converter, UserConverter
 from trainerdex.client import Client
 from trainerdex.faction import Faction
 from trainerdex.socialconnection import SocialConnection

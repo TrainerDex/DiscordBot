@@ -1,29 +1,30 @@
 from __future__ import annotations
 
 import datetime
-import humanize
 import logging
 from decimal import Decimal
+from typing import TYPE_CHECKING, Union
+
+import humanize
 from dateutil.relativedelta import MO
 from dateutil.rrule import WEEKLY, rrule
 from dateutil.tz import UTC
-from typing import TYPE_CHECKING, Union
-
 from discord.channel import TextChannel
-from discord.commands import ApplicationContext
 from discord.colour import Colour
+from discord.commands import ApplicationContext
 from discord.embeds import Embed, EmptyEmbed
 from discord.ext.commands import Context
 from discord.guild import Guild
 from discord.message import Message
-
 from trainerdex.update import Update
+
 from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CustomEmoji
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
-    from trainerdex.leaderboard import Leaderboard, GuildLeaderboard, LeaderboardEntry
+    from trainerdex.leaderboard import GuildLeaderboard, Leaderboard, LeaderboardEntry
     from trainerdex.trainer import Trainer
+
     from trainerdex_discord_bot.datatypes import Common, GlobalConfig
 
 

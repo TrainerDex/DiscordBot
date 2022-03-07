@@ -1,7 +1,9 @@
-import discord
 import textwrap
 from io import BytesIO
 from typing import Iterator, Sequence
+
+import discord
+
 from trainerdex_discord_bot.constants import CustomEmoji
 
 
@@ -147,6 +149,9 @@ def box(text: str, lang: str = "") -> str:
     return f"```{lang}\n{text}\n```"
 
 
+code = box
+
+
 def inline(text: str) -> str:
     """Get the given text as inline code.
 
@@ -165,6 +170,9 @@ def inline(text: str) -> str:
         return f"``{text}``"
     else:
         return f"`{text}`"
+
+
+inline_code = inline
 
 
 def italics(text: str, escape_formatting: bool = True) -> str:
@@ -392,3 +400,23 @@ def text_to_file(
     """
     file = BytesIO(text.encode(encoding))
     return discord.File(file, filename, spoiler=spoiler)
+
+
+def bool_to_emoji(value: bool) -> str:
+    """Converts a boolean to an emoji.
+
+    Parameters
+    ----------
+    value: bool
+        The boolean to convert.
+
+    Returns
+    -------
+    str
+        The emoji representing the boolean.
+
+    """
+    if value:
+        return "✅"
+    else:
+        return "❌"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import TYPE_CHECKING, Mapping
 from uuid import UUID, uuid4
 
@@ -12,8 +13,9 @@ from trainerdex_discord_bot.constants import DEFAULT_PREFIX
 
 if TYPE_CHECKING:
     from trainerdex.client import Client
-    from trainerdex_discord_bot.config import Config
     from typing_extensions import Self
+
+    from trainerdex_discord_bot.config import Config
 
 
 @dataclass
@@ -41,6 +43,17 @@ class _MongoDBDocument:
 class GlobalConfig(_MongoDBDocument):
     embed_footer: str = "Provided with ❤️ by TrainerDex"
     notice: str | None = None
+
+
+@dataclass
+class CogMeta(_MongoDBDocument):
+    _id: str
+    enabled: bool = True
+    last_loaded: datetime | None = None
+
+    @property
+    def cog_name(self) -> str:
+        return self._id
 
 
 @dataclass

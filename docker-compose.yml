@@ -1,0 +1,28 @@
+services:
+  trainerdex:
+    build:
+      dockerfile: Dockerfile
+    container_name: trainerdex
+    env_file:
+      - .env
+    depends_on:
+      trainerdex_mongo:
+        condition: service_started
+    networks:
+      default: null
+    restart: unless-stopped
+  trainerdex_mongo:
+    container_name: trainerdex_mongo
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: tdx
+      MONGO_INITDB_ROOT_USERNAME: tdx
+    image: mongo:5.0.6
+    networks:
+      default: null
+    ports:
+      - "27017:27017"
+    restart: always
+
+networks:
+  default:
+    name: discordbot_default

@@ -4,32 +4,24 @@ import contextlib
 import json
 import logging
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Optional, Literal
+from typing import TYPE_CHECKING, Literal, Optional
 
-from discord import Bot, Cog, DiscordException
+from discord import DiscordException
+from discord.ext import commands
 from discord.message import Message
 from discord.role import Role
-from discord.ext import commands
 
+from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GlobalConfig
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
-    from trainerdex.client import Client
-    from trainerdex_discord_bot.config import Config
-    from trainerdex_discord_bot.datatypes import ChannelConfig, Common, GuildConfig
+    from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 class SettingsCog(Cog):
-    def __init__(self, common: Common) -> None:
-        logger.info(f"Initializing {self.__class__.__cog_name__} cog...")
-        self._common: Common = common
-        self.bot: Bot = common.bot
-        self.config: Config = common.config
-        self.client: Client = common.client
-
     @commands.command(name="quickstart")
     # @checks.mod_or_permissions(manage_guild=True)
     # @checks.bot_in_a_guild()

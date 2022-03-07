@@ -1,38 +1,33 @@
 import datetime
 import logging
-import os
-import PogoOCR
 from decimal import Decimal
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, NoReturn, Optional
 
+import PogoOCR
 from discord import ApplicationContext, Attachment, WebhookMessage, slash_command
-from discord.ext.commands import BadArgument, Bot, Cog
+from discord.ext.commands import BadArgument
 from discord.utils import snowflake_time
 
 from trainerdex_discord_bot import converters
+from trainerdex_discord_bot.cogs.interface import Cog
+from trainerdex_discord_bot.config import TokenDocuments
 from trainerdex_discord_bot.constants import POGOOCR_TOKEN_PATH
 from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
-    from trainerdex.client import Client
     from trainerdex.trainer import Trainer
     from trainerdex.update import Update
-    from trainerdex_discord_bot.config import Config
-    from trainerdex_discord_bot.datatypes import Common
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PostCog(Cog):
-    def __init__(self, common: "Common") -> None:
-        logger.info("Initializing Post cog...")
-        self._common: Common = common
-        self.bot: Bot = common.bot
-        self.config: Config = common.config
-        self.client: Client = common.client
-
-        assert os.path.isfile(POGOOCR_TOKEN_PATH)  # Looks for a Google Cloud Token
+    async def _healthcheck(self) -> NoReturn | None:
+        token = await self.config.get_token(TokenDocuments.GOOGLE.value)
+        if token is None:
+            raise CogHealthcheckException("Google Cloud token not found.")
 
     @slash_command(
         name="update",
