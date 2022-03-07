@@ -21,6 +21,8 @@ services:
       default: null
     # ports:
     #   - "27017:27017"  # Don't expose on production
+    volumes:
+      - mongodb_store:/data/db
     restart: always
 
 networks:
