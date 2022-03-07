@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import os
 from distutils.util import strtobool
-from discord import PartialEmoji
 from enum import Enum
-from lenum import LabeledEnum
 from typing import Optional
 
+from discord import PartialEmoji
+from lenum import LabeledEnum
 
 SOCIAL_TWITTER: str = "@TrainerDexApp"
 SOCIAL_INSTAGRAM: str = "@TrainerDexApp"
@@ -21,7 +21,6 @@ DISCORD_OWNER_IDS: Optional[set[int]] = set(
 
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
-POGOOCR_TOKEN_PATH: str = os.environ.get("POGOOCR_TOKEN_PATH")
 TRAINERDEX_API_TOKEN: str = os.environ.get("TRAINERDEX_API_TOKEN")
 
 DEFAULT_PREFIX: str = os.environ.get("DEFAULT_PREFIX", ".")

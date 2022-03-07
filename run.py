@@ -1,18 +1,13 @@
 import asyncio
 import logging
 import os
+
 from discord import Game, Message
 from discord.ext.commands import Bot
-
 from trainerdex.client import Client
+
 from trainerdex_discord_bot import __version__
-from trainerdex_discord_bot.cogs import (
-    LeaderboardCog,
-    ModCog,
-    PostCog,
-    ProfileCog,
-    SettingsCog,
-)
+from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import Config
 from trainerdex_discord_bot.constants import (
     DEBUG,
@@ -76,11 +71,8 @@ common: Common = Common(
 
 
 logger.info("Loading cogs...")
-bot.add_cog(PostCog(common))
-bot.add_cog(ProfileCog(common))
-bot.add_cog(SettingsCog(common))
-bot.add_cog(ModCog(common))
-bot.add_cog(LeaderboardCog(common))
+for cog in Cog.__subclasses__():
+    bot.add_cog(cog(common))
 
 try:
     logger.info("Running bot...")
