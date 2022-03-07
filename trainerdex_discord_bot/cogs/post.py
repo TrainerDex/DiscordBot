@@ -124,13 +124,13 @@ class PostCog(Cog):
             for stat, value in stats_to_update.items():
                 if getattr(latest_update, stat) != value:
                     break
-                else:
-                    await ctx.followup.send(
-                        chat_formatting.error(
-                            "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
-                        ),
-                    )
-                    return
+            else:
+                await ctx.followup.send(
+                    chat_formatting.error(
+                        "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
+                    ),
+                )
+                return
 
             # If they have, create a new update.
             update: Update = await trainer.post(
