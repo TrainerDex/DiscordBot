@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import logging
 from contextlib import suppress
-from typing import TYPE_CHECKING, TypedDict, Union
+from typing import TYPE_CHECKING, TypedDict
 
 from discord.errors import DiscordException, Forbidden, HTTPException
 from discord.ext import commands
 from discord.member import Member
 from discord.message import Message
-from discord.role import Role
 
 from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.cogs.interface import Cog
@@ -22,11 +21,7 @@ if TYPE_CHECKING:
     from trainerdex.update import Update
     from trainerdex.user import User
 
-    from trainerdex_discord_bot.datatypes import (
-        GuildConfig,
-        StoredRoles,
-        TransformedRoles,
-    )
+    from trainerdex_discord_bot.datatypes import StoredRoles, TransformedRoles
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -325,112 +320,3 @@ class ModCog(Cog):
     async def mod(self, ctx: commands.Context) -> None:
         """⬎ TrainerDex-specific Moderation Commands"""
         pass
-
-    @mod.command(name="auto-role")
-    # @checks.mod_or_permissions(manage_roles=True)
-    async def autorole(self, ctx: commands.Context) -> None:
-        """EXPERIMENTAL: Checks for existing users that don't have the right roles, and applies them
-
-        Warning: This command is slow and experimental. I wouldn't recommend running it without checking by your roles_to_assign_on_approval setting first.
-        It can really mess with roles on a mass scale.
-        """
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        if not guild_config.assign_roles_on_join:
-            return
-        add_roles: list[Role] = [
-            ctx.guild.get_role(x) for x in guild_config.roles_to_assign_on_approval.add
-        ]
-        del_roles: list[Role] = [
-            ctx.guild.get_role(x) for x in guild_config.roles_to_assign_on_approval.remove
-        ]
-        team_roles: list[Union[None, Role]] = [
-            None,
-            ctx.guild.get_role(guild_config.mystic_role),
-            ctx.guild.get_role(guild_config.valor_role),
-            ctx.guild.get_role(guild_config.instinct_role),
-        ]
-        members: list[Member] = [x for x in ctx.guild.members if not x.bot]
-
-        members_to_edit: list[Member] = []
-        await ctx.send("Starting ({}/{})".format(len(set(members_to_edit)), len(members)))
-        for role in add_roles:
-            message: Message = await ctx.send(
-                "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
-            )
-            members_to_edit += [m for m in members if role not in m.roles]
-            await message.edit(
-                content="Checked `{}` ({}/{})".format(
-                    role, len(set(members_to_edit)), len(members)
-                )
-            )
-        for role in del_roles:
-            message: Message = await ctx.send(
-                "Checking {} ({}/{})".format(role, len(set(members_to_edit)), len(members))
-            )
-            members_to_edit += [m for m in members if role in m.roles]
-            await message.edit(
-                content="Checked `{}` ({}/{})".format(
-                    role, len(set(members_to_edit)), len(members)
-                )
-            )
-        members_to_edit = list(set(members_to_edit))
-
-        members_approved: int = 0
-        message: Message = await ctx.send(
-            "{} approved, {} checked, {} total".format(members_approved, 0, len(members_to_edit))
-        )
-        async with ctx.typing():
-            for index, member in enumerate(members_to_edit):
-                try:
-                    trainer: Trainer = await converters.TrainerConverter().convert(
-                        ctx, member, cli=self.client
-                    )
-                except commands.BadArgument:
-                    await message.edit(
-                        content="{} approved, {} checked, {} total".format(
-                            members_approved, index + 1, len(members_to_edit)
-                        )
-                    )
-                    continue
-                if trainer.is_verified:
-                    roles_to_add: list[Role] = list(set(add_roles))
-                    if trainer.faction > 0:
-                        roles_to_add.append(team_roles[trainer.faction])
-                    if roles_to_add:
-                        try:
-                            await member.add_roles(
-                                *roles_to_add,
-                                reason="{mod} ran the command `{command}`".format(
-                                    mod=ctx.author, command=ctx.invoked_with
-                                ),
-                            )
-                        except (Forbidden, HTTPException):
-                            pass
-
-                    if del_roles:
-                        try:
-                            await member.remove_roles(
-                                *del_roles,
-                                reason="{mod} ran the command `{command}`".format(
-                                    mod=ctx.author, command=ctx.invoked_with
-                                ),
-                            )
-                        except (Forbidden, HTTPException):
-                            pass
-
-                    if guild_config.set_nickname_on_join:
-                        try:
-                            await member.edit(
-                                nick=trainer.nickname,
-                                reason="{mod} ran the command `{command}`".format(
-                                    mod=ctx.author, command=ctx.invoked_with
-                                ),
-                            )
-                        except (Forbidden, HTTPException):
-                            pass
-                    members_approved += 1
-                await message.edit(
-                    content="{} approved, {} checked, {} total".format(
-                        members_approved, index + 1, len(members_to_edit)
-                    )
-                )
