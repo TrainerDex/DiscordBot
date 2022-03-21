@@ -315,8 +315,3 @@ class ModCog(Cog):
             ),
             embed=embed,
         )
-
-    @commands.group(name="mod", case_insensitive=True)
-    async def mod(self, ctx: commands.Context) -> None:
-        """⬎ TrainerDex-specific Moderation Commands"""
-        pass
