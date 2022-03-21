@@ -9,6 +9,6 @@ TrainerDex bot written in Python 3.10 with Py-cord 2
 
 """
 
-VERSION = (2022, 1, 1, "alpha", 0)
+VERSION = (2022, 1, 1, "alpha", 1)
 
 __version__ = f"{VERSION[0]}.{VERSION[1]}.{VERSION[2]}-{VERSION[3]}.{VERSION[4]}"
