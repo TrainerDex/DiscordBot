@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import os
+import sys
+import traceback
 
-from discord import Game, Intents, Message
+from discord import ApplicationContext, CheckFailure, Game, Intents, Message
 from discord.ext.commands import Bot
 from trainerdex.client import Client
 
@@ -16,6 +18,7 @@ from trainerdex_discord_bot.constants import (
     TRAINERDEX_API_TOKEN,
 )
 from trainerdex_discord_bot.datatypes import Common
+from trainerdex_discord_bot.utils import chat_formatting
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -82,6 +85,49 @@ async def on_ready() -> None:
         },
     )
     logger.info("Public: %(public)s", {"public": app_info.bot_public})
+
+
+@bot.event
+async def on_application_command_error(ctx: ApplicationContext, exception: Exception) -> None:
+    """|coro|
+    The default command error handler provided by the bot.
+    By default this prints to :data:`sys.stderr` however it could be
+    overridden to have a different implementation.
+    This only fires if you do not specify any listeners for command error.
+    """
+    if isinstance(exception, CheckFailure):
+        await ctx.interaction.response.send_message(
+            chat_formatting.error("You do not have permission to use this command."),
+            ephemeral=True,
+        )
+        return
+
+    traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+
+    await ctx.respond(
+        chat_formatting.error(f"An error occurred: {chat_formatting.inline(str(exception))}"),
+        ephemeral=True,
+    )
+
+    if (
+        EXCEPTION_LOG_CHANNEL := os.environ.get("EXCEPTION_LOG_CHANNEL")
+    ) and EXCEPTION_LOG_CHANNEL.isdigit():
+
+        message = ctx.message
+        if isinstance(message, Message):
+            jump_url = message.jump_url
+        else:
+            jump_url = "private"
+
+        await bot.get_channel(int(EXCEPTION_LOG_CHANNEL)).send(
+            f"Exception in command {chat_formatting.inline(ctx.command)} at <{jump_url}>: {chat_formatting.inline(exception)}",
+            file=chat_formatting.text_to_file(
+                "".join(
+                    traceback.format_exception(type(exception), exception, exception.__traceback__)
+                ),
+                "traceback.txt",
+            ),
+        )
 
 
 logger.info("Initializing TrainerDex API Client...")

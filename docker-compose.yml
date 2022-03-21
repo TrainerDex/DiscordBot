@@ -5,6 +5,8 @@ services:
     container_name: trainerdex
     env_file:
       - .env
+    environment:
+      - MONGODB_URI=mongodb://tdx:tdx@trainerdex_mongo:27017/
     depends_on:
       trainerdex_mongo:
         condition: service_started

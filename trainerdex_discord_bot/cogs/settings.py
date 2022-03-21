@@ -1,307 +1,208 @@
-from __future__ import annotations
-
-import contextlib
-import json
 import logging
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING
 
-from discord import DiscordException
-from discord.ext import commands
-from discord.message import Message
+from discord import ApplicationContext, Permissions, SlashCommandGroup
+from discord.commands import permissions
 from discord.role import Role
+from trainerdex_discord_bot.checks import has_permissions, is_owner
 
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GlobalConfig
-from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
-    from trainerdex_discord_bot.datatypes import ChannelConfig, GuildConfig
+    from trainerdex_discord_bot.datatypes import GuildConfig
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 class SettingsCog(Cog):
-    @commands.command(name="quickstart")
-    # @checks.mod_or_permissions(manage_guild=True)
-    # @checks.bot_in_a_guild()
-    async def quickstart(self, ctx: commands.Context) -> None:
-        await ctx.message.add_reaction("✅")
-        reply: Message = await ctx.reply("Looking for team roles…")
+    _set_guild = SlashCommandGroup(
+        "guild-config",
+        "Set guild settings",
+        checks=[has_permissions(Permissions(0x20))],
+    )
+    _set_channel = SlashCommandGroup(
+        "channel-config",
+        "Set channel settings",
+        checks=[has_permissions(Permissions(0x10))],
+    )
+    _set_global = SlashCommandGroup(
+        "global-config",
+        "Set global settings",
+        checks=[is_owner],
+    )
 
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-
-        try:
-            mystic_role: Role = min(
-                [x for x in ctx.guild.roles if "Mystic".casefold() in x.name.casefold()]
-            )
-        except ValueError:
-            mystic_role = None
-        if mystic_role:
-            guild_config.mystic_role = mystic_role.id
-            await ctx.reply(
-                "`{key}` set to {value}".format(key="mystic_role", value=mystic_role),
-                delete_after=30,
-            )
-
-        try:
-            valor_role: Role = min(
-                [x for x in ctx.guild.roles if "Valor".casefold() in x.name.casefold()]
-            )
-        except ValueError:
-            valor_role = None
-        if valor_role:
-            guild_config.valor_role = valor_role.id
-            await ctx.reply(
-                "`{key}` set to {value}".format(key="valor_role", value=valor_role),
-                delete_after=30,
-            )
-
-        try:
-            instinct_role: Role = min(
-                [x for x in ctx.guild.roles if "Instinct".casefold() in x.name.casefold()]
-            )
-        except ValueError:
-            instinct_role = None
-        if instinct_role:
-            guild_config.instinct_role = instinct_role.id
-            await ctx.reply(
-                "`{key}` set to {value}".format(key="instinct_role", value=instinct_role),
-                delete_after=30,
-            )
-
-        await reply.edit(content="Looking for TL40 role…")
-
-        try:
-            tl40_role: Role = min(
-                [
-                    x
-                    for x in ctx.guild.roles
-                    if ("Level 40".casefold() in x.name.casefold())
-                    or ("tl40".casefold() in x.name.casefold())
-                ]
-            )
-        except ValueError:
-            tl40_role = None
-        if tl40_role:
-            guild_config.tl40_role = tl40_role.id
-            await ctx.send(
-                "`{key}` set to {value}".format(key="tl40_role", value=tl40_role),
-                delete_after=30,
-            )
-
-        with contextlib.suppress(DiscordException):
-            await reply.delete()
-
-        await self.config.set_guild(guild_config)
-        output: str = json.dumps(guild_config.__dict__, indent=2, ensure_ascii=False)
-        await ctx.send(chat_formatting.box(output, "json"))
-
-    @commands.group(name="set", aliases=["config"], case_insensitive=True)
-    async def set_(self, ctx: commands.Context) -> None:
-        """⬎ Set server and/or channel settings"""
-        pass
-
-    @set_.group(name="guild", aliases=["server"], case_insensitive=True)
-    # @checks.mod_or_permissions(manage_guild=True)
-    # @checks.bot_in_a_guild()
-    async def set__guild(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand is None:
-            guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-            output: str = json.dumps(asdict(guild_config), indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(output, "json"))
-
-    @set__guild.command(name="assign_roles_on_join")
-    async def set__guild__assign_roles_on_join(
-        self, ctx: commands.Context, value: Optional[bool] = None
-    ) -> None:
+    @_set_guild.command(name="assign-roles-on-join", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the roles of members when they're approved.
 
         This is useful for granting users access to the rest of the server.
         """
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.assign_roles_on_join = value
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            guild_config.assign_roles_on_join = value
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.assign_roles_on_join=}")
+        await ctx.respond(
+            f"Set `assign_roles_on_join` to `{value}`.",
+            ephemeral=True,
+        )
 
-    @set__guild.command(name="set_nickname_on_join")
-    async def set__guild__set_nickname_on_join(
-        self, ctx: commands.Context, value: Optional[bool] = None
-    ) -> None:
+    @_set_guild.command(name="set-nickname-on-join", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the nickname of members when they're approved.
 
         This is useful for ensuring players can be easily identified.
         """
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.set_nickname_on_join = value
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            guild_config.set_nickname_on_join = value
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.set_nickname_on_join=}")
+        await ctx.respond(
+            f"Set `set_nickname_on_join` to `{value}`.",
+            ephemeral=True,
+        )
 
-    # @set__guild.command(name="set_nickname_on_update")
-    # async def set__guild__set_nickname_on_update(
-    #     self, ctx: commands.Context, value: Optional[bool] = None
+    @_set_guild.command(name="set-nickname-on-update", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__set_nickname_on_update(
+        self, ctx: ApplicationContext, value: bool
+    ) -> None:
+        """Modify the nickname of members when they update their Total XP.
+
+        This is useful for setting levels in their name.
+        """
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.set_nickname_on_update = value
+        await self.config.set_guild(guild_config)
+
+        await ctx.respond(
+            f"Set `set_nickname_on_update` to `{value}`.",
+            ephemeral=True,
+        )
+
+    # @_set_guild.command(name="roles-to-assign-on-approval", checks=[has_permissions(Permissions(0x20))])
+    # async def set__guild__roles_to_assign_on_approval(
+    #     self,
+    #     ctx: ApplicationContext,
+    #     action: Optional[Literal["add", "remove"]] = None,
+    #     roles: Optional[Role] = None,
     # ) -> None:
-    #     """Modify the nickname of members when they update their Total XP.
+    #     """Which roles to add/remove to a user on approval
 
-    #     This is useful for setting levels in their name.
+    #     Usage:
+    #         [p]set guild roles_to_assign_on_approval add @Verified, @Trainer ...
+    #             Assign these roles to users when they are approved
+    #         [p]set guild roles_to_assign_on_approval remove @Guest
+    #             Remove these roles from users when they are approved
     #     """
     #     guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
-    #     if value is not None:
-    #         guild_config.set_nickname_on_update = value
-    #         await self.config.set_guild(guild_config)
-    #         await ctx.message.add_reaction("✅")
-    #     await ctx.reply(f"{guild_config.set_nickname_on_update=}")
+    #     if action == "add":
+    #         if roles:
+    #             guild_config.roles_to_assign_on_approval.add = [
+    #                 x.id for x in ctx.message.role_mentions
+    #             ]
+    #             await self.config.set_guild(guild_config)
+    #             await ctx.message.add_reaction("✅")
+    #     elif action == "remove":
+    #         if roles:
+    #             guild_config.roles_to_assign_on_approval.remove = [
+    #                 x.id for x in ctx.message.role_mentions
+    #             ]
+    #             await self.config.set_guild(guild_config)
+    #             await ctx.message.add_reaction("✅")
+    #     await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
 
-    @set__guild.command(name="roles_to_assign_on_approval")
-    async def set__guild__roles_to_assign_on_approval(
-        self,
-        ctx: commands.Context,
-        action: Optional[Literal["add", "remove"]] = None,
-        roles: Optional[Role] = None,
-    ) -> None:
-        """Which roles to add/remove to a user on approval
-
-        Usage:
-            [p]set guild roles_to_assign_on_approval add @Verified, @Trainer ...
-                Assign these roles to users when they are approved
-            [p]set guild roles_to_assign_on_approval remove @Guest
-                Remove these roles from users when they are approved
-        """
+    @_set_guild.command(name="mystic-role", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.mystic_role = value.id
+        await self.config.set_guild(guild_config)
 
-        if action == "add":
-            if roles:
-                guild_config.roles_to_assign_on_approval.add = [
-                    x.id for x in ctx.message.role_mentions
-                ]
-                await self.config.set_guild(guild_config)
-                await ctx.message.add_reaction("✅")
-        elif action == "remove":
-            if roles:
-                guild_config.roles_to_assign_on_approval.remove = [
-                    x.id for x in ctx.message.role_mentions
-                ]
-                await self.config.set_guild(guild_config)
-                await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
+        await ctx.respond(
+            f"Set `mystic_role` to `{value.mention}`.",
+            emphemeral=True,
+        )
 
-    @set__guild.command(name="mystic_role", aliases=["mystic"])
-    async def set__guild__mystic_role(
-        self, ctx: commands.Context, value: Optional[Role] = None
-    ) -> None:
+    @_set_guild.command(name="valor-role", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__valor_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.valor_role = value.id
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            guild_config.mystic_role = value.id
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.mystic_role=}")
+        await ctx.respond(
+            f"Set `valor_role` to `{value.mention}`.",
+            emphemeral=True,
+        )
 
-    @set__guild.command(name="valor_role", aliases=["valor"])
-    async def set__guild__valor_role(
-        self, ctx: commands.Context, value: Optional[Role] = None
-    ) -> None:
+    @_set_guild.command(name="instinct-role", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__instinct_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.instinct_role = value.id
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            guild_config.valor_role = value.id
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.valor_role=}")
+        await ctx.respond(
+            f"Set `instinct_role` to `{value.mention}`.",
+            emphemeral=True,
+        )
 
-    @set__guild.command(name="instinct_role", aliases=["instinct"])
-    async def set__guild__instinct_role(
-        self, ctx: commands.Context, value: Optional[Role] = None
-    ) -> None:
+    @_set_guild.command(name="tl40-role", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__tl40_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.tl40_role = value.id
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            guild_config.instinct_role = value.id
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.instinct_role=}")
+        await ctx.respond(
+            f"Set `tl40_role` to `{value.mention}`.",
+            ephemeral=True,
+        )
 
-    @set__guild.command(name="tl40_role", aliases=["tl40"])
-    async def set__guild__tl40_role(
-        self, ctx: commands.Context, value: Optional[Role] = None
-    ) -> None:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-
-        if value is not None:
-            guild_config.tl40_role = value.id
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.tl40_role=}")
-
-    @set__guild.command(name="introduction_note")
-    async def set__guild__introduction_note(
-        self, ctx: commands.Context, value: Optional[str] = None
-    ) -> None:
+    @_set_guild.command(name="introduction-note", checks=[has_permissions(Permissions(0x20))])
+    async def set__guild__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
         """Send a note to a member upon running `profile create` (aka, `approve`)
 
         Set value to `None` to empty it
         """
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        if value.lower() == "none":
+            value = None
+        guild_config.introduction_note = value
+        await self.config.set_guild(guild_config)
 
-        if value is not None:
-            if value.lower() == "none":
-                value = None
-            guild_config.introduction_note = value
-            await self.config.set_guild(guild_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{guild_config.introduction_note=}")
+        if value is None:
+            await ctx.respond(
+                "Unset `introduction_note`.",
+                ephemeral=True,
+            )
+        else:
+            await ctx.respond(
+                f"Set `introduction_note` to `{value}`.",
+                ephemeral=True,
+            )
 
-    @set_.group(name="channel", case_insensitive=True)
-    # @checks.mod_or_permissions(manage_guild=True)
-    # @checks.bot_in_a_guild()
-    async def set__channel(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand is None:
-            channel_config: ChannelConfig = await self.config.get_channel(ctx.channel)
-            output: str = json.dumps(asdict(channel_config), indent=2, ensure_ascii=False)
-            await ctx.send(chat_formatting.box(output, "json"))
-
-    @set__channel.command(name="profile_ocr", aliases=["ocr"])
-    async def set__channel__profile_ocr(
-        self, ctx: commands.Context, value: Optional[bool] = None
-    ) -> None:
-        """Set if this channel should accept OCR commands."""
-        channel_config: ChannelConfig = await self.config.get_channel(ctx.channel)
-
-        if value is not None:
-            channel_config.profile_ocr = value
-            await self.config.set_channel(channel_config)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"[{ctx.channel.id}] {channel_config.profile_ocr=}")
-
-    @set_.command(name="notice")
-    # @checks.is_owner()
-    async def set__notice(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    @_set_global.command(name="notice", checks=[is_owner])
+    @permissions.is_owner()
+    async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
         global_config: GlobalConfig = await self.config.get_global()
+        if value.lower() == "none":
+            value = GlobalConfig.notice
+        global_config.notice = value
+        await self.config.set_global(GlobalConfig)
 
-        if value is not None:
-            if value.lower() == "none":
-                value = GlobalConfig.notice
-            global_config.notice = value
-            await self.config.set_global(GlobalConfig)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{global_config.notice=}")
+        await ctx.respond(
+            f"Set `notice` to `{value}`.",
+            ephemeral=True,
+        )
 
-    @set_.command(name="footer")
-    # @checks.is_owner()
-    async def set__footer(self, ctx: commands.Context, value: Optional[str] = None) -> None:
+    @_set_global.command(name="footer", checks=[is_owner])
+    @permissions.is_owner()
+    async def set__footer(self, ctx: ApplicationContext, value: str) -> None:
         global_config: GlobalConfig = await self.config.get_global()
+        if value.lower() == "none":
+            value = GlobalConfig.embed_footer
+        global_config.embed_footer = value
+        await self.config.set_global(GlobalConfig)
 
-        if value is not None:
-            if value.lower() == "none":
-                value = GlobalConfig.embed_footer
-            global_config.embed_footer = value
-            await self.config.set_global(GlobalConfig)
-            await ctx.message.add_reaction("✅")
-        await ctx.reply(f"{global_config.embed_footer=}")
+        await ctx.respond(
+            f"Set `embed_footer` to `{value}`.",
+            ephemeral=True,
+        )

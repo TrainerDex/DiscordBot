@@ -166,6 +166,8 @@ def inline(text: str) -> str:
         The marked up text.
 
     """
+    if not isinstance(text, str):
+        text = str(text)
     if "`" in text:
         return f"``{text}``"
     else:
@@ -377,7 +379,7 @@ def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) 
 
 def text_to_file(
     text: str, filename: str = "file.txt", *, spoiler: bool = False, encoding: str = "utf-8"
-):
+) -> discord.File:
     """Prepares text to be sent as a file on Discord, without character limit.
 
     This writes text into a bytes object that can be used for the ``file`` or ``files`` parameters
