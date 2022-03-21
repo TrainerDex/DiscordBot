@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 import datetime
 import logging
 from calendar import month_name
+import re
 from typing import TYPE_CHECKING, Optional
 
 from aiohttp import ClientResponseError
@@ -269,34 +268,20 @@ class ProfileCog(Cog):
     #         value: datetime.date = trainer.is_visible
     #         await ctx.send("`{key}` is {value}".format(key="trainer.is_visible", value=value))
 
-    # @command(name="trainercode", aliases=["friendcode", "trainer-code", "friend-code"])
-    # async def set_trainer_code(
-    #     self, ctx: commands.Context, *, value: converters.TrainerCodeValidator
-    # ) -> None:
-    #     return await self._set_trainer_code(ctx, False, value)
+    @slash_command(name="set-trainer-code")
+    async def set_trainer_code(self, ctx: ApplicationContext, code: str) -> None:
+        await ctx.defer()
+        try:
+            trainer = await converters.TrainerConverter().convert(ctx, ctx.author, cli=self.client)
+        except BadArgument:
+            await ctx.followup.send(chat_formatting.error("No profile found."))
+            return
 
-    # async def _set_trainer_code(
-    #     self,
-    #     ctx: commands.Context,
-    #     no_error: bool,
-    #     value: converters.TrainerCodeValidator,
-    # ) -> None:
-    #     async with ctx.typing():
-    #         try:
-    #             trainer = await converters.TrainerConverter().convert(
-    #                 ctx, ctx.author, cli=self.client
-    #             )
-    #         except commands.BadArgument:
-    #             if no_error:
-    #                 return
-    #             await ctx.send(chat_formatting.error("No profile found."))
-
-    #     if value:
-    #         async with ctx.typing():
-    #             await trainer.edit(trainer_code=value)
-    #             await ctx.message.add_reaction("✅")
-    #             await ctx.send(
-    #                 "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}".format(
-    #                     trainer=trainer
-    #                 )
-    #             )
+        if not re.match(r"(\d{4}\s?){3}", code):
+            await ctx.followup.send(chat_formatting.error("Invalid Trainer Code."))
+        else:
+            await trainer.edit(trainer_code=code.replace(" ", ""))
+            await ctx.followup.send(
+                f"Your Trainer Code was successfully set to {trainer.trainer_code}",
+                empemberal=True,
+            )
