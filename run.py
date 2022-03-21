@@ -60,11 +60,34 @@ bot: Bot = Bot(
 )
 logger.info("Pycord initialized.")
 
+
+@bot.event
+async def on_ready() -> None:
+    logger.info(
+        "Bot ready! Logged in as %(user)s (%(user_id)s). %(num_guilds)s guilds.",
+        {
+            "user": bot.user,
+            "user_id": bot.user.id,
+            "num_guilds": len(bot.guilds),
+        },
+    )
+    await set_presence_to_version(bot)
+    app_info = await bot.application_info()
+    logger.info(
+        "Bot %(name)s hosted by %(owner)s (%(owner_id)s), created by @TurnrDev.",
+        {
+            "name": app_info.name,
+            "owner": (app_info.team and f"{app_info.team.name} Team") or app_info.owner,
+            "owner_id": (app_info.team and app_info.team.id) or app_info.owner.id,
+        },
+    )
+    logger.info("Public: %(public)s", {"public": app_info.bot_public})
+
+
 logger.info("Initializing TrainerDex API Client...")
 client: Client = Client(token=TRAINERDEX_API_TOKEN, loop=loop)
 logger.info("Pycord initialized.")
 
-loop.create_task(set_presence_to_version(bot))
 
 # Construct Common dataclass
 common: Common = Common(
