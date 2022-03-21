@@ -111,7 +111,7 @@ class ProfileCog(Cog):
             Option(User, name="user", required=False),
         ],
     )
-    async def get_trainer_code(
+    async def slash__get_trainer_code(
         self,
         ctx: ApplicationContext,
         username: Optional[str] = None,
@@ -193,7 +193,7 @@ class ProfileCog(Cog):
             ),
         ],
     )
-    async def edit_start_date(
+    async def slash__edit_start_date(
         self,
         ctx: ApplicationContext,
         year: int,
