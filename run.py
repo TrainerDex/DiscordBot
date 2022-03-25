@@ -19,6 +19,8 @@ from trainerdex_discord_bot.constants import (
 from trainerdex_discord_bot.datatypes import Common
 from trainerdex_discord_bot.utils import chat_formatting
 
+from discord.abc import Messageable
+
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -83,6 +85,9 @@ async def on_application_command_error(ctx: ApplicationContext, exception: Excep
     overridden to have a different implementation.
     This only fires if you do not specify any listeners for command error.
     """
+    EXCEPTION_LOG_CHANNEL_ID = os.environ.get("EXCEPTION_LOG_CHANNEL")
+    log_channel: Messageable | None = bot.get_channel(int(EXCEPTION_LOG_CHANNEL_ID))
+
     if isinstance(exception, CheckFailure):
         await ctx.interaction.response.send_message(
             chat_formatting.error(
@@ -90,6 +95,10 @@ async def on_application_command_error(ctx: ApplicationContext, exception: Excep
             ),
             ephemeral=True,
         )
+        if log_channel is not None:
+            await log_channel.send(
+                f"{ctx.author.mention} tried to use `/{ctx.command.qualified_name}` but failed a check."
+            )
         return
 
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
@@ -99,18 +108,9 @@ async def on_application_command_error(ctx: ApplicationContext, exception: Excep
         ephemeral=True,
     )
 
-    if (
-        EXCEPTION_LOG_CHANNEL := os.environ.get("EXCEPTION_LOG_CHANNEL")
-    ) and EXCEPTION_LOG_CHANNEL.isdigit():
-
-        message = ctx.message
-        if isinstance(message, Message):
-            jump_url = message.jump_url
-        else:
-            jump_url = "private"
-
-        await bot.get_channel(int(EXCEPTION_LOG_CHANNEL)).send(
-            f"Exception in command {chat_formatting.inline(ctx.command)} at <{jump_url}>: {chat_formatting.inline(exception)}",
+    if log_channel is not None:
+        await log_channel.send(
+            f"Exception in command `/{ctx.command.qualified_name}`: {chat_formatting.inline(exception)}",
             file=chat_formatting.text_to_file(
                 "".join(
                     traceback.format_exception(type(exception), exception, exception.__traceback__)
