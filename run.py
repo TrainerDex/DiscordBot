@@ -5,7 +5,7 @@ import sys
 import traceback
 
 from discord import ApplicationContext, CheckFailure, Game, Intents, Message
-from discord.ext.commands import Bot
+from discord import Bot
 from trainerdex.client import Client
 
 from trainerdex_discord_bot import __version__
@@ -14,7 +14,6 @@ from trainerdex_discord_bot.config import Config
 from trainerdex_discord_bot.constants import (
     DEBUG,
     DEBUG_GUILDS,
-    DEFAULT_PREFIX,
     TRAINERDEX_API_TOKEN,
 )
 from trainerdex_discord_bot.datatypes import Common
@@ -32,14 +31,6 @@ config: Config = Config()
 logger.info("Config initialized.")
 
 
-async def get_prefix(bot: Bot, message: Message) -> str:
-    global config
-    if message.guild:
-        config = await config.get_guild(message.guild)
-        return config.prefix
-    return DEFAULT_PREFIX
-
-
 async def set_presence_to_version(bot: Bot) -> None:
     await bot.wait_until_ready()
     logger.info("Setting presence to version %s...", __version__)
@@ -55,10 +46,7 @@ intents.message_content = True
 bot: Bot = Bot(
     debug_guilds=DEBUG_GUILDS if DEBUG else None,
     description="TrainerDex, a Discord bot for Pokemon Go.",
-    case_insensitive=True,
-    command_prefix=get_prefix,
     intents=intents,
-    strip_after_prefix=True,  # Set true as iPhone is a bitch.
     loop=loop,
 )
 logger.info("Pycord initialized.")
@@ -97,7 +85,9 @@ async def on_application_command_error(ctx: ApplicationContext, exception: Excep
     """
     if isinstance(exception, CheckFailure):
         await ctx.interaction.response.send_message(
-            chat_formatting.error("You do not have permission to use this command."),
+            chat_formatting.error(
+                "You do not have permission to use this command. Sucks to be you."
+            ),
             ephemeral=True,
         )
         return

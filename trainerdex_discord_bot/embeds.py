@@ -13,7 +13,6 @@ from discord.channel import TextChannel
 from discord.colour import Colour
 from discord.commands import ApplicationContext
 from discord.embeds import Embed, EmptyEmbed
-from discord.ext.commands import Context
 from discord.guild import Guild
 from discord.message import Message
 from trainerdex.update import Update
@@ -40,7 +39,7 @@ class BaseCard(Embed):
     async def __init__(
         self,
         common: Common,
-        ctx_or_message: Context | Message | ApplicationContext,
+        ctx: ApplicationContext,
         /,
         **kwargs,
     ) -> None:
@@ -78,18 +77,9 @@ class BaseCard(Embed):
             "icon_url": f"{WEBSITE_DOMAIN}/static/img/android-chrome-512x512.png",
         }
 
-        if isinstance(ctx_or_message, Context):
-            self._message: Message = ctx_or_message.message
-            self._channel: TextChannel = ctx_or_message.channel
-            self._guild: Guild = ctx_or_message.guild
-        elif isinstance(ctx_or_message, ApplicationContext):
-            self._message: Message = ctx_or_message.interaction.message
-            self._channel: TextChannel = ctx_or_message.interaction.channel
-            self._guild: Guild = ctx_or_message.interaction.guild
-        elif isinstance(ctx_or_message, Message):
-            self._message: Message = ctx_or_message
-            self._channel: TextChannel = ctx_or_message.channel
-            self._guild: Guild = ctx_or_message.channel.guild
+        self._message: Message = ctx.interaction.message
+        self._channel: TextChannel = ctx.interaction.channel
+        self._guild: Guild = ctx.interaction.guild
         self._common: Common = common
 
 
@@ -97,14 +87,14 @@ class ProfileCard(BaseCard):
     async def __init__(
         self,
         common: Common,
-        ctx_or_message: Context | Message | ApplicationContext,
+        ctx: ApplicationContext,
         /,
         *,
         trainer: Trainer,
         update: Update = None,
         **kwargs,
     ):
-        await super().__init__(common, ctx_or_message, **kwargs)
+        await super().__init__(common, ctx, **kwargs)
         self.trainer: Trainer = trainer
         await self.trainer.fetch_updates()
         self.update: Update = update or self.trainer.get_latest_update_for_stat("total_xp")

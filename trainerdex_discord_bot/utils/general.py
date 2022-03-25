@@ -1,9 +1,6 @@
-from typing import Callable, Optional, Union
 from discord import ApplicationContext
 
 from discord.abc import User
-from discord.ext.commands.context import Context
-from discord.message import Message
 from trainerdex.trainer import Trainer
 
 from trainerdex_discord_bot.constants import SOCIAL_TWITTER
@@ -43,47 +40,3 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
 
 AbandonQuestionException = Exception
 NoAnswerProvidedException = Exception
-
-
-class Question:
-    def __init__(
-        self,
-        ctx: Context,
-        question: str,
-        message: Optional[Message] = None,
-        predicate: Optional[Callable] = None,
-    ) -> None:
-        self._ctx: Context = ctx
-        self.question: str = question
-        self.message: Message = message
-        self.predicate: Callable = predicate  # FIXME
-        self.response: Message = None
-
-    async def ask(self) -> str:
-        if self.message:
-            await self.message.edit(
-                content=chat_formatting.question(f"{self._ctx.author.mention}: {self.question}")
-            )
-        else:
-            self.message: Message = await self._ctx.send(
-                content=chat_formatting.question(f"{self._ctx.author.mention}: {self.question}")
-            )
-        self.response: Message = await self._ctx.bot.wait_for("message", check=self.predicate)
-        if self.response.content.lower() == f"{self._ctx.prefix}cancel":
-            # TODO: Make an actual exception class
-            raise AbandonQuestionException
-        else:
-            return self.answer
-
-    async def append_answer(self, answer: Optional[str] = None) -> None:
-        content: str = "{q}\n{a}".format(
-            q=self.question,
-            a=chat_formatting.quote(str(answer) if answer is not None else self.answer),
-        )
-        await self.message.edit(content=content)
-
-    @property
-    def answer(self) -> Union[str, None]:
-        if self.response:
-            return self.response.content
-        return None

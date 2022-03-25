@@ -19,8 +19,6 @@ WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
 TRAINERDEX_API_TOKEN: str = os.environ.get("TRAINERDEX_API_TOKEN")
 
-DEFAULT_PREFIX: str = os.environ.get("DEFAULT_PREFIX", ".")
-
 
 class CustomEmoji(Enum):
     DATE = PartialEmoji(name="date", id=743874800547791023)

@@ -13,14 +13,14 @@ from discord import (
 )
 
 from discord import Option, Member
-from discord.ext.commands import BadArgument
-from discord.errors import DiscordException, Forbidden, HTTPException
+from discord.errors import Forbidden, HTTPException
 
-from trainerdex_discord_bot import checks, converters
+from trainerdex_discord_bot import checks
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GuildConfig
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
+from trainerdex_discord_bot.utils.converters import get_trainer
 from trainerdex_discord_bot.utils.general import introduction_notes
 
 if TYPE_CHECKING:
@@ -171,17 +171,7 @@ class ModCog(Cog):
             {"user": nickname},
         )
 
-        try:
-            trainer: Trainer = await converters.TrainerConverter().convert(
-                ctx, nickname, cli=self.client
-            )
-        except BadArgument:
-            try:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, member, cli=self.client
-                )
-            except BadArgument:
-                trainer = None
+        trainer: Trainer = await get_trainer(self.client, nickname=nickname, user=member)
 
         if trainer is not None:
             logger.info("We found a trainer: %(trainer)s", {"trainer": trainer.username})

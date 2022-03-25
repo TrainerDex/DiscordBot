@@ -9,8 +9,6 @@ from uuid import UUID, uuid4
 from discord import Bot
 from discord.role import Role
 
-from trainerdex_discord_bot.constants import DEFAULT_PREFIX
-
 if TYPE_CHECKING:
     from trainerdex.client import Client
     from typing_extensions import Self
@@ -68,7 +66,6 @@ class GuildConfig(_MongoDBDocument):
     tl40_role: int | None = None
     introduction_note: str | None = None
     enabled: bool = True
-    prefix: str = DEFAULT_PREFIX
 
 
 @dataclass

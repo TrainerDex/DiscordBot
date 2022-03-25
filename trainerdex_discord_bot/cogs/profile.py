@@ -2,23 +2,18 @@ import datetime
 import logging
 from calendar import month_name
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from aiohttp import ClientResponseError
 from discord import OptionChoice, user_command
 from discord.commands import ApplicationContext, Option, slash_command
-from discord.ext import commands
-from discord.ext.commands import BadArgument
 from discord.user import User
 from discord.webhook import WebhookMessage
 
-from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
-
-if TYPE_CHECKING:
-    from trainerdex.trainer import Trainer
+from trainerdex_discord_bot.utils.converters import get_trainer, get_trainer_from_user
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -39,21 +34,14 @@ class ProfileCog(Cog):
     ) -> None:
         """Find a profile given a username or user mention."""
         await ctx.defer()
-        try:
-            if username:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, username, cli=self.client
-                )
-            elif user:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, user, cli=self.client
-                )
-            else:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, ctx.interaction.user, cli=self.client
-                )
-        except BadArgument:
-            await ctx.followup.send(chat_formatting.error("No profile found."))
+
+        if username or user:
+            trainer = await get_trainer(self.client, nickname=username, user=user)
+        else:
+            trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+
+        if trainer is None or not trainer.is_visible:
+            await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
             return
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
@@ -79,12 +67,11 @@ class ProfileCog(Cog):
         user: User,
     ) -> None:
         await ctx.defer()
-        try:
-            trainer: Trainer = await converters.TrainerConverter().convert(
-                ctx, user, cli=self.client
-            )
-        except BadArgument:
-            await ctx.followup.send(chat_formatting.error("No profile found."))
+
+        trainer = await get_trainer_from_user(self.client, user)
+
+        if trainer is None or not trainer.is_visible:
+            await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
             return
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
@@ -118,34 +105,22 @@ class ProfileCog(Cog):
     ) -> None:
         """Find a profile given a username."""
         await ctx.defer()
-        try:
-            if username:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, username, cli=self.client
-                )
-            elif user:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, user, cli=self.client
-                )
-            else:
-                trainer: Trainer = await converters.TrainerConverter().convert(
-                    ctx, ctx.interaction.user, cli=self.client
-                )
-        except BadArgument:
-            await ctx.followup.send(chat_formatting.error("No profile found."))
-            return
+
+        if username or user:
+            trainer = await get_trainer(self.client, nickname=username, user=user)
         else:
-            if not trainer.is_visible:
-                await ctx.followup.send(chat_formatting.error("No profile found."))
-            if not trainer.trainer_code:
-                await ctx.followup.send(
-                    chat_formatting.warning(f"{trainer.nickname} has not set their Trainer Code.")
-                )
-            else:
-                await ctx.followup.send(
-                    chat_formatting.info(f"{trainer.nickname}'s Trainer Code is:")
-                )
-                await ctx.followup.send(chat_formatting.inline(trainer.trainer_code))
+            trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+
+        if trainer is None or not trainer.is_visible:
+            await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
+            return
+        elif not trainer.trainer_code:
+            await ctx.followup.send(
+                chat_formatting.warning(f"{trainer.nickname} has not set their Trainer Code.")
+            )
+        else:
+            await ctx.followup.send(chat_formatting.info(f"{trainer.nickname}'s Trainer Code is:"))
+            await ctx.followup.send(chat_formatting.inline(trainer.trainer_code))
 
     # edit_profile = bot.create_group(
     #     name="edit-profile", description="Edit various aspects about your profile."
@@ -219,12 +194,10 @@ class ProfileCog(Cog):
             await ctx.followup.send(chat_formatting.error("Start Date must not be in the future"))
             return
 
-        try:
-            trainer: Trainer = await converters.TrainerConverter().convert(
-                ctx, ctx.user, cli=self.client
-            )
-        except commands.BadArgument:
-            await ctx.followup.send(chat_formatting.error("No profile found."))
+        trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+
+        if trainer is None:
+            await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
             return
 
         try:
@@ -248,12 +221,11 @@ class ProfileCog(Cog):
     #     Hide or show yourself on leaderboards at will!
     #     """
     #     async with ctx.typing():
-    #         try:
-    #             trainer = await converters.TrainerConverter().convert(
-    #                 ctx, ctx.author, cli=self.client
-    #             )
-    #         except commands.BadArgument:
-    #             await ctx.send(chat_formatting.error("No profile found."))
+    #         trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+
+    #         if trainer is None:
+    #             await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
+    #             return
 
     #     if value is not None:
     #         async with ctx.typing():
@@ -271,10 +243,11 @@ class ProfileCog(Cog):
     @slash_command(name="set-trainer-code")
     async def set_trainer_code(self, ctx: ApplicationContext, code: str) -> None:
         await ctx.defer()
-        try:
-            trainer = await converters.TrainerConverter().convert(ctx, ctx.author, cli=self.client)
-        except BadArgument:
-            await ctx.followup.send(chat_formatting.error("No profile found."))
+
+        trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+
+        if trainer is None:
+            await ctx.followup.send(chat_formatting.error("No profile found."), ephemeral=True)
             return
 
         if not re.match(r"(\d{4}\s?){3}", code):

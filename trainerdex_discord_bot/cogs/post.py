@@ -4,18 +4,17 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
 from discord import ApplicationContext, Attachment, WebhookMessage, slash_command
-from discord.ext.commands import BadArgument
 from discord.utils import snowflake_time
 from google.oauth2 import service_account
 from PogoOCR import OCRClient, Screenshot, ScreenshotClass
 from PogoOCR.providers import Providers
 
-from trainerdex_discord_bot import converters
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import TokenDocuments
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.utils import chat_formatting
+from trainerdex_discord_bot.utils.converters import get_trainer_from_user
 
 if TYPE_CHECKING:
     from PogoOCR.images.actitvity_view import ActivityViewData
@@ -59,11 +58,8 @@ class PostCog(Cog):
             file=await image.to_file(),
         )
 
-        try:
-            trainer: Trainer = await converters.TrainerConverter().convert(
-                None, ctx.interaction.user, cli=self.client
-            )
-        except BadArgument:
+        trainer: Trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        if trainer is None:
             await ctx.followup.send(
                 chat_formatting.warning(
                     "You're not set up with a TrainerDex profile. Please ask a mod to set you up."
