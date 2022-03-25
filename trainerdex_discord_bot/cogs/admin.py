@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Mapping
 from discord import ApplicationContext, Attachment, SlashCommandGroup
 from discord.commands import permissions
 from prettytable import PrettyTable
+from trainerdex_discord_bot.checks import is_owner
 
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import TokenDocuments
@@ -22,10 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Admin(Cog):
-    _cog_control = SlashCommandGroup(
-        "cogs",
-        "Control the bot's cogs.",
-    )
+    _cog_control = SlashCommandGroup("cogs", "Control the bot's cogs.", checks=[is_owner])
 
     @_cog_control.command(name="enable", default_permission=False)
     @permissions.is_owner()
