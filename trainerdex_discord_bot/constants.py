@@ -19,6 +19,8 @@ WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
 TRAINERDEX_API_TOKEN: str = os.environ.get("TRAINERDEX_API_TOKEN")
 
+EXCEPTION_LOG_CHANNEL_ID = os.environ.get("EXCEPTION_LOG_CHANNEL")
+
 
 class CustomEmoji(Enum):
     DATE = PartialEmoji(name="date", id=743874800547791023)

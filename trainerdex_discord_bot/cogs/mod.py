@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
@@ -29,8 +28,6 @@ if TYPE_CHECKING:
     from trainerdex.user import User
 
     from trainerdex_discord_bot.datatypes import StoredRoles, TransformedRoles
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class ModCog(Cog):
@@ -163,18 +160,12 @@ class ModCog(Cog):
                 self.bot.on_application_command_error(ctx, e)
             else:
                 await ctx.respond(
-                    chat_formatting.success(f"Changed {member.mention}‘s nick to {nickname}")
+                    chat_formatting.success(f"Changed {member.mention}'s nick to {nickname}")
                 )
-
-        logger.info(
-            "Attempting to add %(user)s to database, checking if they already exist",
-            {"user": nickname},
-        )
 
         trainer: Trainer = await get_trainer(self.client, nickname=nickname, user=member)
 
         if trainer is not None:
-            logger.info("We found a trainer: %(trainer)s", {"trainer": trainer.username})
             await ctx.respond(
                 chat_formatting.loading(
                     f"An existing record was found for {trainer.username}. Updating details…"
@@ -192,7 +183,6 @@ class ModCog(Cog):
                 (total_xp > latest_update_with_total_xp.total_xp) if trainer.updates else True
             )
         else:
-            logger.info("%s: No user found, creating profile", nickname)
             trainer: Trainer = await self.client.create_trainer(
                 username=nickname, faction=team, is_verified=True
             )

@@ -1,4 +1,3 @@
-import logging
 from typing import TYPE_CHECKING
 
 from discord import ApplicationContext, Permissions, SlashCommandGroup
@@ -11,8 +10,6 @@ from trainerdex_discord_bot.datatypes import GlobalConfig
 
 if TYPE_CHECKING:
     from trainerdex_discord_bot.datatypes import GuildConfig
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class SettingsCog(Cog):

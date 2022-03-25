@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Iterable, Literal
 
 import humanize
@@ -16,9 +15,6 @@ from trainerdex_discord_bot.embeds import BaseCard
 
 if TYPE_CHECKING:
     from trainerdex.leaderboard import BaseLeaderboard, LeaderboardEntry
-
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class LeaderboardType(LabeledEnum):

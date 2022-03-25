@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-import logging
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
@@ -25,9 +24,6 @@ if TYPE_CHECKING:
     from trainerdex.trainer import Trainer
 
     from trainerdex_discord_bot.datatypes import Common, GlobalConfig
-
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class BaseCard(Embed):

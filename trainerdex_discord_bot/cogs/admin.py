@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import TYPE_CHECKING, AsyncIterator, Mapping
 
 from discord import ApplicationContext, Attachment, SlashCommandGroup
@@ -18,8 +17,6 @@ from trainerdex_discord_bot.utils.chat_formatting import (
 
 if TYPE_CHECKING:
     from trainerdex_discord_bot.datatypes import CogMeta
-
-logger = logging.getLogger(__name__)
 
 
 class Admin(Cog):

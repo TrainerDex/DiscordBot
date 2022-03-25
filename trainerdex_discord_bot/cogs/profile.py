@@ -1,5 +1,4 @@
 import datetime
-import logging
 import re
 from calendar import month_name
 from typing import Optional
@@ -14,8 +13,6 @@ from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.converters import get_trainer, get_trainer_from_user
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class ProfileCog(Cog):
@@ -202,10 +199,8 @@ class ProfileCog(Cog):
 
         try:
             await trainer.edit(start_date=start_date)
-        except ClientResponseError as e:
-            logger.exception(
-                f"Unable to set {trainer.nickname}'s start date to {start_date}", exc_info=e
-            )
+        except ClientResponseError:
+            self.logger.exception(f"Unable to set {trainer.nickname}'s start date to {start_date}")
             await ctx.followup.send(
                 chat_formatting.error("Unable to set start date due to an unknown error.")
             )

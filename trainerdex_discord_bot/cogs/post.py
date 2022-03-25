@@ -1,5 +1,4 @@
 import datetime
-import logging
 from decimal import Decimal
 from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
@@ -20,8 +19,6 @@ if TYPE_CHECKING:
     from PogoOCR.images.actitvity_view import ActivityViewData
     from trainerdex.trainer import Trainer
     from trainerdex.update import Update
-
-logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PostCog(Cog):
