@@ -50,7 +50,7 @@ class Admin(Cog):
         if start_now:
             self.bot.add_cog(cog_class(self._common))
 
-    @_cog_control.command(name="start", default_permission=False)
+    @_cog_control.command(name="start", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
     async def start_cog(self, ctx: ApplicationContext, cog: str) -> None:
         """Attempt to start a cog."""
@@ -69,7 +69,7 @@ class Admin(Cog):
         self.bot.add_cog(cog_class(self._common))
         await ctx.respond(f"Started {italics(cog)}.")
 
-    @_cog_control.command(name="disable", default_permission=False)
+    @_cog_control.command(name="disable", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
     async def disable_cog(self, ctx: ApplicationContext, cog: str, stop_cog: bool = True) -> None:
         """Disable a cog from being loaded."""
@@ -95,7 +95,7 @@ class Admin(Cog):
             self.bot.remove_cog(cog_class.__name__)
             await ctx.respond(f"Stopped {italics(cog)}.")
 
-    @_cog_control.command(name="stop", default_permission=False)
+    @_cog_control.command(name="stop", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
     async def stop_cog(self, ctx: ApplicationContext, cog: str) -> None:
         """Stops a cog."""
@@ -114,7 +114,7 @@ class Admin(Cog):
         self.bot.remove_cog(cog_class.__name__)
         await ctx.respond(f"Stopped {italics(cog)}.")
 
-    @_cog_control.command(name="list", default_permission=False)
+    @_cog_control.command(name="list", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
     async def list_cogs(self, ctx: ApplicationContext) -> None:
         """List all cogs."""
@@ -138,6 +138,7 @@ class Admin(Cog):
         name="google_cloud",
         description="Sets an application token via a .json file",
         default_permission=False,
+        checks=[is_owner],
     )
     @permissions.is_owner()
     async def set_google_cloud_token(self, ctx: ApplicationContext, token_file: Attachment):
