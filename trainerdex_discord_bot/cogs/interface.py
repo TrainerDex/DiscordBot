@@ -1,7 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, NoReturn
 
-from discord import Bot, Cog as Cog_
+from discord import Bot
+from discord import Cog as Cog_
 from discord.utils import utcnow
 
 from trainerdex_discord_bot.exceptions import CogHealthcheckException

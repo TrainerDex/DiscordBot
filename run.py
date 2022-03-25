@@ -4,22 +4,16 @@ import os
 import sys
 import traceback
 
-from discord import ApplicationContext, CheckFailure, Game, Intents, Message
-from discord import Bot
+from discord import ApplicationContext, Bot, CheckFailure, Game, Intents
+from discord.abc import Messageable
 from trainerdex.client import Client
 
 from trainerdex_discord_bot import __version__
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import Config
-from trainerdex_discord_bot.constants import (
-    DEBUG,
-    DEBUG_GUILDS,
-    TRAINERDEX_API_TOKEN,
-)
+from trainerdex_discord_bot.constants import DEBUG, DEBUG_GUILDS, TRAINERDEX_API_TOKEN
 from trainerdex_discord_bot.datatypes import Common
 from trainerdex_discord_bot.utils import chat_formatting
-
-from discord.abc import Messageable
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 

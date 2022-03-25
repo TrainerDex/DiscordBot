@@ -1,5 +1,4 @@
 from discord import User
-
 from trainerdex.client import Client
 from trainerdex.socialconnection import SocialConnection
 from trainerdex.trainer import Trainer

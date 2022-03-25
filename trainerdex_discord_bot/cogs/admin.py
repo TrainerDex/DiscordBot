@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, AsyncIterator, Mapping
 from discord import ApplicationContext, Attachment, SlashCommandGroup
 from discord.commands import permissions
 from prettytable import PrettyTable
-from trainerdex_discord_bot.checks import is_owner
 
+from trainerdex_discord_bot.checks import is_owner
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import TokenDocuments
 from trainerdex_discord_bot.utils.chat_formatting import (

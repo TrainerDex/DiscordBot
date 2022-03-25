@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 from discord import ApplicationContext, Permissions, SlashCommandGroup
 from discord.commands import permissions
 from discord.role import Role
-from trainerdex_discord_bot.checks import has_permissions, is_owner
 
+from trainerdex_discord_bot.checks import has_permissions, is_owner
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GlobalConfig
 

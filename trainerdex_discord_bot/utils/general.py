@@ -1,5 +1,4 @@
 from discord import ApplicationContext
-
 from discord.abc import User
 from trainerdex.trainer import Trainer
 

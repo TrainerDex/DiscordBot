@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 
 from discord import (
     ApplicationContext,
+    Member,
+    Option,
     OptionChoice,
     Permissions,
     WebhookMessage,
     slash_command,
 )
-
-from discord import Option, Member
 from discord.errors import Forbidden, HTTPException
 
 from trainerdex_discord_bot import checks
