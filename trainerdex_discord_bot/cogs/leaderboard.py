@@ -12,6 +12,7 @@ from lenum import LabeledEnum
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.constants import CustomEmoji, Stats
 from trainerdex_discord_bot.embeds import BaseCard
+from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex.leaderboard import BaseLeaderboard, LeaderboardEntry
@@ -94,7 +95,7 @@ class LeaderboardCog(Cog):
         await ctx.defer()
 
         if len(leaderboard) < 1:
-            await ctx.followup.send(content="No results to display!")
+            await send(ctx, content="No results to display!")
         else:
             pages: Iterable[Embed] = await self._get_pages(ctx, leaderboard)
 

@@ -7,6 +7,7 @@ from discord.role import Role
 from trainerdex_discord_bot.checks import has_permissions, is_owner
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GlobalConfig
+from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex_discord_bot.datatypes import GuildConfig
@@ -39,7 +40,8 @@ class SettingsCog(Cog):
         guild_config.assign_roles_on_join = value
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `assign_roles_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -54,7 +56,8 @@ class SettingsCog(Cog):
         guild_config.set_nickname_on_join = value
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `set_nickname_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -71,7 +74,8 @@ class SettingsCog(Cog):
         guild_config.set_nickname_on_update = value
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `set_nickname_on_update` to `{value}`.",
             ephemeral=True,
         )
@@ -99,15 +103,13 @@ class SettingsCog(Cog):
     #                 x.id for x in ctx.message.role_mentions
     #             ]
     #             await self.config.set_guild(guild_config)
-    #             await ctx.message.add_reaction("✅")
     #     elif action == "remove":
     #         if roles:
     #             guild_config.roles_to_assign_on_approval.remove = [
     #                 x.id for x in ctx.message.role_mentions
     #             ]
     #             await self.config.set_guild(guild_config)
-    #             await ctx.message.add_reaction("✅")
-    #     await ctx.reply(f"{guild_config.roles_to_assign_on_approval=}")
+    #     await send(ctx, f"{guild_config.roles_to_assign_on_approval=}")
 
     @_set_guild.command(name="mystic-role", checks=[has_permissions(Permissions(0x20))])
     async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
@@ -115,7 +117,8 @@ class SettingsCog(Cog):
         guild_config.mystic_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `mystic_role` to `{value.mention}`.",
             emphemeral=True,
         )
@@ -126,7 +129,8 @@ class SettingsCog(Cog):
         guild_config.valor_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `valor_role` to `{value.mention}`.",
             emphemeral=True,
         )
@@ -137,7 +141,8 @@ class SettingsCog(Cog):
         guild_config.instinct_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `instinct_role` to `{value.mention}`.",
             emphemeral=True,
         )
@@ -148,7 +153,8 @@ class SettingsCog(Cog):
         guild_config.tl40_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `tl40_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -166,12 +172,14 @@ class SettingsCog(Cog):
         await self.config.set_guild(guild_config)
 
         if value is None:
-            await ctx.respond(
+            await send(
+                ctx,
                 "Unset `introduction_note`.",
                 ephemeral=True,
             )
         else:
-            await ctx.respond(
+            await send(
+                ctx,
                 f"Set `introduction_note` to `{value}`.",
                 ephemeral=True,
             )
@@ -185,7 +193,8 @@ class SettingsCog(Cog):
         global_config.notice = value
         await self.config.set_global(GlobalConfig)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `notice` to `{value}`.",
             ephemeral=True,
         )
@@ -199,7 +208,8 @@ class SettingsCog(Cog):
         global_config.embed_footer = value
         await self.config.set_global(GlobalConfig)
 
-        await ctx.respond(
+        await send(
+            ctx,
             f"Set `embed_footer` to `{value}`.",
             ephemeral=True,
         )

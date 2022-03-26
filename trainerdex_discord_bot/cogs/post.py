@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
-from discord import ApplicationContext, Attachment, WebhookMessage, slash_command
+from discord import ApplicationContext, Attachment, Message, slash_command
 from discord.utils import snowflake_time
 from google.oauth2 import service_account
 from PogoOCR import OCRClient, Screenshot, ScreenshotClass
@@ -14,6 +14,7 @@ from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.converters import get_trainer_from_user
+from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from PogoOCR.images.actitvity_view import ActivityViewData
@@ -43,21 +44,21 @@ class PostCog(Cog):
         self, ctx: ApplicationContext, image: Attachment, gold_gym_badges: Optional[int]
     ) -> None:
         if not image.content_type.startswith("image/"):
-            await ctx.respond(
-                "That's not an image. I can't do anything with that.", ephemeral=True
-            )
+            await send(ctx, "That's not an image. I can't do anything with that.", ephemeral=True)
             return
 
         await ctx.defer()
 
-        await ctx.followup.send(
+        await send(
+            ctx,
             content=chat_formatting.loading(f"{ctx.interaction.user.mention} shared an image."),
             file=await image.to_file(),
         )
 
         trainer: Trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
         if trainer is None:
-            await ctx.followup.send(
+            await send(
+                ctx,
                 chat_formatting.warning(
                     "You're not set up with a TrainerDex profile. Please ask a mod to set you up."
                 ),
@@ -85,10 +86,11 @@ class PostCog(Cog):
         }
 
         if not stats_to_update:
-            await ctx.followup.send(
+            await send(
+                ctx,
                 chat_formatting.error(
                     "OCR Failed to find any stats from your screenshot. Please try a *new* screenshot."
-                )
+                ),
             )
             return
 
@@ -107,7 +109,8 @@ class PostCog(Cog):
                 update_time=snowflake_time(ctx.interaction.id), **stats_to_update
             )
             update = latest_update
-            await ctx.followup.send(
+            await send(
+                ctx,
                 chat_formatting.success(
                     "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
                 ),
@@ -118,7 +121,8 @@ class PostCog(Cog):
                 if getattr(latest_update, stat) != value:
                     break
             else:
-                await ctx.followup.send(
+                await send(
+                    ctx,
                     chat_formatting.error(
                         "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
                     ),
@@ -133,7 +137,8 @@ class PostCog(Cog):
             )
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
-        response: WebhookMessage = await ctx.followup.send(
+        response: Message = await send(
+            ctx,
             content=chat_formatting.loading("Checking progress…"),
             embed=embed,
         )

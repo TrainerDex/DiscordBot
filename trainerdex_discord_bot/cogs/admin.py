@@ -14,6 +14,7 @@ from trainerdex_discord_bot.utils.chat_formatting import (
     error,
     italics,
 )
+from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex_discord_bot.datatypes import CogMeta
@@ -31,10 +32,11 @@ class Admin(Cog):
         cog_class: type[Cog] = getattr(cogs, cog)
 
         if cog_class is None:
-            await ctx.respond(
+            await send(
+                ctx,
                 error(
                     f"Cog {italics(cog)} does not exist. Please check your spelling and try again."
-                )
+                ),
             )
             return
 
@@ -42,7 +44,7 @@ class Admin(Cog):
         cog_meta.enabled = True
         await self.config.set_cog_meta(cog_meta)
 
-        await ctx.respond(f"Enabled {italics(cog)}.")
+        await send(ctx, f"Enabled {italics(cog)}.")
 
         if start_now:
             self.bot.add_cog(cog_class(self._common))
@@ -56,15 +58,16 @@ class Admin(Cog):
         cog_class: type[Cog] = getattr(cogs, cog)
 
         if cog_class is None:
-            await ctx.respond(
+            await send(
+                ctx,
                 error(
                     f"Cog {italics(cog)} does not exist. Please check your spelling and try again."
-                )
+                ),
             )
             return
 
         self.bot.add_cog(cog_class(self._common))
-        await ctx.respond(f"Started {italics(cog)}.")
+        await send(ctx, f"Started {italics(cog)}.")
 
     @_cog_control.command(name="disable", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
@@ -75,10 +78,11 @@ class Admin(Cog):
         cog_class: type[Cog] = getattr(cogs, cog)
 
         if cog_class is None:
-            await ctx.respond(
+            await send(
+                ctx,
                 error(
                     f"Cog {italics(cog)} does not exist. Please check your spelling and try again."
-                )
+                ),
             )
             return
 
@@ -86,11 +90,11 @@ class Admin(Cog):
         cog_meta.enabled = False
         await self.config.set_cog_meta(cog_meta)
 
-        await ctx.respond(f"Disabled {italics(cog)}.")
+        await send(ctx, f"Disabled {italics(cog)}.")
 
         if stop_cog:
             self.bot.remove_cog(cog_class.__name__)
-            await ctx.respond(f"Stopped {italics(cog)}.")
+            await send(ctx, f"Stopped {italics(cog)}.")
 
     @_cog_control.command(name="stop", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
@@ -101,15 +105,16 @@ class Admin(Cog):
         cog_class: type[Cog] = getattr(cogs, cog)
 
         if cog_class is None:
-            await ctx.respond(
+            await send(
+                ctx,
                 error(
                     f"Cog {italics(cog)} does not exist. Please check your spelling and try again."
-                )
+                ),
             )
             return
 
         self.bot.remove_cog(cog_class.__name__)
-        await ctx.respond(f"Stopped {italics(cog)}.")
+        await send(ctx, f"Stopped {italics(cog)}.")
 
     @_cog_control.command(name="list", default_permission=False, checks=[is_owner])
     @permissions.is_owner()
@@ -127,7 +132,7 @@ class Admin(Cog):
                 loaded = bool(self.bot.cogs.get(cog.cog_name) is not None)
                 output.add_row([cog.cog_name, bool_to_emoji(cog.enabled), bool_to_emoji(loaded)])
 
-        await ctx.respond(f"Cogs: {code(output.get_string())}")
+        await send(ctx, f"Cogs: {code(output.get_string())}")
 
     _token = SlashCommandGroup("token", "Set tokens for the bot.")
 
@@ -142,8 +147,8 @@ class Admin(Cog):
         try:
             token: Mapping = json.loads(await token_file.read())
         except (json.JSONDecodeError, TypeError) as e:
-            ctx.respond(error(f"Failed to parse token file: {e}"))
+            send(ctx, error(f"Failed to parse token file: {e}"))
             return
 
         await self.config.set_token(TokenDocuments.GOOGLE.value, token)
-        await ctx.respond("Set Google Cloud token.", ephemeral=True)
+        await send(ctx, "Set Google Cloud token.", ephemeral=True)

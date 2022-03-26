@@ -9,7 +9,7 @@ from discord import (
     Option,
     OptionChoice,
     Permissions,
-    WebhookMessage,
+    Message,
     slash_command,
 )
 from discord.errors import Forbidden, HTTPException
@@ -20,7 +20,7 @@ from trainerdex_discord_bot.datatypes import GuildConfig
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.converters import get_trainer
-from trainerdex_discord_bot.utils.general import introduction_notes
+from trainerdex_discord_bot.utils.general import introduction_notes, send
 
 if TYPE_CHECKING:
     from trainerdex.trainer import Trainer
@@ -91,7 +91,7 @@ class ModCog(Cog):
         #                 roles["add"].append(ctx.guild.get_role(team_role))
 
         #         if roles["add"]:
-        #             await ctx.respond(
+        #             await send(ctx,
         #                 chat_formatting.loading("Adding roles ({roles}) to {user}").format(
         #                     roles=chat_formatting.humanize_list([str(x) for x in roles["add"]]),
         #                     user=member.mention,
@@ -109,7 +109,7 @@ class ModCog(Cog):
         #                 roles_added: bool = False
         #                 roles_added_error: DiscordException = e
         #             else:
-        #                 await ctx.respond(
+        #                 await send(ctx,
         #                     chat_formatting.success("Added roles ({roles}) to {user}").format(
         #                         roles=chat_formatting.humanize_list(
         #                             [str(x) for x in roles["add"]]
@@ -120,7 +120,7 @@ class ModCog(Cog):
         #                 roles_added: int = len(roles["add"])
 
         #         if roles["remove"]:
-        #             await ctx.respond(
+        #             await send(ctx,
         #                 chat_formatting.loading("Removing roles ({roles}) from {user}").format(
         #                     roles=chat_formatting.humanize_list([str(x) for x in roles["remove"]]),
         #                     user=member.mention,
@@ -138,7 +138,7 @@ class ModCog(Cog):
         #                 roles_removed: bool = False
         #                 roles_removed_error: DiscordException = e
         #             else:
-        #                 await ctx.respond(
+        #                 await send(ctx,
         #                     chat_formatting.success("Removed roles ({roles}) from {user}").format(
         #                         roles=chat_formatting.humanize_list(
         #                             [str(x) for x in roles["remove"]]
@@ -159,17 +159,18 @@ class ModCog(Cog):
             except (Forbidden, HTTPException) as e:
                 self.bot.on_application_command_error(ctx, e)
             else:
-                await ctx.respond(
-                    chat_formatting.success(f"Changed {member.mention}'s nick to {nickname}")
+                await send(
+                    ctx, chat_formatting.success(f"Changed {member.mention}'s nick to {nickname}")
                 )
 
         trainer: Trainer = await get_trainer(self.client, nickname=nickname, user=member)
 
         if trainer is not None:
-            await ctx.respond(
+            await send(
+                ctx,
                 chat_formatting.loading(
                     f"An existing record was found for {trainer.username}. Updating details…"
-                )
+                ),
             )
 
             # Edit the trainer instance with the new team and set is_verified
@@ -188,7 +189,7 @@ class ModCog(Cog):
             )
             user: User = await trainer.user()
             await user.add_discord(member)
-            await ctx.respond(chat_formatting.loading("Created {user}").format(user=nickname))
+            await send(ctx, chat_formatting.loading("Created {user}").format(user=nickname))
             set_xp: bool = True
 
         if set_xp:
@@ -208,8 +209,9 @@ class ModCog(Cog):
             for page in chat_formatting.pagify(notes):
                 await member.send(page)
 
-        final: WebhookMessage = await ctx.respond(
-            chat_formatting.success(f"Successfully added {member.mention} as {trainer.username}.")
+        final: Message = await send(
+            ctx,
+            chat_formatting.success(f"Successfully added {member.mention} as {trainer.username}."),
         )
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
