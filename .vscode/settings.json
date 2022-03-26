@@ -5,5 +5,9 @@
     "python.sortImports.args": [
         "--profile black"
     ],
+    "editor.rulers": [
+        99,
+        109
+    ],
     "python.terminal.activateEnvInCurrentTerminal": true
 }
