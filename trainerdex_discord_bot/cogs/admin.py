@@ -29,7 +29,7 @@ class Admin(Cog):
         """Enable a cog to start on load of the bot. Also starts the cog if it is already loaded."""
         from trainerdex_discord_bot import cogs
 
-        cog_class: type[Cog] = getattr(cogs, cog)
+        cog_class: type[Cog] = getattr(cogs, cog, None)
 
         if cog_class is None:
             await send(
@@ -55,7 +55,7 @@ class Admin(Cog):
         """Attempt to start a cog."""
         from trainerdex_discord_bot import cogs
 
-        cog_class: type[Cog] = getattr(cogs, cog)
+        cog_class: type[Cog] = getattr(cogs, cog, None)
 
         if cog_class is None:
             await send(
@@ -75,7 +75,7 @@ class Admin(Cog):
         """Disable a cog from being loaded."""
         from trainerdex_discord_bot import cogs
 
-        cog_class: type[Cog] = getattr(cogs, cog)
+        cog_class: type[Cog] = getattr(cogs, cog, None)
 
         if cog_class is None:
             await send(
@@ -102,7 +102,7 @@ class Admin(Cog):
         """Stops a cog."""
         from trainerdex_discord_bot import cogs
 
-        cog_class: type[Cog] = getattr(cogs, cog)
+        cog_class: type[Cog] = getattr(cogs, cog, None)
 
         if cog_class is None:
             await send(
@@ -127,7 +127,7 @@ class Admin(Cog):
         output = PrettyTable(["Name", "Enabled", "Loaded"])
 
         async for cog in cog_mapping:
-            cog_class: type[Cog] = getattr(cogs, cog.cog_name)
+            cog_class: type[Cog] = getattr(cogs, cog.cog_name, None)
             if cog_class is not None:
                 loaded = bool(self.bot.cogs.get(cog.cog_name) is not None)
                 output.add_row([cog.cog_name, bool_to_emoji(cog.enabled), bool_to_emoji(loaded)])
