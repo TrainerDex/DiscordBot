@@ -11,4 +11,4 @@ RUN pipenv install --deploy
 
 COPY . .
 
-CMD [ "pipenv", "run", "python", "run.py" ]
+CMD [ "pipenv", "run", "python", "-m", "trainerdex_discord_bot" ]
