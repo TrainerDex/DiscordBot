@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
-from discord import ApplicationContext, Attachment, Message, slash_command
+from discord import ApplicationContext, Attachment, Message, Option, OptionChoice, slash_command
 from discord.utils import snowflake_time
 from google.oauth2 import service_account
 from PogoOCR import OCRClient, Screenshot, ScreenshotClass
@@ -13,8 +13,9 @@ from trainerdex_discord_bot.config import TokenDocuments
 from trainerdex_discord_bot.embeds import ProfileCard
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.utils import chat_formatting
-from trainerdex_discord_bot.utils.converters import get_trainer_from_user
+from trainerdex_discord_bot.utils.converters import get_trainer, get_trainer_from_user
 from trainerdex_discord_bot.utils.general import send
+from trainerdex_discord_bot.utils.validators import validate_trainer_nickname
 
 if TYPE_CHECKING:
     from PogoOCR.images.actitvity_view import ActivityViewData
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from trainerdex.update import Update
 
 
-class PostCog(Cog):
+class OCRCog(Cog):
     async def _healthcheck(self) -> NoReturn | None:
         token = await self.config.get_token(TokenDocuments.GOOGLE.value)
         if token is None:
@@ -51,7 +52,9 @@ class PostCog(Cog):
 
         await send(
             ctx,
-            content=chat_formatting.loading(f"{ctx.interaction.user.mention} shared an image."),
+            content=chat_formatting.info(
+                f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
+            ),
             file=await image.to_file(),
         )
 
@@ -152,3 +155,135 @@ class PostCog(Cog):
             await response.edit(embed=embed)
             await embed.add_guild_leaderboard(ctx.guild)
         await response.edit(content=None, embed=embed)
+
+    @slash_command(
+        name="register",
+        options=[
+            Option(
+                Attachment,
+                name="image",
+                description="An image of your Pokemon Go profile.",
+                required=True,
+            ),
+            Option(
+                str,
+                name="nickname",
+                description="Your Pokemon Go nickname.",
+                required=True,
+            ),
+            Option(
+                int,
+                name="team",
+                description="The user's Pokemon Go team",
+                choices=[
+                    OptionChoice("No Team", 0),
+                    OptionChoice("Mystic", 1),
+                    OptionChoice("Valor", 2),
+                    OptionChoice("Instinct", 3),
+                ],
+                required=False,
+            ),
+            Option(int, name="total_xp", required=False),
+            # Option(int, name="level", required=False),
+            Option(float, name="travel_km", required=False),
+            Option(int, name="capture_total", required=False),
+            Option(int, name="pokestops_visited", required=False),
+            Option(int, name="gold_gym_badges", required=False),
+        ],
+    )
+    async def create_profile(
+        self,
+        ctx: ApplicationContext,
+        image: Attachment,
+        nickname: str,
+        team: Optional[int] = None,
+        total_xp: Optional[int] = None,
+        # level: Optional[int] = None,
+        travel_km: Optional[float] = None,
+        capture_total: Optional[int] = None,
+        pokestops_visited: Optional[int] = None,
+        gold_gym_badges: Optional[int] = None,
+    ):
+        if not image.content_type.startswith("image/"):
+            await send(ctx, "That's not a valid image.", ephemeral=True)
+            return
+
+        if await get_trainer(self.client, user=ctx.author, nickname=nickname) is not None:
+            await send(
+                ctx,
+                chat_formatting.error("Unable to create a profile. You may already have one."),
+                ephemeral=True,
+            )
+            return
+
+        await ctx.defer()
+
+        await send(
+            ctx,
+            content=chat_formatting.info(
+                f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
+            ),
+            file=await image.to_file(),
+        )
+
+        screenshot = await Screenshot.from_url(
+            image.url,
+            klass=ScreenshotClass.ACTIVITY_VIEW,
+            asyncronous=True,
+        )
+
+        request = self.ocr.open_request(screenshot)
+        result: ActivityViewData = self.ocr.process_ocr(request)
+
+        print(result)
+        profile_data = {
+            "username": result.username or nickname,
+            "faction": result.faction and result.faction.id or team,
+        }
+        print(profile_data)
+
+        if not validate_trainer_nickname(profile_data["username"]):
+            await send(
+                ctx,
+                chat_formatting.error("Unable to create a profile. Your nickname is invalid."),
+                ephemeral=True,
+            )
+            return
+
+        update_data = {
+            "total_xp": result.total_xp or total_xp,
+            "travel_km": result.travel_km or travel_km,
+            "capture_total": result.capture_total or capture_total,
+            "pokestops_visited": result.pokestops_visited or pokestops_visited,
+            "gold_gym_badges": gold_gym_badges,
+        }
+        print(update_data)
+
+        if not update_data.get("total_xp"):
+            await send(
+                ctx,
+                chat_formatting.error(
+                    "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
+                    "Please try again specifiying it in the command or using a new screenshot."
+                ),
+            )
+            return
+
+        trainer: Trainer = await self.client.create_trainer(**profile_data)
+        print(trainer)
+        user = await trainer.user()
+        await user.add_discord(ctx.author)
+
+        update: Update = await trainer.post(
+            data_source="ss_registration",
+            stats=update_data,
+            update_time=snowflake_time(ctx.interaction.id),
+        )
+        print(update)
+
+        message = await send(
+            ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
+        )
+        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
+
+        await message.edit(embed=embed)

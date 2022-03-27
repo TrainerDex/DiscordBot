@@ -58,14 +58,14 @@ async def get_trainer(
     This will also fetch updates unless the prefetch_updates argument is set to False.
     """
     from_nickname = (
-        await get_trainer_from_nickname(client, nickname, prefetch_updates=prefetch_updates)
+        await get_trainer_from_nickname(client, nickname, prefetch_updates=False)
         if nickname
         else None
     )
-    from_user = (
-        await get_trainer_from_user(client, user, prefetch_updates=prefetch_updates)
-        if user
-        else None
-    )
+    from_user = await get_trainer_from_user(client, user, prefetch_updates=False) if user else None
 
-    return from_nickname or from_user
+    trainer = from_nickname or from_user
+    if trainer and prefetch_updates:
+        await trainer.fetch_updates()
+
+    return trainer

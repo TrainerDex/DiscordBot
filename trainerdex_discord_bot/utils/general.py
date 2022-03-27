@@ -5,6 +5,7 @@ from discord import (
     Embed,
     File,
     GuildSticker,
+    HTTPException,
     Interaction,
     InteractionResponded,
     Message,
@@ -140,7 +141,7 @@ async def send(
     if isinstance(destination, ApplicationContext):
         try:
             response = await destination.respond(content=content, *args, **kwargs)
-        except InteractionResponded:
+        except (HTTPException, TypeError, ValueError, InteractionResponded):
             return await destination.followup.send(content=content, *args, **kwargs)
 
         if isinstance(response, Message):

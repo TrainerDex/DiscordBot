@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "38e549740e8395ba263377e1cdf7439f09a5ece34492b321676a6c2471bcf084"
+            "sha256": "64a4bd6f1aebe75a877b295ff4210ddb0dbf78d5ba538020cee535c4ad589540"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -153,7 +153,7 @@
                 "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597",
                 "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==2.0.12"
         },
         "colormath": {
@@ -255,11 +255,11 @@
         },
         "google-cloud-vision": {
             "hashes": [
-                "sha256:54b7f63c746ab95a504bd6b9b1d806192483976a3452a1a59a7faa0eaaa03491",
-                "sha256:ca9e21a3a7236bd1d5e7d442e69f094f808ddd5cb80df5c180e2518ad45c3ab6"
+                "sha256:4f2f340bbdcadff4de6ec7521e29e6a76cbc4ca80e7eda93e4f20369fab51a03",
+                "sha256:b500e87f8263206b2a2825ce5e13f5c6354b9497403c9ef6b3058eed6e170f54"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==2.6.3"
+            "version": "==2.7.1"
         },
         "googleapis-common-protos": {
             "hashes": [
@@ -508,11 +508,11 @@
         },
         "pogoocr": {
             "hashes": [
-                "sha256:13363e355bb0533b8bbb5ed73ce49c5a2a6c8661779a19e93878676d0a19494b",
-                "sha256:c7ec330c0dc10ee00483d6137c556118d6a2de4299630caed034c1931bbc9f1b"
+                "sha256:7ede77f5c5fb9f08f9d773f3d1ce40dc52b3010369a1381d197559380489d81c",
+                "sha256:9df7da2cff1975168d5d2c8e31af7dbdb15255e2ff9a67fc4eef9929bc1ecfd8"
             ],
             "index": "pypi",
-            "version": "==0.4.0b0"
+            "version": "==0.4.0b2"
         },
         "prettytable": {
             "hashes": [
@@ -566,7 +566,7 @@
                 "sha256:f358aa33e03b7a84e0d91270a4d4d8f5df6921abe99a377828839e8ed0c04e07",
                 "sha256:f51d5a9f137f7a2cec2d326a74b6e3fc79d635d69ffe1b036d39fc7d75430d37"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==3.19.4"
         },
         "py-cord": {
