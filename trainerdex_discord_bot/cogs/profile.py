@@ -258,5 +258,5 @@ class ProfileCog(Cog):
             await send(
                 ctx,
                 f"Your Trainer Code was successfully set to {trainer.trainer_code}",
-                empemberal=True,
+                ephemeral=True,
             )

@@ -120,7 +120,7 @@ class SettingsCog(Cog):
         await send(
             ctx,
             f"Set `mystic_role` to `{value.mention}`.",
-            emphemeral=True,
+            ephemeral=True,
         )
 
     @_set_guild.command(name="valor-role", checks=[has_permissions(Permissions(0x20))])
@@ -132,7 +132,7 @@ class SettingsCog(Cog):
         await send(
             ctx,
             f"Set `valor_role` to `{value.mention}`.",
-            emphemeral=True,
+            ephemeral=True,
         )
 
     @_set_guild.command(name="instinct-role", checks=[has_permissions(Permissions(0x20))])
@@ -144,7 +144,7 @@ class SettingsCog(Cog):
         await send(
             ctx,
             f"Set `instinct_role` to `{value.mention}`.",
-            emphemeral=True,
+            ephemeral=True,
         )
 
     @_set_guild.command(name="tl40-role", checks=[has_permissions(Permissions(0x20))])
