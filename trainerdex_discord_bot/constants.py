@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from distutils.util import strtobool
 from enum import Enum
-from typing import Optional
 
 from discord import PartialEmoji
 from lenum import LabeledEnum
@@ -12,8 +11,13 @@ SOCIAL_TWITTER: str = "@TrainerDexApp"
 SOCIAL_INSTAGRAM: str = "@TrainerDexApp"
 SOCIAL_REDDIT: str = "https://reddit.com/r/TrainerDex"
 
+ADMIN_GUILD: int = int(os.environ.get("ADMIN_GUILD", "364313717720219651"))
+ADMIN_LOG_CHANNEL: int = int(os.environ.get("ADMIN_LOG_CHANNEL", "393177706029776898"))
+
 DEBUG: bool = strtobool(str(os.environ.get("DEBUG", False)).lower())
-DEBUG_GUILDS: Optional[list[int]] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").split(",")]
+DEBUG_GUILDS: list[int] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").split(",")] or [
+    ADMIN_GUILD
+]
 
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
