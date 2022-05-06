@@ -6,7 +6,7 @@ from typing import Callable
 from discord import Bot, Forbidden, HTTPException, InvalidArgument, TextChannel
 from promise import promisify
 
-from trainerdex_discord_bot.constants import EXCEPTION_LOG_CHANNEL_ID
+from trainerdex_discord_bot.constants import ADMIN_LOG_CHANNEL_ID
 from trainerdex_discord_bot.utils.chat_formatting import (
     error,
     info,
@@ -37,7 +37,7 @@ class DiscordLogger:
         self.bot = bot
         self.name = name
         self.level = kwargs.get("level") or LoggerLevel.INFO
-        self.channel_id = kwargs.get("channel_id") or EXCEPTION_LOG_CHANNEL_ID
+        self.channel_id = kwargs.get("channel_id") or ADMIN_LOG_CHANNEL_ID
         self._channel = None
         self.logger = logging.getLogger(self.name)
         self.logger.setLevel(self.level.value)
