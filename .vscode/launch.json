@@ -5,11 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "Python: Run Bot",
             "type": "python",
             "request": "launch",
             "module": "trainerdex_discord_bot",
-            "justMyCode": true
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
         }
     ]
 }
