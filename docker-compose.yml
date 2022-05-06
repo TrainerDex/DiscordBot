@@ -21,8 +21,8 @@ services:
     image: mongo:5.0.6
     networks:
       default: null
-    # ports:
-    #   - "27017:27017"  # Don't expose on production
+    ports:
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongodb_store:/data/db
     restart: always
