@@ -1,0 +1,35 @@
+services:
+  trainerdex:
+    build:
+      dockerfile: Dockerfile
+    container_name: trainerdex
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=mongodb://tdx:tdx@trainerdex_mongo:27017/
+    depends_on:
+      trainerdex_mongo:
+        condition: service_started
+    networks:
+      default: null
+    restart: unless-stopped
+  trainerdex_mongo:
+    container_name: trainerdex_mongo
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: tdx
+      MONGO_INITDB_ROOT_USERNAME: tdx
+    image: mongo:5.0.6
+    networks:
+      default: null
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb_store:/data/db
+    restart: always
+
+networks:
+  default:
+    name: discordbot_default
+
+volumes:
+  mongodb_store: null
