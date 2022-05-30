@@ -23,7 +23,6 @@ services:
       default: null
     ports:
       - "127.0.0.1:27017:27017"
-      - "${PRIVATE_IP}:27017:27017"
     volumes:
       - mongodb_store:/data/db
     restart: always
