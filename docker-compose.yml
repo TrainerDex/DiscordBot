@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     environment:
-      - MONGODB_URI=mongodb://tdx:tdx@trainerdex_mongo:27017/
+      - MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@trainerdex_mongo:27017/
     depends_on:
       trainerdex_mongo:
         condition: service_started
@@ -16,8 +16,8 @@ services:
   trainerdex_mongo:
     container_name: trainerdex_mongo
     environment:
-      MONGO_INITDB_ROOT_PASSWORD: tdx
-      MONGO_INITDB_ROOT_USERNAME: tdx
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
     image: mongo:5.0.6
     networks:
       default: null
