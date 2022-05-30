@@ -1,9 +1,0 @@
-pull_request_rules:
-  - name: Automatic merge for translations
-    conditions:
-      - "title=chore: update translations via Crowdin"
-      - "author=TurnrDev"
-    actions:
-      merge:
-        method: rebase
-        rebase_fallback: squash
