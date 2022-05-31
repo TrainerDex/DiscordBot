@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 humanize = "*"
 python-dateutil = "*"
-trainerdex = "==3.7b2"
+trainerdex = "==3.7"
 PogoOCR = "==0.4.0b2"
 py-cord = "==2.0.0rc1"
 aiostream = "*"
