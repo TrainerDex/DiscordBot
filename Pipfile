@@ -16,7 +16,7 @@ prettytable = "*"
 promise = "*"
 
 [dev-packages]
-black = "*"
+black = ">=21.11b1"
 flake8 = "*"
 isort = {extras = ["black"], version = "*"}
 

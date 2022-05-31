@@ -2,7 +2,14 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Mapping, NoReturn, Optional
 
-from discord import ApplicationContext, Attachment, Message, Option, OptionChoice, slash_command
+from discord import (
+    ApplicationContext,
+    Attachment,
+    Message,
+    Option,
+    OptionChoice,
+    slash_command,
+)
 from discord.utils import snowflake_time
 from google.oauth2 import service_account
 from PogoOCR import OCRClient, Screenshot, ScreenshotClass
