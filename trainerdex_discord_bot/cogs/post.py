@@ -142,7 +142,7 @@ class PostCog(Cog):
             await send(
                 ctx,
                 content=chat_formatting.info(
-                    f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`, with the following stats: {', '.join(kwargs.items())}",
+                    f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`, with the following stats: {', '.join(f'`{key}: {value}`' for key, value in kwargs.items())}",
                 ),
                 file=await image.to_file(),
             )
