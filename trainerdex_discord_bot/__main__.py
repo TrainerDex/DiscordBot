@@ -11,7 +11,7 @@ from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import Config
 from trainerdex_discord_bot.constants import DEBUG, DEBUG_GUILDS, TRAINERDEX_API_TOKEN
 from trainerdex_discord_bot.datatypes import Common
-from trainerdex_discord_bot.logging import DiscordLogger, getLogger
+from trainerdex_discord_bot.loggers import DiscordLogger, getLogger
 from trainerdex_discord_bot.utils import chat_formatting
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))

@@ -85,7 +85,6 @@ class Config:
         data: MutableMapping = await self._get_collection("cogs").find_one({"_id": cog.__name__})
 
         if data is None and create:
-
             document: CogMeta = CogMeta(_id=cog.__name__, enabled=True, last_loaded=None)
             self._get_collection("cogs").insert_one(asdict(document))
             data: MutableMapping = await self._get_collection("cogs").find_one(

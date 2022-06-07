@@ -2,30 +2,31 @@ from typing import Set
 
 import discord.errors
 from discord import ApplicationContext, Member, Permissions, slash_command
-from trainerdex_discord_bot.checks import has_permissions
 
+from trainerdex_discord_bot.checks import has_permissions
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GuildConfig
 from trainerdex_discord_bot.utils.converters import get_trainer_from_user
 
 
 class ModCog(Cog):
-    
     async def cog_check(self, ctx: ApplicationContext) -> bool:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        if guild_config.assign_roles_on_join and not (manage_roles_perm := await has_permissions(Permissions(manage_roles=True))(ctx)):
+        if guild_config.assign_roles_on_join and not (
+            manage_roles_perm := await has_permissions(Permissions(manage_roles=True))(ctx)
+        ):
             return False
-            
-        if guild_config.set_nickname_on_join and not (change_nickname_perm := await has_permissions(Permissions(change_nickname=True))(ctx)):
+
+        if guild_config.set_nickname_on_join and not (
+            change_nickname_perm := await has_permissions(Permissions(change_nickname=True))(ctx)
+        ):
             return False
-        
+
         if not (manage_server_perm := await has_permissions(Permissions(manage_server=True))(ctx)):
             return False
-        
+
         return True
-        
-    
-    
+
     @slash_command(name="grant-access", checks=[])
     async def slash__grant_access(self, ctx: ApplicationContext, member: Member) -> None:
         # Fetch the desired roles from the config
@@ -35,10 +36,10 @@ class ModCog(Cog):
         rm_roles, add_roles, nickname_changed = set(), set(), False
         if guild_config.assign_roles_on_join:
             try:
-                if (rm_roles := set(guild_config.roles_to_assign_on_approval.remove)):
+                if rm_roles := set(guild_config.roles_to_assign_on_approval.remove):
                     await member.remove_roles(*rm_roles, reason="Granting access")
 
-                if (add_roles := set(guild_config.roles_to_assign_on_approval.add)):
+                if add_roles := set(guild_config.roles_to_assign_on_approval.add):
                     await member.add_roles(*add_roles, reason="Granting access")
             except discord.errors.Forbidden:
                 pass
@@ -58,15 +59,21 @@ class ModCog(Cog):
                     match trainer.faction:
                         case 1:
                             if guild_config.mystic_role:
-                                await member.add_roles(guild_config.mystic_role, reason="Granting access")
+                                await member.add_roles(
+                                    guild_config.mystic_role, reason="Granting access"
+                                )
                                 add_roles.add(guild_config.mystic_role)
                         case 2:
                             if guild_config.valor_role:
-                                await member.add_roles(guild_config.valor_role, reason="Granting access")
+                                await member.add_roles(
+                                    guild_config.valor_role, reason="Granting access"
+                                )
                                 add_roles.add(guild_config.valor_role)
                         case 3:
                             if guild_config.instinct_role:
-                                await member.add_roles(guild_config.instinct_role, reason="Granting access")
+                                await member.add_roles(
+                                    guild_config.instinct_role, reason="Granting access"
+                                )
                                 add_roles.add(guild_config.instinct_role)
                 except discord.errors.Forbidden:
                     pass
@@ -75,11 +82,21 @@ class ModCog(Cog):
         if nickname_changed:
             actions_commited.append("Nickname changed to {}".format(trainer.nickname))
         if rm_roles:
-            actions_commited.append("Removed roles: {}".format(", ".join([ctx.guild.get_role(role_id).name for role_id in rm_roles])))
+            actions_commited.append(
+                "Removed roles: {}".format(
+                    ", ".join([ctx.guild.get_role(role_id).name for role_id in rm_roles])
+                )
+            )
         if add_roles:
-            actions_commited.append("Added roles: {}".format(", ".join([ctx.guild.get_role(role_id).name for role_id in add_roles])))
+            actions_commited.append(
+                "Added roles: {}".format(
+                    ", ".join([ctx.guild.get_role(role_id).name for role_id in add_roles])
+                )
+            )
 
         if actions_commited:
-            await ctx.respond(f"`/grant-access` run on {member.mention}\n"+"\n".join(actions_commited))
+            await ctx.respond(
+                f"`/grant-access` run on {member.mention}\n" + "\n".join(actions_commited)
+            )
         else:
             await ctx.respond("No actions were committed.")
