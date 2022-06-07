@@ -185,7 +185,6 @@ class SettingsCog(Cog):
             )
 
     @_set_global.command(name="notice", checks=[is_owner])
-    @permissions.is_owner()
     async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
         global_config: GlobalConfig = await self.config.get_global()
         if value.lower() == "none":
@@ -200,7 +199,6 @@ class SettingsCog(Cog):
         )
 
     @_set_global.command(name="footer", checks=[is_owner])
-    @permissions.is_owner()
     async def set__footer(self, ctx: ApplicationContext, value: str) -> None:
         global_config: GlobalConfig = await self.config.get_global()
         if value.lower() == "none":
