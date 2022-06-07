@@ -6,7 +6,7 @@ from discord import Cog as Cog_
 from discord.utils import utcnow
 
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
-from trainerdex_discord_bot.logging import getLogger
+from trainerdex_discord_bot.loggers import getLogger
 
 if TYPE_CHECKING:
     from trainerdex.client import Client
