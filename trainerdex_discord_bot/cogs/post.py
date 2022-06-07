@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from trainerdex.update import Update
 
 
-class OCRCog(Cog):
+class PostCog(Cog):
     async def _healthcheck(self) -> NoReturn | None:
         token = await self.config.get_token(TokenDocuments.GOOGLE.value)
         if token is None:
