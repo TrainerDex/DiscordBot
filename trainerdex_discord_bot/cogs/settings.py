@@ -1,12 +1,12 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
-from discord import ApplicationContext, Permissions, SlashCommandGroup
-from discord.commands import permissions
+from discord import ApplicationContext, Option, OptionChoice, Permissions, SlashCommandGroup
 from discord.role import Role
 
 from trainerdex_discord_bot.checks import has_permissions, is_owner
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GlobalConfig
+from trainerdex_discord_bot.utils.chat_formatting import error, info, success
 from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
@@ -80,36 +80,80 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    # @_set_guild.command(name="roles-to-assign-on-approval", checks=[has_permissions(Permissions(0x20))])
-    # async def set__guild__roles_to_assign_on_approval(
-    #     self,
-    #     ctx: ApplicationContext,
-    #     action: Optional[Literal["add", "remove"]] = None,
-    #     roles: Optional[Role] = None,
-    # ) -> None:
-    #     """Which roles to add/remove to a user on approval
+    @_set_guild.command(
+        name="access-roles",
+        options=[
+            Option(
+                str,
+                name="action",
+                choices=[
+                    OptionChoice(name="Append role", value="append"),
+                    OptionChoice(name="Unappend role", value="unappend"),
+                    OptionChoice(name="View roles", value="view"),
+                ],
+            ),
+            Option(
+                str,
+                name="list",
+                choices=[
+                    OptionChoice(name="Grant roles", value="grant"),
+                    OptionChoice(name="Revoke roles", value="revoke"),
+                ],
+            ),
+            Option(
+                Role,
+                name="role",
+                required=False,
+            ),
+        ],
+    )
+    async def set__guild__acess_roles(
+        self, ctx: ApplicationContext, action: str, list: str, role: Role | None = None
+    ):
+        if action != "view" and role is None:
+            await ctx.send(
+                error(
+                    "If you are appending/unappending to the grant/revoke lists, you must include a role to parameter."
+                )
+            )
+            return
 
-    #     Usage:
-    #         [p]set guild roles_to_assign_on_approval add @Verified, @Trainer ...
-    #             Assign these roles to users when they are approved
-    #         [p]set guild roles_to_assign_on_approval remove @Guest
-    #             Remove these roles from users when they are approved
-    #     """
-    #     guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
-    #     if action == "add":
-    #         if roles:
-    #             guild_config.roles_to_assign_on_approval.add = [
-    #                 x.id for x in ctx.message.role_mentions
-    #             ]
-    #             await self.config.set_guild(guild_config)
-    #     elif action == "remove":
-    #         if roles:
-    #             guild_config.roles_to_assign_on_approval.remove = [
-    #                 x.id for x in ctx.message.role_mentions
-    #             ]
-    #             await self.config.set_guild(guild_config)
-    #     await send(ctx, f"{guild_config.roles_to_assign_on_approval=}")
+        if list == "grant":
+            role_list: List[Role] = guild_config.roles_to_assign_on_approval.add
+        elif list == "revoke":
+            role_list: List[Role] = guild_config.roles_to_assign_on_approval.remove
+        else:
+            raise ValueError()
+
+        if action == "view":
+            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            await ctx.send(
+                info(message.format(", ".join({f"{role} ({role.id})" for role in role_list})))
+            )
+        elif action == "append":
+            if role.id not in role_list:
+                role_list.append(role.id)
+
+            string_role_list = (
+                ", ".join({f"{role} ({role.id})" for role in role_list}) if role_list else "empty"
+            )
+            await ctx.send(
+                success(f"{role} was appended to the list. The list is now: {string_role_list}")
+            )
+        elif action == "unappend":
+            while role.id in role_list:
+                role_list.remove(role.id)
+
+            string_role_list = (
+                ", ".join({f"{role} ({role.id})" for role in role_list}) if role_list else "empty"
+            )
+            await ctx.send(
+                success(f"{role} was removed from the list. The list is now: {string_role_list}")
+            )
+
+        await self.config.set_guild(guild_config)
 
     @_set_guild.command(name="mystic-role", checks=[has_permissions(Permissions(0x20))])
     async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
