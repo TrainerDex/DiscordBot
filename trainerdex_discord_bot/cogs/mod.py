@@ -1,5 +1,3 @@
-from typing import Set
-
 import discord.errors
 from discord import ApplicationContext, Member, Permissions, slash_command
 
