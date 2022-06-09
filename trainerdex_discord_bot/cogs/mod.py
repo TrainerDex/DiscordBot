@@ -29,7 +29,7 @@ class ModCog(Cog):
     async def slash__grant_access(self, ctx: ApplicationContext, member: Member) -> None:
         # Fetch the desired roles from the config
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        print(guild_config)
+
 
         rm_roles, add_roles, nickname_changed = set(), set(), False
         if guild_config.assign_roles_on_join:
