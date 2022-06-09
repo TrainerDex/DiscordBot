@@ -75,7 +75,7 @@ class ModCog(Cog):
 
         actions_commited = []
         if nickname_changed:
-            actions_commited.append("Nickname changed to {}".format(trainer.nickname))
+            actions_commited.append(f"Nickname changed to {trainer.nickname}")
         if rm_roles:
             actions_commited.append(
                 "Removed roles: {}".format(
