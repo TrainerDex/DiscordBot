@@ -30,15 +30,18 @@ class ModCog(Cog):
         # Fetch the desired roles from the config
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
+        reason = (
+            f"{ctx.author} used the /grant-access command to grant {member} access to this guild."
+        )
 
         rm_roles, add_roles, nickname_changed = set(), set(), False
         if guild_config.assign_roles_on_join:
             try:
                 if rm_roles := set(guild_config.roles_to_assign_on_approval.remove):
-                    await member.remove_roles(*rm_roles, reason="Granting access")
+                    await member.remove_roles(*rm_roles, reason=reason)
 
                 if add_roles := set(guild_config.roles_to_assign_on_approval.add):
-                    await member.add_roles(*add_roles, reason="Granting access")
+                    await member.add_roles(*add_roles, reason=reason)
             except discord.errors.Forbidden:
                 pass
 
@@ -46,7 +49,7 @@ class ModCog(Cog):
         if trainer:
             if guild_config.set_nickname_on_join:
                 try:
-                    await member.edit(nick=trainer.nickname, reason="Granting access")
+                    await member.edit(nick=trainer.nickname, reason=reason)
                 except discord.errors.Forbidden:
                     pass
                 else:
@@ -57,21 +60,15 @@ class ModCog(Cog):
                     match trainer.faction:
                         case 1:
                             if guild_config.mystic_role:
-                                await member.add_roles(
-                                    guild_config.mystic_role, reason="Granting access"
-                                )
+                                await member.add_roles(guild_config.mystic_role, reason=reason)
                                 add_roles.add(guild_config.mystic_role)
                         case 2:
                             if guild_config.valor_role:
-                                await member.add_roles(
-                                    guild_config.valor_role, reason="Granting access"
-                                )
+                                await member.add_roles(guild_config.valor_role, reason=reason)
                                 add_roles.add(guild_config.valor_role)
                         case 3:
                             if guild_config.instinct_role:
-                                await member.add_roles(
-                                    guild_config.instinct_role, reason="Granting access"
-                                )
+                                await member.add_roles(guild_config.instinct_role, reason=reason)
                                 add_roles.add(guild_config.instinct_role)
                 except discord.errors.Forbidden:
                     pass
