@@ -84,11 +84,11 @@ class PostCog(Cog):
     async def update_via_slash_command(
         self,
         ctx: ApplicationContext,
-        image: Attachment | None = None,
         total_xp: int | None = None,
         pokestops_visited: int | None = None,
         capture_total: int | None = None,
         travel_km: float | None = None,
+        image: Attachment | None = None,
         gym_gold: int | None = None,
         unique_pokestops: int | None = None,
         legendary_battle_won: int | None = None,
