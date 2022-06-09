@@ -11,16 +11,16 @@ class ModCog(Cog):
     async def cog_check(self, ctx: ApplicationContext) -> bool:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         if guild_config.assign_roles_on_join and not (
-            manage_roles_perm := await has_permissions(Permissions(manage_roles=True))(ctx)
+            await has_permissions(Permissions(manage_roles=True))(ctx)
         ):
             return False
 
         if guild_config.set_nickname_on_join and not (
-            change_nickname_perm := await has_permissions(Permissions(change_nickname=True))(ctx)
+            await has_permissions(Permissions(change_nickname=True))(ctx)
         ):
             return False
 
-        if not (manage_server_perm := await has_permissions(Permissions(manage_server=True))(ctx)):
+        if not (await has_permissions(Permissions(manage_server=True))(ctx)):
             return False
 
         return True
