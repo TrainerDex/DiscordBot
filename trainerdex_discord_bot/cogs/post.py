@@ -278,12 +278,12 @@ class PostCog(Cog):
     @slash_command(
         name="register",
         options=[
-            Option(
-                Attachment,
-                name="image",
-                description="An image of your Pokemon Go profile.",
-                required=True,
-            ),
+            # Option(
+            #     Attachment,
+            #     name="image",
+            #     description="An image of your Pokemon Go profile.",
+            #     required=True,
+            # ),
             Option(
                 str,
                 name="nickname",
@@ -295,37 +295,55 @@ class PostCog(Cog):
                 name="team",
                 description="The user's Pokemon Go team",
                 choices=[
-                    OptionChoice("No Team", 0),
+                    OptionChoice("No Team (Grey)", 0),
                     OptionChoice("Mystic", 1),
                     OptionChoice("Valor", 2),
                     OptionChoice("Instinct", 3),
                 ],
+                # required=False,
+            ),
+            Option(
+                int,
+                name="total_xp",
+                # required=False,
+            ),
+            # Option(
+            #     int,
+            #     name="level",
+            #     # required=False,
+            # ),
+            Option(
+                float,
+                name="travel_km",
                 required=False,
             ),
-            Option(int, name="total_xp", required=False),
-            # Option(int, name="level", required=False),
-            Option(float, name="travel_km", required=False),
-            Option(int, name="capture_total", required=False),
-            Option(int, name="pokestops_visited", required=False),
-            Option(int, name="gold_gym_badges", required=False),
+            Option(
+                int,
+                name="capture_total",
+                required=False,
+            ),
+            Option(
+                int,
+                name="pokestops_visited",
+                required=False,
+            ),
         ],
     )
     async def create_profile(
         self,
         ctx: ApplicationContext,
-        image: Attachment,
+        # image: Attachment,
         nickname: str,
-        team: Optional[int] = None,
-        total_xp: Optional[int] = None,
-        # level: Optional[int] = None,
+        team: int,
+        total_xp: int,
+        # level: int,
         travel_km: Optional[float] = None,
         capture_total: Optional[int] = None,
         pokestops_visited: Optional[int] = None,
-        gold_gym_badges: Optional[int] = None,
     ):
-        if not image.content_type.startswith("image/"):
-            await send(ctx, "That's not a valid image.", ephemeral=True)
-            return
+        # if not image.content_type.startswith("image/"):
+        #     await send(ctx, "That's not a valid image.", ephemeral=True)
+        #     return
 
         if await get_trainer(self.client, user=ctx.author, nickname=nickname) is not None:
             await send(
@@ -337,29 +355,27 @@ class PostCog(Cog):
 
         await ctx.defer()
 
-        await send(
-            ctx,
-            content=chat_formatting.info(
-                f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
-            ),
-            file=await image.to_file(),
-        )
+        # await send(
+        #     ctx,
+        #     content=chat_formatting.info(
+        #         f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
+        #     ),
+        #     file=await image.to_file(),
+        # )
 
-        screenshot = await Screenshot.from_url(
-            image.url,
-            klass=ScreenshotClass.ACTIVITY_VIEW,
-            asyncronous=True,
-        )
+        # screenshot = await Screenshot.from_url(
+        #     image.url,
+        #     klass=ScreenshotClass.ACTIVITY_VIEW,
+        #     asyncronous=True,
+        # )
 
-        request = self.ocr.open_request(screenshot)
-        result: ActivityViewData = self.ocr.process_ocr(request)
+        # request = self.ocr.open_request(screenshot)
+        # result: ActivityViewData = self.ocr.process_ocr(request)
 
-        print(result)
         profile_data = {
-            "username": result.username or nickname,
-            "faction": result.faction and result.faction.id or team,
+            "username": nickname,  # result.username or nickname,
+            "faction": team,  # result.faction and result.faction.id or team,
         }
-        print(profile_data)
 
         if not validate_trainer_nickname(profile_data["username"]):
             await send(
@@ -370,23 +386,22 @@ class PostCog(Cog):
             return
 
         update_data = {
-            "total_xp": result.total_xp or total_xp,
-            "travel_km": result.travel_km or travel_km,
-            "capture_total": result.capture_total or capture_total,
-            "pokestops_visited": result.pokestops_visited or pokestops_visited,
-            "gold_gym_badges": gold_gym_badges,
+            "total_xp": total_xp,  # result.total_xp or total_xp,
+            "travel_km": travel_km,  # result.travel_km or travel_km,
+            "capture_total": capture_total,  # result.capture_total or capture_total,
+            "pokestops_visited": pokestops_visited,  # result.pokestops_visited or pokestops_visited,
+            # "gold_gym_badges": gold_gym_badges,
         }
-        print(update_data)
 
-        if not update_data.get("total_xp"):
-            await send(
-                ctx,
-                chat_formatting.error(
-                    "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
-                    "Please try again specifiying it in the command or using a new screenshot."
-                ),
-            )
-            return
+        # if not update_data.get("total_xp"):
+        #     await send(
+        #         ctx,
+        #         chat_formatting.error(
+        #             "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
+        #             "Please try again specifiying it in the command or using a new screenshot."
+        #         ),
+        #     )
+        #     return
 
         trainer: Trainer = await self.client.create_trainer(**profile_data)
         print(trainer)
@@ -394,11 +409,10 @@ class PostCog(Cog):
         await user.add_discord(ctx.author)
 
         update: Update = await trainer.post(
-            data_source="ss_registration",
+            data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
             stats=update_data,
             update_time=snowflake_time(ctx.interaction.id),
         )
-        print(update)
 
         message = await send(
             ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
