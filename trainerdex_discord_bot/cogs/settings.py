@@ -94,7 +94,7 @@ class SettingsCog(Cog):
             ),
             Option(
                 str,
-                name="list",
+                name="array",
                 choices=[
                     OptionChoice(name="Grant roles", value="grant"),
                     OptionChoice(name="Revoke roles", value="revoke"),
@@ -108,7 +108,7 @@ class SettingsCog(Cog):
         ],
     )
     async def set__guild__acess_roles(
-        self, ctx: ApplicationContext, action: str, list: str, role: Role | None = None
+        self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
     ):
         if action != "view" and role is None:
             await ctx.send(
@@ -120,9 +120,9 @@ class SettingsCog(Cog):
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
-        if list == "grant":
+        if array == "grant":
             role_list: List[Role] = guild_config.roles_to_assign_on_approval.add
-        elif list == "revoke":
+        elif array == "revoke":
             role_list: List[Role] = guild_config.roles_to_assign_on_approval.remove
         else:
             raise ValueError()
