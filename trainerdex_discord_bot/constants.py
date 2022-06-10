@@ -5,7 +5,6 @@ from distutils.util import strtobool
 from enum import Enum
 
 from discord import PartialEmoji
-from lenum import LabeledEnum
 
 SOCIAL_TWITTER: str = "@TrainerDexApp"
 SOCIAL_INSTAGRAM: str = "@TrainerDexApp"
@@ -32,6 +31,7 @@ class CustomEmoji(Enum):
     PROFILE = PartialEmoji(name="profile", id=43853381919178824)
     GYM_BADGE = PartialEmoji(name="gym_badge", id=743853262469333042)
     GYMBADGES_GOLD = PartialEmoji(name="gym_badge", id=743853262469333042)
+    GYM_GOLD = PartialEmoji(name="gym_badge", id=743853262469333042)
     GLOBAL = PartialEmoji(name="global", id=743853198217052281)
     POKESTOPS_VISITED = PartialEmoji(name="pokestops_visited", id=743122864303243355)
     CAPTURE_TOTAL = PartialEmoji(name="capture_total", id=743122649529450566)
@@ -50,48 +50,48 @@ class CustomEmoji(Enum):
     TRAINERDEX = PartialEmoji(name="TrainerDex", id=734168947372326953)
 
 
-class Stats(LabeledEnum):
+class Stats(Enum):
     # Top 4 stats, we definitely want these
     TOTAL_XP = "total_xp", "Total XP"
-    POKESTOPS_VISITED = "badge_pokestops_visited", "Backpacker"
-    CAPTURE_TOTAL = "badge_capture_total", "Collector"
-    TRAVEL_KM = "badge_travel_km", "Jogger"
+    POKESTOPS_VISITED = "pokestops_visited", "Backpacker"
+    CAPTURE_TOTAL = "capture_total", "Collector"
+    TRAVEL_KM = "travel_km", "Jogger"
 
     # Gold Gym badges, we want this
-    GYMBADGES_GOLD = "gymbadges_gold", "Gold Gym Badges"
-    UNIQUE_POKESTOPS = "badge_unique_pokestops", "Sightseer"
+    GYM_GOLD = "gym_gold", "Gold Gym Badges"
+    UNIQUE_POKESTOPS = "unique_pokestops", "Sightseer"
 
-    LEGENDARY_BATTLE_WON = "badge_legendary_battle_won", "Battle Legend"  # 20
-    RAID_BATTLE_WON = "badge_raid_battle_won", "Champion"  # 18
-    HOURS_DEFENDED = "badge_hours_defended", "Gym Leader"  # 18
-    CHALLENGE_QUESTS = "badge_challenge_quests", "Pokémon Ranger"  # 17
-    EVOLVED_TOTAL = "badge_evolved_total", "Scientist"  # 16
-    TRADING_DISTANCE = "badge_trading_distance", "Pilot"  # 14
-    HATCHED_TOTAL = "badge_hatched_total", "Breeder"  # 12
-    ROCKET_GRUNTS_DEFEATED = "badge_rocket_grunts_defeated", "Hero"  # 10
-    TRADING = "badge_trading", "Gentleman"  # 9
-    BATTLE_ATTACK_WON = "badge_battle_attack_won", "Battle Girl"  # 8
-    WAYFARER = "badge_wayfarer", "Wayfarer"  # 6
-    BERRIES_FED = "badge_berries_fed", "Berry Master"  # 4
-    BUDDY_BEST = "badge_buddy_best", "Best Buddy"  # -2
-    GREAT_LEAGUE = "badge_great_league", "Great League Veteran"  # -3
-    ULTRA_LEAGUE = "badge_ultra_league", "Ultra League Veteran"  # -3
-    TOTAL_MEGA_EVOS = "badge_total_mega_evos", "Successor"  # -3
-    SEVEN_DAY_STREAKS = "badge_7_day_streaks", "Triathlete"  # -4
-    MASTER_LEAGUE = "badge_master_league", "Master League Veteran"  # -4
-    ROCKET_GIOVANNI_DEFEATED = "badge_rocket_giovanni_defeated", "Ultra Hero"  # -4
-    POKEMON_CAUGHT_AT_YOUR_LURES = "badge_pokemon_caught_at_your_lures", "Picnicker"  # -4
-    RAIDS_WITH_FRIENDS = "badge_raids_with_friends", "Rising Star Duo"  # -6
-    UNIQUE_MEGA_EVOS = "badge_unique_mega_evos", "Mega Evolution Guru"  # -7
-    BIG_MAGIKARP = "badge_big_magikarp", "Fisher"  # -8
-    PIKACHU = "badge_pikachu", "Pikachu Fan"  # -12
-    BATTLE_TRAINING_WON = "badge_battle_training_won", "Ace Trainer"  # -13
-    MAX_LEVEL_FRIENDS = "badge_max_level_friends", "Idol"  # -13
-    UNOWN = "badge_unown", "Unown"  # -14
-    UNIQUE_RAID_BOSSES_DEFEATED = "badge_unique_raid_bosses_defeated", "Rising Star"  # -13
-    PHOTOBOMB = "badge_photobomb", "Cameraman"  # -14
-    POKEMON_PURIFIED = "badge_pokemon_purified", "Purifier"  # -14
-    SMALL_RATTATA = "badge_small_rattata", "Youngster"  # -16
+    LEGENDARY_BATTLE_WON = "legendary_battle_won", "Battle Legend"  # 20
+    RAID_BATTLE_WON = "raid_battle_won", "Champion"  # 18
+    HOURS_DEFENDED = "hours_defended", "Gym Leader"  # 18
+    CHALLENGE_QUESTS = "challenge_quests", "Pokémon Ranger"  # 17
+    EVOLVED_TOTAL = "evolved_total", "Scientist"  # 16
+    TRADING_DISTANCE = "trading_distance", "Pilot"  # 14
+    HATCHED_TOTAL = "hatched_total", "Breeder"  # 12
+    ROCKET_GRUNTS_DEFEATED = "rocket_grunts_defeated", "Hero"  # 10
+    TRADING = "trading", "Gentleman"  # 9
+    BATTLE_ATTACK_WON = "battle_attack_won", "Battle Girl"  # 8
+    WAYFARER = "wayfarer", "Wayfarer"  # 6
+    BERRIES_FED = "berries_fed", "Berry Master"  # 4
+    BUDDY_BEST = "buddy_best", "Best Buddy"  # -2
+    GREAT_LEAGUE = "great_league", "Great League Veteran"  # -3
+    ULTRA_LEAGUE = "ultra_league", "Ultra League Veteran"  # -3
+    TOTAL_MEGA_EVOS = "total_mega_evos", "Successor"  # -3
+    SEVEN_DAY_STREAKS = "seven_day_streaks", "Triathlete"  # -4
+    MASTER_LEAGUE = "master_league", "Master League Veteran"  # -4
+    ROCKET_GIOVANNI_DEFEATED = "rocket_giovanni_defeated", "Ultra Hero"  # -4
+    POKEMON_CAUGHT_AT_YOUR_LURES = "pokemon_caught_at_your_lures", "Picnicker"  # -4
+    RAIDS_WITH_FRIENDS = "raids_with_friends", "Rising Star Duo"  # -6
+    UNIQUE_MEGA_EVOS = "unique_mega_evos", "Mega Evolution Guru"  # -7
+    BIG_MAGIKARP = "big_magikarp", "Fisher"  # -8
+    PIKACHU = "pikachu", "Pikachu Fan"  # -12
+    BATTLE_TRAINING_WON = "battle_training_won", "Ace Trainer"  # -13
+    MAX_LEVEL_FRIENDS = "max_level_friends", "Idol"  # -13
+    UNOWN = "unown", "Unown"  # -14
+    UNIQUE_RAID_BOSSES_DEFEATED = "unique_raid_bosses_defeated", "Rising Star"  # -13
+    PHOTOBOMB = "photobomb", "Cameraman"  # -14
+    POKEMON_PURIFIED = "pokemon_purified", "Purifier"  # -14
+    SMALL_RATTATA = "small_rattata", "Youngster"  # -16
 
 
 STAT_MAP = {
