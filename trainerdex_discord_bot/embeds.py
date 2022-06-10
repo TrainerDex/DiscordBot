@@ -272,7 +272,7 @@ class ProfileCard(BaseCard):
             value="{then} ⇒ {now} (+{days} days)".format(
                 then=humanize.naturaldate(last_update.update_time),
                 now=humanize.naturaldate(this_update.update_time),
-                days=humanize.intcomma(days),
+                days=humanize.intcomma(Decimal(days).quantize(Decimal("1.00"))),
             ),
             inline=False,
         )
@@ -286,7 +286,9 @@ class ProfileCard(BaseCard):
                         delta=humanize.intcomma(this_update.travel_km - last_update.travel_km),
                         daily_gain="{gain}/day".format(
                             gain=humanize.intcomma(
-                                (this_update.travel_km - last_update.travel_km) / Decimal(days)
+                                Decimal(
+                                    (this_update.travel_km - last_update.travel_km) / Decimal(days)
+                                ).quantize(Decimal("1.00"))
                             )
                             + "km"
                         ),
@@ -296,7 +298,10 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
-                    value=humanize.intcomma(this_update.travel_km) + " km",
+                    value=humanize.intcomma(
+                        Decimal(this_update.travel_km).quantize(Decimal("1.00"))
+                    )
+                    + " km",
                     inline=False,
                 )
         if this_update.capture_total:
@@ -311,7 +316,9 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain="{gain}/day".format(
                             gain=humanize.intcomma(
-                                (this_update.capture_total - last_update.capture_total) / days
+                                Decimal(
+                                    (this_update.capture_total - last_update.capture_total) / days
+                                ).quantize(Decimal("1.00"))
                             )
                         ),
                     ),
@@ -320,7 +327,9 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
-                    value=humanize.intcomma(this_update.capture_total),
+                    value=humanize.intcomma(
+                        Decimal(this_update.capture_total).quantize(Decimal("1.00"))
+                    ),
                     inline=False,
                 )
         if this_update.pokestops_visited:
@@ -335,8 +344,10 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain="{gain}/day".format(
                             gain=humanize.intcomma(
-                                (this_update.pokestops_visited - last_update.pokestops_visited)
-                                / days
+                                Decimal(
+                                    (this_update.pokestops_visited - last_update.pokestops_visited)
+                                    / days
+                                ).quantize(Decimal("1.00"))
                             )
                         ),
                     ),
@@ -345,7 +356,9 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
-                    value=humanize.intcomma(this_update.pokestops_visited),
+                    value=humanize.intcomma(
+                        Decimal(this_update.pokestops_visited).quantize(Decimal("1.00"))
+                    ),
                     inline=False,
                 )
         if this_update.total_xp:
@@ -358,7 +371,9 @@ class ProfileCard(BaseCard):
                         delta=humanize.intcomma(this_update.total_xp - last_update.total_xp),
                         daily_gain="{gain}/day".format(
                             gain=humanize.intcomma(
-                                (this_update.total_xp - last_update.total_xp) / days
+                                Decimal(
+                                    (this_update.total_xp - last_update.total_xp) / days
+                                ).quantize(Decimal("1.00"))
                             )
                         ),
                     ),
@@ -367,7 +382,9 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
-                    value=humanize.intcomma(this_update.total_xp),
+                    value=humanize.intcomma(
+                        Decimal(this_update.total_xp).quantize(Decimal("1.00"))
+                    ),
                     inline=False,
                 )
         if this_update.gymbadges_gold:
@@ -382,7 +399,10 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain="{gain}/day".format(
                             gain=humanize.intcomma(
-                                (this_update.gymbadges_gold - last_update.gymbadges_gold) / days
+                                Decimal(
+                                    (this_update.gymbadges_gold - last_update.gymbadges_gold)
+                                    / days
+                                ).quantize(Decimal("1.00"))
                             )
                         ),
                     ),
@@ -391,6 +411,8 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
-                    value=humanize.intcomma(this_update.gymbadges_gold),
+                    value=humanize.intcomma(
+                        Decimal(this_update.gymbadges_gold).quantize(Decimal("1.00"))
+                    ),
                     inline=False,
                 )
