@@ -1,8 +1,10 @@
 import textwrap
+from decimal import ROUND_HALF_UP, Decimal
 from io import BytesIO
 from typing import Iterator, Sequence
 
 import discord
+import humanize
 
 from trainerdex_discord_bot.constants import CustomEmoji
 
@@ -422,3 +424,9 @@ def bool_to_emoji(value: bool) -> str:
         return "✅"
     else:
         return "❌"
+
+
+def format_numbers(number: int | float | Decimal, ndigits: int = 2) -> str:
+    if not float(number).is_integer():
+        number = Decimal(number).quantize(Decimal(f"0.{'0' * ndigits}"), rounding=ROUND_HALF_UP)
+    return humanize.intcomma(number)
