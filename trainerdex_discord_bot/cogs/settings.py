@@ -129,29 +129,28 @@ class SettingsCog(Cog):
 
         if action == "view":
             message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
-            await ctx.send(
-                info(message.format(", ".join({f"{role} ({role.id})" for role in role_list})))
-            )
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.send(info(message.format(", ".join(set_of_roles))))
         elif action == "append":
             if role.id not in role_list:
                 role_list.append(role.id)
 
-            string_role_list = (
-                ", ".join({f"{role} ({role.id})" for role in role_list}) if role_list else "empty"
-            )
-            await ctx.send(
-                success(f"{role} was appended to the list. The list is now: {string_role_list}")
-            )
+            message = "{} was appended to the list. The list is now: {}"
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.send(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
 
-            string_role_list = (
-                ", ".join({f"{role} ({role.id})" for role in role_list}) if role_list else "empty"
-            )
-            await ctx.send(
-                success(f"{role} was removed from the list. The list is now: {string_role_list}")
-            )
+            message = "{} was removed from the list. The list is now: {}"
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.send(success(message.format(role, ", ".join(set_of_roles))))
 
         if array == "grant":
             guild_config.roles_to_assign_on_approval.add = list(set(role_list))
