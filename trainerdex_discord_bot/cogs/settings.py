@@ -121,9 +121,9 @@ class SettingsCog(Cog):
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         if array == "grant":
-            role_list: List[Role] = guild_config.roles_to_assign_on_approval.add
+            role_list: List[Role] = guild_config.roles_to_assign_on_approval.add or []
         elif array == "revoke":
-            role_list: List[Role] = guild_config.roles_to_assign_on_approval.remove
+            role_list: List[Role] = guild_config.roles_to_assign_on_approval.remove or []
         else:
             raise ValueError()
 
@@ -153,6 +153,10 @@ class SettingsCog(Cog):
                 success(f"{role} was removed from the list. The list is now: {string_role_list}")
             )
 
+        if array == "grant":
+            guild_config.roles_to_assign_on_approval.add = list(set(role_list))
+        elif array == "revoke":
+            guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
         await self.config.set_guild(guild_config)
 
     @_set_guild.command(name="mystic-role", checks=[has_permissions(Permissions(0x20))])
