@@ -117,31 +117,31 @@ class ProfileCard(BaseCard):
         if self.update.travel_km:
             self.add_field(
                 name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
-                value=humanize.intcomma(self.update.travel_km) + " km",
+                value=chat_formatting.format_numbers(self.update.travel_km, 1) + " km",
                 inline=False,
             )
         if self.update.capture_total:
             self.add_field(
                 name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
-                value=humanize.intcomma(self.update.capture_total),
+                value=chat_formatting.format_numbers(self.update.capture_total),
                 inline=False,
             )
         if self.update.pokestops_visited:
             self.add_field(
                 name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
-                value=humanize.intcomma(self.update.pokestops_visited),
+                value=chat_formatting.format_numbers(self.update.pokestops_visited),
                 inline=False,
             )
         if self.update.total_xp:
             self.add_field(
                 name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
-                value=humanize.intcomma(self.update.total_xp),
+                value=chat_formatting.format_numbers(self.update.total_xp),
                 inline=False,
             )
         if self.update.gymbadges_gold:
             self.add_field(
                 name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
-                value=humanize.intcomma(self.update.gymbadges_gold),
+                value=chat_formatting.format_numbers(self.update.gymbadges_gold),
                 inline=False,
             )
 
@@ -163,7 +163,10 @@ class ProfileCard(BaseCard):
             )
             if entry:
                 entries.append(
-                    f"{getattr(CustomEmoji, stat.upper()).value} {entry.position:,} / {len(leaderboard):,}"
+                    "{} {}".format(
+                        CustomEmoji[stat.upper()].value,
+                        chat_formatting.format_numbers(entry.position),
+                    )
                 )
             del leaderboard
             del entry
@@ -189,7 +192,12 @@ class ProfileCard(BaseCard):
                 lambda x: x._trainer_id == self.trainer.old_id
             )
             if entry:
-                entries.append(f"{getattr(CustomEmoji, stat.upper()).value} {entry.position:,}")
+                entries.append(
+                    "{} {}".format(
+                        CustomEmoji[stat.upper()].value,
+                        chat_formatting.format_numbers(entry.position),
+                    )
+                )
             del leaderboard
             del entry
 
@@ -272,7 +280,7 @@ class ProfileCard(BaseCard):
             value="{then} ⇒ {now} (+{days} days)".format(
                 then=humanize.naturaldate(last_update.update_time),
                 now=humanize.naturaldate(this_update.update_time),
-                days=humanize.intcomma(days),
+                days=chat_formatting.format_numbers(days),
             ),
             inline=False,
         )
@@ -281,11 +289,14 @@ class ProfileCard(BaseCard):
                 self.add_field(
                     name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
                     value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
-                        then=humanize.intcomma(last_update.travel_km),
-                        now=humanize.intcomma(this_update.travel_km),
-                        delta=humanize.intcomma(this_update.travel_km - last_update.travel_km),
+                        then=chat_formatting.format_numbers(last_update.travel_km, 1),
+                        now=chat_formatting.format_numbers(this_update.travel_km, 1),
+                        delta=chat_formatting.format_numbers(
+                            this_update.travel_km - last_update.travel_km,
+                            1,
+                        ),
                         daily_gain="{gain}/day".format(
-                            gain=humanize.intcomma(
+                            gain=chat_formatting.format_numbers(
                                 (this_update.travel_km - last_update.travel_km) / Decimal(days)
                             )
                             + "km"
@@ -296,7 +307,7 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
-                    value=humanize.intcomma(this_update.travel_km) + " km",
+                    value=chat_formatting.format_numbers(this_update.travel_km) + " km",
                     inline=False,
                 )
         if this_update.capture_total:
@@ -304,13 +315,13 @@ class ProfileCard(BaseCard):
                 self.add_field(
                     name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
-                        then=humanize.intcomma(last_update.capture_total),
-                        now=humanize.intcomma(this_update.capture_total),
-                        delta=humanize.intcomma(
+                        then=chat_formatting.format_numbers(last_update.capture_total),
+                        now=chat_formatting.format_numbers(this_update.capture_total),
+                        delta=chat_formatting.format_numbers(
                             this_update.capture_total - last_update.capture_total
                         ),
                         daily_gain="{gain}/day".format(
-                            gain=humanize.intcomma(
+                            gain=chat_formatting.format_numbers(
                                 (this_update.capture_total - last_update.capture_total) / days
                             )
                         ),
@@ -320,7 +331,7 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
-                    value=humanize.intcomma(this_update.capture_total),
+                    value=chat_formatting.format_numbers(this_update.capture_total),
                     inline=False,
                 )
         if this_update.pokestops_visited:
@@ -328,13 +339,13 @@ class ProfileCard(BaseCard):
                 self.add_field(
                     name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
-                        then=humanize.intcomma(last_update.pokestops_visited),
-                        now=humanize.intcomma(this_update.pokestops_visited),
-                        delta=humanize.intcomma(
+                        then=chat_formatting.format_numbers(last_update.pokestops_visited),
+                        now=chat_formatting.format_numbers(this_update.pokestops_visited),
+                        delta=chat_formatting.format_numbers(
                             this_update.pokestops_visited - last_update.pokestops_visited
                         ),
                         daily_gain="{gain}/day".format(
-                            gain=humanize.intcomma(
+                            gain=chat_formatting.format_numbers(
                                 (this_update.pokestops_visited - last_update.pokestops_visited)
                                 / days
                             )
@@ -345,7 +356,7 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
-                    value=humanize.intcomma(this_update.pokestops_visited),
+                    value=chat_formatting.format_numbers(this_update.pokestops_visited),
                     inline=False,
                 )
         if this_update.total_xp:
@@ -353,11 +364,13 @@ class ProfileCard(BaseCard):
                 self.add_field(
                     name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
-                        then=humanize.intcomma(last_update.total_xp),
-                        now=humanize.intcomma(this_update.total_xp),
-                        delta=humanize.intcomma(this_update.total_xp - last_update.total_xp),
+                        then=chat_formatting.format_numbers(last_update.total_xp),
+                        now=chat_formatting.format_numbers(this_update.total_xp),
+                        delta=chat_formatting.format_numbers(
+                            this_update.total_xp - last_update.total_xp
+                        ),
                         daily_gain="{gain}/day".format(
-                            gain=humanize.intcomma(
+                            gain=chat_formatting.format_numbers(
                                 (this_update.total_xp - last_update.total_xp) / days
                             )
                         ),
@@ -367,7 +380,7 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
-                    value=humanize.intcomma(this_update.total_xp),
+                    value=chat_formatting.format_numbers(this_update.total_xp),
                     inline=False,
                 )
         if this_update.gymbadges_gold:
@@ -375,13 +388,13 @@ class ProfileCard(BaseCard):
                 self.add_field(
                     name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
-                        then=humanize.intcomma(last_update.gymbadges_gold),
-                        now=humanize.intcomma(this_update.gymbadges_gold),
-                        delta=humanize.intcomma(
+                        then=chat_formatting.format_numbers(last_update.gymbadges_gold),
+                        now=chat_formatting.format_numbers(this_update.gymbadges_gold),
+                        delta=chat_formatting.format_numbers(
                             this_update.gymbadges_gold - last_update.gymbadges_gold
                         ),
                         daily_gain="{gain}/day".format(
-                            gain=humanize.intcomma(
+                            gain=chat_formatting.format_numbers(
                                 (this_update.gymbadges_gold - last_update.gymbadges_gold) / days
                             )
                         ),
@@ -391,6 +404,6 @@ class ProfileCard(BaseCard):
             else:
                 self.add_field(
                     name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
-                    value=humanize.intcomma(this_update.gymbadges_gold),
+                    value=chat_formatting.format_numbers(this_update.gymbadges_gold),
                     inline=False,
                 )

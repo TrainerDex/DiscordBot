@@ -1,15 +1,5 @@
 Write-Host "Pulling the latest changes from the repository..."
 
-Write-Host "Stashing any changes before pulling..."
-git stash -u
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Stashing failed, aborting..."
-    exit 1
-}
-else {
-    Write-Verbose "Stashing successful, continuing..."
-}
-
 git fetch origin main:main && git checkout main
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Checkout failed, aborting..."
