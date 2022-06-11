@@ -176,11 +176,7 @@ class LeaderboardCog(Cog):
         guild_timezone = ZoneInfo(config.timezone or "UTC")
         leaderboard_channel = self.bot.get_channel(config.leaderboard_channel_id)
 
-        current_hour = (
-            datetime.now(tz=guild_timezone).replace(minute=0, second=0, microsecond=0).hour
-        )
-
-        if current_hour == 12:
+        if (time_now := datetime.now(tz=guild_timezone)).hour == 12:
             await leaderboard_channel.send(
-                "It's 12, time to post the weekly leaderboard! Unfortunately, this is just a test to see if the loop works."
+                f"It's {time_now.strftime('%H:%M %Z')}, time to post the weekly leaderboard! Unfortunately, this is just a test to see if the loop works."
             )
