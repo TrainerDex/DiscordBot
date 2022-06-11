@@ -180,14 +180,7 @@ class LeaderboardCog(Cog):
             datetime.now(tz=guild_timezone).replace(minute=0, second=0, microsecond=0).hour
         )
 
-        self.logger.info("Gathering weekly leaderboard for %s", guild.name)
-        self.logger.info("Current hour in %s is %s", guild_timezone, current_hour)
-        self.logger.info("Weekly leaderboard hour is 12")
-
         if current_hour == 12:
-            self.logger.info("Posting weekly leaderboard for %s", guild.name)
             await leaderboard_channel.send(
                 "It's 12, time to post the weekly leaderboard! Unfortunately, this is just a test to see if the loop works."
             )
-        else:
-            self.logger.info("Not posting weekly leaderboard for %s", guild.name)
