@@ -16,7 +16,7 @@ from discord.guild import Guild
 from discord.message import Message
 from trainerdex.update import Update
 
-from trainerdex_discord_bot.constants import WEBSITE_DOMAIN, CustomEmoji
+from trainerdex_discord_bot.constants import TRAINERDEX_COLOUR, WEBSITE_DOMAIN, CustomEmoji
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class BaseCard(Embed):
         global_config: GlobalConfig = await common.config.get_global()
         self.colour: Union[Colour, int] = kwargs.get(
             "colour",
-            kwargs.get("color", 13252437),
+            kwargs.get("color", TRAINERDEX_COLOUR),
         )
         self.title: Union[str, EmptyEmbed] = kwargs.get("title", EmptyEmbed)
         self.type: str = kwargs.get("type", "rich")

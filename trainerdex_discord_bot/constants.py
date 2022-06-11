@@ -4,7 +4,7 @@ import os
 from distutils.util import strtobool
 from enum import Enum
 
-from discord import PartialEmoji
+from discord import Colour, PartialEmoji
 
 SOCIAL_TWITTER: str = "@TrainerDexApp"
 SOCIAL_INSTAGRAM: str = "@TrainerDexApp"
@@ -21,6 +21,7 @@ DEBUG_GUILDS: list[int] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").sp
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 
 TRAINERDEX_API_TOKEN: str = os.environ.get("TRAINERDEX_API_TOKEN")
+TRAINERDEX_COLOUR = Colour(13252437)
 
 
 class CustomEmoji(Enum):
