@@ -14,30 +14,31 @@ if TYPE_CHECKING:
     from trainerdex_discord_bot.config import Config
     from trainerdex_discord_bot.datatypes import CogMeta, Common
 
-private_logger: logging.Logger = logging.getLogger(__name__)
-
 
 class Cog(Cog_):
     def __init__(self, common: "Common") -> None:
-        private_logger.info("Initializing %s...", self.__class__.__name__)
+        self.private_logger: logging.Logger = logging.getLogger(
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        )
+        self.private_logger.info("Initializing cog...")
         self._common: Common = common
         self.bot: Bot = common.bot
         self.config: Config = common.config
         self.client: Client = common.client
         self.bot.loop.create_task(self.__post_init__())
-        self.logger = getLogger(self.bot, self.__class__.__name__)
+        self.logger = getLogger(
+            self.bot, f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        )
 
     async def __post_init__(self) -> None:
         try:
             await self._healthcheck()
         except CogHealthcheckException:
-            private_logger.exception(
-                "Healthcheck failed on %s, unloading cog.", self.__class__.__name__
-            )
+            self.private_logger.exception("Healthcheck failed, unloading cog.")
             self.bot.remove_cog(self.__class__.__name__)
             return
 
-        private_logger.info("%s successfully initialized.", self.__class__.__name__)
+        self.private_logger.info("Cog successfully initialized.")
 
         _meta: CogMeta = await self.config.get_cog_meta(self)
         _meta.last_loaded = utcnow()

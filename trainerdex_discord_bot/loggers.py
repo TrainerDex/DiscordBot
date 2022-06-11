@@ -54,6 +54,8 @@ class DiscordLogger:
     async def _send_message(
         self, message: str, level: LoggerLevel, *, exception: Exception = None
     ) -> None:
+        if not self.channel:
+            return
         formatted_message = message_formatters[level](message)
 
         if exception:
