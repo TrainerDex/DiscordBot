@@ -1,12 +1,18 @@
 from __future__ import annotations
+
+from asyncio import gather
+from datetime import datetime, time
 from enum import Enum
 
 from typing import TYPE_CHECKING, Iterable, Literal
+from zoneinfo import ZoneInfo
+from discord import Guild
 
 import humanize
 from aiostream import stream
 from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.embeds import Embed
+from discord.ext import tasks
 from discord.ext.pages import Paginator
 
 from trainerdex.leaderboard import GuildLeaderboard
@@ -19,6 +25,7 @@ from trainerdex_discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex.leaderboard import BaseLeaderboard, LeaderboardEntry
+    from trainerdex_discord_bot.datatypes import GuildConfig
 
 
 class LeaderboardType(Enum):
@@ -27,6 +34,14 @@ class LeaderboardType(Enum):
 
 
 class LeaderboardCog(Cog):
+    async def __post_init__(self) -> None:
+        self._gather_guilds_for_weekly_leaderboards.start()
+        return await super().__post_init__()
+
+    def cog_unload(self) -> None:
+        self._gather_guilds_for_weekly_leaderboards.cancel()
+        return super().cog_unload()
+
     async def _format_page(
         self,
         ctx: ApplicationContext,
@@ -128,3 +143,51 @@ class LeaderboardCog(Cog):
             pages: Iterable[Embed] = await self._get_pages(ctx, leaderboard_data)
             paginator = Paginator(pages, disable_on_timeout=True)
             await paginator.respond(ctx.interaction)
+
+    @tasks.loop(time=[time(x) for x in range(24)])
+    # @tasks.loop(minutes=1)
+    async def _gather_guilds_for_weekly_leaderboards(self):
+        self.logger.info("Gathering guilds for weekly leaderboards")
+        enabled_guilds = {}
+
+        for guild in self.bot.guilds:
+            guild_config = await self.config.get_guild(guild)
+            if self._check_guild_eligible_for_leaderboard(guild_config):
+                enabled_guilds[guild] = guild_config
+
+        gather(
+            *(
+                self._post_weekly_leaderboard(guild, guild_config)
+                for guild, guild_config in enabled_guilds.items()
+            )
+        )
+
+    @_gather_guilds_for_weekly_leaderboards.before_loop
+    async def loop_wait(self):
+        await self.bot.wait_until_ready()
+
+    def _check_guild_eligible_for_leaderboard(self, guild_config: GuildConfig) -> bool:
+        return (
+            guild_config.post_weekly_leaderboards
+            and guild_config.leaderboard_channel_id is not None
+        )
+
+    async def _post_weekly_leaderboard(self, guild: Guild, config: GuildConfig):
+        guild_timezone = ZoneInfo(config.timezone or "UTC")
+        leaderboard_channel = self.bot.get_channel(config.leaderboard_channel_id)
+
+        current_hour = (
+            datetime.now(tz=guild_timezone).replace(minute=0, second=0, microsecond=0).hour
+        )
+
+        self.logger.info("Gathering weekly leaderboard for %s", guild.name)
+        self.logger.info("Current hour in %s is %s", guild_timezone, current_hour)
+        self.logger.info("Weekly leaderboard hour is 12")
+
+        if current_hour == 12:
+            self.logger.info("Posting weekly leaderboard for %s", guild.name)
+            await leaderboard_channel.send(
+                "It's 12, time to post the weekly leaderboard! Unfortunately, this is just a test to see if the loop works."
+            )
+        else:
+            self.logger.info("Not posting weekly leaderboard for %s", guild.name)
