@@ -178,5 +178,6 @@ class LeaderboardCog(Cog):
 
         if (time_now := datetime.now(tz=guild_timezone)).hour == 12:
             await leaderboard_channel.send(
-                f"It's {time_now.strftime('%H:%M %Z')}, time to post the weekly leaderboard! Unfortunately, this is just a test to see if the loop works."
+                f"It's {time_now.strftime('%H:%M %Z')}, time to post the weekly leaderboard! Unfortunately, they're still a work in progress.\nThis message will self-destruct in 30 seconds.",
+                delete_after=30,
             )
