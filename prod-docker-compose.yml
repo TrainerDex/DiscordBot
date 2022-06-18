@@ -1,0 +1,37 @@
+services:
+  trainerdex:
+    build:
+      dockerfile: Dockerfile
+    container_name: trainerdex
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@trainerdex_mongo:27017/
+    depends_on:
+      trainerdex_mongo:
+        condition: service_started
+    networks:
+      default: null
+    restart: unless-stopped
+  trainerdex_mongo:
+    container_name: trainerdex_mongo
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+    image: mongo:5.0.6
+    networks:
+      default: null
+    ports:
+      - "0.0.0.0:27017:27017"
+    volumes:
+      - mongodb_store:/data/db
+      - /etc/ssl:/etc/ssl
+    restart: always
+    command: --sslMode requireSSL --sslPEMKeyFile /etc/ssl/mongo.pem --port 27017
+
+networks:
+  default:
+    name: discordbot_default
+
+volumes:
+  mongodb_store: null
