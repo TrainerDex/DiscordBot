@@ -59,6 +59,7 @@ class LeaderboardCog(Cog):
         selection: str,
         stat: str,
     ) -> None:
+        await ctx.defer()
 
         if not ctx.guild:
             selection = LeaderboardType.GLOBAL.value[0]
@@ -67,8 +68,6 @@ class LeaderboardCog(Cog):
             stat=stat,
             guild=ctx.guild if selection == LeaderboardType.GUILD.value[0] else None,
         )
-
-        await ctx.defer()
 
         if len(leaderboard_data) < 1:
             await send(ctx, content="No results to display!")
