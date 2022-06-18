@@ -67,6 +67,10 @@ class GuildConfig(_MongoDBDocument):
     introduction_note: str | None = None
     enabled: bool = True
 
+    timezone: str = None
+    post_weekly_leaderboards: bool = False
+    leaderboard_channel_id: int | None = None
+
     @classmethod
     def from_mapping(cls, mapping: Mapping) -> Self:
         mapping = dict(mapping)

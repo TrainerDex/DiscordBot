@@ -155,7 +155,6 @@ class ProfileCog(Cog):
                 required=True,
                 min_value=1,
                 max_value=31,
-                autocomplete=True,
             ),
         ],
     )
