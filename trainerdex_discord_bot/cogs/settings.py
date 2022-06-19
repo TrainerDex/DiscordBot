@@ -19,16 +19,16 @@ class SettingsCog(Cog):
         "Set guild settings",
         checks=[has_permissions(Permissions(0x20))],
     )
-    _set_channel = SlashCommandGroup(
-        "channel-config",
-        "Set channel settings",
-        checks=[has_permissions(Permissions(0x10))],
-    )
-    _set_global = SlashCommandGroup(
-        "global-config",
-        "Set global settings",
-        checks=[is_owner],
-    )
+    # _set_channel = SlashCommandGroup(
+    #     "channel-config",
+    #     "Set channel settings",
+    #     checks=[has_permissions(Permissions(0x10))],
+    # )
+    # _set_global = SlashCommandGroup(
+    #     "global-config",
+    #     "Set global settings",
+    #     checks=[is_owner],
+    # )
 
     @_set_guild.command(name="assign-roles-on-join", checks=[has_permissions(Permissions(0x20))])
     async def set__guild__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
@@ -231,30 +231,30 @@ class SettingsCog(Cog):
                 ephemeral=True,
             )
 
-    @_set_global.command(name="notice", checks=[is_owner])
-    async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
-        global_config: GlobalConfig = await self.config.get_global()
-        if value.lower() == "none":
-            value = GlobalConfig.notice
-        global_config.notice = value
-        await self.config.set_global(GlobalConfig)
+    # @_set_global.command(name="notice", checks=[is_owner])
+    # async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
+    #     global_config: GlobalConfig = await self.config.get_global()
+    #     if value.lower() == "none":
+    #         value = GlobalConfig.notice
+    #     global_config.notice = value
+    #     await self.config.set_global(GlobalConfig)
 
-        await send(
-            ctx,
-            f"Set `notice` to `{value}`.",
-            ephemeral=True,
-        )
+    #     await send(
+    #         ctx,
+    #         f"Set `notice` to `{value}`.",
+    #         ephemeral=True,
+    #     )
 
-    @_set_global.command(name="footer", checks=[is_owner])
-    async def set__footer(self, ctx: ApplicationContext, value: str) -> None:
-        global_config: GlobalConfig = await self.config.get_global()
-        if value.lower() == "none":
-            value = GlobalConfig.embed_footer
-        global_config.embed_footer = value
-        await self.config.set_global(GlobalConfig)
+    # @_set_global.command(name="footer", checks=[is_owner])
+    # async def set__footer(self, ctx: ApplicationContext, value: str) -> None:
+    #     global_config: GlobalConfig = await self.config.get_global()
+    #     if value.lower() == "none":
+    #         value = GlobalConfig.embed_footer
+    #     global_config.embed_footer = value
+    #     await self.config.set_global(GlobalConfig)
 
-        await send(
-            ctx,
-            f"Set `embed_footer` to `{value}`.",
-            ephemeral=True,
-        )
+    #     await send(
+    #         ctx,
+    #         f"Set `embed_footer` to `{value}`.",
+    #         ephemeral=True,
+    #     )
