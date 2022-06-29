@@ -71,7 +71,7 @@ class ModCog(Cog):
 
         return False
 
-    @slash_command(name="grant-access", checks=[])
+    @slash_command(name="grant-access", guild_only=True)
     async def slash__grant_access(self, ctx: ApplicationContext, member: Member) -> None:
         reason = (
             f"{ctx.author} used the /grant-access command to grant {member} access to this guild."
