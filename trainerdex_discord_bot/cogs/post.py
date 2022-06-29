@@ -106,9 +106,9 @@ class PostCog(Cog):
         buddy_best: int | None = None,
         great_league: int | None = None,
         ultra_league: int | None = None,
+        master_league: int | None = None,
         total_mega_evos: int | None = None,
         seven_day_streaks: int | None = None,
-        master_league: int | None = None,
     ) -> None:
 
         kwargs = locals().copy()
