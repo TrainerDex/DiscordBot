@@ -1,30 +1,12 @@
 import discord.errors
-from discord import ApplicationContext, Member, Permissions, slash_command
+from discord import ApplicationContext, Member, slash_command
 
-from trainerdex_discord_bot.checks import has_permissions
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.datatypes import GuildConfig
 from trainerdex_discord_bot.utils.converters import get_trainer_from_user
 
 
 class ModCog(Cog):
-    async def cog_check(self, ctx: ApplicationContext) -> bool:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        if guild_config.assign_roles_on_join and not (
-            await has_permissions(Permissions(manage_roles=True))(ctx)
-        ):
-            return False
-
-        if guild_config.set_nickname_on_join and not (
-            await has_permissions(Permissions(change_nickname=True))(ctx)
-        ):
-            return False
-
-        if not (await has_permissions(Permissions(manage_server=True))(ctx)):
-            return False
-
-        return True
-
     @slash_command(name="grant-access", checks=[])
     async def slash__grant_access(self, ctx: ApplicationContext, member: Member) -> None:
         # Fetch the desired roles from the config
