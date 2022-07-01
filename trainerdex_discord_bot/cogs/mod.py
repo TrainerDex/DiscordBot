@@ -9,6 +9,7 @@ from discord import (
     Member,
     Option,
     OptionChoice,
+    Permissions,
     WebhookMessage,
     slash_command,
 )
@@ -113,6 +114,7 @@ class ModCog(Cog):
     @slash_command(
         name="approve",
         guild_only=True,
+        default_member_permissions=Permissions(0x20),
         options=[
             Option(
                 Member,

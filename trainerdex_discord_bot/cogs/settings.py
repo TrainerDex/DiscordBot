@@ -24,6 +24,7 @@ class SettingsCog(Cog):
         "guild-config",
         "Set guild settings",
         checks=[has_permissions(Permissions(0x20))],
+        default_member_permissions=Permissions(0x20),
     )
     # _set_channel = SlashCommandGroup(
     #     "channel-config",
