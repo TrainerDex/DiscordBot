@@ -71,6 +71,8 @@ class GuildConfig(_MongoDBDocument):
     post_weekly_leaderboards: bool = False
     leaderboard_channel_id: int | None = None
 
+    mod_role_ids: list[int] = field(default_factory=list)
+
     @classmethod
     def from_mapping(cls, mapping: Mapping) -> Self:
         mapping = dict(mapping)

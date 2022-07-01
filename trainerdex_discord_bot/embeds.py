@@ -16,7 +16,11 @@ from discord.guild import Guild
 from discord.message import Message
 from trainerdex.update import Update
 
-from trainerdex_discord_bot.constants import TRAINERDEX_COLOUR, WEBSITE_DOMAIN, CustomEmoji
+from trainerdex_discord_bot.constants import (
+    TRAINERDEX_COLOUR,
+    WEBSITE_DOMAIN,
+    CustomEmoji,
+)
 from trainerdex_discord_bot.utils import chat_formatting
 
 if TYPE_CHECKING:

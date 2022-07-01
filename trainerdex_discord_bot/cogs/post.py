@@ -106,9 +106,9 @@ class PostCog(Cog):
         buddy_best: int | None = None,
         great_league: int | None = None,
         ultra_league: int | None = None,
+        master_league: int | None = None,
         total_mega_evos: int | None = None,
         seven_day_streaks: int | None = None,
-        master_league: int | None = None,
     ) -> None:
 
         kwargs = locals().copy()
@@ -275,148 +275,148 @@ class PostCog(Cog):
             await embed.add_guild_leaderboard(ctx.guild)
         await response.edit(content=None, embed=embed)
 
-    @slash_command(
-        name="register",
-        options=[
-            # Option(
-            #     Attachment,
-            #     name="image",
-            #     description="An image of your Pokemon Go profile.",
-            #     required=True,
-            # ),
-            Option(
-                str,
-                name="nickname",
-                description="Your Pokemon Go nickname.",
-                required=True,
-            ),
-            Option(
-                int,
-                name="team",
-                description="The user's Pokemon Go team",
-                choices=[
-                    OptionChoice("No Team (Grey)", 0),
-                    OptionChoice("Mystic", 1),
-                    OptionChoice("Valor", 2),
-                    OptionChoice("Instinct", 3),
-                ],
-                # required=False,
-            ),
-            Option(
-                int,
-                name="total_xp",
-                # required=False,
-            ),
-            # Option(
-            #     int,
-            #     name="level",
-            #     # required=False,
-            # ),
-            Option(
-                float,
-                name="travel_km",
-                required=False,
-            ),
-            Option(
-                int,
-                name="capture_total",
-                required=False,
-            ),
-            Option(
-                int,
-                name="pokestops_visited",
-                required=False,
-            ),
-        ],
-    )
-    async def create_profile(
-        self,
-        ctx: ApplicationContext,
-        # image: Attachment,
-        nickname: str,
-        team: int,
-        total_xp: int,
-        # level: int,
-        travel_km: Optional[float] = None,
-        capture_total: Optional[int] = None,
-        pokestops_visited: Optional[int] = None,
-    ):
-        # if not image.content_type.startswith("image/"):
-        #     await send(ctx, "That's not a valid image.", ephemeral=True)
-        #     return
+    # @slash_command(
+    #     name="register",
+    #     options=[
+    #         # Option(
+    #         #     Attachment,
+    #         #     name="image",
+    #         #     description="An image of your Pokemon Go profile.",
+    #         #     required=True,
+    #         # ),
+    #         Option(
+    #             str,
+    #             name="nickname",
+    #             description="Your Pokemon Go nickname.",
+    #             required=True,
+    #         ),
+    #         Option(
+    #             int,
+    #             name="team",
+    #             description="The user's Pokemon Go team",
+    #             choices=[
+    #                 OptionChoice("No Team (Grey)", 0),
+    #                 OptionChoice("Mystic", 1),
+    #                 OptionChoice("Valor", 2),
+    #                 OptionChoice("Instinct", 3),
+    #             ],
+    #             # required=False,
+    #         ),
+    #         Option(
+    #             int,
+    #             name="total_xp",
+    #             # required=False,
+    #         ),
+    #         # Option(
+    #         #     int,
+    #         #     name="level",
+    #         #     # required=False,
+    #         # ),
+    #         Option(
+    #             float,
+    #             name="travel_km",
+    #             required=False,
+    #         ),
+    #         Option(
+    #             int,
+    #             name="capture_total",
+    #             required=False,
+    #         ),
+    #         Option(
+    #             int,
+    #             name="pokestops_visited",
+    #             required=False,
+    #         ),
+    #     ],
+    # )
+    # async def create_profile(
+    #     self,
+    #     ctx: ApplicationContext,
+    #     # image: Attachment,
+    #     nickname: str,
+    #     team: int,
+    #     total_xp: int,
+    #     # level: int,
+    #     travel_km: Optional[float] = None,
+    #     capture_total: Optional[int] = None,
+    #     pokestops_visited: Optional[int] = None,
+    # ):
+    #     # if not image.content_type.startswith("image/"):
+    #     #     await send(ctx, "That's not a valid image.", ephemeral=True)
+    #     #     return
 
-        if await get_trainer(self.client, user=ctx.author, nickname=nickname) is not None:
-            await send(
-                ctx,
-                chat_formatting.error("Unable to create a profile. You may already have one."),
-                ephemeral=True,
-            )
-            return
+    #     if await get_trainer(self.client, user=ctx.author, nickname=nickname) is not None:
+    #         await send(
+    #             ctx,
+    #             chat_formatting.error("Unable to create a profile. You may already have one."),
+    #             ephemeral=True,
+    #         )
+    #         return
 
-        await ctx.defer()
+    #     await ctx.defer()
 
-        # await send(
-        #     ctx,
-        #     content=chat_formatting.info(
-        #         f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
-        #     ),
-        #     file=await image.to_file(),
-        # )
+    #     # await send(
+    #     #     ctx,
+    #     #     content=chat_formatting.info(
+    #     #         f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
+    #     #     ),
+    #     #     file=await image.to_file(),
+    #     # )
 
-        # screenshot = await Screenshot.from_url(
-        #     image.url,
-        #     klass=ScreenshotClass.ACTIVITY_VIEW,
-        #     asyncronous=True,
-        # )
+    #     # screenshot = await Screenshot.from_url(
+    #     #     image.url,
+    #     #     klass=ScreenshotClass.ACTIVITY_VIEW,
+    #     #     asyncronous=True,
+    #     # )
 
-        # request = self.ocr.open_request(screenshot)
-        # result: ActivityViewData = self.ocr.process_ocr(request)
+    #     # request = self.ocr.open_request(screenshot)
+    #     # result: ActivityViewData = self.ocr.process_ocr(request)
 
-        profile_data = {
-            "username": nickname,  # result.username or nickname,
-            "faction": team,  # result.faction and result.faction.id or team,
-        }
+    #     profile_data = {
+    #         "username": nickname,  # result.username or nickname,
+    #         "faction": team,  # result.faction and result.faction.id or team,
+    #     }
 
-        if not validate_trainer_nickname(profile_data["username"]):
-            await send(
-                ctx,
-                chat_formatting.error("Unable to create a profile. Your nickname is invalid."),
-                ephemeral=True,
-            )
-            return
+    #     if not validate_trainer_nickname(profile_data["username"]):
+    #         await send(
+    #             ctx,
+    #             chat_formatting.error("Unable to create a profile. Your nickname is invalid."),
+    #             ephemeral=True,
+    #         )
+    #         return
 
-        update_data = {
-            "total_xp": total_xp,  # result.total_xp or total_xp,
-            "travel_km": travel_km,  # result.travel_km or travel_km,
-            "capture_total": capture_total,  # result.capture_total or capture_total,
-            "pokestops_visited": pokestops_visited,  # result.pokestops_visited or pokestops_visited,
-            # "gold_gym_badges": gold_gym_badges,
-        }
+    #     update_data = {
+    #         "total_xp": total_xp,  # result.total_xp or total_xp,
+    #         "travel_km": travel_km,  # result.travel_km or travel_km,
+    #         "capture_total": capture_total,  # result.capture_total or capture_total,
+    #         "pokestops_visited": pokestops_visited,  # result.pokestops_visited or pokestops_visited,
+    #         # "gold_gym_badges": gold_gym_badges,
+    #     }
 
-        # if not update_data.get("total_xp"):
-        #     await send(
-        #         ctx,
-        #         chat_formatting.error(
-        #             "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
-        #             "Please try again specifiying it in the command or using a new screenshot."
-        #         ),
-        #     )
-        #     return
+    #     # if not update_data.get("total_xp"):
+    #     #     await send(
+    #     #         ctx,
+    #     #         chat_formatting.error(
+    #     #             "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
+    #     #             "Please try again specifiying it in the command or using a new screenshot."
+    #     #         ),
+    #     #     )
+    #     #     return
 
-        trainer: Trainer = await self.client.create_trainer(**profile_data)
-        print(trainer)
-        user = await trainer.user()
-        await user.add_discord(ctx.author)
+    #     trainer: Trainer = await self.client.create_trainer(**profile_data)
+    #     print(trainer)
+    #     user = await trainer.user()
+    #     await user.add_discord(ctx.author)
 
-        update: Update = await trainer.post(
-            data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
-            stats=update_data,
-            update_time=snowflake_time(ctx.interaction.id),
-        )
+    #     update: Update = await trainer.post(
+    #         data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
+    #         stats=update_data,
+    #         update_time=snowflake_time(ctx.interaction.id),
+    #     )
 
-        message = await send(
-            ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
-        )
-        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
+    #     message = await send(
+    #         ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
+    #     )
+    #     embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
 
-        await message.edit(embed=embed)
+    #     await message.edit(embed=embed)

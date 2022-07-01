@@ -1,6 +1,12 @@
 from typing import TYPE_CHECKING, List
 
-from discord import ApplicationContext, Option, OptionChoice, Permissions, SlashCommandGroup
+from discord import (
+    ApplicationContext,
+    Option,
+    OptionChoice,
+    Permissions,
+    SlashCommandGroup,
+)
 from discord.role import Role
 
 from trainerdex_discord_bot.checks import has_permissions, is_owner
@@ -18,6 +24,7 @@ class SettingsCog(Cog):
         "guild-config",
         "Set guild settings",
         checks=[has_permissions(Permissions(0x20))],
+        default_member_permissions=Permissions(0x20),
     )
     # _set_channel = SlashCommandGroup(
     #     "channel-config",
