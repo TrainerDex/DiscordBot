@@ -1,5 +1,6 @@
-import json
-from typing import Optional
+from copy import deepcopy
+from decimal import Decimal
+from typing import Mapping, Optional
 
 from aiohttp import ClientResponseError
 import discord.errors
@@ -8,17 +9,19 @@ from discord import (
     Member,
     Option,
     OptionChoice,
-    PartialMessage,
     WebhookMessage,
     slash_command,
 )
+from discord.object import Object
 from discord.utils import snowflake_time
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
 
 from trainerdex_discord_bot.cogs.interface import Cog
+from trainerdex_discord_bot.constants import Stats
 from trainerdex_discord_bot.datatypes import GuildConfig
 from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.utils.chat_formatting import format_numbers
 from trainerdex_discord_bot.utils.converters import get_trainer
 
 
@@ -30,7 +33,7 @@ class ModCog(Cog):
         This function **can** be a coroutine and must take a sole parameter,
         ``ctx``, to represent the :class:`.Context`.
         """
-        return self.check_member_privilage(ctx)
+        return await self.check_member_privilage(ctx)
 
     async def check_member_privilage(
         self,
@@ -65,7 +68,7 @@ class ModCog(Cog):
         if not (await self.config.get_guild(ctx.guild.id)).set_nickname_on_join:
             return False
 
-        if self.check_member_privilage(ctx):
+        if await self.check_member_privilage(ctx):
             return True
 
         if ctx.author.guild_permissions.manage_nicknames:
@@ -77,7 +80,7 @@ class ModCog(Cog):
         if not (await self.config.get_guild(ctx.guild.id)).assign_roles_on_join:
             return False
 
-        if self.check_member_privilage(ctx):
+        if await self.check_member_privilage(ctx):
             return True
 
         if ctx.author.guild_permissions.manage_roles:
@@ -85,22 +88,27 @@ class ModCog(Cog):
 
         return False
 
-    def compare_stats(self, x: Update, y: Update, /) -> bool:
-        x_, y_ = vars(x), vars(y)
+    def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
+        x_, y_ = vars(x), deepcopy(y)
         # Clean out unwanted values from both dicts
         for update in x_, y_:
-            for key, value in update.items():
-                if (
-                    key not in ("total_xp", "travel_km", "capture_total", "pokestops_visited")
-                    or not value
-                ):
-                    update.pop(key)
+            update = {
+                key: value
+                for key, value in update.items()
+                if (key in ("total_xp", "travel_km", "capture_total", "pokestops_visited"))
+                and (value is not None)
+            }
 
         # We want to ensure that the values in y are always larger than their counterpart in x
         for key, value in y_.items():
             if key in x_ and value < x_[key]:
                 return False
         return True
+
+    def get_stat_name(self, stat: str) -> str:
+        if stat_enum := Stats.__dict__.get(stat.upper()):
+            return stat_enum.value[1]
+        return stat
 
     @slash_command(
         name="approve",
@@ -109,7 +117,7 @@ class ModCog(Cog):
             Option(
                 Member,
                 name="member",
-                description="Target member to approve",
+                description="Target member to approve, cannot be a bot.",
                 required=True,
             ),
             Option(
@@ -133,21 +141,25 @@ class ModCog(Cog):
             Option(
                 int,
                 name="total_xp",
+                description="Total XP",
                 required=True,
             ),
             Option(
                 float,
                 name="travel_km",
+                description="Distance Walked",
                 required=False,
             ),
             Option(
                 int,
                 name="capture_total",
+                description="Pokemon Caught",
                 required=False,
             ),
             Option(
                 int,
                 name="pokestops_visited",
+                description="Pokestops Visited",
                 required=False,
             ),
         ],
@@ -163,6 +175,16 @@ class ModCog(Cog):
         capture_total: Optional[int] = None,
         pokestops_visited: Optional[int] = None,
     ) -> None:
+        """Create a profile in TrainerDex
+
+        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
+
+        If a trainer already exists for this profile, it will update the stats as needed.
+        """
+        if member.bot:
+            await ctx.send("You can't approve bots.")
+            return
+
         await ctx.interaction.response.defer()
         reason = f"{ctx.author} used the /approve command to grant {member} access to this guild."
 
@@ -188,36 +210,57 @@ class ModCog(Cog):
                     if guild_config.instinct_role:
                         roles_add.add(guild_config.instinct_role)
 
-            try:
-                if roles_remove:
-                    await member.remove_roles(*roles_remove, reason=reason)
-            except discord.errors.Forbidden:
-                actions_commited.append(
-                    "Attempted to remove these roles, but errors were raised (possibly insufficient permissions): {}".format(
-                        ", ".join([ctx.guild.get_role(role_id).name for role_id in roles_remove])
+            if roles_remove:
+                try:
+                    await member.remove_roles(*[Object(x) for x in roles_remove], reason=reason)
+                except discord.errors.Forbidden:
+                    actions_commited.append(
+                        "Attempted to remove these roles, but errors were raised (possibly insufficient permissions): {}".format(
+                            ", ".join(
+                                [
+                                    ctx.guild.get_role(role_id).name or role_id
+                                    for role_id in roles_remove
+                                ]
+                            )
+                        )
                     )
-                )
-            else:
-                actions_commited.append(
-                    "Removed roles: {}".format(
-                        ", ".join([ctx.guild.get_role(role_id).name for role_id in roles_remove])
+                else:
+                    actions_commited.append(
+                        "Removed roles: {}".format(
+                            ", ".join(
+                                [
+                                    ctx.guild.get_role(role_id).name or role_id
+                                    for role_id in roles_remove
+                                ]
+                            )
+                        )
                     )
-                )
-            try:
-                if roles_add:
-                    await member.add_roles(*roles_add, reason=reason)
-            except discord.errors.Forbidden:
-                actions_commited.append(
-                    "Attempted to add these roles, but errors were raised (possibly insufficient permissions): {}".format(
-                        ", ".join([ctx.guild.get_role(role_id).name for role_id in roles_remove])
+
+            if roles_add:
+                try:
+                    await member.add_roles(*[Object(x) for x in roles_add], reason=reason)
+                except discord.errors.Forbidden:
+                    actions_commited.append(
+                        "Attempted to add these roles, but errors were raised (possibly insufficient permissions): {}".format(
+                            ", ".join(
+                                [
+                                    ctx.guild.get_role(role_id).name or role_id
+                                    for role_id in roles_remove
+                                ]
+                            )
+                        )
                     )
-                )
-            else:
-                actions_commited.append(
-                    "Added roles: {}".format(
-                        ", ".join([ctx.guild.get_role(role_id).name for role_id in roles_add])
+                else:
+                    actions_commited.append(
+                        "Added roles: {}".format(
+                            ", ".join(
+                                [
+                                    ctx.guild.get_role(role_id).name or role_id
+                                    for role_id in roles_add
+                                ]
+                            )
+                        )
                     )
-                )
 
         if allowed_to_rename:
             try:
@@ -227,7 +270,7 @@ class ModCog(Cog):
             else:
                 actions_commited.append(f"Discord Member nickname changed to {nickname}")
 
-        trainer: Trainer | None = get_trainer(
+        trainer: Trainer | None = await get_trainer(
             self.client, nickname=nickname, user=member, prefetch_updates=True
         )
 
@@ -251,14 +294,9 @@ class ModCog(Cog):
                     "travel_km": travel_km,
                     "capture_total": capture_total,
                     "pokestops_visited": pokestops_visited,
-                }
+                }.items()
                 if value is not None
             }
-            new_update = Update(
-                self.client.http,
-                new_stats,
-                trainer,
-            )
 
             try:
                 latest_update_with_total_xp: Update = trainer.get_latest_update_for_stat(
@@ -267,7 +305,7 @@ class ModCog(Cog):
             except ValueError:
                 post_update: bool = True
             else:
-                post_update: bool = self.compare_stats(latest_update_with_total_xp, new_update)
+                post_update: bool = self.compare_stats(latest_update_with_total_xp, new_stats)
 
             if post_update:
                 await trainer.post(
@@ -275,8 +313,15 @@ class ModCog(Cog):
                     stats=new_stats,
                     update_time=snowflake_time(ctx.interaction.id),
                 )
+                stats_humanize = ", ".join(
+                    [
+                        f"{self.get_stat_name(key)}: {format_numbers(value)}"
+                        for key, value in new_stats.items()
+                        if value is not None
+                    ]
+                )
                 actions_commited.append(
-                    f"Updated {trainer} with new stats: {json.dumps(new_stats)}"
+                    f"Updated {trainer.nickname} with new stats; {stats_humanize}"
                 )
 
         if actions_commited:
