@@ -2,8 +2,8 @@ from copy import deepcopy
 from decimal import Decimal
 from typing import Mapping, Optional
 
-from aiohttp import ClientResponseError
 import discord.errors
+from aiohttp import ClientResponseError
 from discord import (
     ApplicationContext,
     Member,

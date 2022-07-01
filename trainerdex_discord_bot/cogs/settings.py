@@ -1,6 +1,12 @@
 from typing import TYPE_CHECKING, List
 
-from discord import ApplicationContext, Option, OptionChoice, Permissions, SlashCommandGroup
+from discord import (
+    ApplicationContext,
+    Option,
+    OptionChoice,
+    Permissions,
+    SlashCommandGroup,
+)
 from discord.role import Role
 
 from trainerdex_discord_bot.checks import has_permissions, is_owner

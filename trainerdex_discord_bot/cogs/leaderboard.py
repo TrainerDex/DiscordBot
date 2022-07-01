@@ -3,11 +3,10 @@ from __future__ import annotations
 from asyncio import gather
 from datetime import datetime, time
 from enum import Enum
-
 from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
-from discord import Guild
 
+from discord import Guild
 from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.ext import tasks
 
@@ -18,6 +17,7 @@ from trainerdex_discord_bot.views.leaderboard import LeaderboardView
 
 if TYPE_CHECKING:
     from trainerdex.leaderboard import BaseLeaderboard
+
     from trainerdex_discord_bot.datatypes import GuildConfig
 
 

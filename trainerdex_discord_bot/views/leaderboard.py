@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import List, Tuple
 
 import humanize
+from aiostream import stream
 from discord import ApplicationContext, Embed, PartialEmoji
 from discord.ext.pages.pagination import Paginator
-from aiostream import stream
-
 from trainerdex.leaderboard import BaseLeaderboard, GuildLeaderboard, LeaderboardEntry
+
 from trainerdex_discord_bot.constants import TRAINERDEX_COLOUR, CustomEmoji, Stats
 from trainerdex_discord_bot.utils.chat_formatting import format_numbers
 
