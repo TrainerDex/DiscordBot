@@ -101,8 +101,8 @@ class ModCog(Cog):
             }
 
         # We want to ensure that the values in y are always larger than their counterpart in x
-        for key, value in y_.items():
-            if key in x_ and value < x_[key]:
+        for key, y_value in y_.items():
+            if (x_value := x_.get(key)) and y_value < x_value:
                 return False
         return True
 
