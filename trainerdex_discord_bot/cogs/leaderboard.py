@@ -78,7 +78,6 @@ class LeaderboardCog(Cog):
     @tasks.loop(time=[time(x) for x in range(24)])
     # @tasks.loop(minutes=1)
     async def _gather_guilds_for_weekly_leaderboards(self):
-        self.logger.info("Gathering guilds for weekly leaderboards")
         enabled_guilds = {}
 
         for guild in self.bot.guilds:
