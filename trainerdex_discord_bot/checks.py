@@ -33,7 +33,6 @@ async def is_owner(ctx: ApplicationContext) -> bool:
 
 
 async def check_member_privilage(
-    self,
     ctx: ApplicationContext,
     /,
     *,
