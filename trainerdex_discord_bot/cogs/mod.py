@@ -17,6 +17,7 @@ from discord.object import Object
 from discord.utils import snowflake_time
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
+from trainerdex_discord_bot.checks import check_member_privilage
 
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.constants import Stats
@@ -27,49 +28,11 @@ from trainerdex_discord_bot.utils.converters import get_trainer
 
 
 class ModCog(Cog):
-    async def cog_check(self, ctx: ApplicationContext) -> bool:
-        """A special method that registers as a :func:`~discord.ext.commands.check`
-        for every command and subcommand in this cog.
-
-        This function **can** be a coroutine and must take a sole parameter,
-        ``ctx``, to represent the :class:`.Context`.
-        """
-        return await self.check_member_privilage(ctx)
-
-    async def check_member_privilage(
-        self,
-        ctx: ApplicationContext,
-        /,
-        *,
-        member: Optional[Member] = None,
-    ) -> bool:
-        """A coroutine that returns whether the user is considered a privilaged or not.
-
-        Checks if the user is a mod by checking if the user has one of the mod roles as defined in the settings.
-        Also checks if the user is the owner of the bot, an admin of the guild or has manage_guild permission.
-        If any of these checks pass, the user is considered privilaged.
-
-        """
-        if member is None:
-            member = ctx.author
-
-        if await ctx.bot.is_owner(member):
-            return True
-
-        if member.guild_permissions.administrator or member.guild_permissions.manage_guild:
-            return True
-
-        for role_id in (await self.config.get_guild(member.guild.id)).mod_role_ids:
-            if member.get_role(role_id):
-                return True
-
-        return False
-
     async def allowed_to_rename(self, ctx: ApplicationContext) -> bool:
         if not (await self.config.get_guild(ctx.guild.id)).set_nickname_on_join:
             return False
 
-        if await self.check_member_privilage(ctx):
+        if await check_member_privilage(ctx):
             return True
 
         if ctx.author.guild_permissions.manage_nicknames:
@@ -81,7 +44,7 @@ class ModCog(Cog):
         if not (await self.config.get_guild(ctx.guild.id)).assign_roles_on_join:
             return False
 
-        if await self.check_member_privilage(ctx):
+        if await check_member_privilage(ctx):
             return True
 
         if ctx.author.guild_permissions.manage_roles:
@@ -113,8 +76,9 @@ class ModCog(Cog):
 
     @slash_command(
         name="approve",
-        guild_only=True,
+        checks=[check_member_privilage],
         default_member_permissions=Permissions(0x20),
+        guild_only=True,
         options=[
             Option(
                 Member,
