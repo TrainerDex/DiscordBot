@@ -114,7 +114,7 @@ class SettingsCog(Cog):
             ),
         ],
     )
-    async def set__guild__acess_roles(
+    async def set__guild__access_roles(
         self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
     ):
         if action != "view" and role is None:
@@ -124,6 +124,8 @@ class SettingsCog(Cog):
                 )
             )
             return
+
+        await ctx.defer()
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
@@ -139,7 +141,7 @@ class SettingsCog(Cog):
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
-            await ctx.send(info(message.format(", ".join(set_of_roles))))
+            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
         elif action == "append":
             if role.id not in role_list:
                 role_list.append(role.id)
@@ -148,7 +150,7 @@ class SettingsCog(Cog):
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
-            await ctx.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
@@ -157,7 +159,7 @@ class SettingsCog(Cog):
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
-            await ctx.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
 
         if array == "grant":
             guild_config.roles_to_assign_on_approval.add = list(set(role_list))
