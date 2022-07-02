@@ -17,8 +17,8 @@ from discord.object import Object
 from discord.utils import snowflake_time
 from trainerdex.trainer import Trainer
 from trainerdex.update import Update
-from trainerdex_discord_bot.checks import check_member_privilage
 
+from trainerdex_discord_bot.checks import check_member_privilage
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.constants import Stats
 from trainerdex_discord_bot.datatypes import GuildConfig
