@@ -211,7 +211,7 @@ class ModCog(Cog):
                             ", ".join(
                                 [
                                     ctx.guild.get_role(role_id).name or role_id
-                                    for role_id in roles_remove
+                                    for role_id in roles_add
                                 ]
                             )
                         )
