@@ -2,6 +2,8 @@ from typing import Callable, Optional
 
 from discord import ApplicationContext, ChannelType, Member, Permissions
 
+from trainerdex_discord_bot.config import Config
+
 
 def has_permissions(permissions: Permissions) -> Callable[[ApplicationContext], bool]:
     async def _has_permissions(ctx: ApplicationContext) -> bool:
@@ -54,7 +56,8 @@ async def check_member_privilage(
     if member.guild_permissions.administrator or member.guild_permissions.manage_guild:
         return True
 
-    for role_id in (await self.config.get_guild(member.guild.id)).mod_role_ids:
+    config = Config()
+    for role_id in (await config.get_guild(member.guild.id)).mod_role_ids:
         if member.get_role(role_id):
             return True
 
