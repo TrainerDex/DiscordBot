@@ -8,6 +8,7 @@
 
 - **How do I update my experience on the leaderboard?**
   - With the `/update` command on Discord, you can update most stats, or all via [the website](https://trainerdex.app/new/).
+  ![](./slash-update.png)
 
 - **Can I hide my experience on the leaderboard?**
   - With the `/edit-profile visible` command, proving a True/False response. True for visible, False for hiding. 
