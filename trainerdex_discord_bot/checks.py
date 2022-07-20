@@ -43,7 +43,7 @@ async def check_member_privilage(
     """A coroutine that returns whether the user is considered a privilaged or not.
 
     Checks if the user is a mod by checking if the user has one of the mod roles as defined in the settings.
-    Also checks if the user is the owner of the bot, an admin of the guild or has manage_guild permission.
+    Also checks if the user is the owner of the bot, an admin of the server or has manage_guild permission.
     If any of these checks pass, the user is considered privilaged.
 
     """

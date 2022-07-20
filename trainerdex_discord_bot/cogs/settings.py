@@ -20,9 +20,9 @@ if TYPE_CHECKING:
 
 
 class SettingsCog(Cog):
-    _set_guild = SlashCommandGroup(
-        "guild-config",
-        "Set guild settings",
+    guild_config = SlashCommandGroup(
+        "server-config",
+        "Set server settings",
         checks=[check_member_privilage],
         default_member_permissions=Permissions(0x20),
     )
@@ -37,8 +37,8 @@ class SettingsCog(Cog):
     #     checks=[is_owner],
     # )
 
-    @_set_guild.command(name="assign-roles-on-join", checks=[check_member_privilage])
-    async def set__guild__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
+    @guild_config.command(name="assign-roles-on-join", checks=[check_member_privilage])
+    async def guild_config__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the roles of members when they're approved.
 
         This is useful for granting users access to the rest of the server.
@@ -53,8 +53,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="set-nickname-on-join", checks=[check_member_privilage])
-    async def set__guild__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
+    @guild_config.command(name="set-nickname-on-join", checks=[check_member_privilage])
+    async def guild_config__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the nickname of members when they're approved.
 
         This is useful for ensuring players can be easily identified.
@@ -69,8 +69,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="set-nickname-on-update", checks=[check_member_privilage])
-    async def set__guild__set_nickname_on_update(
+    @guild_config.command(name="set-nickname-on-update", checks=[check_member_privilage])
+    async def guild_config__set_nickname_on_update(
         self, ctx: ApplicationContext, value: bool
     ) -> None:
         """Modify the nickname of members when they update their Total XP.
@@ -87,7 +87,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(
+    @guild_config.command(
         name="access-roles",
         options=[
             Option(
@@ -115,7 +115,7 @@ class SettingsCog(Cog):
         ],
         checks=[check_member_privilage],
     )
-    async def set__guild__access_roles(
+    async def guild_config__access_roles(
         self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
     ):
         if action != "view" and role is None:
@@ -168,7 +168,7 @@ class SettingsCog(Cog):
             guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
         await self.config.set_guild(guild_config)
         
-    @_set_guild.command(
+    @guild_config.command(
         name="mod-roles",
         options=[
             Option(
@@ -188,7 +188,7 @@ class SettingsCog(Cog):
         ],
         checks=[check_member_privilage],
     )
-    async def set__guild__mod_roles(
+    async def guild_config__mod_roles(
         self, ctx: ApplicationContext, action: str, role: Role | None = None
     ):
         if action != "view" and role is None:
@@ -233,8 +233,8 @@ class SettingsCog(Cog):
         guild_config.mod_role_ids = list(set(role_list))
         await self.config.set_guild(guild_config)
 
-    @_set_guild.command(name="mystic-role", checks=[check_member_privilage])
-    async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
+    @guild_config.command(name="mystic-role", checks=[check_member_privilage])
+    async def guild_config__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.mystic_role = value.id
         await self.config.set_guild(guild_config)
@@ -245,8 +245,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="valor-role", checks=[check_member_privilage])
-    async def set__guild__valor_role(self, ctx: ApplicationContext, value: Role) -> None:
+    @guild_config.command(name="valor-role", checks=[check_member_privilage])
+    async def guild_config__valor_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.valor_role = value.id
         await self.config.set_guild(guild_config)
@@ -257,8 +257,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="instinct-role", checks=[check_member_privilage])
-    async def set__guild__instinct_role(self, ctx: ApplicationContext, value: Role) -> None:
+    @guild_config.command(name="instinct-role", checks=[check_member_privilage])
+    async def guild_config__instinct_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.instinct_role = value.id
         await self.config.set_guild(guild_config)
@@ -269,8 +269,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="tl40-role", checks=[check_member_privilage])
-    async def set__guild__tl40_role(self, ctx: ApplicationContext, value: Role) -> None:
+    @guild_config.command(name="tl40-role", checks=[check_member_privilage])
+    async def guild_config__tl40_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.tl40_role = value.id
         await self.config.set_guild(guild_config)
@@ -281,8 +281,8 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="introduction-note", checks=[check_member_privilage])
-    async def set__guild__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
+    @guild_config.command(name="introduction-note", checks=[check_member_privilage])
+    async def guild_config__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
         """Send a note to a member upon running `profile create` (aka, `approve`)
 
         Set value to `None` to empty it
