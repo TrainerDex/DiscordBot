@@ -9,9 +9,9 @@ from discord import (
 )
 from discord.role import Role
 
-from trainerdex_discord_bot.checks import has_permissions, is_owner
+from trainerdex_discord_bot.checks import check_member_privilage
 from trainerdex_discord_bot.cogs.interface import Cog
-from trainerdex_discord_bot.datatypes import GlobalConfig
+# from trainerdex_discord_bot.datatypes import GlobalConfig
 from trainerdex_discord_bot.utils.chat_formatting import error, info, success
 from trainerdex_discord_bot.utils.general import send
 
@@ -23,13 +23,13 @@ class SettingsCog(Cog):
     _set_guild = SlashCommandGroup(
         "guild-config",
         "Set guild settings",
-        checks=[has_permissions(Permissions(0x20))],
+        checks=[check_member_privilage],
         default_member_permissions=Permissions(0x20),
     )
     # _set_channel = SlashCommandGroup(
     #     "channel-config",
     #     "Set channel settings",
-    #     checks=[has_permissions(Permissions(0x10))],
+    #     checks=[check_member_privilage],
     # )
     # _set_global = SlashCommandGroup(
     #     "global-config",
@@ -37,7 +37,7 @@ class SettingsCog(Cog):
     #     checks=[is_owner],
     # )
 
-    @_set_guild.command(name="assign-roles-on-join", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="assign-roles-on-join", checks=[check_member_privilage])
     async def set__guild__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the roles of members when they're approved.
 
@@ -53,7 +53,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="set-nickname-on-join", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="set-nickname-on-join", checks=[check_member_privilage])
     async def set__guild__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the nickname of members when they're approved.
 
@@ -69,7 +69,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="set-nickname-on-update", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="set-nickname-on-update", checks=[check_member_privilage])
     async def set__guild__set_nickname_on_update(
         self, ctx: ApplicationContext, value: bool
     ) -> None:
@@ -113,6 +113,7 @@ class SettingsCog(Cog):
                 required=False,
             ),
         ],
+        checks=[check_member_privilage],
     )
     async def set__guild__access_roles(
         self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
@@ -166,8 +167,8 @@ class SettingsCog(Cog):
         elif array == "revoke":
             guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
         await self.config.set_guild(guild_config)
-
-    @_set_guild.command(name="mystic-role", checks=[has_permissions(Permissions(0x20))])
+        
+    @_set_guild.command(name="mystic-role", checks=[check_member_privilage])
     async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.mystic_role = value.id
@@ -179,7 +180,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="valor-role", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="valor-role", checks=[check_member_privilage])
     async def set__guild__valor_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.valor_role = value.id
@@ -191,7 +192,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="instinct-role", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="instinct-role", checks=[check_member_privilage])
     async def set__guild__instinct_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.instinct_role = value.id
@@ -203,7 +204,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="tl40-role", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="tl40-role", checks=[check_member_privilage])
     async def set__guild__tl40_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.tl40_role = value.id
@@ -215,7 +216,7 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @_set_guild.command(name="introduction-note", checks=[has_permissions(Permissions(0x20))])
+    @_set_guild.command(name="introduction-note", checks=[check_member_privilage])
     async def set__guild__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
         """Send a note to a member upon running `profile create` (aka, `approve`)
 
