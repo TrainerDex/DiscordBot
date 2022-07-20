@@ -27,4 +27,5 @@ The following commands exist:
 
 - `/approve` - the command to grant a user access to your server, and creates a TrainerDex profile for them. This takes several params, including team, username and Total XP.
   - Notes on Username: You **must** set this to their In-Game Name. Please ensure `i` is `i`, `L` is `L` etc, although we understand these can get mixed up. When in doubt, ask the user what it is. 
-  - Notes on Total XP: This is the users all time Total XP, **not** the XP progress through their current level.
+  - Notes on Total XP: This is the users all time Total XP, **not** the XP progress through their current level.  
+  [![How to approve a user on TrainerDex, July 2022](http://img.youtube.com/vi/KCxtyukXW7w/0.jpg)](http://www.youtube.com/watch?v=KCxtyukXW7w "How to approve a user on TrainerDex, July 2022")
