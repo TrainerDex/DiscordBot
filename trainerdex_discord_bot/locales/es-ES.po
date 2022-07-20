@@ -19,7 +19,7 @@ msgstr ""
 
 #: trainerdex_discord_bot/converters.py:62
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
-msgstr "{} no es un nombre de usuario válido de Pokemon Go. Un nombre de usuario de Pokemon Go es de 3-15 letras o números de largo."
+msgstr "{} no es un nombre de usuario válido de Pokémon Go. Un nombre de usuario de Pokémon Go es de 3-15 letras o números de largo."
 
 #: trainerdex_discord_bot/converters.py:110
 msgid "Trainer `{}` not found"
@@ -378,7 +378,7 @@ msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
 msgstr "Establece la fecha de inicio de tu perfil\n\n"
-"        Esta es la fecha en la que comenzaste a jugar Pokemon Go y está por debajo del Total de Experiencia\n"
+"        Esta es la fecha en la que comenzaste a jugar Pokémon Go y está por debajo del Total de Experiencia\n"
 "        "
 
 #: trainerdex_discord_bot/profile.py:178
@@ -551,7 +551,7 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
 msgstr "**Estás recibiendo este mensaje porque has sido añadido a la base de datos de TrainerDex. *\n\n"
 "Esto sería en respuesta a que te unas a `{server.name}` y publicas tus capturas de pantalla para que un mod te pueda aprobar.\n\n"
-"TrainerDex es una base de datos de entrenadores y tablero de Pokemon Go. Vea nuestra política de privacidad aquí: <{privacy_policy_url}>\n\n"
+"TrainerDex es una base de datos de entrenadores y tablero de Pokémon Go. Vea nuestra política de privacidad aquí: <{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "Si tienes alguna pregunta, por favor contáctenos en Twitter (<{twitter_handle}>), pregunta al mod que te aprobó ({mod.mention}), o visita el soporte de TrainerDex Discord (<{invite_url}>)\n"
 

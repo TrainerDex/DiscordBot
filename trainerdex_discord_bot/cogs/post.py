@@ -281,19 +281,19 @@ class PostCog(Cog):
     #         # Option(
     #         #     Attachment,
     #         #     name="image",
-    #         #     description="An image of your Pokemon Go profile.",
+    #         #     description="An image of your Pokémon Go profile.",
     #         #     required=True,
     #         # ),
     #         Option(
     #             str,
     #             name="nickname",
-    #             description="Your Pokemon Go nickname.",
+    #             description="Your Pokémon Go nickname.",
     #             required=True,
     #         ),
     #         Option(
     #             int,
     #             name="team",
-    #             description="The user's Pokemon Go team",
+    #             description="Your Pokémon Go team",
     #             choices=[
     #                 OptionChoice("No Team (Grey)", 0),
     #                 OptionChoice("Mystic", 1),

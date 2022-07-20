@@ -19,7 +19,7 @@ msgstr ""
 
 #: trainerdex_discord_bot/converters.py:62
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
-msgstr "{} n'est pas un nom d'utilisateur valide dans Pokemon Go. Un nom d'utilisateur Pokemon Go contient de 3 à 15 lettres ou nombres."
+msgstr "{} n'est pas un nom d'utilisateur valide dans Pokémon Go. Un nom d'utilisateur Pokémon Go contient de 3 à 15 lettres ou nombres."
 
 #: trainerdex_discord_bot/converters.py:110
 msgid "Trainer `{}` not found"
@@ -392,7 +392,7 @@ msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
 msgstr "Définissez la date de début sur votre profil\n\n"
-"        C'est la date à laquelle vous avez commencé à jouer à Pokémon Go et est juste sous XP Total\n"
+"        C'est la date à laquelle vous avez commencé à jouer à Poké́mon Go et est juste sous XP Total\n"
 "        "
 
 #: trainerdex_discord_bot/profile.py:178

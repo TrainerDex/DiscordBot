@@ -27,7 +27,7 @@ async def get_trainer_from_user(
 async def get_trainer_from_nickname(
     client: Client, nickname: str, *, prefetch_updates: bool = True
 ) -> Trainer | None:
-    """Retrieve a profile from a Pokemon Go nickname.
+    """Retrieve a profile from a Pokémon Go nickname.
 
     This will also fetch updates unless the prefetch_updates argument is set to False.
     """
@@ -51,7 +51,7 @@ async def get_trainer(
     user: User = None,
     prefetch_updates: bool = True,
 ) -> Trainer | None:
-    """Retrieve a profile from a Pokemon Go nickname or user's Discord ID
+    """Retrieve a profile from a Pokémon Go nickname or user's Discord ID
 
     This will prefer nickname, so if both return a result, the nickname will be used.
 

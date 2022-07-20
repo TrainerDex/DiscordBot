@@ -19,7 +19,7 @@ msgstr ""
 
 #: trainerdex_discord_bot/converters.py:60
 msgid "{} is not a valid Pokémon Go username. A Pokémon Go username is 3-15 letters or numbers long."
-msgstr "{} is geen geldige Pokémon Go gebruikersnaam. Een Pokeşmon Go gebruikersnaam is 3-15 letters of cijfers."
+msgstr "{} is geen geldige Pokémon Go gebruikersnaam. Een Pokéşmon Go gebruikersnaam is 3-15 letters of cijfers."
 
 #: trainerdex_discord_bot/converters.py:104
 msgid "Trainer `{}` not found"
@@ -383,7 +383,7 @@ msgid "Set the Start Date on your profile\n\n"
 "        This is the date you started playing Pokémon Go and is just under Total XP\n"
 "        "
 msgstr "Stel de startdatum in op je profiel\n\n"
-"        Dit is de datum waarop je Poke.plmon Go begint te spelen en net onder Total XP\n"
+"        Dit is de datum waarop je Poké.plmon Go begint te spelen en net onder Total XP\n"
 "        "
 
 #: trainerdex_discord_bot/profile.py:178
@@ -560,7 +560,7 @@ msgid "**You're getting this message because you have been added to the TrainerD
 "If you have any questions, please contact us on Twitter (<{twitter_handle}>), ask the mod who approved you ({mod.mention}), or visit the TrainerDex Support Discord (<{invite_url}>)\n"
 msgstr "**U krijgt dit bericht omdat u bent toegevoegd aan de database van TrainerDex. *\n\n"
 "Dit kan een reactie zijn op het toevoegen van `{server.name}en het plaatsen van je screenshots voor een mod om goed te keuren.\n\n"
-"TrainerDex is een Poke！ mon Go trainer database en leaderboard. Bekijk ons privacybeleid hier:\n"
+"TrainerDex is een Poké！ mon Go trainer database en leaderboard. Bekijk ons privacybeleid hier:\n"
 "<{privacy_policy_url}>\n\n"
 "{is_visible_note}\n\n"
 "Als je vragen hebt, neem contact met ons op Twitter (<{twitter_handle}>), vraag de mod die je heeft goedgekeurd ({mod.mention}), of bezoek de TrainerDex Support Discord (<{invite_url}>)\n"
