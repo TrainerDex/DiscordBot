@@ -21,8 +21,6 @@ The following commands exist:
 
 - `/server-config tl40-role` - let you set a role you use to restrict level 40+ players. Currently not used as the levels system is being reworked.
 
-- `/server-config tl40-role` - let you set a role you use to restrict level 40+ players. Currently not used as the levels system is being reworked.
-
 <!-- - `/server-config introduction_note` - this is unused -->
 
 - `/approve` - the command to grant a user access to your server, and creates a TrainerDex profile for them. This takes several params, including team, username and Total XP.
