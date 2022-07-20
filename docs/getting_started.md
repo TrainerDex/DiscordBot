@@ -9,8 +9,8 @@ Generally, you will need Manage Server or Admin permissions to use any of the co
 
 The following commands exist:
 - `/server-config mod-roles` - provides functionality to set which roles on your server are considered mods. The bot will consider somebody a mod if they have Manage Server, Admin permissions, or one of the roles in this list.
-- `/server-config assign-roles-on-join` - a boolean toggle to set whether the bot should change a users roles when `/approve` is run against them.
-- `/server-config set-nickname-on-join` - a boolean toggle to set whether the bot should change a users nickname when `/approve` is run against them.
+- `/server-config assign-roles-on-join` - a true (yes) / false (no) toggle to set whether the bot should change a users roles when `/approve` is run against them.
+- `/server-config set-nickname-on-join` - a true (yes) / false (no) toggle to set whether the bot should change a users nickname when `/approve` is run against them.
 
 - `/server-config access-roles` - provides functionality to set which roles are added/removed from users when they're granted access to the server via `/approve` if `assign-roles-on-join` is enabled. This takes three params and can be confusing. There are two role lists, a `Grant` list, which is a list of roles the bot will give a user, and a `Revoke` list, which is a list of roles the bot will remove from a user.
   - `action` - options are `Append`, `Unappend` and `View` 
