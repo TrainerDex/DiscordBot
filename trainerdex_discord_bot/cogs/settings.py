@@ -206,7 +206,7 @@ class SettingsCog(Cog):
         role_list: List[Role] = guild_config.mod_role_ids or []
 
         if action == "view":
-            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            message = "The following roles are considered mods:\n{}"
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
