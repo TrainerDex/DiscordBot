@@ -281,30 +281,30 @@ class SettingsCog(Cog):
             ephemeral=True,
         )
 
-    @guild_config.command(name="introduction-note", checks=[check_member_privilage])
-    async def guild_config__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
-        """Send a note to a member upon running `profile create` (aka, `approve`)
+    # @guild_config.command(name="introduction-note", checks=[check_member_privilage])
+    # async def guild_config__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
+    #     """Send a note to a member upon running `profile create` (aka, `approve`)
 
-        Set value to `None` to empty it
-        """
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        if value.lower() == "none":
-            value = None
-        guild_config.introduction_note = value
-        await self.config.set_guild(guild_config)
+    #     Set value to `None` to empty it
+    #     """
+    #     guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+    #     if value.lower() == "none":
+    #         value = None
+    #     guild_config.introduction_note = value
+    #     await self.config.set_guild(guild_config)
 
-        if value is None:
-            await send(
-                ctx,
-                "Unset `introduction_note`.",
-                ephemeral=True,
-            )
-        else:
-            await send(
-                ctx,
-                f"Set `introduction_note` to `{value}`.",
-                ephemeral=True,
-            )
+    #     if value is None:
+    #         await send(
+    #             ctx,
+    #             "Unset `introduction_note`.",
+    #             ephemeral=True,
+    #         )
+    #     else:
+    #         await send(
+    #             ctx,
+    #             f"Set `introduction_note` to `{value}`.",
+    #             ephemeral=True,
+    #         )
 
     # @_set_global.command(name="notice", checks=[is_owner])
     # async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
