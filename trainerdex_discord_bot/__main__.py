@@ -46,7 +46,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
     @bot.event
     async def on_ready() -> None:
         private_logger.info(
-            "Bot ready! Logged in as %(user)s (%(user_id)s). %(num_guilds)s guilds.",
+            "Bot ready! Logged in as %(user)s (%(user_id)s). %(num_guilds)s servers.",
             {
                 "user": bot.user,
                 "user_id": bot.user.id,
