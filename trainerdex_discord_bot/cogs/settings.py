@@ -189,7 +189,7 @@ class SettingsCog(Cog):
         checks=[check_member_privilage],
     )
     async def set__guild__mod_roles(
-        self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
+        self, ctx: ApplicationContext, action: str, role: Role | None = None
     ):
         if action != "view" and role is None:
             await ctx.send(
