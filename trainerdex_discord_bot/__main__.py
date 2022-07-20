@@ -36,7 +36,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
 
     bot: Bot = Bot(
         debug_guilds=DEBUG_GUILDS if DEBUG else None,
-        description="TrainerDex, a Discord bot for Pokemon Go.",
+        description="TrainerDex, a Discord bot for Pokémon Go.",
         intents=intents,
         loop=loop,
     )

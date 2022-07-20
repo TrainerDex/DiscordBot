@@ -89,13 +89,13 @@ class ModCog(Cog):
             Option(
                 str,
                 name="nickname",
-                description="Your Pokemon Go nickname.",
+                description="The user's Pokémon Go nickname.",
                 required=True,
             ),
             Option(
                 int,
                 name="team",
-                description="The user's Pokemon Go team",
+                description="The user's Pokémon Go team",
                 choices=[
                     OptionChoice("No Team (Grey)", 0),
                     OptionChoice("Mystic", 1),
@@ -119,13 +119,13 @@ class ModCog(Cog):
             Option(
                 int,
                 name="capture_total",
-                description="Pokemon Caught",
+                description="Pokémon Caught",
                 required=False,
             ),
             Option(
                 int,
                 name="pokestops_visited",
-                description="Pokestops Visited",
+                description="PokéStops Visited",
                 required=False,
             ),
         ],
