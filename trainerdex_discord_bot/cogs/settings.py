@@ -168,6 +168,71 @@ class SettingsCog(Cog):
             guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
         await self.config.set_guild(guild_config)
         
+    @_set_guild.command(
+        name="mod-roles",
+        options=[
+            Option(
+                str,
+                name="action",
+                choices=[
+                    OptionChoice(name="Append role", value="append"),
+                    OptionChoice(name="Unappend role", value="unappend"),
+                    OptionChoice(name="View roles", value="view"),
+                ],
+            ),
+            Option(
+                Role,
+                name="role",
+                required=False,
+            ),
+        ],
+        checks=[check_member_privilage],
+    )
+    async def set__guild__mod_roles(
+        self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
+    ):
+        if action != "view" and role is None:
+            await ctx.send(
+                error(
+                    "If you are appending/unappending to the mod role list, you must include a role to parameter."
+                )
+            )
+            return
+
+        await ctx.defer()
+
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+
+        role_list: List[Role] = guild_config.mod_role_ids or []
+
+        if action == "view":
+            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
+        elif action == "append":
+            if role.id not in role_list:
+                role_list.append(role.id)
+
+            message = "{} was appended to the list. The list is now: {}"
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+        elif action == "unappend":
+            while role.id in role_list:
+                role_list.remove(role.id)
+
+            message = "{} was removed from the list. The list is now: {}"
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+
+        guild_config.mod_role_ids = list(set(role_list))
+        await self.config.set_guild(guild_config)
+
     @_set_guild.command(name="mystic-role", checks=[check_member_privilage])
     async def set__guild__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
