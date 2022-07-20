@@ -13,7 +13,7 @@ The following commands exist:
 - `/server-config set-nickname-on-join` - A true (yes) / false (no) toggle to set whether the bot should change a users nickname when `/approve` is run against them.
 
 - `/server-config access-roles` - Provides functionality to set which roles are added/removed from users when they're granted access to the server via `/approve` if `assign-roles-on-join` is enabled. This takes three parameters and can be confusing. There are two role lists, a `Grant` list, which is a list of roles the bot will give a user, and a `Revoke` list, which is a list of roles the bot will remove from a user.
-  - `action` - Options are `Append`, `Unappend` and `View` 
+  - `action` - Options are `Add`, `Remove` and `View` 
   - `array` - Options are `Grant` and `Revoke`
   - `role` - Required if `action` is not `View`
 

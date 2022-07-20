@@ -94,8 +94,8 @@ class SettingsCog(Cog):
                 str,
                 name="action",
                 choices=[
-                    OptionChoice(name="Append role", value="append"),
-                    OptionChoice(name="Unappend role", value="unappend"),
+                    OptionChoice(name="Add role", value="append"),
+                    OptionChoice(name="Remove role", value="unappend"),
                     OptionChoice(name="View roles", value="view"),
                 ],
             ),
@@ -175,8 +175,8 @@ class SettingsCog(Cog):
                 str,
                 name="action",
                 choices=[
-                    OptionChoice(name="Append role", value="append"),
-                    OptionChoice(name="Unappend role", value="unappend"),
+                    OptionChoice(name="Add role", value="append"),
+                    OptionChoice(name="Remove role", value="unappend"),
                     OptionChoice(name="View roles", value="view"),
                 ],
             ),
