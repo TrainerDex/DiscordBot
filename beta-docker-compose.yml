@@ -1,0 +1,16 @@
+services:
+  trainerdex:
+    build:
+      dockerfile: Dockerfile
+    container_name: trainerdex_beta
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@trainerdex_mongo:27017/
+    networks:
+      - default
+    restart: unless-stopped
+
+networks:
+  default:
+    name: discordbot_default
