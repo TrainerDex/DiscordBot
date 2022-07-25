@@ -2,13 +2,13 @@ services:
   trainerdex:
     build:
       dockerfile: Dockerfile
-    container_name: trainerdex
+    container_name: trainerdex-beta
     env_file:
       - .env
     environment:
       - MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@trainerdex_mongo:27017/
     networks:
-      default
+      - default
     restart: unless-stopped
 
 networks:
