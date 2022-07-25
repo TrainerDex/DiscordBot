@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2021.30.0] - 2022-07-25
+### Changed
+- Everything! We now have slash commands. 
+
+
 ## [2021.43.0] - 2021-10-28
 ### Changed
 - Fix an issue where an error might happen when approving a user that the bot can't DM
@@ -169,7 +174,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/TrainerDex/DiscordBot/compare/v2020.48.0...HEAD
+[Unreleased]: https://github.com/TrainerDex/  DiscordBot/compare/v2022.30.0...develop
+[2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2021.43.0...v2022.30.0
+[2021.43.0]: https://github.com/TrainerDex/DiscordBot/compare/v2020.48.0...v2021.43.0
 [2020.48.0]: https://github.com/TrainerDex/DiscordBot/compare/v2020.40.2...v2020.48.0
 [2020.40.2]: https://github.com/TrainerDex/DiscordBot/compare/v2020.40.0...v2020.40.2
 [2020.40.0]: https://github.com/TrainerDex/DiscordBot/compare/v2020.38.0...v2020.40.0

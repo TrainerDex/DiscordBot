@@ -11,6 +11,7 @@ from discord.role import Role
 
 from trainerdex_discord_bot.checks import check_member_privilage
 from trainerdex_discord_bot.cogs.interface import Cog
+
 # from trainerdex_discord_bot.datatypes import GlobalConfig
 from trainerdex_discord_bot.utils.chat_formatting import error, info, success
 from trainerdex_discord_bot.utils.general import send
@@ -38,7 +39,9 @@ class SettingsCog(Cog):
     # )
 
     @guild_config.command(name="assign-roles-on-join", checks=[check_member_privilage])
-    async def guild_config__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
+    async def guild_config__assign_roles_on_join(
+        self, ctx: ApplicationContext, value: bool
+    ) -> None:
         """Modify the roles of members when they're approved.
 
         This is useful for granting users access to the rest of the server.
@@ -54,7 +57,9 @@ class SettingsCog(Cog):
         )
 
     @guild_config.command(name="set-nickname-on-join", checks=[check_member_privilage])
-    async def guild_config__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
+    async def guild_config__set_nickname_on_join(
+        self, ctx: ApplicationContext, value: bool
+    ) -> None:
         """Modify the nickname of members when they're approved.
 
         This is useful for ensuring players can be easily identified.
@@ -167,7 +172,7 @@ class SettingsCog(Cog):
         elif array == "revoke":
             guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
         await self.config.set_guild(guild_config)
-        
+
     @guild_config.command(
         name="mod-roles",
         options=[
