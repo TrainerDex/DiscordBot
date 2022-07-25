@@ -1,3 +1,6 @@
+import calendar
+from datetime import datetime
+from enum import Enum
 import textwrap
 from decimal import ROUND_HALF_UP, Decimal
 from io import BytesIO
@@ -430,3 +433,18 @@ def format_numbers(number: int | float | Decimal, ndigits: int = 2) -> str:
     if not float(number).is_integer():
         number = Decimal(number).quantize(Decimal(f"0.{'0' * ndigits}"), rounding=ROUND_HALF_UP)
     return humanize.intcomma(number)
+
+class TimeVerbosity(Enum):
+    """Enum for the verbosity of the :func:`format_time` function."""
+    SHORT_DATE = "d"
+    LONG_DATE = "D"
+    SHORT_TIME = "t"
+    LONG_TIME = "T"
+    SHORT_DATETIME = "f"
+    LONG_DATETIME = "F"
+    DELTA = "R"
+
+
+def format_time(dt: datetime, verbosity: TimeVerbosity = TimeVerbosity.LONG_DATETIME) -> str:
+    """Formats a datetime in a way Discord loves it"""
+    return f"<t:{calendar.timegm(dt.utctimetuple())}:{verbosity.value}>"

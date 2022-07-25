@@ -64,7 +64,14 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             },
         )
         private_logger.info("Public: %(public)s", {"public": app_info.bot_public})
-        logger.info("Bot loaded at {time}.".format(time=datetime.datetime.utcnow().isoformat()))
+        logger.info(
+            "Bot loaded at {time}.".format(
+                time=chat_formatting.format_time(
+                    datetime.datetime.now(),
+                    chat_formatting.TimeVerbosity.LONG_DATETIME,
+                )
+            )
+        )
 
     @bot.event
     async def on_application_command_error(ctx: ApplicationContext, exception: Exception) -> None:
