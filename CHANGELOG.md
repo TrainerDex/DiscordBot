@@ -178,7 +178,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/TrainerDex/  DiscordBot/compare/v2022.30.0...develop
+[Unreleased]: https://github.com/TrainerDex/  DiscordBot/compare/v2022.30.1...develop
+[2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2022.30.0...v2022.30.1
 [2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2021.43.0...v2022.30.0
 [2021.43.0]: https://github.com/TrainerDex/DiscordBot/compare/v2020.48.0...v2021.43.0
 [2020.48.0]: https://github.com/TrainerDex/DiscordBot/compare/v2020.40.2...v2020.48.0
