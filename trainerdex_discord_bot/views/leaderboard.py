@@ -63,9 +63,13 @@ class LeaderboardView(Paginator):
         )
 
         if isinstance(leaderboard, GuildLeaderboard):
-            embed.set_author(
-                name=ctx.interaction.guild.name, icon_url=ctx.interaction.guild.icon.url
-            )
+            if ctx.interaction.guild.icon:
+                embed.set_author(
+                    name=ctx.interaction.guild.name,
+                    icon_url=ctx.interaction.guild.icon.url,
+                )
+            else:
+                embed.set_author(name=ctx.interaction.guild.name)
 
         for entry in slice:
             team_emoji = getattr(
