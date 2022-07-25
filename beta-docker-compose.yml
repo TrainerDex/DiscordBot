@@ -24,7 +24,7 @@ services:
     ports:
       - "0.0.0.0:27018:27017"
     volumes:
-      - mongodb_store:/data/db
+      - bmongodb_store:/data/db
       - /etc/ssl:/etc/ssl
     restart: always
     command: --sslMode requireSSL --sslPEMKeyFile /etc/ssl/mongo.pem --port 27017
@@ -34,4 +34,4 @@ networks:
     name: discordbot_default
 
 volumes:
-  mongodb_store_beta: null
+  bmongodb_store: null
