@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2021.30.1] - 2022-07-25
+### Changed
+- Fix leaderboards not loading if a server has no icon 
+
 ## [2021.30.0] - 2022-07-25
 ### Changed
 - Everything! We now have slash commands. 
