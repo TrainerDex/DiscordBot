@@ -2,7 +2,7 @@ services:
   trainerdex:
     build:
       dockerfile: Dockerfile
-    container_name: trainerdex-beta
+    container_name: trainerdex_beta
     env_file:
       - .env
     environment:
