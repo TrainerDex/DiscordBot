@@ -7,7 +7,11 @@ This section will be updated when the bot goes public, very soon.
 ## Configuring the bot
 Generally, you will need `Manage Server` or `Administrator` permissions to use any of the config commands on the bot. These permissions were picked to match the permissions Discord requires to install the bot.
 
-Once you've set your mod roles, it might be good idea to explicitly set who can use bot commands. Discord has a good support article on that [**here**](https://support.discord.com/hc/en-us/articles/4644915651095-Command-Permissions).
+Once you've set your mod roles, you will need to explicitly enable mods to use these commands. Discord has a good support article on that [**here**](https://support.discord.com/hc/en-us/articles/4644915651095-Command-Permissions).
+
+Example config:  
+![image](https://user-images.githubusercontent.com/11667059/181306516-7243ace3-79b9-4fc0-b0c2-39f342ab681b.png)
+
 
 The following commands exist:
 - `/server-config mod-roles` - Provides functionality to set which roles on your server are considered mods. The bot will consider somebody a mod if they have `Manage Server`, `Administrator` permissions, or one of the roles in this list.
