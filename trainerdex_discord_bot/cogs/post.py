@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from discord import (
     ApplicationContext,
@@ -11,54 +11,36 @@ from discord import (
     slash_command,
 )
 from discord.utils import snowflake_time
-from google.oauth2 import service_account
-from PogoOCR import OCRClient, Screenshot, ScreenshotClass
-from PogoOCR.providers import Providers
 
 from trainerdex_discord_bot.cogs.interface import Cog
-from trainerdex_discord_bot.config import TokenDocuments
 from trainerdex_discord_bot.constants import STAT_MAP
 from trainerdex_discord_bot.embeds import ProfileCard
+from trainerdex_discord_bot.new_ocr_client import NewOCRClient
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.converters import get_trainer, get_trainer_from_user
 from trainerdex_discord_bot.utils.general import send
 from trainerdex_discord_bot.utils.validators import validate_trainer_nickname
 
 if TYPE_CHECKING:
-    from PogoOCR.images.actitvity_view import ActivityViewData
     from trainerdex.trainer import Trainer
     from trainerdex.update import Update
 
 
 class PostCog(Cog):
-    async def __post_init__(self) -> None:
-        await super().__post_init__()
-
-        self.ocr = None
-        if google_token := await self.config.get_token(TokenDocuments.GOOGLE.value):
-            credentials: service_account.Credentials = (
-                service_account.Credentials.from_service_account_info(google_token)
-            )
-            self.ocr = OCRClient(credentials=credentials, provider=Providers.GOOGLE)
-
-    @property
-    def ocr_initialized(self) -> bool:
-        return isinstance(self.ocr, OCRClient)
-
     @slash_command(
         name="update",
         description="Update your stats with an image, optionally a few other stats are included.",
         options=[
+            Option(
+                Attachment,
+                name="image",
+                description="Image for OCR",
+                required=False,
+            ),
             Option(int, name="total_xp", description="Total XP", required=False),
             Option(int, name="pokestops_visited", description="Backpacker", required=False),
             Option(int, name="capture_total", description="Collector", required=False),
             Option(float, name="travel_km", description="Jogger", required=False),
-            Option(
-                Attachment,
-                name="image",
-                description="Image for OCR, when it's working again.",
-                required=False,
-            ),
             Option(int, name="gym_gold", description="Gold Gym Badges", required=False),
             Option(int, name="unique_pokestops", description="Sightseer", required=False),
             Option(int, name="legendary_battle_won", description="Battle Legend", required=False),
@@ -84,11 +66,11 @@ class PostCog(Cog):
     async def update_via_slash_command(
         self,
         ctx: ApplicationContext,
+        image: Attachment | None = None,
         total_xp: int | None = None,
         pokestops_visited: int | None = None,
         capture_total: int | None = None,
         travel_km: float | None = None,
-        image: Attachment | None = None,
         gym_gold: int | None = None,
         unique_pokestops: int | None = None,
         legendary_battle_won: int | None = None,
@@ -166,16 +148,9 @@ class PostCog(Cog):
             return
 
         data_from_ocr = {}
-        if self.ocr_initialized and image is not None:
+        if image is not None:
             try:
-                screenshot = await Screenshot.from_url(
-                    image.url,
-                    klass=ScreenshotClass.ACTIVITY_VIEW,
-                    asyncronous=True,
-                )
-
-                request = self.ocr.open_request(screenshot)
-                result: ActivityViewData = self.ocr.process_ocr(request)
+                result: Dict[str, float] = await NewOCRClient.request_activitiy_view_scan(image)
             except Exception:
                 if not kwargs:
                     await send(
@@ -194,10 +169,10 @@ class PostCog(Cog):
                     )
             else:
                 data_from_ocr: dict[str, Decimal | int | None] = {
-                    "travel_km": result.travel_km,
-                    "capture_total": result.capture_total,
-                    "pokestops_visited": result.pokestops_visited,
-                    "total_xp": result.total_xp,
+                    "travel_km": result.get("Distance"),
+                    "capture_total": result.get("Pokémon"),
+                    "pokestops_visited": result.get("PokéStops"),
+                    "total_xp": result.get("Total"),
                 }
 
         stats_to_update = kwargs | data_from_ocr
