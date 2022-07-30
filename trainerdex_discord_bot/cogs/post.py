@@ -105,7 +105,7 @@ class PostCog(Cog):
         if not (image or kwargs):
             await send(
                 ctx,
-                "You haven't provided a valid image or any stats. Sorry, nothing I can do here.",
+                "You haven't provided a valid image or any stats. Sorry, nothing I can do here. Perhaps you forgot to attach an image?",
                 ephemeral=True,
             )
             return
@@ -141,14 +141,15 @@ class PostCog(Cog):
             await send(
                 ctx,
                 chat_formatting.warning(
-                    "You're not set up with a TrainerDex profile. Please ask a mod to set you up."
+                    "You're not set up with a TrainerDex profile. Please ask a mod to set you up. (Tutorial here for mod: <https://www.youtube.com/watch?v=KCxtyukXW7w>)"
                 ),
-                ephemeral=image.ephemeral,
+                ephemeral=False,
             )
             return
 
         data_from_ocr = {}
         if image is not None:
+            message = await send(ctx, "Analyzing image...", delete_after=30)
             try:
                 result: Dict[str, float] = await NewOCRClient.request_activitiy_view_scan(image)
             except Exception:
