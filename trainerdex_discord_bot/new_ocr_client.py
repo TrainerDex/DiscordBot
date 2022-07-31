@@ -10,7 +10,7 @@ class NewOCRClient:
     HOST: ClassVar[str] = os.environ.get("TRAINERDEX_HOST", "https://trainerdex.app")   
     
     @classmethod
-    async def request_activitiy_view_scan(cls, image: Attachment) -> Dict[str, float]:
+    async def request_activity_view_scan(cls, image: Attachment) -> Dict[str, float]:
         async with aiohttp.ClientSession() as session:
             headers = {
                 "Content-Disposition": f"attachment; filename={image.filename}"

@@ -105,7 +105,7 @@ class PostCog(Cog):
         if not (image or kwargs):
             await send(
                 ctx,
-                "You haven't provided a valid image or any stats. Sorry, nothing I can do here.",
+                "You haven't provided a valid image or any stats. Sorry, nothing I can do here. Perhaps you forgot to attach an image?",
                 ephemeral=True,
             )
             return
@@ -141,16 +141,17 @@ class PostCog(Cog):
             await send(
                 ctx,
                 chat_formatting.warning(
-                    "You're not set up with a TrainerDex profile. Please ask a mod to set you up."
+                    "You're not set up with a TrainerDex profile. Please ask a mod to set you up. (Tutorial here for mod: <https://www.youtube.com/watch?v=KCxtyukXW7w>)"
                 ),
-                ephemeral=image.ephemeral,
+                ephemeral=False,
             )
             return
 
         data_from_ocr = {}
         if image is not None:
+            await send(ctx, "Analyzing image...", delete_after=30)
             try:
-                result: Dict[str, float] = await NewOCRClient.request_activitiy_view_scan(image)
+                data_from_ocr: Dict[str, float] = await NewOCRClient.request_activity_view_scan(image)
             except Exception:
                 if not kwargs:
                     await send(
@@ -167,13 +168,6 @@ class PostCog(Cog):
                             "The OCR failed to process, but I'm still going to try to update your stats with the keywords you provided.",
                         ),
                     )
-            else:
-                data_from_ocr: dict[str, Decimal | int | None] = {
-                    "travel_km": result.get("Distance"),
-                    "capture_total": result.get("Pokémon"),
-                    "pokestops_visited": result.get("PokéStops"),
-                    "total_xp": result.get("Total"),
-                }
 
         stats_to_update = kwargs | data_from_ocr
         print(stats_to_update)
