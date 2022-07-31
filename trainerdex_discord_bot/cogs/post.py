@@ -149,9 +149,9 @@ class PostCog(Cog):
 
         data_from_ocr = {}
         if image is not None:
-            message = await send(ctx, "Analyzing image...", delete_after=30)
+            await send(ctx, "Analyzing image...", delete_after=30)
             try:
-                result: Dict[str, float] = await NewOCRClient.request_activitiy_view_scan(image)
+                data_from_ocr: Dict[str, float] = await NewOCRClient.request_activity_view_scan(image)
             except Exception:
                 if not kwargs:
                     await send(
@@ -168,13 +168,6 @@ class PostCog(Cog):
                             "The OCR failed to process, but I'm still going to try to update your stats with the keywords you provided.",
                         ),
                     )
-            else:
-                data_from_ocr: dict[str, Decimal | int | None] = {
-                    "travel_km": result.get("Distance"),
-                    "capture_total": result.get("Pokémon"),
-                    "pokestops_visited": result.get("PokéStops"),
-                    "total_xp": result.get("Total"),
-                }
 
         stats_to_update = kwargs | data_from_ocr
         print(stats_to_update)
