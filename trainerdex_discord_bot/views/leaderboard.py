@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-import humanize
 from aiostream import stream
 from discord import ApplicationContext, Embed, PartialEmoji
 from discord.ext.pages.pagination import Paginator
 from trainerdex.leaderboard import BaseLeaderboard, GuildLeaderboard, LeaderboardEntry
 
 from trainerdex_discord_bot.constants import TRAINERDEX_COLOUR, CustomEmoji, Stats
-from trainerdex_discord_bot.utils.chat_formatting import format_numbers
+from trainerdex_discord_bot.utils.chat_formatting import format_numbers, format_time
 
 
 class LeaderboardView(Paginator):
@@ -77,7 +76,7 @@ class LeaderboardView(Paginator):
             ).value
             embed.add_field(
                 name=f"{team_emoji} {entry.position} {entry.username}",
-                value=f"- {format_numbers(entry.value)} • {humanize.naturaldate(entry.last_updated)}",
+                value=f"- {format_numbers(entry.value)} • {format_time(entry.last_updated)}",
                 inline=False,
             )
         return embed
