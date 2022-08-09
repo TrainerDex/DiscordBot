@@ -82,7 +82,7 @@ class LeaderboardCog(Cog):
 
         for guild in self.bot.guilds:
             guild_config = await self.config.get_guild(guild)
-            if self._check_guild_eligible_for_leaderboard(guild_config):
+            if guild_config.is_eligible_for_leaderboard:
                 enabled_guilds[guild] = guild_config
 
         gather(
@@ -95,12 +95,6 @@ class LeaderboardCog(Cog):
     @_gather_guilds_for_weekly_leaderboards.before_loop
     async def loop_wait(self):
         await self.bot.wait_until_ready()
-
-    def _check_guild_eligible_for_leaderboard(self, guild_config: GuildConfig) -> bool:
-        return (
-            guild_config.post_weekly_leaderboards
-            and guild_config.leaderboard_channel_id is not None
-        )
 
     async def _post_weekly_leaderboard(self, guild: Guild, config: GuildConfig):
         guild_timezone = ZoneInfo(config.timezone or "UTC")
