@@ -170,14 +170,12 @@ class PostCog(Cog):
                     )
 
         stats_to_update = kwargs | data_from_ocr
-        print(stats_to_update)
 
         stats_to_update: dict[str, Decimal | int] = {
             STAT_MAP.get(key, key): value
             for key, value in stats_to_update.items()
             if value is not None
         }
-        print(stats_to_update)
 
         if not stats_to_update:
             await send(
@@ -192,7 +190,6 @@ class PostCog(Cog):
         latest_update: Update = trainer.get_latest_update()
 
         # If the latest update is less than half an hour old, update in place.
-        print(f"{latest_update.update_time} {snowflake_time(ctx.interaction.id)}")
         if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(
             minutes=30
         ):

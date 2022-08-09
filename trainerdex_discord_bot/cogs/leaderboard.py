@@ -3,16 +3,21 @@ from __future__ import annotations
 from asyncio import gather
 from datetime import datetime, time
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
-from discord import Guild
+import aiohttp
+from dateutil.relativedelta import relativedelta, MO
+from discord import Guild, Message, Thread
 from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.ext import tasks
+from yarl import URL
 
 from trainerdex_discord_bot.cogs.interface import Cog
-from trainerdex_discord_bot.constants import Stats
+from trainerdex_discord_bot.constants import TRAINERDEX_API_TOKEN, Stats
+from trainerdex_discord_bot.utils.chat_formatting import format_time
 from trainerdex_discord_bot.utils.general import send
+from trainerdex_discord_bot.views.gains_leaderboard import GainsLeaderboardView
 from trainerdex_discord_bot.views.leaderboard import LeaderboardView
 
 if TYPE_CHECKING:
@@ -82,7 +87,7 @@ class LeaderboardCog(Cog):
 
         for guild in self.bot.guilds:
             guild_config = await self.config.get_guild(guild)
-            if self._check_guild_eligible_for_leaderboard(guild_config):
+            if guild_config.is_eligible_for_leaderboard:
                 enabled_guilds[guild] = guild_config
 
         gather(
@@ -96,18 +101,40 @@ class LeaderboardCog(Cog):
     async def loop_wait(self):
         await self.bot.wait_until_ready()
 
-    def _check_guild_eligible_for_leaderboard(self, guild_config: GuildConfig) -> bool:
-        return (
-            guild_config.post_weekly_leaderboards
-            and guild_config.leaderboard_channel_id is not None
-        )
-
     async def _post_weekly_leaderboard(self, guild: Guild, config: GuildConfig):
         guild_timezone = ZoneInfo(config.timezone or "UTC")
         leaderboard_channel = self.bot.get_channel(config.leaderboard_channel_id)
 
-        if (time_now := datetime.now(tz=guild_timezone)).hour == 12:
-            await leaderboard_channel.send(
-                f"It's {time_now.strftime('%H:%M %Z')}, time to post the weekly leaderboard! Unfortunately, they're still a work in progress.\nThis message will self-destruct in 30 seconds.",
-                delete_after=30,
-            )
+        local_time = datetime.now(tz=guild_timezone)
+
+        if local_time.hour == 12 and local_time.weekday() == 0:
+            minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
+            subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
+            deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
+            for stat in (Stats.TOTAL_XP, Stats.TRAVEL_KM, Stats.CAPTURE_TOTAL, Stats.POKESTOPS_VISITED, Stats.GYM_GOLD):
+                gains_data = await self._get_gains_leaderboard_data(guild.id, stat.value[0], subtrahend_datetime, minuend_datetime)
+
+                embeds = GainsLeaderboardView.get_pages(gains_data)
+
+                thread: Thread
+                for index, embed in enumerate(embeds):
+                    if index==0:
+                        message: Message = await leaderboard_channel.send(
+                            f"It's {format_time(local_time)}, time to post the weekly leaderboard! The next leaderboard will be posted at {format_time(deadline)}.",    
+                            embed=embed,
+                        )
+                        thread = await message.create_thread(name=f"{guild.name} Weekly {stat.value[1]} Leaderboard for {minuend_datetime.date().isoformat()}")
+                    else:
+                        await thread.send(embed=embed)
+
+    async def _get_gains_leaderboard_data(self, guild_id: int, stat: str, subtrahend_datetime: datetime, minuend_datetime: datetime) -> dict:
+        async with aiohttp.ClientSession(headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}) as session:
+            url = URL("https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=250")
+            url %= {
+                "guild_id": guild_id,
+                "stat": stat,
+                "subtrahend_datetime": subtrahend_datetime.isoformat(),
+                "minuend_datetime": minuend_datetime.isoformat(),
+            }
+            async with session.get(url) as response:
+                return await response.json()

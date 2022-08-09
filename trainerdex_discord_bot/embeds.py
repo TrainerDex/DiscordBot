@@ -4,7 +4,6 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
-import humanize
 from dateutil.relativedelta import MO
 from dateutil.rrule import WEEKLY, rrule
 from dateutil.tz import UTC
@@ -282,8 +281,8 @@ class ProfileCard(BaseCard):
         self.add_field(
             name=f"{CustomEmoji.DATE.value} Interval",
             value="{then} ⇒ {now} (+{days} days)".format(
-                then=humanize.naturaldate(last_update.update_time),
-                now=humanize.naturaldate(this_update.update_time),
+                then=chat_formatting.format_time(last_update.update_time),
+                now=chat_formatting.format_time(this_update.update_time),
                 days=chat_formatting.format_numbers(days),
             ),
             inline=False,

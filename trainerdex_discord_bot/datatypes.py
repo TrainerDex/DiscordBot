@@ -81,6 +81,10 @@ class GuildConfig(_MongoDBDocument):
         )
         return cls(**{k: v for k, v in mapping.items() if k in inspect.signature(cls).parameters})
 
+    @property
+    def is_eligible_for_leaderboard(self) -> bool:
+        return self.post_weekly_leaderboards and self.leaderboard_channel_id is not None
+
 
 @dataclass
 class ChannelConfig(_MongoDBDocument):
