@@ -319,10 +319,9 @@ class SettingsCog(Cog):
         if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
             await send(
                 ctx,
-                f"Cannot set `leaderboard_channel` to `{value}`. The channel must be able to be messaged and be able to create public threads.",
+                "The channel must be able to be messaged and be able to create public threads. Leaderboard may not post.",
                 ephemeral=True,
             )
-            return
         
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         
