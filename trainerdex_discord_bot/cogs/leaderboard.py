@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from asyncio import gather
-from datetime import datetime, time
+from datetime import date, datetime, time
 from enum import Enum
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
@@ -107,7 +107,7 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if local_time.hour == 12 and local_time.weekday() == 0:
+        if local_time.hour == 12 and (local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)):
             minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
             subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
             deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
