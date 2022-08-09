@@ -107,7 +107,7 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if local_time.hour == 12:
+        if local_time.hour == 12 and local_time.weekday() == 0:
             minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
             subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
             deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
