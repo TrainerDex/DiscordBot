@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, List
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from discord import (
     ApplicationContext,
@@ -6,6 +7,7 @@ from discord import (
     OptionChoice,
     Permissions,
     SlashCommandGroup,
+    TextChannel,
 )
 from discord.role import Role
 
@@ -282,9 +284,72 @@ class SettingsCog(Cog):
 
         await send(
             ctx,
-            f"Set `tl40_role` to `{value.mention}`.",
+            f"Set `tl40_role` to {value.mention}.",
             ephemeral=True,
         )
+
+    @guild_config.command(name="timezone", checks=[check_member_privilage])
+    async def guild_config__timezone(self, ctx: ApplicationContext, value: str) -> None:
+        """Set the timezone for the server. This is used for the weekly leaderboard."""
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        
+        try:
+            ZoneInfo(value.strip())
+        except ZoneInfoNotFoundError:
+            await send(
+                    ctx,
+                    f"Cannot set `timezone` to `{value}`. For a list of valid timezones, please check this table: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List ",
+                    ephemeral=True,
+                )
+        
+        guild_config.timezone = value.strip()
+        await self.config.set_guild(guild_config)
+
+        await send(
+            ctx,
+            f"Set `timezone` to `{value}`.",
+            ephemeral=True,
+        )
+
+    @guild_config.command(name="leaderboard-channel", checks=[check_member_privilage])
+    async def guild_config__leaderboard_channel(self, ctx: ApplicationContext, value: TextChannel) -> None:
+        """Set a channel for the bot to post weekly leaderboard messages to. Needs to be a text channel and the bot must be able to send messages, send messages in threads and create threads.""" 
+        perms = value.permissions_for(ctx.me)
+        
+        if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
+            await send(
+                ctx,
+                f"Cannot set `leaderboard_channel` to `{value}`. The channel must be able to be messaged and be able to create public threads.",
+                ephemeral=True,
+            )
+            return
+        
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        
+        guild_config.leaderboard_channel_id = value.id
+        await self.config.set_guild(guild_config)
+
+        await send(
+            ctx,
+            f"Set `leaderboard_channel` to {value.mention}.",
+            ephemeral=True,
+        )
+
+    @guild_config.command(name="enable-weekly-leaderboard", checks=[check_member_privilage])
+    async def guild_config__post_weekly_leaderboards(
+        self, ctx: ApplicationContext, value: bool
+    ) -> None:
+        """Post leaderboards weekly on Monday 12:00 local. (Timezone is set in the config, default is UTC)"""
+        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config.post_weekly_leaderboards = value
+        await self.config.set_guild(guild_config)
+
+        await send(
+            ctx,
+            f"Set `post_weekly_leaderboards` to `{value}`.",
+            ephemeral=True,
+        )
+        
 
     # @guild_config.command(name="introduction-note", checks=[check_member_privilage])
     # async def guild_config__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
