@@ -313,7 +313,7 @@ class SettingsCog(Cog):
 
     @guild_config.command(name="leaderboard-channel", checks=[check_member_privilage])
     async def guild_config__leaderboard_channel(self, ctx: ApplicationContext, value: TextChannel) -> None:
-        """Set a channel for the bot to post weekly leaderboard messages to. Needs to be a text channel and the bot must be able to send messages, send messages in threads and create threads.""" 
+        """Set a channel for the bot to post weekly leaderboard messages to.""" 
         perms = value.permissions_for(ctx.me)
         
         if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
