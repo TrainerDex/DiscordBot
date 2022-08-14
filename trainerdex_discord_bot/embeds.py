@@ -278,7 +278,8 @@ class ProfileCard(BaseCard):
                         ),
                         award_maybe=(
                             ""
-                            if this_update.travel_km < TRAVEL_KM_THRESHOLD
+                            if (this_update.travel_km - reference_update.travel_km)
+                            < TRAVEL_KM_THRESHOLD
                             else f"🏅 Achieved Thunderlegs (Walk {TRAVEL_KM_THRESHOLD}km)"
                         ),
                     ),
@@ -303,7 +304,8 @@ class ProfileCard(BaseCard):
                         ),
                         award_maybe=(
                             ""
-                            if this_update.capture_total < CAPTURE_TOTAL_THRESHOLD
+                            if (this_update.capture_total - reference_update.capture_total)
+                            < CAPTURE_TOTAL_THRESHOLD
                             else f"🏅 Achieved Expert Aim (Catch {CAPTURE_TOTAL_THRESHOLD} Pokémon)"
                         ),
                     ),
@@ -328,7 +330,8 @@ class ProfileCard(BaseCard):
                         ),
                         award_maybe=(
                             ""
-                            if this_update.pokestops_visited < POKESTOPS_VISITED_THRESHOLD
+                            if (this_update.pokestops_visited - reference_update.pokestops_visited)
+                            < POKESTOPS_VISITED_THRESHOLD
                             else f"🏅 Achieved Explorer (Visit {POKESTOPS_VISITED_THRESHOLD} PokéStops)"
                         ),
                     ),
@@ -353,7 +356,8 @@ class ProfileCard(BaseCard):
                         ),
                         award_maybe=(
                             ""
-                            if this_update.total_xp < TOTAL_XP_THERESHOLD
+                            if (this_update.total_xp - reference_update.total_xp)
+                            < TOTAL_XP_THERESHOLD
                             else f"🏅 Achieved Dedicated (Earn {TOTAL_XP_THERESHOLD} XP)"
                         ),
                     ),
