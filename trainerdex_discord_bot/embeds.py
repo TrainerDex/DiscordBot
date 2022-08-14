@@ -4,7 +4,9 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
-from humanize import naturaldelta
+from dateutil.relativedelta import MO
+from dateutil.rrule import WEEKLY, rrule
+from dateutil.tz import UTC
 from discord.channel import TextChannel
 from discord.colour import Colour
 from discord.commands import ApplicationContext
@@ -210,78 +212,97 @@ class ProfileCard(BaseCard):
             )
 
     async def show_progress(self) -> None:
+
         this_update: Update = self.update
 
         if this_update is None:
             return
 
-        window: tuple[datetime.datetime, datetime.datetime] = (
-            this_update.update_time - datetime.timedelta(hours=26),
-            this_update.update_time,
+        RRULE = rrule(
+            WEEKLY, dtstart=datetime.datetime(2016, 7, 4, 12, 0, tzinfo=UTC), byweekday=MO
         )
 
-        stats_to_check: list[str] = [
-            x
-            for x in [
-                "travel_km",
-                "capture_total",
-                "pokestops_visited",
-                "total_xp",
-                "gymbadges_gold",
-            ]
-            if getattr(this_update, x, None) is not None
-        ]
+        current_period: tuple[rrule, rrule] = (
+            RRULE.before(this_update.update_time, inc=True),
+            RRULE.after(this_update.update_time),
+        )
 
         try:
-            reference_update: Update = min(
+            last_update: Update = max(
                 [
                     x
                     for x in self.trainer.updates
                     if (
-                        any([(getattr(x, stat, None) is not None) for stat in stats_to_check])
-                        and window[0] < x.update_time < window[1]
+                        getattr(x, "total_xp", None) is not None
+                        and x.update_time < current_period[0]
                     )
                 ],
                 key=lambda x: x.update_time,
             )
         except ValueError:
-            reference_update = None
+            last_update = None
 
-        if not reference_update:
-            return
+        if not last_update:
+            if not self.trainer.start_date:
+                return
+            last_update: Update = Update(
+                conn=None,
+                data={
+                    "uuid": "00000000-0000-0000-0000-000000000000",
+                    "trainer": self.trainer.old_id,
+                    "update_time": datetime.datetime(
+                        self.trainer.start_date.year,
+                        self.trainer.start_date.month,
+                        self.trainer.start_date.day,
+                        0,
+                        0,
+                        0,
+                        tzinfo=UTC,
+                    ).isoformat(),
+                    "badge_travel_km": 0,
+                    "badge_capture_total": 0,
+                    "badge_pokestops_visited": 0,
+                    "total_xp": 0,
+                },
+            )
+            data_inacuracy_notice: str = chat_formatting.info(
+                "No data old enough found, using start date."
+            )
+            if self.description:
+                self.description = "\n".join([self.description, data_inacuracy_notice])
+            else:
+                self.description = data_inacuracy_notice
+
+        time_delta: datetime.timedelta = this_update.update_time - last_update.update_time
+        days: float = max((time_delta.total_seconds() / 86400), 1)
 
         self.clear_fields()
-        if not self.description:
-            self.description = ""
-        self.description += "\nWe're currently trialing a new way to show your progress. The 26-hour window! With achievements!"
 
         self.add_field(
-            name=f"{CustomEmoji.DATE.value} Interval (up to 26 hours)",
-            value=naturaldelta(this_update.update_time - reference_update.update_time),
+            name=f"{CustomEmoji.DATE.value} Interval",
+            value="{then} ⇒ {now} (+{days} days)".format(
+                then=chat_formatting.format_time(last_update.update_time),
+                now=chat_formatting.format_time(this_update.update_time),
+                days=chat_formatting.format_numbers(days),
+            ),
             inline=False,
         )
-
-        TRAVEL_KM_THRESHOLD = Decimal(15)
-        TOTAL_XP_THERESHOLD = 250_000
-        POKESTOPS_VISITED_THRESHOLD = 50
-        CAPTURE_TOTAL_THRESHOLD = 100
-        ACHIEVEMENTS_DEADLINE = reference_update.update_time + datetime.timedelta(hours=26)
-
         if this_update.travel_km:
-            if reference_update.travel_km is not None:
+            if last_update.travel_km is not None:
                 self.add_field(
                     name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
-                    value="+{delta}km ({now}km)\n{award_maybe}".format(
+                    value="{then}km ⇒ {now}km (+{delta} | {daily_gain})".format(
+                        then=chat_formatting.format_numbers(last_update.travel_km, 1),
                         now=chat_formatting.format_numbers(this_update.travel_km, 1),
                         delta=chat_formatting.format_numbers(
-                            this_update.travel_km - reference_update.travel_km,
+                            this_update.travel_km - last_update.travel_km,
                             1,
                         ),
-                        award_maybe=(
-                            f"Walk a further {TRAVEL_KM_THRESHOLD-(this_update.travel_km - reference_update.travel_km)}km by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Thunderlegs achievement"
-                            if (this_update.travel_km - reference_update.travel_km)
-                            < TRAVEL_KM_THRESHOLD
-                            else f"🏅 Achieved Thunderlegs (Walk {TRAVEL_KM_THRESHOLD}km)"
+                        daily_gain="{gain}/day".format(
+                            gain=chat_formatting.format_numbers(
+                                (this_update.travel_km - last_update.travel_km) / Decimal(days)
+                            )
+                            + "km"
                         ),
                     ),
                     inline=False,
@@ -292,22 +313,20 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.travel_km) + " km",
                     inline=False,
                 )
-
         if this_update.capture_total:
-            if reference_update.capture_total is not None:
+            if last_update.capture_total is not None:
                 self.add_field(
                     name=f"{CustomEmoji.CAPTURE_TOTAL.value} Pokémon Caught",
-                    value="+{delta} ({now})\n{award_maybe}".format(
-                        now=chat_formatting.format_numbers(this_update.capture_total, 1),
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
+                        then=chat_formatting.format_numbers(last_update.capture_total),
+                        now=chat_formatting.format_numbers(this_update.capture_total),
                         delta=chat_formatting.format_numbers(
-                            this_update.capture_total - reference_update.capture_total,
-                            1,
+                            this_update.capture_total - last_update.capture_total
                         ),
-                        award_maybe=(
-                            f"Catch {CAPTURE_TOTAL_THRESHOLD-(this_update.capture_total - reference_update.capture_total)} more Pokémon by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Expert Aim achievement"
-                            if (this_update.capture_total - reference_update.capture_total)
-                            < CAPTURE_TOTAL_THRESHOLD
-                            else f"🏅 Achieved Expert Aim (Catch {CAPTURE_TOTAL_THRESHOLD} Pokémon)"
+                        daily_gain="{gain}/day".format(
+                            gain=chat_formatting.format_numbers(
+                                (this_update.capture_total - last_update.capture_total) / days
+                            )
                         ),
                     ),
                     inline=False,
@@ -318,22 +337,21 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.capture_total),
                     inline=False,
                 )
-
         if this_update.pokestops_visited:
-            if reference_update.pokestops_visited is not None:
+            if last_update.pokestops_visited is not None:
                 self.add_field(
                     name=f"{CustomEmoji.POKESTOPS_VISITED.value} PokéStops Visited",
-                    value="+{delta} ({now})\n{award_maybe}".format(
-                        now=chat_formatting.format_numbers(this_update.pokestops_visited, 1),
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
+                        then=chat_formatting.format_numbers(last_update.pokestops_visited),
+                        now=chat_formatting.format_numbers(this_update.pokestops_visited),
                         delta=chat_formatting.format_numbers(
-                            this_update.pokestops_visited - reference_update.pokestops_visited,
-                            1,
+                            this_update.pokestops_visited - last_update.pokestops_visited
                         ),
-                        award_maybe=(
-                            f"Visit {POKESTOPS_VISITED_THRESHOLD-(this_update.pokestops_visited - reference_update.pokestops_visited)} more PokéStops by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Explorer achievement"
-                            if (this_update.pokestops_visited - reference_update.pokestops_visited)
-                            < POKESTOPS_VISITED_THRESHOLD
-                            else f"🏅 Achieved Explorer (Visit {POKESTOPS_VISITED_THRESHOLD} PokéStops)"
+                        daily_gain="{gain}/day".format(
+                            gain=chat_formatting.format_numbers(
+                                (this_update.pokestops_visited - last_update.pokestops_visited)
+                                / days
+                            )
                         ),
                     ),
                     inline=False,
@@ -344,22 +362,20 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.pokestops_visited),
                     inline=False,
                 )
-
         if this_update.total_xp:
-            if reference_update.total_xp is not None:
+            if last_update.total_xp is not None:
                 self.add_field(
                     name=f"{CustomEmoji.TOTAL_XP.value} Total XP",
-                    value="+{delta} ({now})\n{award_maybe}".format(
-                        now=chat_formatting.format_numbers(this_update.total_xp, 1),
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
+                        then=chat_formatting.format_numbers(last_update.total_xp),
+                        now=chat_formatting.format_numbers(this_update.total_xp),
                         delta=chat_formatting.format_numbers(
-                            this_update.total_xp - reference_update.total_xp,
-                            1,
+                            this_update.total_xp - last_update.total_xp
                         ),
-                        award_maybe=(
-                            f"Earn {TOTAL_XP_THERESHOLD-(this_update.total_xp - reference_update.total_xp)} more XP by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Dedicated achievement"
-                            if (this_update.total_xp - reference_update.total_xp)
-                            < TOTAL_XP_THERESHOLD
-                            else f"🏅 Achieved Dedicated (Earn {TOTAL_XP_THERESHOLD} XP)"
+                        daily_gain="{gain}/day".format(
+                            gain=chat_formatting.format_numbers(
+                                (this_update.total_xp - last_update.total_xp) / days
+                            )
                         ),
                     ),
                     inline=False,
@@ -370,16 +386,20 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.total_xp),
                     inline=False,
                 )
-
         if this_update.gymbadges_gold:
-            if reference_update.gymbadges_gold is not None:
+            if last_update.gymbadges_gold is not None:
                 self.add_field(
                     name=f"{CustomEmoji.GYMBADGES_GOLD.value} Gold Gyms",
-                    value="+{delta} ({now})".format(
-                        now=chat_formatting.format_numbers(this_update.gymbadges_gold, 1),
+                    value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
+                        then=chat_formatting.format_numbers(last_update.gymbadges_gold),
+                        now=chat_formatting.format_numbers(this_update.gymbadges_gold),
                         delta=chat_formatting.format_numbers(
-                            this_update.gymbadges_gold - reference_update.gymbadges_gold,
-                            1,
+                            this_update.gymbadges_gold - last_update.gymbadges_gold
+                        ),
+                        daily_gain="{gain}/day".format(
+                            gain=chat_formatting.format_numbers(
+                                (this_update.gymbadges_gold - last_update.gymbadges_gold) / days
+                            )
                         ),
                     ),
                     inline=False,
