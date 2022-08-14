@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 from dateutil.relativedelta import relativedelta, MO
-from discord import Guild, Message, Thread
+from discord import Embed, EmbedField, Guild, Message, Thread
 from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.ext import tasks
 from yarl import URL
@@ -80,8 +80,8 @@ class LeaderboardCog(Cog):
             paginator = await LeaderboardView.create(ctx, leaderboard_data)
             await paginator.respond(ctx.interaction)
 
-    @tasks.loop(time=[time(x) for x in range(24)])
-    # @tasks.loop(minutes=1)
+    # @tasks.loop(time=[time(x) for x in range(24)])
+    @tasks.loop(minutes=1)
     async def _gather_guilds_for_weekly_leaderboards(self):
         enabled_guilds = {}
 
@@ -107,29 +107,52 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if local_time.hour == 12 and (local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)):
-            minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
+        if True or local_time.hour == 12 and (
+            local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)
+        ):
+            minuend_datetime = local_time + relativedelta(
+                hour=12, minute=0, second=0, microsecond=0
+            )
             subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
             deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
-            for stat in (Stats.TOTAL_XP, Stats.TRAVEL_KM, Stats.CAPTURE_TOTAL, Stats.POKESTOPS_VISITED, Stats.GYM_GOLD):
-                gains_data = await self._get_gains_leaderboard_data(guild.id, stat.value[0], subtrahend_datetime, minuend_datetime)
 
+            leaderboard_data: dict[Stats, dict] = {
+                stat: (
+                    await self._get_gains_leaderboard_data(
+                        guild.id, stat.value[0], subtrahend_datetime, minuend_datetime
+                    )
+                )
+                for stat in (
+                    Stats.TOTAL_XP,
+                    Stats.TRAVEL_KM,
+                    Stats.CAPTURE_TOTAL,
+                    Stats.POKESTOPS_VISITED,
+                    Stats.GYM_GOLD,
+                )
+            }
+            combo_post = GainsLeaderboardView.format_combo_embed(leaderboard_data, minuend_datetime)
+
+            message: Message = await leaderboard_channel.send(
+                f"It's {format_time(local_time)}, time to post the weekly leaderboard! The next leaderboard will be posted at {format_time(deadline)}.",
+                embed=combo_post,
+            )
+            thread: Thread = await message.create_thread(name=f"{minuend_datetime.date().isoformat()} Weekly Leaderboards")
+
+            for gains_data in leaderboard_data.values():
                 embeds = GainsLeaderboardView.get_pages(gains_data)
 
-                thread: Thread
-                for index, embed in enumerate(embeds):
-                    if index==0:
-                        message: Message = await leaderboard_channel.send(
-                            f"It's {format_time(local_time)}, time to post the weekly leaderboard! The next leaderboard will be posted at {format_time(deadline)}.",    
-                            embed=embed,
-                        )
-                        thread = await message.create_thread(name=f"{guild.name} Weekly {stat.value[1]} Leaderboard for {minuend_datetime.date().isoformat()}")
-                    else:
-                        await thread.send(embed=embed)
+                for embed in embeds:
+                    await thread.send(embed=embed)
 
-    async def _get_gains_leaderboard_data(self, guild_id: int, stat: str, subtrahend_datetime: datetime, minuend_datetime: datetime) -> dict:
-        async with aiohttp.ClientSession(headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}) as session:
-            url = URL("https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=250")
+    async def _get_gains_leaderboard_data(
+        self, guild_id: int, stat: str, subtrahend_datetime: datetime, minuend_datetime: datetime
+    ) -> dict:
+        async with aiohttp.ClientSession(
+            headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}
+        ) as session:
+            url = URL(
+                "https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=25"
+            )
             url %= {
                 "guild_id": guild_id,
                 "stat": stat,
