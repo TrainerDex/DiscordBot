@@ -80,8 +80,8 @@ class LeaderboardCog(Cog):
             paginator = await LeaderboardView.create(ctx, leaderboard_data)
             await paginator.respond(ctx.interaction)
 
-    # @tasks.loop(time=[time(x) for x in range(24)])
-    @tasks.loop(minutes=1)
+    @tasks.loop(time=[time(x) for x in range(24)])
+    # @tasks.loop(minutes=1)
     async def _gather_guilds_for_weekly_leaderboards(self):
         enabled_guilds = {}
 
@@ -107,7 +107,7 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if True or local_time.hour == 12 and (
+        if local_time.hour == 12 and (
             local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)
         ):
             minuend_datetime = local_time + relativedelta(
