@@ -265,6 +265,7 @@ class ProfileCard(BaseCard):
         TOTAL_XP_THERESHOLD = 250_000
         POKESTOPS_VISITED_THRESHOLD = 50
         CAPTURE_TOTAL_THRESHOLD = 100
+        ACHIEVEMENTS_DEADLINE = reference_update.update_time+datetime.timedelta(hours=26)
 
         if this_update.travel_km:
             if reference_update.travel_km is not None:
@@ -277,7 +278,7 @@ class ProfileCard(BaseCard):
                             1,
                         ),
                         award_maybe=(
-                            ""
+                            f"Walk a further {TRAVEL_KM_THRESHOLD-(this_update.travel_km - reference_update.travel_km)}km by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Thunderlegs achievement"
                             if (this_update.travel_km - reference_update.travel_km)
                             < TRAVEL_KM_THRESHOLD
                             else f"🏅 Achieved Thunderlegs (Walk {TRAVEL_KM_THRESHOLD}km)"
@@ -303,7 +304,7 @@ class ProfileCard(BaseCard):
                             1,
                         ),
                         award_maybe=(
-                            ""
+                            f"Catch {CAPTURE_TOTAL_THRESHOLD-(this_update.capture_total - reference_update.capture_total)} more Pokémon by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Expert Aim achievement"
                             if (this_update.capture_total - reference_update.capture_total)
                             < CAPTURE_TOTAL_THRESHOLD
                             else f"🏅 Achieved Expert Aim (Catch {CAPTURE_TOTAL_THRESHOLD} Pokémon)"
@@ -329,7 +330,7 @@ class ProfileCard(BaseCard):
                             1,
                         ),
                         award_maybe=(
-                            ""
+                            f"Visit {POKESTOPS_VISITED_THRESHOLD-(this_update.pokestops_visited - reference_update.pokestops_visited)} more PokéStops by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Explorer achievement"
                             if (this_update.pokestops_visited - reference_update.pokestops_visited)
                             < POKESTOPS_VISITED_THRESHOLD
                             else f"🏅 Achieved Explorer (Visit {POKESTOPS_VISITED_THRESHOLD} PokéStops)"
@@ -355,7 +356,7 @@ class ProfileCard(BaseCard):
                             1,
                         ),
                         award_maybe=(
-                            ""
+                            f"Earn {TOTAL_XP_THERESHOLD-(this_update.total_xp - reference_update.total_xp)} more XP by {chat_formatting.format_time(ACHIEVEMENTS_DEADLINE, chat_formatting.TimeVerbosity.SHORT_DATETIME)} to get the Dedicated achievement"
                             if (this_update.total_xp - reference_update.total_xp)
                             < TOTAL_XP_THERESHOLD
                             else f"🏅 Achieved Dedicated (Earn {TOTAL_XP_THERESHOLD} XP)"
