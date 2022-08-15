@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [2021.30.1] - 2022-07-30
+## [2021.33.0] - 2022-08-15
+### Added
+- Added Weekly Gains leaderboard
+- Trial a 26-hour window system with achievements
+
+## [2021.30.2] - 2022-07-30
 ### Changed
 - We have OCR again! `/update image:` to use it 
 
@@ -182,7 +187,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `[p]progress (mention)`
 - Settings commands
 
-[Unreleased]: https://github.com/TrainerDex/DiscordBot/compare/v2022.30.2...develop
+[Unreleased]: https://github.com/TrainerDex/DiscordBot/compare/v2022.33.0...develop
+[2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2022.30.2...v2022.33.0
 [2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2022.30.1...v2022.30.2
 [2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2022.30.0...v2022.30.1
 [2022.30.0]: https://github.com/TrainerDex/DiscordBot/compare/v2021.43.0...v2022.30.0
