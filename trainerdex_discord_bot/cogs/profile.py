@@ -64,7 +64,7 @@ class ProfileCog(Cog):
         user: User,
     ) -> None:
         await ctx.defer()
-        
+
         trainer = await get_trainer_from_user(self.client, user)
 
         if trainer is None or not trainer.is_visible:

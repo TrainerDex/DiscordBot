@@ -434,8 +434,10 @@ def format_numbers(number: int | float | Decimal, ndigits: int = 2) -> str:
         number = Decimal(number).quantize(Decimal(f"0.{'0' * ndigits}"), rounding=ROUND_HALF_UP)
     return humanize.intcomma(number)
 
+
 class TimeVerbosity(Enum):
     """Enum for the verbosity of the :func:`format_time` function."""
+
     SHORT_DATE = "d"
     LONG_DATE = "D"
     SHORT_TIME = "t"

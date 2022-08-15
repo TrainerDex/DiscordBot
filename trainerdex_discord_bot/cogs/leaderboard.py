@@ -130,13 +130,17 @@ class LeaderboardCog(Cog):
                     Stats.GYM_GOLD,
                 )
             }
-            combo_post = GainsLeaderboardView.format_combo_embed(leaderboard_data, minuend_datetime)
+            combo_post = GainsLeaderboardView.format_combo_embed(
+                leaderboard_data, minuend_datetime
+            )
 
             message: Message = await leaderboard_channel.send(
                 f"It's {format_time(local_time)}, time to post the weekly leaderboard! The next leaderboard will be posted at {format_time(deadline)}.",
                 embed=combo_post,
             )
-            thread: Thread = await message.create_thread(name=f"{minuend_datetime.date().isoformat()} Weekly Leaderboards")
+            thread: Thread = await message.create_thread(
+                name=f"{minuend_datetime.date().isoformat()} Weekly Leaderboards"
+            )
 
             for gains_data in leaderboard_data.values():
                 embeds = GainsLeaderboardView.get_pages(gains_data)

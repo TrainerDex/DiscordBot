@@ -151,7 +151,9 @@ class PostCog(Cog):
         if image is not None:
             await send(ctx, "Analyzing image...", delete_after=30)
             try:
-                data_from_ocr: Dict[str, float] = await NewOCRClient.request_activity_view_scan(image)
+                data_from_ocr: Dict[str, float] = await NewOCRClient.request_activity_view_scan(
+                    image
+                )
             except Exception:
                 if not kwargs:
                     await send(
