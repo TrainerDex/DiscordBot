@@ -15,7 +15,7 @@ from discord.utils import snowflake_time
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.constants import STAT_MAP
 from trainerdex_discord_bot.embeds import ProfileCard
-from trainerdex_discord_bot.new_ocr_client import NewOCRClient
+from trainerdex_discord_bot.ocr import OCRClient
 from trainerdex_discord_bot.utils import chat_formatting
 from trainerdex_discord_bot.utils.converters import get_trainer, get_trainer_from_user
 from trainerdex_discord_bot.utils.general import send
@@ -151,7 +151,7 @@ class PostCog(Cog):
         if image is not None:
             await send(ctx, "Analyzing image...", delete_after=30)
             try:
-                data_from_ocr: Dict[str, float] = await NewOCRClient.request_activity_view_scan(
+                data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(
                     image
                 )
             except Exception:
@@ -338,7 +338,7 @@ class PostCog(Cog):
     #     # )
 
     #     # request = self.ocr.open_request(screenshot)
-    #     # result: ActivityViewData = self.ocr.process_ocr(request)
+    #     # result = self.ocr.process_ocr(request)
 
     #     profile_data = {
     #         "username": nickname,  # result.username or nickname,

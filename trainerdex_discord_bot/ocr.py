@@ -5,7 +5,7 @@ import aiohttp
 from discord import Attachment
 
 
-class NewOCRClient:
+class OCRClient:
 
     HOST: ClassVar[str] = os.environ.get("TRAINERDEX_HOST", "https://trainerdex.app")
 

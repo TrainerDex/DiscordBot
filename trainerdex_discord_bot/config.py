@@ -27,12 +27,7 @@ if TYPE_CHECKING:
 
 class StaticDocuments(Enum):
     GLOBAL_CONFIG = 0
-    TOKENS = 1
-
-
-class TokenDocuments(Enum):
-    GOOGLE = "google_cloud"
-    TRAINERDEX = "trainerdex"
+    _ = 1
 
 
 JSONObject = Union[None, int, str, bool, list["JSONObject"], dict[str, "JSONObject"]]
@@ -65,16 +60,6 @@ class Config:
         elif data is None and not create:
             raise ValueError("No entry found.")
         return GlobalConfig.from_mapping(data)
-
-    async def get_token(self, service: str) -> Union[JSONObject, None]:
-        data: MutableMapping = await self._get_collection("global").find_one(
-            {"_id": StaticDocuments.TOKENS.value}
-        )
-
-        if data is None:
-            return None
-        else:
-            return data.get(service, None)
 
     async def get_cog_meta(self, cog: Cog | type[Cog], create: bool = True) -> CogMeta:
         if isinstance(cog, Cog):
@@ -177,12 +162,6 @@ class Config:
         data: MutableMapping = asdict(document)
         await self._get_collection("global").update_one(
             {"_id": document._id}, {"$set": data}, upsert=True
-        )
-
-    async def set_token(self, service: str, token: JSONObject):
-        data: dict[str, JSONObject] = {service: token}
-        await self._get_collection("global").update_one(
-            {"_id": StaticDocuments.TOKENS.value}, {"$set": data}, upsert=True
         )
 
     async def set_cog_meta(self, document: CogMeta):
