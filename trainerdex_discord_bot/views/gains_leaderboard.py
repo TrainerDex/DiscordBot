@@ -22,6 +22,8 @@ class GainsLeaderboardView:
 
     @staticmethod
     def format_numbers(stat: str, number: Decimal) -> str:
+        if number is None:
+            return ""
         if stat == "travel_km":
             return format_numbers(Decimal(number))
         else:
