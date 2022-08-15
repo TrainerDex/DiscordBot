@@ -28,7 +28,7 @@ class GainsLeaderboardView:
             return format_numbers(Decimal(number))
         else:
             return format_numbers(int(Decimal(number)))
-        
+
     @classmethod
     def format_page(
         cls,
@@ -56,10 +56,14 @@ class GainsLeaderboardView:
                     "**Sum Change**: {delta_sum}",
                 ]
             ).format(
-                rate_avg=cls.format_numbers(stat_slug, leaderboard["aggregations"]["average_rate"]),
+                rate_avg=cls.format_numbers(
+                    stat_slug, leaderboard["aggregations"]["average_rate"]
+                ),
                 rate_min=cls.format_numbers(stat_slug, leaderboard["aggregations"]["min_rate"]),
                 rate_max=cls.format_numbers(stat_slug, leaderboard["aggregations"]["max_rate"]),
-                delta_avg=cls.format_numbers(stat_slug, leaderboard["aggregations"]["average_change"]),
+                delta_avg=cls.format_numbers(
+                    stat_slug, leaderboard["aggregations"]["average_change"]
+                ),
                 delta_min=cls.format_numbers(stat_slug, leaderboard["aggregations"]["min_change"]),
                 delta_max=cls.format_numbers(stat_slug, leaderboard["aggregations"]["max_change"]),
                 delta_sum=cls.format_numbers(stat_slug, leaderboard["aggregations"]["sum_change"]),
@@ -113,12 +117,13 @@ class GainsLeaderboardView:
 
     @classmethod
     def _make_leaderboard_field(cls, data: dict) -> str:
-        top_5 = data["entries"][:5]
+        top_5 = [x for x in data["entries"] if x["difference_value_rate"] and x["rank"]][:5]
         lines = []
         for entry in top_5:
-            rate = cls.format_numbers(data['stat'], entry['difference_value_rate'])
-            if Decimal(rate.replace(",", "")) > Decimal("0.00"):
-                lines.append(f"**{entry['rank']}**:  **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** - **{rate}_/day_**")
+            rate = cls.format_numbers(data["stat"], entry["difference_value_rate"])
+            lines.append(
+                f"**{entry['rank']}**:  **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** - **{rate}_/day_**"
+            )
 
         return "\n".join(lines)
 
