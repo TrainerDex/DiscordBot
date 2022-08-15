@@ -265,7 +265,7 @@ class ProfileCard(BaseCard):
         TOTAL_XP_THERESHOLD = 250_000
         POKESTOPS_VISITED_THRESHOLD = 50
         CAPTURE_TOTAL_THRESHOLD = 100
-        ACHIEVEMENTS_DEADLINE = reference_update.update_time+datetime.timedelta(hours=26)
+        ACHIEVEMENTS_DEADLINE = reference_update.update_time + datetime.timedelta(hours=26)
 
         if this_update.travel_km:
             if reference_update.travel_km is not None:
