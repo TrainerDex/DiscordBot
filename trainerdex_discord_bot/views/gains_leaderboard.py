@@ -1,6 +1,5 @@
 from __future__ import annotations
-from datetime import date, datetime
-from decimal import ROUND_HALF_UP, Decimal
+from datetime import datetime
 
 from typing import Iterator, Tuple
 
@@ -19,15 +18,6 @@ class GainsLeaderboardView:
             (i.value[1] if (i := Stats.__dict__.get(stat.upper())) else None),
             (i.value if (i := CustomEmoji.__dict__.get(stat.upper())) else None),
         )
-
-    @staticmethod
-    def format_numbers(stat: str, number: Decimal) -> str:
-        if number is None:
-            return ""
-        if stat == "travel_km":
-            return format_numbers(Decimal(number))
-        else:
-            return format_numbers(int(Decimal(number)))
 
     @classmethod
     def format_page(
@@ -56,17 +46,13 @@ class GainsLeaderboardView:
                     "**Sum Change**: {delta_sum}",
                 ]
             ).format(
-                rate_avg=cls.format_numbers(
-                    stat_slug, leaderboard["aggregations"]["average_rate"]
-                ),
-                rate_min=cls.format_numbers(stat_slug, leaderboard["aggregations"]["min_rate"]),
-                rate_max=cls.format_numbers(stat_slug, leaderboard["aggregations"]["max_rate"]),
-                delta_avg=cls.format_numbers(
-                    stat_slug, leaderboard["aggregations"]["average_change"]
-                ),
-                delta_min=cls.format_numbers(stat_slug, leaderboard["aggregations"]["min_change"]),
-                delta_max=cls.format_numbers(stat_slug, leaderboard["aggregations"]["max_change"]),
-                delta_sum=cls.format_numbers(stat_slug, leaderboard["aggregations"]["sum_change"]),
+                rate_avg=format_numbers(leaderboard["aggregations"]["average_rate"]),
+                rate_min=format_numbers(leaderboard["aggregations"]["min_rate"]),
+                rate_max=format_numbers(leaderboard["aggregations"]["max_rate"]),
+                delta_avg=format_numbers(leaderboard["aggregations"]["average_change"]),
+                delta_min=format_numbers(leaderboard["aggregations"]["min_change"]),
+                delta_max=format_numbers(leaderboard["aggregations"]["max_change"]),
+                delta_sum=format_numbers(leaderboard["aggregations"]["sum_change"]),
             )
         else:
             embed.description = ""
@@ -76,13 +62,13 @@ class GainsLeaderboardView:
                 embed.description += "\n".join(
                     [
                         "",
-                        f"**{entry['rank']}**:  **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** gained **{cls.format_numbers(stat_slug, entry['difference_value_rate'])}_/day_**",
-                        f"{cls.format_numbers(stat_slug, entry['subtrahend_value'])} → {cls.format_numbers(stat_slug, entry['minuend_value'])} (+{cls.format_numbers(stat_slug, entry['difference_value'])})",
+                        f"**{entry['rank']}**:  **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** gained **{format_numbers(entry['difference_value_rate'])}_/day_**",
+                        f"{format_numbers(entry['subtrahend_value'])} → {format_numbers(entry['minuend_value'])} (+{format_numbers(entry['difference_value'])})",
                         f"{format_time(parse(entry['subtrahend_datetime']))} → {format_time(parse(entry['minuend_datetime']))}",
                     ]
                 )
             elif entry["minuend_datetime"] is not None and entry["subtrahend_datetime"] is None:
-                embed.description += f"\n🆕: **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** submitted {cls.format_numbers(stat_slug, entry['minuend_value'])} @ {format_time(parse(entry['minuend_datetime']))}"
+                embed.description += f"\n🆕: **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** submitted {format_numbers(entry['minuend_value'])} @ {format_time(parse(entry['minuend_datetime']))}"
         return embed
 
     @classmethod
@@ -120,7 +106,7 @@ class GainsLeaderboardView:
         top_5 = [x for x in data["entries"] if x["difference_value_rate"] and x["rank"]][:5]
         lines = []
         for entry in top_5:
-            rate = cls.format_numbers(data["stat"], entry["difference_value_rate"])
+            rate = format_numbers(entry["difference_value_rate"])
             lines.append(
                 f"**{entry['rank']}**:  **[{entry['username']}](https://trainerdex.app/u/{entry['username']})** - **{rate}_/day_**"
             )
