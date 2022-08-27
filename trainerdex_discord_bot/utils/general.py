@@ -1,4 +1,6 @@
+from datetime import datetime, timedelta
 from typing import List, Optional, Sequence, Union, overload
+from zoneinfo import ZoneInfo
 
 from discord import (
     AllowedMentions,
@@ -17,6 +19,7 @@ from discord import (
 from discord.abc import Messageable, User
 from discord.ui.view import View
 from trainerdex.trainer import Trainer
+from yarl import URL
 
 from trainerdex_discord_bot.constants import SOCIAL_TWITTER
 from trainerdex_discord_bot.utils import chat_formatting
@@ -151,3 +154,25 @@ async def send(
             return await response.original_message()
     else:
         return await destination.send(content=content, *args, **kwargs)
+
+
+def google_calendar_link_for_datetime(dt: datetime) -> str:
+    """Return a Google Calendar link for a datetime."""
+
+    path = URL("http://www.google.com/calendar/event")
+    
+    # Format date as YYYYMMDDTHHMMSSZ
+    print(dt)
+    dt = dt.astimezone(ZoneInfo("UTC"))
+    print(dt)
+    
+    start_time = (dt - timedelta(minutes=15)).strftime("%Y%m%dT%H%M%SZ")
+    end_time = dt.strftime("%Y%m%dT%H%M%SZ")
+    
+    return path % {
+        "action": "TEMPLATE",
+        "text": f"TrainerDex Leaderboards Deadline: Week {dt.strftime('%V')}",
+        "dates": f"{start_time}/{end_time}",
+        "details": "The deadline for submitting your screenshots for the TrainerDex Leaderboards for this week.",
+        "location": "https://trainerdex.app/new/",
+    }

@@ -16,7 +16,7 @@ async def get_last_deadline(*, guild_id: int = None, guild_config: GuildConfig =
         now = datetime.now(tz=timezone)
     
     if now.tzinfo != timezone:
-        now.astimezone(timezone)
+        now = now.astimezone(timezone)
         
     this_monday = now + relativedelta(hour=12, minute=0, second=0, microsecond=0, weekday=MO)
     # We want the deadline just gone. If it's before 12pm, we want the deadline from last week.

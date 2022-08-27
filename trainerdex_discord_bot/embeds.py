@@ -4,8 +4,7 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
-from dateutil.relativedelta import MO
-from dateutil.rrule import WEEKLY, rrule
+from dateutil.rrule import rrule
 from dateutil.tz import UTC
 from discord.channel import TextChannel
 from discord.colour import Colour
@@ -21,6 +20,8 @@ from trainerdex_discord_bot.constants import (
     CustomEmoji,
 )
 from trainerdex_discord_bot.utils import chat_formatting
+from trainerdex_discord_bot.utils.deadlines import get_last_deadline, get_next_deadline
+from trainerdex_discord_bot.utils.general import google_calendar_link_for_datetime
 
 if TYPE_CHECKING:
     from trainerdex.leaderboard import GuildLeaderboard, Leaderboard, LeaderboardEntry
@@ -212,66 +213,40 @@ class ProfileCard(BaseCard):
             )
 
     async def show_progress(self) -> None:
-
         this_update: Update = self.update
 
         if this_update is None:
             return
 
-        RRULE = rrule(
-            WEEKLY, dtstart=datetime.datetime(2016, 7, 4, 12, 0, tzinfo=UTC), byweekday=MO
+        last_deadline: datetime.datetime = await get_last_deadline(
+            guild_id=(self._guild.id if self._guild else None), now=this_update.update_time
+        )
+        next_deadline: datetime.datetime = await get_next_deadline(
+            guild_id=(self._guild.id if self._guild else None), now=this_update.update_time
         )
 
-        current_period: tuple[rrule, rrule] = (
-            RRULE.before(this_update.update_time, inc=True),
-            RRULE.after(this_update.update_time),
-        )
+        if next_deadline > datetime.datetime.now(tz=datetime.timezone.utc):
+            if not self.description:
+                self.description = ""
+            self.description += "\n\n**Next Deadline:** {} ({}) [[+]]({})".format(
+                chat_formatting.format_time(
+                    next_deadline, chat_formatting.TimeVerbosity.SHORT_DATETIME
+                ),
+                chat_formatting.format_time(next_deadline, chat_formatting.TimeVerbosity.DELTA),
+                google_calendar_link_for_datetime(next_deadline),
+            )
 
         try:
             last_update: Update = max(
                 [
                     x
                     for x in self.trainer.updates
-                    if (
-                        getattr(x, "total_xp", None) is not None
-                        and x.update_time < current_period[0]
-                    )
+                    if (getattr(x, "total_xp", None) is not None and x.update_time < last_deadline)
                 ],
                 key=lambda x: x.update_time,
             )
         except ValueError:
-            last_update = None
-
-        if not last_update:
-            if not self.trainer.start_date:
-                return
-            last_update: Update = Update(
-                conn=None,
-                data={
-                    "uuid": "00000000-0000-0000-0000-000000000000",
-                    "trainer": self.trainer.old_id,
-                    "update_time": datetime.datetime(
-                        self.trainer.start_date.year,
-                        self.trainer.start_date.month,
-                        self.trainer.start_date.day,
-                        0,
-                        0,
-                        0,
-                        tzinfo=UTC,
-                    ).isoformat(),
-                    "badge_travel_km": 0,
-                    "badge_capture_total": 0,
-                    "badge_pokestops_visited": 0,
-                    "total_xp": 0,
-                },
-            )
-            data_inacuracy_notice: str = chat_formatting.info(
-                "No data old enough found, using start date."
-            )
-            if self.description:
-                self.description = "\n".join([self.description, data_inacuracy_notice])
-            else:
-                self.description = data_inacuracy_notice
+            return
 
         time_delta: datetime.timedelta = this_update.update_time - last_update.update_time
         days: float = max((time_delta.total_seconds() / 86400), 1)
@@ -313,6 +288,7 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.travel_km) + " km",
                     inline=False,
                 )
+
         if this_update.capture_total:
             if last_update.capture_total is not None:
                 self.add_field(
@@ -337,6 +313,7 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.capture_total),
                     inline=False,
                 )
+
         if this_update.pokestops_visited:
             if last_update.pokestops_visited is not None:
                 self.add_field(
@@ -362,6 +339,7 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.pokestops_visited),
                     inline=False,
                 )
+
         if this_update.total_xp:
             if last_update.total_xp is not None:
                 self.add_field(
@@ -386,6 +364,7 @@ class ProfileCard(BaseCard):
                     value=chat_formatting.format_numbers(this_update.total_xp),
                     inline=False,
                 )
+
         if this_update.gymbadges_gold:
             if last_update.gymbadges_gold is not None:
                 self.add_field(
