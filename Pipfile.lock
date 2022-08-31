@@ -104,10 +104,11 @@
         },
         "aiostream": {
             "hashes": [
-                "sha256:31a505fef567a6d0c3fba2bb14f10bd3da2fb90724167a31605ee8c412455292"
+                "sha256:25b7c2d9c83570d78c0ef5a20e949b7d0b8ea3b0b0a4f22c49d3f721105a6057",
+                "sha256:3ecbf87085230fbcd9605c32ca20c4fb41af02c71d076eab246ea22e35947d88"
             ],
             "index": "pypi",
-            "version": "==0.4.4"
+            "version": "==0.4.5"
         },
         "async-timeout": {
             "hashes": [
