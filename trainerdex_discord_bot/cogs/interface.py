@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, NoReturn
 from discord import Bot
 from discord import Cog as Cog_
 from discord.utils import utcnow
+import pymongo.errors
 
 from trainerdex_discord_bot.exceptions import CogHealthcheckException
 from trainerdex_discord_bot.loggers import getLogger
@@ -44,7 +45,7 @@ class Cog(Cog_):
             _meta: CogMeta = await self.config.get_cog_meta(self)
             _meta.last_loaded = utcnow()
             await self.config.set_cog_meta(_meta)
-        except Exception:
+        except pymongo.errors.PyMongoError:
             self.private_logger.exception("Failed to update cog metadata.")
 
     async def _healthcheck(self) -> NoReturn | None:
