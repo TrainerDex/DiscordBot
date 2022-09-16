@@ -40,9 +40,12 @@ class Cog(Cog_):
 
         self.private_logger.info("Cog successfully initialized.")
 
-        _meta: CogMeta = await self.config.get_cog_meta(self)
-        _meta.last_loaded = utcnow()
-        await self.config.set_cog_meta(_meta)
+        try:
+            _meta: CogMeta = await self.config.get_cog_meta(self)
+            _meta.last_loaded = utcnow()
+            await self.config.set_cog_meta(_meta)
+        except Exception:
+            self.private_logger.exception("Failed to update cog metadata.")
 
     async def _healthcheck(self) -> NoReturn | None:
         ...
