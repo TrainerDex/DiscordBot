@@ -3,10 +3,9 @@ import datetime
 import logging
 import os
 
-from discord import ApplicationContext, Bot, CheckFailure, Game, Intents
+from discord import ApplicationContext, Bot, CheckFailure, Intents
 from trainerdex.client import Client
 
-from trainerdex_discord_bot import __version__
 from trainerdex_discord_bot.cogs.interface import Cog
 from trainerdex_discord_bot.config import Config
 from trainerdex_discord_bot.constants import DEBUG, DEBUG_GUILDS, TRAINERDEX_API_TOKEN
@@ -24,11 +23,6 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
     private_logger.info("Initializing Config...")
     config: Config = Config()
     private_logger.info("Config initialized.")
-
-    async def set_presence_to_version(bot: Bot) -> None:
-        await bot.wait_until_ready()
-        private_logger.info("Setting presence to version %s...", __version__)
-        await bot.change_presence(activity=Game(name=__version__))
 
     private_logger.info("Initializing Pycord...")
     intents = Intents.default()
@@ -54,7 +48,6 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
                 "num_guilds": len(bot.guilds),
             },
         )
-        await set_presence_to_version(bot)
         app_info = await bot.application_info()
         private_logger.info(
             "Bot %(name)s hosted by %(owner)s (%(owner_id)s), created by @TurnrDev.",
