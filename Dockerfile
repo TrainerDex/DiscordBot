@@ -1,14 +1,15 @@
 FROM python:3.10-slim
 
-RUN pip install -U pipenv virtualenv
+RUN pip install -U pip
+RUN pip install -U requirementslib
 
 WORKDIR /opt/trainerdex
 
 COPY Pipfile Pipfile
-COPY Pipfile.lock Pipfile.lock
+RUN python -c 'from requirementslib.models.pipfile import Pipfile; pf = Pipfile.load("."); pkgs = [pf.requirements]; print("\n".join([pkg.as_line() for section in pkgs for pkg in section]))' > requirements.txt
+RUN pip install -r requirements.txt
 
-RUN pipenv sync
+COPY trainerdex trainerdex
+COPY .env .env
 
-COPY . .
-
-CMD [ "pipenv", "run", "python", "-m", "trainerdex_discord_bot" ]
+CMD ["python", "-m", "trainerdex.discord_bot" ]
