@@ -10,7 +10,6 @@ from discord import Bot
 from discord.role import Role
 
 if TYPE_CHECKING:
-    from trainerdex.api.client import Client
     from typing_extensions import Self
 
     from trainerdex.discord_bot.config import Config
@@ -111,4 +110,3 @@ class MemberConfig(UserConfig):
 class Common:
     bot: Bot
     config: Config
-    client: Client

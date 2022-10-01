@@ -31,14 +31,15 @@ class ProfileCog(Cog):
         user: Optional[User] = None,
     ) -> None:
         """Find a profile given a username or user mention."""
-        if username or user:
-            trainer = await get_trainer(self.client, nickname=username, user=user)
-        else:
-            trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        async with self.client() as client:
+            if username or user:
+                trainer = await get_trainer(client, nickname=username, user=user)
+            else:
+                trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
-        if trainer is None or not trainer.is_visible:
-            await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
-            return
+            if trainer is None or not trainer.visible:
+                await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
+                return
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
         response: Message = await send(
@@ -64,12 +65,13 @@ class ProfileCog(Cog):
         user: User,
     ) -> None:
         await ctx.defer()
+        
+        async with self.client() as client:
+            trainer = await get_trainer_from_user(client, user) 
 
-        trainer = await get_trainer_from_user(self.client, user)
-
-        if trainer is None or not trainer.is_visible:
-            await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
-            return
+            if trainer is None or not trainer.is_visible:
+                await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
+                return
 
         embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
         response: Message = await send(
@@ -102,21 +104,22 @@ class ProfileCog(Cog):
         user: Optional[User] = None,
     ) -> None:
         """Find a profile given a username."""
-        if username or user:
-            trainer = await get_trainer(self.client, nickname=username, user=user)
-        else:
-            trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        async with self.client() as client:
+            if username or user:
+                trainer = await get_trainer(client, nickname=username, user=user)
+            else:
+                trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
-        if trainer is None or not trainer.is_visible:
-            await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
-            return
-        elif not trainer.trainer_code:
-            await send(
-                ctx, chat_formatting.warning(f"{trainer.nickname} has not set their Trainer Code.")
-            )
-        else:
-            await send(ctx, chat_formatting.info(f"{trainer.nickname}'s Trainer Code is:"))
-            await send(ctx, chat_formatting.inline(trainer.trainer_code))
+            if trainer is None or not trainer.visible:
+                await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
+                return
+            elif not trainer.trainer_code:
+                await send(
+                    ctx, chat_formatting.warning(f"{trainer.nickname} has not set their Trainer Code.")
+                )
+            else:
+                await send(ctx, chat_formatting.info(f"{trainer.nickname}'s Trainer Code is:"))
+                await send(ctx, chat_formatting.inline(trainer.trainer_code))
 
     edit_profile = SlashCommandGroup("edit-profile", "Edit various aspects about your profile.")
 
@@ -185,24 +188,25 @@ class ProfileCog(Cog):
             await send(ctx, chat_formatting.error("Start Date must not be in the future"))
             return
 
-        trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        async with self.client() as client:
+            trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
-        if trainer is None:
-            await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
-            return
+            if trainer is None:
+                await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
+                return
 
-        try:
-            await trainer.edit(start_date=start_date)
-        except ClientResponseError:
-            self.logger.exception(f"Unable to set {trainer.nickname}'s start date to {start_date}")
-            await send(
-                ctx, chat_formatting.error("Unable to set start date due to an unknown error.")
-            )
-        else:
-            await send(
-                ctx,
-                chat_formatting.success(f"{trainer.nickname}'s start date set to {start_date}."),
-            )
+            try:
+                await trainer.edit(start_date=start_date)
+            except ClientResponseError:
+                self.logger.exception(f"Unable to set {trainer.nickname}'s start date to {start_date}")
+                await send(
+                    ctx, chat_formatting.error("Unable to set start date due to an unknown error.")
+                )
+            else:
+                await send(
+                    ctx,
+                    chat_formatting.success(f"{trainer.nickname}'s start date set to {start_date}."),
+                )
 
     @edit_profile.command(name="visible", options=[Option(bool, name="visible", required=True)])
     async def set_profile_visible(self, ctx: ApplicationContext, visible: bool) -> None:
@@ -210,53 +214,55 @@ class ProfileCog(Cog):
 
         Hide or show yourself on leaderboards at will!
         """
-        trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        async with self.client() as client:
+            trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
-        if trainer is None:
-            await send(
-                ctx,
-                chat_formatting.error("No profile found."),
-                ephemeral=True,
-            )
-            return
+            if trainer is None:
+                await send(
+                    ctx,
+                    chat_formatting.error("No profile found."),
+                    ephemeral=True,
+                )
+                return
 
-        try:
-            await trainer.edit(is_visible=visible)
-        except (Forbidden, NotFound, HTTPException) as e:
-            await send(
-                ctx,
-                chat_formatting.error("Unable to set visibility due to an unknown error."),
-                ephemeral=True,
-            )
-            self.logger.exception(f"Unable to set {trainer.nickname}'s visibility to {visible}", e)
+            try:
+                await trainer.edit(is_visible=visible)
+            except (Forbidden, NotFound, HTTPException) as e:
+                await send(
+                    ctx,
+                    chat_formatting.error("Unable to set visibility due to an unknown error."),
+                    ephemeral=True,
+                )
+                self.logger.exception(f"Unable to set {trainer.nickname}'s visibility to {visible}", e)
 
-        if trainer.is_visible:
-            await send(
-                ctx,
-                chat_formatting.success("Your profile is visible to others."),
-                ephemeral=True,
-            )
-        else:
-            await send(
-                ctx,
-                chat_formatting.success("Your profile is hidden from others."),
-                ephemeral=True,
+            if trainer.is_visible:
+                await send(
+                    ctx,
+                    chat_formatting.success("Your profile is visible to others."),
+                    ephemeral=True,
+                )
+            else:
+                await send(
+                    ctx,
+                    chat_formatting.success("Your profile is hidden from others."),
+                    ephemeral=True,
             )
 
     @edit_profile.command(name="trainer-code")
     async def set_trainer_code(self, ctx: ApplicationContext, code: str) -> None:
-        trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        async with self.client() as client:
+            trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
-        if trainer is None:
-            await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
-            return
+            if trainer is None:
+                await send(ctx, chat_formatting.error("No profile found."), ephemeral=True)
+                return
 
-        if not re.match(r"(\d{4}\s?){3}", code):
-            await send(ctx, chat_formatting.error("Invalid Trainer Code."))
-        else:
-            await trainer.edit(trainer_code=code.replace(" ", ""))
-            await send(
-                ctx,
-                f"Your Trainer Code was successfully set to {trainer.trainer_code}",
-                ephemeral=True,
-            )
+            if not re.match(r"(\d{4}\s?){3}", code):
+                await send(ctx, chat_formatting.error("Invalid Trainer Code."))
+            else:
+                await trainer.edit(trainer_code=code.replace(" ", ""))
+                await send(
+                    ctx,
+                    f"Your Trainer Code was successfully set to {trainer.trainer_code}",
+                    ephemeral=True,
+                )

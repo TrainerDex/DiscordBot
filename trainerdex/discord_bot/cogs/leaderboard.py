@@ -69,16 +69,17 @@ class LeaderboardCog(Cog):
         if not ctx.guild:
             selection = LeaderboardType.GLOBAL.value[0]
 
-        leaderboard_data: BaseLeaderboard = await self.client.get_leaderboard(
-            stat=stat,
-            guild=ctx.guild if selection == LeaderboardType.GUILD.value[0] else None,
-        )
+        async with self.client() as client:
+            leaderboard_data: BaseLeaderboard = await client.get_leaderboard(
+                stat=stat,
+                guild=ctx.guild if selection == LeaderboardType.GUILD.value[0] else None,
+            )
 
-        if len(leaderboard_data) < 1:
-            await send(ctx, content="No results to display!")
-        else:
-            paginator = await LeaderboardView.create(ctx, leaderboard_data)
-            await paginator.respond(ctx.interaction)
+            if len(leaderboard_data) < 1:
+                await send(ctx, content="No results to display!")
+            else:
+                paginator = await LeaderboardView.create(ctx, leaderboard_data)
+                await paginator.respond(ctx.interaction)
 
     @tasks.loop(time=[time(x) for x in range(24)])
     # @tasks.loop(minutes=1)

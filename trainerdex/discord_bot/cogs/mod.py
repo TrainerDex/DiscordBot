@@ -236,20 +236,24 @@ class ModCog(Cog):
             else:
                 actions_commited.append(f"Discord Member nickname changed to {nickname}")
 
-        trainer: Trainer | None = await get_trainer(
-            self.client, nickname=nickname, user=member, prefetch_updates=True
-        )
+        async with self.client() as client:
+            trainer: Trainer | None = await get_trainer(
+                client,
+                nickname=nickname,
+                user=member,
+                prefetch_updates=True,
+            )
 
-        if trainer is None:
-            try:
-                trainer: Trainer = await self.client.create_trainer(
-                    username=nickname, faction=team, is_verified=True
-                )
-                await (await trainer.user()).add_discord(member)
-            except ClientResponseError as e:
-                actions_commited.append(f"Failed to create trainer: {e}")
-            else:
-                actions_commited.append(f"Registered new trainer with nickname: {nickname}")
+            if trainer is None:
+                try:
+                    trainer: Trainer = await client.create_trainer(
+                        username=nickname, faction=team, is_verified=True
+                    )
+                    await (await trainer.user()).add_discord(member)
+                except ClientResponseError as e:
+                    actions_commited.append(f"Failed to create trainer: {e}")
+                else:
+                    actions_commited.append(f"Registered new trainer with nickname: {nickname}")
 
         # Only continue if trainer object exists
         if trainer:

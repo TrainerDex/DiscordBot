@@ -136,7 +136,10 @@ class PostCog(Cog):
                 ),
             )
 
-        trainer: Trainer = await get_trainer_from_user(self.client, ctx.interaction.user)
+        trainer = None
+        async with self.client() as client:
+            trainer: Trainer = await get_trainer_from_user(client, ctx.interaction.user)
+        
         if trainer is None:
             await send(
                 ctx,
@@ -311,13 +314,14 @@ class PostCog(Cog):
     #     #     await send(ctx, "That's not a valid image.", ephemeral=True)
     #     #     return
 
-    #     if await get_trainer(self.client, user=ctx.author, nickname=nickname) is not None:
-    #         await send(
-    #             ctx,
-    #             chat_formatting.error("Unable to create a profile. You may already have one."),
-    #             ephemeral=True,
-    #         )
-    #         return
+    #    async with self.client() as client:
+    #        if await get_trainer(client, user=ctx.author, nickname=nickname) is not None:
+    #            await send(
+    #                ctx,
+    #                chat_formatting.error("Unable to create a profile. You may already have one."),
+    #                ephemeral=True,
+    #            )
+    #            return
 
     #     await ctx.defer()
 
@@ -369,20 +373,21 @@ class PostCog(Cog):
     #     #     )
     #     #     return
 
-    #     trainer: Trainer = await self.client.create_trainer(**profile_data)
-    #     print(trainer)
-    #     user = await trainer.user()
-    #     await user.add_discord(ctx.author)
+    #    async with self.client() as client:
+    #        trainer: Trainer = await client.create_trainer(**profile_data)
+    #        print(trainer)
+    #        user = await trainer.user()
+    #        await user.add_discord(ctx.author)
 
-    #     update: Update = await trainer.post(
-    #         data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
-    #         stats=update_data,
-    #         update_time=snowflake_time(ctx.interaction.id),
-    #     )
+    #        update: Update = await trainer.post(
+    #            data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
+    #            stats=update_data,
+    #            update_time=snowflake_time(ctx.interaction.id),
+    #        )
 
-    #     message = await send(
-    #         ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
-    #     )
-    #     embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
+    #    message = await send(
+    #        ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
+    #    )
+    #    embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
 
-    #     await message.edit(embed=embed)
+    #    await message.edit(embed=embed)

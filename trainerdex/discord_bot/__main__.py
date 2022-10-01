@@ -4,7 +4,6 @@ import logging
 import os
 
 from discord import ApplicationContext, Bot, CheckFailure, Intents
-from trainerdex.api.client import Client
 
 from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.config import Config
@@ -99,15 +98,10 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             ephemeral=True,
         )
 
-    private_logger.info("Initializing TrainerDex API Client...")
-    client: Client = Client(token=TRAINERDEX_API_TOKEN, loop=loop)
-    private_logger.info("Pycord initialized.")
-
     # Construct Common dataclass
     common: Common = Common(
         bot=bot,
         config=config,
-        client=client,
     )
 
     private_logger.info("Loading cogs...")

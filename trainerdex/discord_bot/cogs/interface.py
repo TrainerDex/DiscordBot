@@ -5,6 +5,7 @@ import pymongo.errors
 from discord import Bot
 from discord import Cog as Cog_
 from discord.utils import utcnow
+from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN
 
 from trainerdex.discord_bot.exceptions import CogHealthcheckException
 from trainerdex.discord_bot.loggers import getLogger
@@ -25,11 +26,13 @@ class Cog(Cog_):
         self._common: Common = common
         self.bot: Bot = common.bot
         self.config: Config = common.config
-        self.client: Client = common.client
         self.bot.loop.create_task(self.__post_init__())
         self.logger = getLogger(
             self.bot, f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         )
+        
+    def client(self) -> Client:
+        return Client(token=TRAINERDEX_API_TOKEN, loop=self.bot.loop)
 
     async def __post_init__(self) -> None:
         try:

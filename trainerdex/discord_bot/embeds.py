@@ -12,6 +12,7 @@ from discord.commands import ApplicationContext
 from discord.embeds import Embed, EmptyEmbed
 from discord.guild import Guild
 from discord.message import Message
+from trainerdex.api.client import Client
 from trainerdex.api.update import Update
 
 from trainerdex.discord_bot.constants import (
@@ -84,7 +85,6 @@ class BaseCard(Embed):
         self._message: Message = ctx.interaction.message
         self._channel: TextChannel = ctx.interaction.channel
         self._guild: Guild = ctx.interaction.guild
-        self._common: Common = common
 
 
 class ProfileCard(BaseCard):
@@ -163,21 +163,21 @@ class ProfileCard(BaseCard):
             "gymbadges_gold",
         ]
         for stat in stats:
-            leaderboard: GuildLeaderboard = await self._common.client.get_leaderboard(
-                stat=stat, guild=guild
-            )
-            entry: LeaderboardEntry = await leaderboard.find(
-                lambda x: x._trainer_id == self.trainer.old_id
-            )
-            if entry:
-                entries.append(
-                    "{} {}".format(
-                        CustomEmoji[stat.upper()].value,
-                        chat_formatting.format_numbers(entry.position),
-                    )
+            async with Client() as client:
+                leaderboard: GuildLeaderboard = await client.get_leaderboard(
+                    guild_=guild,
+                    stat=stat,
                 )
-            del leaderboard
-            del entry
+                entry: LeaderboardEntry = await leaderboard.find(
+                    lambda x: x._trainer_id == self.trainer.old_id
+                )
+                if entry:
+                    entries.append(
+                        "{} {}".format(
+                            CustomEmoji[stat.upper()].value,
+                            chat_formatting.format_numbers(entry.position),
+                        )
+                    )
 
         if entries:
             self.insert_field_at(
@@ -195,19 +195,18 @@ class ProfileCard(BaseCard):
             "total_xp",
         ]
         for stat in stats:
-            leaderboard: Leaderboard = await self._common.client.get_leaderboard(stat=stat)
-            entry: LeaderboardEntry = await leaderboard.find(
-                lambda x: x._trainer_id == self.trainer.old_id
-            )
-            if entry:
-                entries.append(
-                    "{} {}".format(
-                        CustomEmoji[stat.upper()].value,
-                        chat_formatting.format_numbers(entry.position),
-                    )
+            async with Client() as client:
+                leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
+                entry: LeaderboardEntry = await leaderboard.find(
+                    lambda x: x._trainer_id == self.trainer.old_id
                 )
-            del leaderboard
-            del entry
+                if entry:
+                    entries.append(
+                        "{} {}".format(
+                            CustomEmoji[stat.upper()].value,
+                            chat_formatting.format_numbers(entry.position),
+                        )
+                    )
 
         if entries:
             self.insert_field_at(
