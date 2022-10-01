@@ -5,13 +5,13 @@ import pymongo.errors
 from discord import Bot
 from discord import Cog as Cog_
 from discord.utils import utcnow
+from trainerdex.api.client import Client
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN
 
 from trainerdex.discord_bot.exceptions import CogHealthcheckException
 from trainerdex.discord_bot.loggers import getLogger
 
 if TYPE_CHECKING:
-    from trainerdex.api.client import Client
 
     from trainerdex.discord_bot.config import Config
     from trainerdex.discord_bot.datatypes import CogMeta, Common
