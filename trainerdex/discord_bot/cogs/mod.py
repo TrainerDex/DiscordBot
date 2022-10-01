@@ -255,57 +255,57 @@ class ModCog(Cog):
                 else:
                     actions_commited.append(f"Registered new trainer with nickname: {nickname}")
 
-        # Only continue if trainer object exists
-        if trainer:
-            new_stats = {
-                key: value
-                for key, value in {
-                    "total_xp": total_xp,
-                    "travel_km": travel_km,
-                    "capture_total": capture_total,
-                    "pokestops_visited": pokestops_visited,
-                }.items()
-                if value is not None
-            }
-
-            try:
-                latest_update_with_total_xp: Update = max(
-                    trainer.updates, key=lambda x: (x.total_xp or 0)
-                )
-            except ValueError:
-                post_update: bool = True
-            else:
-                post_update: bool = self.compare_stats(latest_update_with_total_xp, new_stats)
-
-            if post_update:
-                await trainer.post(
-                    data_source="ts_social_discord",
-                    stats=new_stats,
-                    update_time=snowflake_time(ctx.interaction.id),
-                )
-                stats_humanize = ", ".join(
-                    [
-                        f"{self.get_stat_name(key)}: {format_numbers(value)}"
-                        for key, value in new_stats.items()
-                        if value is not None
-                    ]
-                )
-                actions_commited.append(
-                    f"Updated {trainer.nickname} with new stats; {stats_humanize}"
-                )
-
-        if actions_commited:
-            response: WebhookMessage = await ctx.followup.send(
-                f"`/approve` run on {member.mention}\n" + "\n".join(actions_commited),
-                wait=True,
-            )
-
+            # Only continue if trainer object exists
             if trainer:
-                embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
-                await response.edit(embed=embed)
-                await embed.show_progress()
-                await response.edit(embed=embed)
-                await embed.add_leaderboard()
-                await response.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-                await response.edit(embed=embed)
+                new_stats = {
+                    key: value
+                    for key, value in {
+                        "total_xp": total_xp,
+                        "travel_km": travel_km,
+                        "capture_total": capture_total,
+                        "pokestops_visited": pokestops_visited,
+                    }.items()
+                    if value is not None
+                }
+
+                try:
+                    latest_update_with_total_xp: Update = max(
+                        trainer.updates, key=lambda x: (x.total_xp or 0)
+                    )
+                except ValueError:
+                    post_update: bool = True
+                else:
+                    post_update: bool = self.compare_stats(latest_update_with_total_xp, new_stats)
+
+                if post_update:
+                    await trainer.post(
+                        data_source="ts_social_discord",
+                        stats=new_stats,
+                        update_time=snowflake_time(ctx.interaction.id),
+                    )
+                    stats_humanize = ", ".join(
+                        [
+                            f"{self.get_stat_name(key)}: {format_numbers(value)}"
+                            for key, value in new_stats.items()
+                            if value is not None
+                        ]
+                    )
+                    actions_commited.append(
+                        f"Updated {trainer.nickname} with new stats; {stats_humanize}"
+                    )
+
+            if actions_commited:
+                response: WebhookMessage = await ctx.followup.send(
+                    f"`/approve` run on {member.mention}\n" + "\n".join(actions_commited),
+                    wait=True,
+                )
+
+                if trainer:
+                    embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
+                    await response.edit(embed=embed)
+                    await embed.show_progress()
+                    await response.edit(embed=embed)
+                    await embed.add_leaderboard()
+                    await response.edit(embed=embed)
+                    await embed.add_guild_leaderboard(ctx.guild)
+                    await response.edit(embed=embed)
