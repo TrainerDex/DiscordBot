@@ -11,6 +11,7 @@ from discord import (
     slash_command,
 )
 from discord.utils import snowflake_time
+from trainerdex.api.exceptions import HTTPException
 
 from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.constants import STAT_MAP
@@ -198,9 +199,29 @@ class PostCog(Cog):
             if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(
                 minutes=30
             ):
-                await latest_update.edit(
-                    update_time=snowflake_time(ctx.interaction.id), **stats_to_update
-                )
+                try:
+                    await latest_update.edit(
+                        update_time=snowflake_time(ctx.interaction.id), **stats_to_update
+                    )
+                except HTTPException as e:
+                    r, data = e.args
+                    if data is not None:
+                        await send(
+                            ctx,
+                            chat_formatting.error(
+                                f"The update failed to post because of the following error: `{data}`"
+                            ),
+                        )
+                        raise HTTPException(None, data) from e
+                    else:
+                        await send(
+                            ctx,
+                            chat_formatting.error(
+                                "The update failed to post because of an unknown error."
+                            ),
+                        )
+                        raise HTTPException(None, data) from e
+
                 update = latest_update
                 await send(
                     ctx,
@@ -223,11 +244,30 @@ class PostCog(Cog):
                     return
 
                 # If they have, create a new update.
-                update: Update = await trainer.post(
-                    stats=stats_to_update,
-                    data_source="ss_ocr" if data_from_ocr else "ts_social_discord",
-                    update_time=snowflake_time(ctx.interaction.id),
-                )
+                try:
+                    update: Update = await trainer.post(
+                        stats=stats_to_update,
+                        data_source="ss_ocr" if data_from_ocr else "ts_social_discord",
+                        update_time=snowflake_time(ctx.interaction.id),
+                    )
+                except HTTPException as e:
+                    r, data = e.args
+                    if data is not None:
+                        await send(
+                            ctx,
+                            chat_formatting.error(
+                                f"The update failed to post because of the following error: `{data}`"
+                            ),
+                        )
+                        raise HTTPException(None, data) from e
+                    else:
+                        await send(
+                            ctx,
+                            chat_formatting.error(
+                                "The update failed to post because of an unknown error."
+                            ),
+                        )
+                        raise HTTPException(None, data) from e
 
             embed: ProfileCard = await ProfileCard(
                 self._common, ctx, trainer=trainer, update=update
