@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 from dateutil.relativedelta import MO, relativedelta
-from discord import Embed, EmbedField, Guild, Message, Thread
+from discord import Guild, Message, Thread
 from discord.commands import ApplicationContext, Option, OptionChoice, slash_command
 from discord.ext import tasks
 from yarl import URL
