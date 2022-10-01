@@ -5,7 +5,7 @@ import pymongo.errors
 from discord import Bot
 from discord import Cog as Cog_
 from discord.utils import utcnow
-from trainerdex.api.client import Client
+from trainerdex.api.client import TokenClient
 
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN
 from trainerdex.discord_bot.exceptions import CogHealthcheckException
@@ -31,8 +31,8 @@ class Cog(Cog_):
             self.bot, f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         )
 
-    def client(self) -> Client:
-        return Client(token=TRAINERDEX_API_TOKEN, loop=self.bot.loop)
+    def client(self) -> TokenClient:
+        return TokenClient(loop=self.bot.loop).authenticate(token=TRAINERDEX_API_TOKEN)
 
     async def __post_init__(self) -> None:
         try:

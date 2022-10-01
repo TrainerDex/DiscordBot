@@ -1,5 +1,5 @@
 from discord import User
-from trainerdex.api.client import Client
+from trainerdex.api.client import BaseClient
 from trainerdex.api.socialconnection import SocialConnection
 from trainerdex.api.trainer import Trainer
 
@@ -7,7 +7,7 @@ from trainerdex.discord_bot.utils.validators import validate_trainer_nickname
 
 
 async def get_trainer_from_user(
-    client: Client, user: User, *, prefetch_updates: bool = True
+    client: BaseClient, user: User, *, prefetch_updates: bool = True
 ) -> Trainer | None:
     """Retrieve a profile from a user's Discord ID.
 
@@ -26,7 +26,7 @@ async def get_trainer_from_user(
 
 
 async def get_trainer_from_nickname(
-    client: Client, nickname: str, *, prefetch_updates: bool = True
+    client: BaseClient, nickname: str, *, prefetch_updates: bool = True
 ) -> Trainer | None:
     """Retrieve a profile from a Pokémon Go nickname.
 
@@ -46,7 +46,7 @@ async def get_trainer_from_nickname(
 
 
 async def get_trainer(
-    client: Client,
+    client: BaseClient,
     *,
     nickname: str = None,
     user: User = None,

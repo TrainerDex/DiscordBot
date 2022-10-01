@@ -12,7 +12,7 @@ from discord.commands import ApplicationContext
 from discord.embeds import Embed, EmptyEmbed
 from discord.guild import Guild
 from discord.message import Message
-from trainerdex.api.client import Client
+from trainerdex.api.client import TokenClient
 from trainerdex.api.update import Update
 
 from trainerdex.discord_bot.constants import (
@@ -164,7 +164,7 @@ class ProfileCard(BaseCard):
             "gymbadges_gold",
         ]
         for stat in stats:
-            async with Client() as client:
+            async with TokenClient() as client:
                 leaderboard: GuildLeaderboard = await client.get_leaderboard(
                     guild=guild,
                     stat=stat,
@@ -196,7 +196,7 @@ class ProfileCard(BaseCard):
             "total_xp",
         ]
         for stat in stats:
-            async with Client() as client:
+            async with TokenClient() as client:
                 leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
                 entry: LeaderboardEntry = await leaderboard.find(
                     lambda x: x.trainer_id == self.trainer.id
