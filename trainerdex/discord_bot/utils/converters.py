@@ -15,10 +15,11 @@ async def get_trainer_from_user(
     """
     social_connections: list[SocialConnection] = await client.get_social_connections(
         "discord",
-        str(user.id),
+        [str(user.id)],
     )
+
     if social_connections:
-        trainer: Trainer = await social_connections[0].trainer()
+        trainer: Trainer = await social_connections[0].get_trainer()
         if prefetch_updates:
             await trainer.fetch_updates()
         return trainer

@@ -56,11 +56,11 @@ class LeaderboardView(Paginator):
             ).format(
                 trainer_emoji=CustomEmoji.ADD_FRIEND.value,
                 stat_emoji=stat_emoji,
-                stat_avg=format_numbers(leaderboard.avg),
-                stat_count=format_numbers(leaderboard.count),
-                stat_sum=format_numbers(leaderboard.sum),
-                stat_min=format_numbers(leaderboard.min),
-                stat_max=format_numbers(leaderboard.max),
+                stat_avg=format_numbers(leaderboard.aggregations.avg),
+                stat_count=format_numbers(leaderboard.aggregations.count),
+                stat_sum=format_numbers(leaderboard.aggregations.sum),
+                stat_min=format_numbers(leaderboard.aggregations.min),
+                stat_max=format_numbers(leaderboard.aggregations.max),
             ),
             colour=TRAINERDEX_COLOUR,
         )

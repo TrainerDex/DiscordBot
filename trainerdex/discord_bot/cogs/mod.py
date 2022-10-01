@@ -269,8 +269,8 @@ class ModCog(Cog):
             }
 
             try:
-                latest_update_with_total_xp: Update = trainer.get_latest_update_for_stat(
-                    "total_xp"
+                latest_update_with_total_xp: Update = max(
+                    trainer.updates, key=lambda x: (x.total_xp or 0)
                 )
             except ValueError:
                 post_update: bool = True

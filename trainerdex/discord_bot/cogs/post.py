@@ -139,110 +139,114 @@ class PostCog(Cog):
         trainer = None
         async with self.client() as client:
             trainer: Trainer = await get_trainer_from_user(client, ctx.interaction.user)
-        
-        if trainer is None:
-            await send(
-                ctx,
-                chat_formatting.warning(
-                    "You're not set up with a TrainerDex profile. Please ask a mod to set you up. (Tutorial here for mod: <https://www.youtube.com/watch?v=KCxtyukXW7w>)"
-                ),
-                ephemeral=False,
-            )
-            return
 
-        data_from_ocr = {}
-        if image is not None:
-            await send(ctx, "Analyzing image...", delete_after=30)
-            try:
-                data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(image)
-            except Exception:
-                if not kwargs:
-                    await send(
-                        ctx,
-                        chat_formatting.error(
-                            "The OCR failed to process and you didn't provide any keywords. I can't do anything with that.",
-                        ),
+            if trainer is None:
+                await send(
+                    ctx,
+                    chat_formatting.warning(
+                        "You're not set up with a TrainerDex profile. Please ask a mod to set you up. (Tutorial here for mod: <https://www.youtube.com/watch?v=KCxtyukXW7w>)"
+                    ),
+                    ephemeral=False,
+                )
+                return
+
+            data_from_ocr = {}
+            if image is not None:
+                await send(ctx, "Analyzing image...", delete_after=30)
+                try:
+                    data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(
+                        image
                     )
-                    return
-                else:
-                    await send(
-                        ctx,
-                        chat_formatting.warning(
-                            "The OCR failed to process, but I'm still going to try to update your stats with the keywords you provided.",
-                        ),
-                    )
+                except Exception:
+                    if not kwargs:
+                        await send(
+                            ctx,
+                            chat_formatting.error(
+                                "The OCR failed to process and you didn't provide any keywords. I can't do anything with that.",
+                            ),
+                        )
+                        return
+                    else:
+                        await send(
+                            ctx,
+                            chat_formatting.warning(
+                                "The OCR failed to process, but I'm still going to try to update your stats with the keywords you provided.",
+                            ),
+                        )
 
-        stats_to_update = kwargs | data_from_ocr
+            stats_to_update = kwargs | data_from_ocr
 
-        stats_to_update: dict[str, Decimal | int] = {
-            STAT_MAP.get(key, key): value
-            for key, value in stats_to_update.items()
-            if value is not None
-        }
+            stats_to_update: dict[str, Decimal | int] = {
+                STAT_MAP.get(key, key): value
+                for key, value in stats_to_update.items()
+                if value is not None
+            }
 
-        if not stats_to_update:
-            await send(
-                ctx,
-                chat_formatting.error(
-                    "No stats were provided. Please provide at least one stat to update."
-                ),
-            )
-            return
-
-        await trainer.fetch_updates()
-        latest_update: Update = trainer.get_latest_update()
-
-        # If the latest update is less than half an hour old, update in place.
-        if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(
-            minutes=30
-        ):
-            await latest_update.edit(
-                update_time=snowflake_time(ctx.interaction.id), **stats_to_update
-            )
-            update = latest_update
-            await send(
-                ctx,
-                chat_formatting.success(
-                    "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
-                ),
-            )
-        else:
-            # Otherwise, check that stats have changed since then.
-            for stat, value in stats_to_update.items():
-                if getattr(latest_update, stat) != value:
-                    break
-            else:
+            if not stats_to_update:
                 await send(
                     ctx,
                     chat_formatting.error(
-                        "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
+                        "No stats were provided. Please provide at least one stat to update."
                     ),
                 )
                 return
 
-            # If they have, create a new update.
-            update: Update = await trainer.post(
-                stats=stats_to_update,
-                data_source="ss_ocr" if data_from_ocr else "ts_social_discord",
-                update_time=snowflake_time(ctx.interaction.id),
-            )
+            await trainer.fetch_updates()
+            latest_update: Update = await trainer.get_latest_update()
 
-        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
-        response: Message = await send(
-            ctx,
-            content=chat_formatting.loading("Checking progress…"),
-            embed=embed,
-        )
-        await embed.show_progress()
-        await response.edit(
-            content=chat_formatting.loading("Loading leaderboards…"),
-            embed=embed,
-        )
-        await embed.add_leaderboard()
-        if ctx.guild:
-            await response.edit(embed=embed)
-            await embed.add_guild_leaderboard(ctx.guild)
-        await response.edit(content=None, embed=embed)
+            # If the latest update is less than half an hour old, update in place.
+            if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(
+                minutes=30
+            ):
+                await latest_update.edit(
+                    update_time=snowflake_time(ctx.interaction.id), **stats_to_update
+                )
+                update = latest_update
+                await send(
+                    ctx,
+                    chat_formatting.success(
+                        "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
+                    ),
+                )
+            else:
+                # Otherwise, check that stats have changed since then.
+                for stat, value in stats_to_update.items():
+                    if getattr(latest_update, stat) != value:
+                        break
+                else:
+                    await send(
+                        ctx,
+                        chat_formatting.error(
+                            "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
+                        ),
+                    )
+                    return
+
+                # If they have, create a new update.
+                update: Update = await trainer.post(
+                    stats=stats_to_update,
+                    data_source="ss_ocr" if data_from_ocr else "ts_social_discord",
+                    update_time=snowflake_time(ctx.interaction.id),
+                )
+
+            embed: ProfileCard = await ProfileCard(
+                self._common, ctx, trainer=trainer, update=update
+            )
+            response: Message = await send(
+                ctx,
+                content=chat_formatting.loading("Checking progress…"),
+                embed=embed,
+            )
+            await embed.show_progress()
+            await response.edit(
+                content=chat_formatting.loading("Loading leaderboards…"),
+                embed=embed,
+            )
+            await embed.add_leaderboard()
+            if ctx.guild:
+                await response.edit(embed=embed)
+                await embed.add_guild_leaderboard(ctx.guild)
+            await response.edit(content=None, embed=embed)
 
     # @slash_command(
     #     name="register",

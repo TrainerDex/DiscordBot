@@ -101,14 +101,15 @@ class ProfileCard(BaseCard):
         await super().__init__(common, ctx, **kwargs)
         self.trainer: Trainer = trainer
         await self.trainer.fetch_updates()
-        self.update: Update = update or self.trainer.get_latest_update_for_stat("total_xp")
+
+        self.update: Update = max(self.trainer.updates, key=lambda x: (x.total_xp or 0))
 
         self.colour: int = self.trainer.team.colour
         self.title: str = "{nickname} | TL{level}".format(
             nickname=self.trainer.username,
-            level=self.trainer.level,
+            level=await self.trainer.get_level(),
         )
-        self.url: str = f"{WEBSITE_DOMAIN}/profile?id={self.trainer.old_id}"
+        self.url: str = f"{WEBSITE_DOMAIN}/profile?id={self.trainer.id}"
         if self.update:
             self.timestamp: datetime.datetime = self.update.update_time
 
@@ -165,11 +166,11 @@ class ProfileCard(BaseCard):
         for stat in stats:
             async with Client() as client:
                 leaderboard: GuildLeaderboard = await client.get_leaderboard(
-                    guild_=guild,
+                    guild=guild,
                     stat=stat,
                 )
                 entry: LeaderboardEntry = await leaderboard.find(
-                    lambda x: x._trainer_id == self.trainer.old_id
+                    lambda x: x.trainer_id == self.trainer.id
                 )
                 if entry:
                     entries.append(
@@ -198,7 +199,7 @@ class ProfileCard(BaseCard):
             async with Client() as client:
                 leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
                 entry: LeaderboardEntry = await leaderboard.find(
-                    lambda x: x._trainer_id == self.trainer.old_id
+                    lambda x: x.trainer_id == self.trainer.id
                 )
                 if entry:
                     entries.append(
