@@ -103,12 +103,15 @@ class ProfileCard(BaseCard):
         await self.trainer.fetch_updates()
 
         self.update: Update = max(self.trainer.updates, key=lambda x: (x.total_xp or 0))
-
         self.colour: int = self.trainer.team.colour
-        self.title: str = "{nickname} | TL{level}".format(
-            nickname=self.trainer.username,
-            level=await self.trainer.get_level(),
-        )
+
+        try:
+            level = await self.trainer.get_level()
+        except ValueError:
+            self.title: str = self.trainer.username
+        else:
+             self.title: str = f"{self.trainer.username} | TL{level}"
+
         self.url: str = f"{WEBSITE_DOMAIN}/profile?id={self.trainer.id}"
         if self.update:
             self.timestamp: datetime.datetime = self.update.update_time
