@@ -429,7 +429,7 @@ msgid ""
 msgstr ""
 
 #: trainerdex/discord_bot/profile.py:260
-msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
+msgid "{trainer.username}'s Trainer Code set to {trainer.trainer_code}"
 msgstr ""
 
 #: trainerdex/discord_bot/settings.py:25

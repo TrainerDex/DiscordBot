@@ -291,7 +291,7 @@ class ModCog(Cog):
                         ]
                     )
                     actions_commited.append(
-                        f"Updated {trainer.nickname} with new stats; {stats_humanize}"
+                        f"Updated {trainer.username} with new stats; {stats_humanize}"
                     )
 
             if actions_commited:

@@ -116,10 +116,10 @@ class ProfileCog(Cog):
             elif not trainer.trainer_code:
                 await send(
                     ctx,
-                    chat_formatting.warning(f"{trainer.nickname} has not set their Trainer Code."),
+                    chat_formatting.warning(f"{trainer.username} has not set their Trainer Code."),
                 )
             else:
-                await send(ctx, chat_formatting.info(f"{trainer.nickname}'s Trainer Code is:"))
+                await send(ctx, chat_formatting.info(f"{trainer.username}'s Trainer Code is:"))
                 await send(ctx, chat_formatting.inline(trainer.trainer_code))
 
     edit_profile = SlashCommandGroup("edit-profile", "Edit various aspects about your profile.")
@@ -200,7 +200,7 @@ class ProfileCog(Cog):
                 await trainer.edit(start_date=start_date)
             except ClientResponseError:
                 self.logger.exception(
-                    f"Unable to set {trainer.nickname}'s start date to {start_date}"
+                    f"Unable to set {trainer.username}'s start date to {start_date}"
                 )
                 await send(
                     ctx, chat_formatting.error("Unable to set start date due to an unknown error.")
@@ -209,7 +209,7 @@ class ProfileCog(Cog):
                 await send(
                     ctx,
                     chat_formatting.success(
-                        f"{trainer.nickname}'s start date set to {start_date}."
+                        f"{trainer.username}'s start date set to {start_date}."
                     ),
                 )
 
@@ -239,7 +239,7 @@ class ProfileCog(Cog):
                     ephemeral=True,
                 )
                 self.logger.exception(
-                    f"Unable to set {trainer.nickname}'s visibility to {visible}", e
+                    f"Unable to set {trainer.username}'s visibility to {visible}", e
                 )
 
             if trainer.statistics:

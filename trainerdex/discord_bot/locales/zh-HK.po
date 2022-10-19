@@ -442,8 +442,8 @@ msgstr "設置是否應出現在排行榜中\n\n"
 "        "
 
 #: trainerdex/discord_bot/profile.py:260
-msgid "{trainer.nickname}'s Trainer Code set to {trainer.trainer_code}"
-msgstr "{trainer.nickname}的培訓師代碼設置為{trainer.trainer_code}"
+msgid "{trainer.username}'s Trainer Code set to {trainer.trainer_code}"
+msgstr "{trainer.username}的培訓師代碼設置為{trainer.trainer_code}"
 
 #: trainerdex/discord_bot/settings.py:24
 msgid "Looking for team roles…"
