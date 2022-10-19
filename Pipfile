@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 humanize = "*"
 python-dateutil = "*"
-trainerdex = ">=4.0.1"
+trainerdex = ">=4.0.2"
 py-cord = ">=2.0.0"
 aiostream = "*"
 motor = ">=3.0,<3.1"
