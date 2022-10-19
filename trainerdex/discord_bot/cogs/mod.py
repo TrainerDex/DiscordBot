@@ -249,7 +249,7 @@ class ModCog(Cog):
                     trainer: Trainer = await client.create_trainer(
                         username=nickname, faction=team, verified=True
                     )
-                    await (await trainer.user()).add_discord(member)
+                    await (await trainer.get_user()).add_discord(member)
                 except ClientResponseError as e:
                     actions_commited.append(f"Failed to create trainer: {e}")
                 else:

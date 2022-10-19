@@ -420,7 +420,7 @@ class PostCog(Cog):
     #    async with self.client() as client:
     #        trainer: Trainer = await client.create_trainer(**profile_data)
     #        print(trainer)
-    #        user = await trainer.user()
+    #        user = await trainer.get_user()
     #        await user.add_discord(ctx.author)
 
     #        update: Update = await trainer.post(
