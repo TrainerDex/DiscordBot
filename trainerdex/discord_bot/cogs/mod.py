@@ -247,7 +247,7 @@ class ModCog(Cog):
             if trainer is None:
                 try:
                     trainer: Trainer = await client.create_trainer(
-                        username=nickname, faction=team, is_verified=True
+                        username=nickname, faction=team, verified=True
                     )
                     await (await trainer.user()).add_discord(member)
                 except ClientResponseError as e:
