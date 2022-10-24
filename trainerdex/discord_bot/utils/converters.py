@@ -1,8 +1,8 @@
 from discord import User
 from trainerdex.api.client import BaseClient
+from trainerdex.api.exceptions import NotFound
 from trainerdex.api.socialconnection import SocialConnection
 from trainerdex.api.trainer import Trainer
-from trainerdex.api.exceptions import NotFound
 
 from trainerdex.discord_bot.utils.validators import validate_trainer_nickname
 
