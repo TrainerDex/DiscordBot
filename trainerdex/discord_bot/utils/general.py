@@ -151,7 +151,7 @@ async def send(
         if isinstance(response, Message):
             return response
         elif isinstance(response, Interaction):
-            return await response.original_message()
+            return await response.original_response()
     else:
         return await destination.send(content=content, *args, **kwargs)
 
