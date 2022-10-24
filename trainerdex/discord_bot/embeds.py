@@ -110,7 +110,7 @@ class ProfileCard(BaseCard):
         except ValueError:
             self.title: str = self.trainer.username
         else:
-             self.title: str = f"{self.trainer.username} | TL{level}"
+            self.title: str = f"{self.trainer.username} | TL{level}"
 
         self.url: str = f"{WEBSITE_DOMAIN}/profile?id={self.trainer.id}"
         if self.update:
