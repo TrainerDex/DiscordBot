@@ -9,7 +9,7 @@ python-dateutil = "*"
 trainerdex = ">=4.0.3"
 py-cord = "==2.2.2"
 aiostream = "*"
-motor = ">=3.0,<3.1"
+motor = ">=3.0,<3.2"
 promise = "*"
 yarl = "*"
 
