@@ -8,7 +8,7 @@ from discord.utils import utcnow
 from trainerdex.api.client import TokenClient
 
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN
-from trainerdex.discord_bot.exceptions import CogHealthcheckException
+from trainerdex.discord_bot.exceptions import CogHealthCheckException
 from trainerdex.discord_bot.loggers import getLogger
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class Cog(Cog_):
     async def __post_init__(self) -> None:
         try:
             await self._healthcheck()
-        except CogHealthcheckException:
+        except CogHealthCheckException:
             self.private_logger.exception("Healthcheck failed, unloading cog.")
             self.bot.remove_cog(self.__class__.__name__)
             return
