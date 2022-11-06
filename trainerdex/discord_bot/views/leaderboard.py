@@ -75,9 +75,11 @@ class LeaderboardView(Paginator):
                 embed.set_author(name=ctx.interaction.guild.name)
 
         for entry in slice:
-            team_emoji = getattr(
-                CustomEmoji, entry.faction.verbose_name.upper(), CustomEmoji.TRAINERDEX
-            ).value
+            if entry.faction is not None:
+                team_emoji = CustomEmoji[entry.faction.verbose_name.upper()].value
+            else:
+                team_emoji = CustomEmoji.TRAINERDEX.value
+
             embed.add_field(
                 name=f"{team_emoji} {entry.position} {entry.username}",
                 value=f"- {format_numbers(entry.value)} • {format_time(entry.last_updated)}",
