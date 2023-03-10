@@ -147,6 +147,10 @@ class ModCog(Cog):
 
         If a trainer already exists for this profile, it will update the stats as needed.
         """
+        if not isinstance(member, Member):
+            await ctx.send("This user is no longer in this server. Unable to approve.")
+            return
+
         if member.bot:
             await ctx.send("You can't approve bots.")
             return

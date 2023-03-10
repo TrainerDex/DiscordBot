@@ -1,7 +1,7 @@
 from discord import ClientException
 
 
-class CogHealthcheckException(ClientException):
-    """Raises when a Healthcheck on a cog fails."""
+class CogHealthCheckException(ClientException):
+    """Raises when a health check on a cog fails."""
 
     pass

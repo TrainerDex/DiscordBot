@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Tuple
 
 from aiostream import stream
-from discord import ApplicationContext, Embed, PartialEmoji
+from discord import ApplicationContext, Embed, Guild, PartialEmoji
 from discord.ext.pages.pagination import Paginator
 from trainerdex.api.leaderboard import (
     BaseLeaderboard,
@@ -66,6 +66,7 @@ class LeaderboardView(Paginator):
         )
 
         if isinstance(leaderboard, GuildLeaderboard):
+            assert isinstance(ctx.interaction.guild, Guild)
             if ctx.interaction.guild.icon:
                 embed.set_author(
                     name=ctx.interaction.guild.name,
