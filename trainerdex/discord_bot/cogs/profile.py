@@ -197,7 +197,7 @@ class ProfileCog(Cog):
                 return
 
             try:
-                await trainer.edit(start_date=start_date)
+                await trainer.edit(start_date=start_date.isoformat())
             except ClientResponseError:
                 self.logger.exception(
                     f"Unable to set {trainer.username}'s start date to {start_date}"
