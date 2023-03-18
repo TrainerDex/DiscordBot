@@ -87,11 +87,10 @@ class GainsLeaderboardView:
                     value=cls._make_leaderboard_field(data),
                 )
 
-        if embed.fields:
-            return embed
-        else:
+        if not embed.fields:
             embed.description = "No new entries to display!"
-            return embed
+
+        return embed
 
     @staticmethod
     def _gains_new_entries(data: dict) -> list[dict]:
