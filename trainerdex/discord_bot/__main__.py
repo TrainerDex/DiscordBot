@@ -7,7 +7,7 @@ from discord import ApplicationContext, Bot, CheckFailure, Intents
 
 from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.config import Config
-from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS, TRAINERDEX_API_TOKEN
+from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS
 from trainerdex.discord_bot.datatypes import Common
 from trainerdex.discord_bot.loggers import DiscordLogger, getLogger
 from trainerdex.discord_bot.utils import chat_formatting
