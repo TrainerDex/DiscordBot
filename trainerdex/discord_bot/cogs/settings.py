@@ -133,13 +133,7 @@ class SettingsCog(Cog):
         else:
             raise ValueError()
 
-        if action == "view":
-            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
-            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
-        elif action == "append":
+        if action == "append":
             if role.id not in role_list:
                 role_list.append(role.id)
 
@@ -152,12 +146,18 @@ class SettingsCog(Cog):
             while role.id in role_list:
                 role_list.remove(role.id)
 
-            message = "{} was removed from the list. The list is now: {}"
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
+            message = "{} was removed from the list. The list is now: {}"
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
 
+        elif action == "view":
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
         if array == "grant":
             guild_config.roles_to_assign_on_approval.add = list(set(role_list))
         elif array == "revoke":
@@ -201,13 +201,7 @@ class SettingsCog(Cog):
 
         role_list: List[Role] = guild_config.mod_role_ids or []
 
-        if action == "view":
-            message = "The following roles are considered mods:\n{}"
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
-            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
-        elif action == "append":
+        if action == "append":
             if role.id not in role_list:
                 role_list.append(role.id)
 
@@ -220,12 +214,18 @@ class SettingsCog(Cog):
             while role.id in role_list:
                 role_list.remove(role.id)
 
-            message = "{} was removed from the list. The list is now: {}"
             set_of_roles = {
                 f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
             }
+            message = "{} was removed from the list. The list is now: {}"
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
 
+        elif action == "view":
+            set_of_roles = {
+                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
+            }
+            message = "The following roles are considered mods:\n{}"
+            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
         guild_config.mod_role_ids = list(set(role_list))
         await self.config.set_guild(guild_config)
 
