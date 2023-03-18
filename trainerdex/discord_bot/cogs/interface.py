@@ -12,7 +12,6 @@ from trainerdex.discord_bot.exceptions import CogHealthCheckException
 from trainerdex.discord_bot.loggers import getLogger
 
 if TYPE_CHECKING:
-
     from trainerdex.discord_bot.config import Config
     from trainerdex.discord_bot.datatypes import CogMeta, Common
 

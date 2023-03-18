@@ -142,18 +142,18 @@ async def send(
     """A utility function to send a message to a destination.
 
     Always returning a subclass of Message."""
-    if isinstance(destination, ApplicationContext):
-        try:
-            response = await destination.respond(content=content, *args, **kwargs)
-        except (HTTPException, TypeError, ValueError, InteractionResponded):
-            return await destination.followup.send(content=content, *args, **kwargs)
-
-        if isinstance(response, Message):
-            return response
-        elif isinstance(response, Interaction):
-            return await response.original_response()
-    else:
+    if not isinstance(destination, ApplicationContext):
         return await destination.send(content=content, *args, **kwargs)
+
+    try:
+        response = await destination.respond(content=content, *args, **kwargs)
+    except (HTTPException, TypeError, ValueError, InteractionResponded):
+        return await destination.followup.send(content=content, *args, **kwargs)
+
+    if isinstance(response, Message):
+        return response
+    elif isinstance(response, Interaction):
+        return await response.original_response()
 
 
 def google_calendar_link_for_datetime(dt: datetime) -> str:

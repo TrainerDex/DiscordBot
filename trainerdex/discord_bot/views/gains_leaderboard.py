@@ -26,7 +26,6 @@ class GainsLeaderboardView:
         slice: list[dict],
         page_number: int,
     ) -> Embed:
-
         stat_slug, stat_name, stat_emoji = cls.get_stat_data(leaderboard.get("stat"))
 
         embed = Embed(
@@ -81,7 +80,6 @@ class GainsLeaderboardView:
         embed.timestamp = date_
 
         for stat, data in leaderboards.items():
-
             stat_slug, stat_name, stat_emoji = cls.get_stat_data(stat.value[0])
             if cls._gains_new_entries(data):
                 embed.add_field(
@@ -89,11 +87,10 @@ class GainsLeaderboardView:
                     value=cls._make_leaderboard_field(data),
                 )
 
-        if embed.fields:
-            return embed
-        else:
+        if not embed.fields:
             embed.description = "No new entries to display!"
-            return embed
+
+        return embed
 
     @staticmethod
     def _gains_new_entries(data: dict) -> list[dict]:

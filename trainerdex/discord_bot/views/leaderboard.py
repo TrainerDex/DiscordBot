@@ -42,7 +42,6 @@ class LeaderboardView(Paginator):
         leaderboard: BaseLeaderboard,
         slice: List[LeaderboardEntry],
     ) -> Embed:
-
         stat, stat_name, stat_emoji = cls.get_stat_data(leaderboard.stat)
 
         embed = Embed(

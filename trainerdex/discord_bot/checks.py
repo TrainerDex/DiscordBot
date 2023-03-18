@@ -57,8 +57,7 @@ async def check_member_privilage(
         return True
 
     config = Config()
-    for role_id in (await config.get_guild(member.guild.id)).mod_role_ids:
-        if member.get_role(role_id):
-            return True
-
-    return False
+    return any(
+        member.get_role(role_id)
+        for role_id in (await config.get_guild(member.guild.id)).mod_role_ids
+    )

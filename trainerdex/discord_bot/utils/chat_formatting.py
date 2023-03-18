@@ -171,12 +171,7 @@ def inline(text: str) -> str:
         The marked up text.
 
     """
-    if not isinstance(text, str):
-        text = str(text)
-    if "`" in text:
-        return f"``{text}``"
-    else:
-        return f"`{text}`"
+    return f"``{text}``" if "`" in text else f"`{text}`"
 
 
 inline_code = inline
@@ -353,7 +348,7 @@ def quote(text: str) -> str:
         The marked up text.
 
     """
-    return textwrap.indent(text, "> ", lambda l: True)
+    return textwrap.indent(text, "> ", lambda line: True)
 
 
 def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) -> str:
@@ -423,10 +418,7 @@ def bool_to_emoji(value: bool) -> str:
         The emoji representing the boolean.
 
     """
-    if value:
-        return "✅"
-    else:
-        return "❌"
+    return "✅" if value else "❌"
 
 
 def format_numbers(number: int | float | Decimal, ndigits: int = 2) -> str:

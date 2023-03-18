@@ -6,7 +6,6 @@ from discord import Attachment
 
 
 class OCRClient:
-
     HOST: ClassVar[str] = os.environ.get("TRAINERDEX_HOST", "https://trainerdex.app")
 
     @classmethod

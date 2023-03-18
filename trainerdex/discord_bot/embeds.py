@@ -4,8 +4,6 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
-from dateutil.rrule import rrule
-from dateutil.tz import UTC
 from discord.channel import TextChannel
 from discord.colour import Colour
 from discord.commands import ApplicationContext
@@ -60,12 +58,11 @@ class BaseCard(Embed):
         self.description: Union[str, EmptyEmbed] = kwargs.get("description", EmptyEmbed)
         self.timestamp: Union[datetime.datetime, EmptyEmbed] = kwargs.get("timestamp", EmptyEmbed)
 
-        notice: str = global_config.notice
-        if notice:
+        if notice := global_config.notice:
             notice: str = chat_formatting.info(notice)
 
             if self.description:
-                self.description: str = "{}\n\n{}".format(notice, self.description)
+                self.description: str = f"{notice}\n\n{self.description}"
             else:
                 self.description: str = notice
 
@@ -129,7 +126,7 @@ class ProfileCard(BaseCard):
         if self.update.travel_km:
             self.add_field(
                 name=f"{CustomEmoji.TRAVEL_KM.value} Distance Walked",
-                value=chat_formatting.format_numbers(self.update.travel_km, 1) + " km",
+                value=f"{chat_formatting.format_numbers(self.update.travel_km, 1)} km",
                 inline=False,
             )
         if self.update.capture_total:

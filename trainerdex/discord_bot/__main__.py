@@ -7,7 +7,7 @@ from discord import ApplicationContext, Bot, CheckFailure, Intents
 
 from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.config import Config
-from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS, TRAINERDEX_API_TOKEN
+from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS
 from trainerdex.discord_bot.datatypes import Common
 from trainerdex.discord_bot.loggers import DiscordLogger, getLogger
 from trainerdex.discord_bot.utils import chat_formatting
@@ -88,7 +88,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             return
 
         logger.exception(
-            f"Exception in command `/{ctx.command.qualified_name}`: {chat_formatting.inline(exception)}",
+            f"Exception in command `/{ctx.command.qualified_name}`: {chat_formatting.inline(str(exception))}",
             exception,
         )
 
@@ -119,7 +119,6 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
 
 
 if __name__ == "__main__":
-
     try:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main(loop))
