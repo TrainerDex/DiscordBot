@@ -93,7 +93,6 @@ class PostCog(Cog):
         total_mega_evos: int | None = None,
         seven_day_streaks: int | None = None,
     ) -> None:
-
         kwargs = locals().copy()
         kwargs.pop("self")
         kwargs.pop("ctx")

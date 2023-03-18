@@ -52,7 +52,7 @@ class ModCog(Cog):
             return True
 
         return False
-    
+
     def allowed_to_create_profiles(self) -> bool:
         return datetime.utcnow() > datetime(2023, 3, 18, 13, 0)
 
