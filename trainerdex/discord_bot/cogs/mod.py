@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import datetime
 from decimal import Decimal
 from typing import Mapping, Optional
 
@@ -51,6 +52,9 @@ class ModCog(Cog):
             return True
 
         return False
+    
+    def allowed_to_create_profiles(self) -> bool:
+        return datetime.utcnow() > datetime(2023, 3, 18, 13, 0)
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)
@@ -160,6 +164,7 @@ class ModCog(Cog):
 
         allowed_to_rename: bool = await self.allowed_to_rename(ctx)
         allowed_to_assign_roles: bool = await self.allowed_to_assign_roles(ctx)
+        allowed_to_create_profile: bool = self.allowed_to_create_profiles()
 
         roles_remove, roles_add = set(), set()
         actions_commited = []
@@ -248,7 +253,7 @@ class ModCog(Cog):
                 prefetch_updates=True,
             )
 
-            if trainer is None:
+            if allowed_to_create_profile and trainer is None:
                 try:
                     trainer: Trainer = await client.create_trainer(
                         username=nickname, faction=team, verified=True
