@@ -88,7 +88,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             return
 
         logger.exception(
-            f"Exception in command `/{ctx.command.qualified_name}`: {chat_formatting.inline(exception)}",
+            f"Exception in command `/{ctx.command.qualified_name}`: {chat_formatting.inline(str(exception))}",
             exception,
         )
 
