@@ -4,8 +4,6 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Union
 
-from dateutil.rrule import rrule
-from dateutil.tz import UTC
 from discord.channel import TextChannel
 from discord.colour import Colour
 from discord.commands import ApplicationContext
