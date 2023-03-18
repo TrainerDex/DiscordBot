@@ -14,7 +14,6 @@ from discord.role import Role
 from trainerdex.discord_bot.checks import check_member_privilage
 from trainerdex.discord_bot.cogs.interface import Cog
 
-# from trainerdex.discord_bot.datatypes import GlobalConfig
 from trainerdex.discord_bot.utils.chat_formatting import error, info, success
 from trainerdex.discord_bot.utils.general import send
 
@@ -29,16 +28,6 @@ class SettingsCog(Cog):
         checks=[check_member_privilage],
         default_member_permissions=Permissions(0x20),
     )
-    # _set_channel = SlashCommandGroup(
-    #     "channel-config",
-    #     "Set channel settings",
-    #     checks=[check_member_privilage],
-    # )
-    # _set_global = SlashCommandGroup(
-    #     "global-config",
-    #     "Set global settings",
-    #     checks=[is_owner],
-    # )
 
     @guild_config.command(name="assign-roles-on-join", checks=[check_member_privilage])
     async def guild_config__assign_roles_on_join(
@@ -352,56 +341,3 @@ class SettingsCog(Cog):
             f"Set `post_weekly_leaderboards` to `{value}`.",
             ephemeral=True,
         )
-
-    # @guild_config.command(name="introduction-note", checks=[check_member_privilage])
-    # async def guild_config__introduction_note(self, ctx: ApplicationContext, value: str) -> None:
-    #     """Send a note to a member upon running `profile create` (aka, `approve`)
-
-    #     Set value to `None` to empty it
-    #     """
-    #     guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-    #     if value.lower() == "none":
-    #         value = None
-    #     guild_config.introduction_note = value
-    #     await self.config.set_guild(guild_config)
-
-    #     if value is None:
-    #         await send(
-    #             ctx,
-    #             "Unset `introduction_note`.",
-    #             ephemeral=True,
-    #         )
-    #     else:
-    #         await send(
-    #             ctx,
-    #             f"Set `introduction_note` to `{value}`.",
-    #             ephemeral=True,
-    #         )
-
-    # @_set_global.command(name="notice", checks=[is_owner])
-    # async def set__notice(self, ctx: ApplicationContext, value: str) -> None:
-    #     global_config: GlobalConfig = await self.config.get_global()
-    #     if value.lower() == "none":
-    #         value = GlobalConfig.notice
-    #     global_config.notice = value
-    #     await self.config.set_global(GlobalConfig)
-
-    #     await send(
-    #         ctx,
-    #         f"Set `notice` to `{value}`.",
-    #         ephemeral=True,
-    #     )
-
-    # @_set_global.command(name="footer", checks=[is_owner])
-    # async def set__footer(self, ctx: ApplicationContext, value: str) -> None:
-    #     global_config: GlobalConfig = await self.config.get_global()
-    #     if value.lower() == "none":
-    #         value = GlobalConfig.embed_footer
-    #     global_config.embed_footer = value
-    #     await self.config.set_global(GlobalConfig)
-
-    #     await send(
-    #         ctx,
-    #         f"Set `embed_footer` to `{value}`.",
-    #         ephemeral=True,
-    #     )
