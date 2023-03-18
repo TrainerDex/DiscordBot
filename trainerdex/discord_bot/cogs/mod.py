@@ -36,10 +36,7 @@ class ModCog(Cog):
         if await check_member_privilage(ctx):
             return True
 
-        if ctx.author.guild_permissions.manage_nicknames:
-            return True
-
-        return False
+        return bool(ctx.author.guild_permissions.manage_nicknames)
 
     async def allowed_to_assign_roles(self, ctx: ApplicationContext) -> bool:
         if not (await self.config.get_guild(ctx.guild.id)).assign_roles_on_join:
@@ -48,10 +45,7 @@ class ModCog(Cog):
         if await check_member_privilage(ctx):
             return True
 
-        if ctx.author.guild_permissions.manage_roles:
-            return True
-
-        return False
+        return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
         return datetime.utcnow() > datetime(2023, 3, 18, 13, 0)
