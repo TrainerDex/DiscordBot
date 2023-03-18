@@ -1,13 +1,12 @@
 import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict
 
 from discord import (
     ApplicationContext,
     Attachment,
     Message,
     Option,
-    OptionChoice,
     slash_command,
 )
 from discord.utils import snowflake_time
@@ -18,9 +17,8 @@ from trainerdex.discord_bot.constants import STAT_MAP
 from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.ocr import OCRClient
 from trainerdex.discord_bot.utils import chat_formatting
-from trainerdex.discord_bot.utils.converters import get_trainer, get_trainer_from_user
+from trainerdex.discord_bot.utils.converters import get_trainer_from_user
 from trainerdex.discord_bot.utils.general import send
-from trainerdex.discord_bot.utils.validators import validate_trainer_nickname
 
 if TYPE_CHECKING:
     from trainerdex.api.trainer import Trainer
