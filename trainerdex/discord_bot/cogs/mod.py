@@ -48,7 +48,7 @@ class ModCog(Cog):
         return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
-        return datetime.utcnow() > datetime(2023, 3, 20, 13, 0)
+        return datetime.utcnow() < datetime(2023, 3, 20, 13, 0)
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)
@@ -247,16 +247,19 @@ class ModCog(Cog):
                 prefetch_updates=True,
             )
 
-            if allowed_to_create_profile and trainer is None:
-                try:
-                    trainer: Trainer = await client.create_trainer(
-                        username=nickname, faction=team, verified=True
-                    )
-                    await (await trainer.get_user()).add_discord(member)
-                except ClientResponseError as e:
-                    actions_commited.append(f"Failed to create trainer: {e}")
+            if trainer is None:
+                if not allowed_to_create_profile:
+                    actions_commited.append("Trainer registation is disabled. TrainerDex is being retired on <t:1681905600:D>")
                 else:
-                    actions_commited.append(f"Registered new trainer with nickname: {nickname}")
+                    try:
+                        trainer: Trainer = await client.create_trainer(
+                            username=nickname, faction=team, verified=True
+                        )
+                        await (await trainer.get_user()).add_discord(member)
+                    except ClientResponseError as e:
+                        actions_commited.append(f"Failed to create trainer: {e}")
+                    else:
+                        actions_commited.append(f"Registered new trainer with nickname: {nickname}")
 
             # Only continue if trainer object exists
             if trainer:
