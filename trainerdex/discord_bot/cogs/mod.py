@@ -48,7 +48,7 @@ class ModCog(Cog):
         return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
-        return datetime.utcnow() > datetime(2023, 3, 20, 13, 0)
+        return datetime.utcnow() < datetime(2023, 3, 20, 13, 0)
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)
