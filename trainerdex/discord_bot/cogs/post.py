@@ -141,9 +141,7 @@ class PostCog(Cog):
             if trainer is None:
                 await send(
                     ctx,
-                    chat_formatting.warning(
-                        "You're not set up with a TrainerDex profile. Please ask a mod to set you up. (Tutorial here for mod: <https://www.youtube.com/watch?v=KCxtyukXW7w>)"
-                    ),
+                    chat_formatting.warning("You're not set up with a TrainerDex profile."),
                     ephemeral=False,
                 )
                 return
