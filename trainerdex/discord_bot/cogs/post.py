@@ -141,9 +141,7 @@ class PostCog(Cog):
             if trainer is None:
                 await send(
                     ctx,
-                    chat_formatting.warning(
-                        "You're not set up with a TrainerDex profile. Unfortunately, registrations are closed due to the imminent closure of TrainerDex on <t:1681905600:D>."
-                    ),
+                    chat_formatting.warning("You're not set up with a TrainerDex profile."),
                     ephemeral=False,
                 )
                 return
