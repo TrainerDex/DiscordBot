@@ -142,7 +142,8 @@ class ModCog(Cog):
     ) -> None:
         """Create a profile in TrainerDex
 
-        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True, it will do those actions before checking the database.
+        If `guild.assign_roles_on_join` or `guild.set_nickname_on_join` are True,
+        it will do those actions before checking the database.
 
         If a trainer already exists for this profile, it will update the stats as needed.
         """
@@ -185,7 +186,10 @@ class ModCog(Cog):
                     await member.remove_roles(*[Object(x) for x in roles_remove], reason=reason)
                 except discord.errors.Forbidden:
                     actions_commited.append(
-                        "Attempted to remove these roles, but errors were raised (possibly insufficient permissions): {}".format(
+                        (
+                            "Attempted to remove these roles, but errors were raised "
+                            "(possibly insufficient permissions): {}"
+                        ).format(
                             ", ".join(
                                 [
                                     ctx.guild.get_role(role_id).name or role_id
@@ -211,7 +215,10 @@ class ModCog(Cog):
                     await member.add_roles(*[Object(x) for x in roles_add], reason=reason)
                 except discord.errors.Forbidden:
                     actions_commited.append(
-                        "Attempted to add these roles, but errors were raised (possibly insufficient permissions): {}".format(
+                        (
+                            "Attempted to add these roles, but errors were raised "
+                            "(possibly insufficient permissions): {}"
+                        ).format(
                             ", ".join(
                                 [
                                     ctx.guild.get_role(role_id).name or role_id
@@ -251,7 +258,10 @@ class ModCog(Cog):
             if trainer is None:
                 if not allowed_to_create_profile:
                     actions_commited.append(
-                        f"Trainer registation is disabled. TrainerDex is being retired on <t:{int(SHUTDOWN_DATE.timestamp())}:D>"
+                        (
+                            "Trainer registation is disabled."
+                            f" TrainerDex is being retired on <t:{int(SHUTDOWN_DATE.timestamp())}:D>"
+                        )
                     )
                 else:
                     try:
