@@ -136,7 +136,10 @@ class LeaderboardCog(Cog):
             )
 
             message: Message = await leaderboard_channel.send(
-                f"It's {format_time(local_time)}, time to post the weekly leaderboard! The next leaderboard will be posted at {format_time(deadline)}.",
+                (
+                    f"It's {format_time(local_time)}, time to post the weekly leaderboard! "
+                    f"The next leaderboard will be posted at {format_time(deadline)}."
+                ),
                 embed=combo_post,
             )
             thread: Thread = await message.create_thread(
