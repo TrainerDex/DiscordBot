@@ -1,13 +1,8 @@
 {
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "python.formatting.provider": "black",
-    "python.sortImports.args": [
-        "--profile black"
-    ],
-    "editor.rulers": [
-        99,
-        109
-    ],
-    "python.terminal.activateEnvInCurrentTerminal": true
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.formatting.provider": "black",
+  "python.sortImports.args": ["--profile black"],
+  "editor.rulers": [117],
+  "python.terminal.activateEnvInCurrentTerminal": true
 }
