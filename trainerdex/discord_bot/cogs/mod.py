@@ -251,7 +251,7 @@ class ModCog(Cog):
             if trainer is None:
                 if not allowed_to_create_profile:
                     actions_commited.append(
-                        "Trainer registation is disabled. TrainerDex is being retired on <t:1681905600:D>"
+                        f"Trainer registation is disabled. TrainerDex is being retired on <t:{int(SHUTDOWN_DATE.timestamp())}:D>"
                     )
                 else:
                     try:
