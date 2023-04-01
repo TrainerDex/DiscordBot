@@ -103,7 +103,10 @@ class PostCog(Cog):
         if not (image or kwargs):
             await send(
                 ctx,
-                "You haven't provided a valid image or any stats. Sorry, nothing I can do here. Perhaps you forgot to attach an image?",
+                (
+                    "You haven't provided a valid image or any stats. Sorry, nothing I can do here. "
+                    "Perhaps you forgot to attach an image?"
+                ),
                 ephemeral=True,
             )
             return
@@ -122,7 +125,12 @@ class PostCog(Cog):
             await send(
                 ctx,
                 content=chat_formatting.info(
-                    f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`, with the following additional stats: {', '.join(f'`{key}: {value}`' for key, value in kwargs.items())}",
+                    (
+                        f"{ctx.interaction.user.mention} shared an image for use with "
+                        f"`/{ctx.command.qualified_name}`, "
+                        f"with the following additional stats: "
+                        f"{', '.join(f'`{key}: {value}`' for key, value in kwargs.items())}"
+                    ),
                 ),
                 file=await image.to_file(),
             )
@@ -130,7 +138,10 @@ class PostCog(Cog):
             await send(
                 ctx,
                 content=chat_formatting.info(
-                    f"{ctx.interaction.user.mention} posted the following stats: {', '.join(f'`{key}: {value}`' for key, value in kwargs.items())}",
+                    (
+                        f"{ctx.interaction.user.mention} posted the following stats: "
+                        f"{', '.join(f'`{key}: {value}`' for key, value in kwargs.items())}"
+                    ),
                 ),
             )
 
@@ -150,15 +161,16 @@ class PostCog(Cog):
             if image is not None:
                 await send(ctx, "Analyzing image...", delete_after=30)
                 try:
-                    data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(
-                        image
-                    )
+                    data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(image)
                 except Exception:
                     if not kwargs:
                         await send(
                             ctx,
                             chat_formatting.error(
-                                "The OCR failed to process and you didn't provide any keywords. I can't do anything with that.",
+                                (
+                                    "The OCR failed to process and you didn't provide any keywords. "
+                                    "I can't do anything with that."
+                                ),
                             ),
                         )
                         return
@@ -166,24 +178,23 @@ class PostCog(Cog):
                         await send(
                             ctx,
                             chat_formatting.warning(
-                                "The OCR failed to process, but I'm still going to try to update your stats with the keywords you provided.",
+                                (
+                                    "The OCR failed to process, "
+                                    "but I'm still going to try to update your stats with the keywords you provided."
+                                ),
                             ),
                         )
 
             stats_to_update = kwargs | data_from_ocr
 
             stats_to_update: dict[str, Decimal | int] = {
-                STAT_MAP.get(key, key): value
-                for key, value in stats_to_update.items()
-                if value is not None
+                STAT_MAP.get(key, key): value for key, value in stats_to_update.items() if value is not None
             }
 
             if not stats_to_update:
                 await send(
                     ctx,
-                    chat_formatting.error(
-                        "No stats were provided. Please provide at least one stat to update."
-                    ),
+                    chat_formatting.error("No stats were provided. Please provide at least one stat to update."),
                 )
                 return
 
@@ -191,13 +202,9 @@ class PostCog(Cog):
             latest_update: Update = await trainer.get_latest_update()
 
             # If the latest update is less than half an hour old, update in place.
-            if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(
-                minutes=30
-            ):
+            if latest_update.update_time > snowflake_time(ctx.interaction.id) - datetime.timedelta(minutes=30):
                 try:
-                    await latest_update.edit(
-                        update_time=snowflake_time(ctx.interaction.id), **stats_to_update
-                    )
+                    await latest_update.edit(update_time=snowflake_time(ctx.interaction.id), **stats_to_update)
                 except HTTPException as e:
                     r, data = e.args
                     if data is not None:
@@ -211,9 +218,7 @@ class PostCog(Cog):
                     else:
                         await send(
                             ctx,
-                            chat_formatting.error(
-                                "The update failed to post because of an unknown error."
-                            ),
+                            chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
@@ -233,7 +238,10 @@ class PostCog(Cog):
                     await send(
                         ctx,
                         chat_formatting.error(
-                            "At a quick glance, it looks like your stats haven't changed since your last update. Eek!\nDid you upload an old screenshot?"
+                            (
+                                "At a quick glance, it looks like your stats haven't changed since your last update."
+                                " Eek!\nDid you upload an old screenshot?"
+                            )
                         ),
                     )
                     return
@@ -258,15 +266,11 @@ class PostCog(Cog):
                     else:
                         await send(
                             ctx,
-                            chat_formatting.error(
-                                "The update failed to post because of an unknown error."
-                            ),
+                            chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
-            embed: ProfileCard = await ProfileCard(
-                self._common, ctx, trainer=trainer, update=update
-            )
+            embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
             response: Message = await send(
                 ctx,
                 content=chat_formatting.loading("Checking progress…"),
