@@ -11,10 +11,10 @@ from discord import (
     Option,
     OptionChoice,
     Permissions,
+    Role,
     WebhookMessage,
     slash_command,
 )
-from discord.object import Object
 from discord.utils import snowflake_time
 from trainerdex.api.trainer import Trainer
 from trainerdex.api.update import Update
@@ -58,8 +58,7 @@ class ModCog(Cog):
             update = {
                 key: value
                 for key, value in update.items()
-                if (key in ("total_xp", "travel_km", "capture_total", "pokestops_visited"))
-                and (value is not None)
+                if (key in ("total_xp", "travel_km", "capture_total", "pokestops_visited")) and (value is not None)
             }
 
         # We want to ensure that the values in y are always larger than their counterpart in x
@@ -167,8 +166,8 @@ class ModCog(Cog):
 
         if allowed_to_assign_roles:
             guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-            roles_remove = set(guild_config.roles_to_assign_on_approval.remove)
-            roles_add = set(guild_config.roles_to_assign_on_approval.add)
+            roles_remove: set[int] = set(guild_config.roles_to_assign_on_approval.remove)
+            roles_add: set[int] = set(guild_config.roles_to_assign_on_approval.add)
 
             match team:
                 case 1:
@@ -182,62 +181,36 @@ class ModCog(Cog):
                         roles_add.add(guild_config.instinct_role)
 
             if roles_remove:
+                roles_remove: list[Role | None] = [ctx.guild.get_role(id) for id in roles_remove]
+                roles_remove: list[Role] = [role for role in roles_remove if role is not None]
                 try:
-                    await member.remove_roles(*[Object(x) for x in roles_remove], reason=reason)
+                    await member.remove_roles(*roles_remove, reason=reason)
                 except discord.errors.Forbidden:
                     actions_commited.append(
                         (
                             "Attempted to remove these roles, but errors were raised "
                             "(possibly insufficient permissions): {}"
-                        ).format(
-                            ", ".join(
-                                [
-                                    ctx.guild.get_role(role_id).name or role_id
-                                    for role_id in roles_remove
-                                ]
-                            )
-                        )
+                        ).format(", ".join([role.name for role in roles_remove]))
                     )
                 else:
                     actions_commited.append(
-                        "Removed roles: {}".format(
-                            ", ".join(
-                                [
-                                    ctx.guild.get_role(role_id).name or role_id
-                                    for role_id in roles_remove
-                                ]
-                            )
-                        )
+                        "Removed roles: {}".format(", ".join([role.name for role in roles_remove]))
                     )
 
             if roles_add:
+                roles_add: list[Role | None] = [ctx.guild.get_role(id) for id in roles_add]
+                roles_add: list[Role] = [role for role in roles_add if role is not None]
                 try:
-                    await member.add_roles(*[Object(x) for x in roles_add], reason=reason)
+                    await member.add_roles(*roles_add, reason=reason)
                 except discord.errors.Forbidden:
                     actions_commited.append(
                         (
                             "Attempted to add these roles, but errors were raised "
                             "(possibly insufficient permissions): {}"
-                        ).format(
-                            ", ".join(
-                                [
-                                    ctx.guild.get_role(role_id).name or role_id
-                                    for role_id in roles_add
-                                ]
-                            )
-                        )
+                        ).format(", ".join([role.name for role in roles_add]))
                     )
                 else:
-                    actions_commited.append(
-                        "Added roles: {}".format(
-                            ", ".join(
-                                [
-                                    ctx.guild.get_role(role_id).name or role_id
-                                    for role_id in roles_add
-                                ]
-                            )
-                        )
-                    )
+                    actions_commited.append("Added roles: {}".format(", ".join([role.name for role in roles_add])))
 
         if allowed_to_rename:
             try:
@@ -272,9 +245,7 @@ class ModCog(Cog):
                     except ClientResponseError as e:
                         actions_commited.append(f"Failed to create trainer: {e}")
                     else:
-                        actions_commited.append(
-                            f"Registered new trainer with nickname: {nickname}"
-                        )
+                        actions_commited.append(f"Registered new trainer with nickname: {nickname}")
 
             # Only continue if trainer object exists
             if trainer:
@@ -290,9 +261,7 @@ class ModCog(Cog):
                 }
 
                 try:
-                    latest_update_with_total_xp: Update = max(
-                        trainer.updates, key=lambda x: (x.total_xp or 0)
-                    )
+                    latest_update_with_total_xp: Update = max(trainer.updates, key=lambda x: (x.total_xp or 0))
                 except ValueError:
                     post_update: bool = True
                 else:
@@ -311,9 +280,7 @@ class ModCog(Cog):
                             if value is not None
                         ]
                     )
-                    actions_commited.append(
-                        f"Updated {trainer.username} with new stats; {stats_humanize}"
-                    )
+                    actions_commited.append(f"Updated {trainer.username} with new stats; {stats_humanize}")
 
             if actions_commited:
                 response: WebhookMessage = await ctx.followup.send(
