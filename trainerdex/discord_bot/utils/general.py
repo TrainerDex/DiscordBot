@@ -10,9 +10,7 @@ def google_calendar_link_for_datetime(dt: datetime) -> str:
     path = URL("http://www.google.com/calendar/event")
 
     # Format date as YYYYMMDDTHHMMSSZ
-    print(dt)
     dt = dt.astimezone(ZoneInfo("UTC"))
-    print(dt)
 
     start_time = (dt - timedelta(minutes=15)).strftime("%Y%m%dT%H%M%SZ")
     end_time = dt.strftime("%Y%m%dT%H%M%SZ")
