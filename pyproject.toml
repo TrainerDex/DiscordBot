@@ -1,18 +1,11 @@
 [tool.black]
-    line-length = 117
-    target-version = ['py310']
-    include = '\.py$'
-    exclude = '''
-    /(
-          \.eggs
-        | \.git
-        | \.hg
-        | \.mypy_cache
-        | \.tox
-        | \.venv
-        | _build
-        | buck-out
-        | build
-        | dist
-    )/
-    '''
+line-length = 117
+target-version = ['py310']
+
+
+[tool.isort]
+profile = "black"
+py_version = 310
+line_length = 117
+combine_as_imports = true
+known_first_party = ["trainerdex"]

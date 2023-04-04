@@ -1,14 +1,7 @@
 from typing import TYPE_CHECKING, List
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from discord import (
-    ApplicationContext,
-    Option,
-    OptionChoice,
-    Permissions,
-    SlashCommandGroup,
-    TextChannel,
-)
+from discord import ApplicationContext, Option, OptionChoice, Permissions, SlashCommandGroup, TextChannel
 from discord.role import Role
 
 from trainerdex.discord_bot.checks import check_member_privilage

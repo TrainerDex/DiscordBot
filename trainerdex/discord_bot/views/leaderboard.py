@@ -5,12 +5,8 @@ from typing import List, Tuple
 from aiostream import stream
 from discord import ApplicationContext, Embed, Guild, PartialEmoji
 from discord.ext.pages.pagination import Paginator
-from trainerdex.api.leaderboard import (
-    BaseLeaderboard,
-    GuildLeaderboard,
-    LeaderboardEntry,
-)
 
+from trainerdex.api.leaderboard import BaseLeaderboard, GuildLeaderboard, LeaderboardEntry
 from trainerdex.discord_bot.constants import TRAINERDEX_COLOUR, CustomEmoji, Stats
 from trainerdex.discord_bot.utils.chat_formatting import format_numbers, format_time
 

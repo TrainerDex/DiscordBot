@@ -7,8 +7,8 @@ from aiohttp import ClientResponseError
 from discord import Message, OptionChoice, SlashCommandGroup, user_command
 from discord.commands import ApplicationContext, Option, slash_command
 from discord.user import User
-from trainerdex.api.exceptions import Forbidden, HTTPException, NotFound
 
+from trainerdex.api.exceptions import Forbidden, HTTPException, NotFound
 from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting

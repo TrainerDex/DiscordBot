@@ -21,7 +21,6 @@ from trainerdex.discord_bot.views.leaderboard import LeaderboardView
 
 if TYPE_CHECKING:
     from trainerdex.api.leaderboard import BaseLeaderboard
-
     from trainerdex.discord_bot.datatypes import GuildConfig
 
 

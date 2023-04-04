@@ -16,9 +16,9 @@ from discord import (
     slash_command,
 )
 from discord.utils import snowflake_time
+
 from trainerdex.api.trainer import Trainer
 from trainerdex.api.update import Update
-
 from trainerdex.discord_bot.checks import check_member_privilage
 from trainerdex.discord_bot.constants import Stats
 from trainerdex.discord_bot.datatypes import GuildConfig

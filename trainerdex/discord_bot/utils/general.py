@@ -3,9 +3,9 @@ from zoneinfo import ZoneInfo
 
 from discord import ApplicationContext
 from discord.abc import User
-from trainerdex.api.trainer import Trainer
 from yarl import URL
 
+from trainerdex.api.trainer import Trainer
 from trainerdex.discord_bot.constants import SOCIAL_TWITTER
 from trainerdex.discord_bot.utils import chat_formatting
 

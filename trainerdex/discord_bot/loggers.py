@@ -7,12 +7,7 @@ from discord import Bot, Forbidden, HTTPException, InvalidArgument, TextChannel
 from promise import promisify
 
 from trainerdex.discord_bot.constants import ADMIN_LOG_CHANNEL_ID
-from trainerdex.discord_bot.utils.chat_formatting import (
-    error,
-    info,
-    text_to_file,
-    warning,
-)
+from trainerdex.discord_bot.utils.chat_formatting import error, info, text_to_file, warning
 
 
 class LoggerLevel(int, Enum):

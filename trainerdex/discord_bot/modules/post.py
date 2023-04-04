@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Dict
 
 from discord import ApplicationContext, Attachment, Message, Option, slash_command
 from discord.utils import snowflake_time
-from trainerdex.api.exceptions import HTTPException
 
+from trainerdex.api.exceptions import HTTPException
 from trainerdex.discord_bot.constants import STAT_MAP
 from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.modules.base import Module

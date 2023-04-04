@@ -10,27 +10,18 @@ from discord.commands import ApplicationContext
 from discord.embeds import Embed, EmptyEmbed
 from discord.guild import Guild
 from discord.message import Message
+
 from trainerdex.api.client import TokenClient
 from trainerdex.api.exceptions import HTTPException
 from trainerdex.api.update import Update
-
-from trainerdex.discord_bot.constants import (
-    TRAINERDEX_COLOUR,
-    WEBSITE_DOMAIN,
-    CustomEmoji,
-)
+from trainerdex.discord_bot.constants import TRAINERDEX_COLOUR, WEBSITE_DOMAIN, CustomEmoji
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.deadlines import get_last_deadline, get_next_deadline
 from trainerdex.discord_bot.utils.general import google_calendar_link_for_datetime
 
 if TYPE_CHECKING:
-    from trainerdex.api.leaderboard import (
-        GuildLeaderboard,
-        Leaderboard,
-        LeaderboardEntry,
-    )
+    from trainerdex.api.leaderboard import GuildLeaderboard, Leaderboard, LeaderboardEntry
     from trainerdex.api.trainer import Trainer
-
     from trainerdex.discord_bot.datatypes import Common, GlobalConfig
 
 

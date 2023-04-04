@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, NoReturn
 import pymongo.errors
 from discord import Bot, Cog
 from discord.utils import utcnow
-from trainerdex.api.client import TokenClient
 
+from trainerdex.api.client import TokenClient
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN
 from trainerdex.discord_bot.exceptions import ModuleHealthCheckException
 from trainerdex.discord_bot.loggers import getLogger
