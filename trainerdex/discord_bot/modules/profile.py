@@ -9,14 +9,19 @@ from discord.commands import ApplicationContext, Option, slash_command
 from discord.user import User
 from trainerdex.api.exceptions import Forbidden, HTTPException, NotFound
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.embeds import ProfileCard
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.converters import get_trainer, get_trainer_from_user
 from trainerdex.discord_bot.utils.general import send
 
 
-class ProfileCog(Cog):
+class ProfileModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "ProfileCog"
+
     @slash_command(
         name="profile",
         options=[

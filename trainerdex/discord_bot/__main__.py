@@ -5,11 +5,11 @@ import os
 
 from discord import ApplicationContext, Bot, CheckFailure, Intents
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.config import Config
 from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS
 from trainerdex.discord_bot.datatypes import Common
 from trainerdex.discord_bot.loggers import DiscordLogger, getLogger
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.general import send
 
@@ -100,9 +100,9 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
         config=config,
     )
 
-    private_logger.info("Loading cogs...")
-    for cog in Cog.__subclasses__():
-        bot.add_cog(cog(common))
+    private_logger.info("Loading modules...")
+    for module in Module.__subclasses__():
+        bot.add_cog(module(common))
 
     try:
         private_logger.info("Running bot...")

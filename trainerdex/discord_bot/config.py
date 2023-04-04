@@ -8,21 +8,21 @@ from typing import TYPE_CHECKING, AsyncIterator, Mapping, MutableMapping, Union
 
 from discord import Guild, Member, TextChannel, User
 from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
+from pymongo.collection import Collection
 from pymongo.cursor import Cursor
+from pymongo.database import Database
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.datatypes import (
     ChannelConfig,
-    CogMeta,
     GlobalConfig,
     GuildConfig,
     MemberConfig,
+    ModuleMeta,
     UserConfig,
 )
 
 if TYPE_CHECKING:
-    from pymongo.collection import Collection
-    from pymongo.database import Database
+    from trainerdex.discord_bot.modules.base import Module
 
 
 class StaticDocuments(Enum):
@@ -59,26 +59,28 @@ class Config:
             raise ValueError("No entry found.")
         return GlobalConfig.from_mapping(data)
 
-    async def get_cog_meta(self, cog: Cog | type[Cog], create: bool = True) -> CogMeta:
-        if isinstance(cog, Cog):
-            cog: type[Cog] = cog.__class__
-        elif not issubclass(cog, Cog):
-            raise ValueError("cog must be a subclass of Cog.")
+    async def get_module_metadata(self, module: Module | type[Module], create: bool = True) -> ModuleMeta:
+        from trainerdex.discord_bot.modules.base import Module
 
-        data: MutableMapping = await self._get_collection("cogs").find_one({"_id": cog.__name__})
+        if isinstance(module, Module):
+            module: type[Module] = module.__class__
+        elif not issubclass(module, Module):
+            raise ValueError("module must be a subclass of Module.")
+
+        data: MutableMapping = await self._get_collection("cogs").find_one({"_id": module.METADATA_ID})
 
         if data is None and create:
-            document: CogMeta = CogMeta(_id=cog.__name__, enabled=True, last_loaded=None)
+            document: ModuleMeta = ModuleMeta(_id=module.METADATA_ID, enabled=True, last_loaded=None)
             self._get_collection("cogs").insert_one(asdict(document))
-            data: MutableMapping = await self._get_collection("cogs").find_one({"_id": cog.__name__})
+            data: MutableMapping = await self._get_collection("cogs").find_one({"_id": module.METADATA_ID})
         elif data is None and not create:
             raise ValueError("No entry found.")
-        return CogMeta.from_mapping(data)
+        return ModuleMeta.from_mapping(data)
 
-    async def get_many_cog_meta(self, filter: Mapping = None) -> AsyncIterator[CogMeta]:
+    async def get_many_module_metadata(self, filter: Mapping = None) -> AsyncIterator[ModuleMeta]:
         curser: Cursor = self._get_collection("cogs").find(filter)
         async for document in curser:
-            yield CogMeta.from_mapping(document)
+            yield ModuleMeta.from_mapping(document)
 
     async def get_guild(self, guild: Guild | int, *, create: bool = True) -> GuildConfig:
         if isinstance(guild, Guild):
@@ -154,7 +156,7 @@ class Config:
         data: MutableMapping = asdict(document)
         await self._get_collection("global").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
-    async def set_cog_meta(self, document: CogMeta):
+    async def set_module_metadata(self, document: ModuleMeta):
         data: MutableMapping = asdict(document)
         await self._get_collection("cogs").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 

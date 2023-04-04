@@ -13,8 +13,8 @@ from discord.commands import ApplicationContext, Option, OptionChoice, slash_com
 from discord.ext import tasks
 from yarl import URL
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN, Stats
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import format_time
 from trainerdex.discord_bot.utils.general import send
 from trainerdex.discord_bot.views.gains_leaderboard import GainsLeaderboardView
@@ -31,7 +31,12 @@ class LeaderboardType(Enum):
     GLOBAL = "global", "Global"
 
 
-class LeaderboardCog(Cog):
+class LeaderboardModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "LeaderboardCog"
+
     async def __post_init__(self) -> None:
         self._gather_guilds_for_weekly_leaderboards.start()
         return await super().__post_init__()

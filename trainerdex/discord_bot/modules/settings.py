@@ -12,7 +12,7 @@ from discord import (
 from discord.role import Role
 
 from trainerdex.discord_bot.checks import check_member_privilage
-from trainerdex.discord_bot.cogs.interface import Cog
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import error, info, success
 from trainerdex.discord_bot.utils.general import send
 
@@ -20,7 +20,12 @@ if TYPE_CHECKING:
     from trainerdex.discord_bot.datatypes import GuildConfig
 
 
-class SettingsCog(Cog):
+class SettingsModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "SettingsCog"
+
     guild_config = SlashCommandGroup(
         "server-config",
         "Set server settings",

@@ -20,16 +20,21 @@ from trainerdex.api.trainer import Trainer
 from trainerdex.api.update import Update
 
 from trainerdex.discord_bot.checks import check_member_privilage
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.constants import Stats
 from trainerdex.discord_bot.datatypes import GuildConfig
 from trainerdex.discord_bot.embeds import ProfileCard
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import format_numbers
 from trainerdex.discord_bot.utils.converters import get_trainer
 from trainerdex.discord_bot.utils.deadlines import SHUTDOWN_DATE
 
 
-class ModCog(Cog):
+class ModerationModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "ModCog"
+
     async def allowed_to_rename(self, ctx: ApplicationContext) -> bool:
         if not (await self.config.get_guild(ctx.guild.id)).set_nickname_on_join:
             return False

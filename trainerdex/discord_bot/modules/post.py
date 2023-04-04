@@ -6,9 +6,9 @@ from discord import ApplicationContext, Attachment, Message, Option, slash_comma
 from discord.utils import snowflake_time
 from trainerdex.api.exceptions import HTTPException
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.constants import STAT_MAP
 from trainerdex.discord_bot.embeds import ProfileCard
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.ocr import OCRClient
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.converters import get_trainer_from_user
@@ -19,7 +19,12 @@ if TYPE_CHECKING:
     from trainerdex.api.update import Update
 
 
-class PostCog(Cog):
+class PostModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "PostCog"
+
     @slash_command(
         name="update",
         description="Update your stats with an image, optionally a few other stats are included.",

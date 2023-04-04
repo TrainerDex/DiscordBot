@@ -43,13 +43,13 @@ class GlobalConfig(_MongoDBDocument):
 
 
 @dataclass
-class CogMeta(_MongoDBDocument):
+class ModuleMeta(_MongoDBDocument):
     _id: str
     enabled: bool = True
     last_loaded: datetime | None = None
 
     @property
-    def cog_name(self) -> str:
+    def name(self) -> str:
         return self._id
 
 
