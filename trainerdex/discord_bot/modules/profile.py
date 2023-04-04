@@ -4,10 +4,11 @@ from calendar import month_name
 from typing import Optional
 
 from aiohttp import ClientResponseError
-from discord import Message, OptionChoice, SlashCommandGroup, user_command
+from discord import OptionChoice, SlashCommandGroup, user_command
 from discord.commands import ApplicationContext, Option, slash_command
 from discord.user import User
 
+from trainerdex.api.trainer import Trainer
 from trainerdex.api.exceptions import Forbidden, HTTPException, NotFound
 from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.modules.base import Module
@@ -42,24 +43,10 @@ class ProfileModule(Module):
                 trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None or not trainer.statistics:
-                await ctx.send(chat_formatting.error("No profile found."))
+                await ctx.interaction.response.send_message(chat_formatting.error("No profile found."))
                 return
 
-            embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
-            response: Message = await ctx.send(
-                content=chat_formatting.loading("Checking progress…"),
-                embed=embed,
-            )
-            await embed.show_progress()
-            await response.edit(
-                content=chat_formatting.loading("Loading leaderboards…"),
-                embed=embed,
-            )
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await response.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-            await response.edit(content=None, embed=embed)
+            await self.show_trainer_profile(ctx, trainer)
 
     @user_command(name="View Profile")
     async def user__profile(
@@ -73,24 +60,31 @@ class ProfileModule(Module):
             trainer = await get_trainer_from_user(client, user)
 
             if trainer is None or not trainer.statistics:
-                await ctx.send(chat_formatting.error("No profile found."))
+                await ctx.interaction.response.send_message(chat_formatting.error("No profile found."))
                 return
 
-            embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
-            response: Message = await ctx.send(
-                content=chat_formatting.loading("Checking progress…"),
-                embed=embed,
-            )
-            await embed.show_progress()
-            await response.edit(
-                content=chat_formatting.loading("Loading leaderboards…"),
-                embed=embed,
-            )
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await response.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-            await response.edit(content=None, embed=embed)
+            await self.show_trainer_profile(ctx, trainer)
+
+    async def show_trainer_profile(self, ctx: ApplicationContext, trainer: Trainer):
+        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
+        response = await ctx.interaction.response.send_message(
+            content=chat_formatting.loading("Checking progress…"),
+            embed=embed,
+        )
+        message = await response.original_response()
+
+        await embed.show_progress()
+        await message.edit(
+            content=chat_formatting.loading("Loading leaderboards…"),
+            embed=embed,
+        )
+
+        await embed.add_leaderboard()
+        if ctx.guild:
+            await message.edit(embed=embed)
+            await embed.add_guild_leaderboard(ctx.guild)
+
+        await message.edit(content=None, embed=embed)
 
     @slash_command(
         name="get-trainer-code",
