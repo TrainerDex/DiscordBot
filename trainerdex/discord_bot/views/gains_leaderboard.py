@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from datetime import datetime
-from collections.abc import Iterator, Iterable
 
 from dateutil.parser import parse
 from discord import Embed, PartialEmoji
