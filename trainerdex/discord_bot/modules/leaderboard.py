@@ -67,7 +67,7 @@ class LeaderboardModule(Module):
         selection: str,
         stat: str,
     ) -> None:
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         if not ctx.guild:
             selection = LeaderboardType.GLOBAL.value[0]
@@ -79,7 +79,7 @@ class LeaderboardModule(Module):
             )
 
             if len(leaderboard_data) < 1:
-                await ctx.send("No results to display!")
+                await ctx.respond("No results to display!")
             else:
                 paginator = await LeaderboardView.create(ctx, leaderboard_data)
                 await paginator.respond(ctx.interaction)

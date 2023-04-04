@@ -152,11 +152,11 @@ class ModerationModule(Module):
         If a trainer already exists for this profile, it will update the stats as needed.
         """
         if not isinstance(member, Member):
-            await ctx.send("This user is no longer in this server. Unable to approve.")
+            await ctx.respond("This user is no longer in this server. Unable to approve.")
             return
 
         if member.bot:
-            await ctx.send("You can't approve bots.")
+            await ctx.respond("You can't approve bots.")
             return
 
         await ctx.interaction.response.defer()

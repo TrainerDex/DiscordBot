@@ -4,12 +4,12 @@ from calendar import month_name
 from typing import Optional
 
 from aiohttp import ClientResponseError
-from discord import OptionChoice, SlashCommandGroup, user_command
+from discord import Interaction, OptionChoice, SlashCommandGroup, user_command
 from discord.commands import ApplicationContext, Option, slash_command
 from discord.user import User
 
-from trainerdex.api.trainer import Trainer
 from trainerdex.api.exceptions import Forbidden, HTTPException, NotFound
+from trainerdex.api.trainer import Trainer
 from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting
@@ -36,6 +36,8 @@ class ProfileModule(Module):
         user: Optional[User] = None,
     ) -> None:
         """Find a profile given a username or user mention."""
+        await ctx.interaction.response.defer(invisible=False)
+
         async with self.client() as client:
             if username or user:
                 trainer = await get_trainer(client, nickname=username, user=user)
@@ -43,7 +45,7 @@ class ProfileModule(Module):
                 trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None or not trainer.statistics:
-                await ctx.interaction.response.send_message(chat_formatting.error("No profile found."))
+                await ctx.respond(chat_formatting.error("No profile found."))
                 return
 
             await self.show_trainer_profile(ctx, trainer)
@@ -54,37 +56,41 @@ class ProfileModule(Module):
         ctx: ApplicationContext,
         user: User,
     ) -> None:
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         async with self.client() as client:
             trainer = await get_trainer_from_user(client, user)
 
             if trainer is None or not trainer.statistics:
-                await ctx.interaction.response.send_message(chat_formatting.error("No profile found."))
+                await ctx.respond(chat_formatting.error("No profile found."))
                 return
 
             await self.show_trainer_profile(ctx, trainer)
 
-    async def show_trainer_profile(self, ctx: ApplicationContext, trainer: Trainer):
-        embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer)
-        response = await ctx.interaction.response.send_message(
+    async def show_trainer_profile(module: Module, ctx: ApplicationContext, trainer: Trainer):
+        embed: ProfileCard = await ProfileCard(module._common, ctx, trainer=trainer)
+
+        response = await ctx.respond(
             content=chat_formatting.loading("Checking progress…"),
             embed=embed,
         )
-        message = await response.original_response()
+        if isinstance(response, Interaction):
+            message = await response.original_response()
+        else:
+            message = response
 
         await embed.show_progress()
-        await message.edit(
+        message = await message.edit(
             content=chat_formatting.loading("Loading leaderboards…"),
             embed=embed,
         )
 
         await embed.add_leaderboard()
         if ctx.guild:
-            await message.edit(embed=embed)
+            message = await message.edit(embed=embed)
             await embed.add_guild_leaderboard(ctx.guild)
 
-        await message.edit(content=None, embed=embed)
+        message = await message.edit(content=None, embed=embed)
 
     @slash_command(
         name="get-trainer-code",
@@ -107,15 +113,14 @@ class ProfileModule(Module):
                 trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None or not trainer.statistics:
-                await ctx.send(chat_formatting.error("No profile found."))
-                return
+                await ctx.respond(chat_formatting.error("No profile found."))
             elif not trainer.trainer_code:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.warning(f"{trainer.username} has not set their Trainer Code."),
                 )
             else:
-                await ctx.send(chat_formatting.info(f"{trainer.username}'s Trainer Code is:"))
-                await ctx.send(chat_formatting.inline(trainer.trainer_code))
+                await ctx.respond(chat_formatting.info(f"{trainer.username}'s Trainer Code is:"))
+                await ctx.respond(chat_formatting.inline(trainer.trainer_code))
 
     edit_profile = SlashCommandGroup("edit-profile", "Edit various aspects about your profile.")
 
@@ -173,31 +178,31 @@ class ProfileModule(Module):
         try:
             start_date = datetime.date(year, month, day)
         except ValueError as e:
-            await ctx.send(chat_formatting.error(str(e)))
+            await ctx.respond(chat_formatting.error(str(e)))
             return
 
         if start_date < datetime.date(2016, 7, 5):
-            await ctx.send(chat_formatting.error("Start Date must be after 2016-07-05"))
+            await ctx.respond(chat_formatting.error("Start Date must be after 2016-07-05"))
             return
 
         if start_date > datetime.date.today():
-            await ctx.send(chat_formatting.error("Start Date must not be in the future"))
+            await ctx.respond(chat_formatting.error("Start Date must not be in the future"))
             return
 
         async with self.client() as client:
             trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None:
-                await ctx.send(chat_formatting.error("No profile found."))
+                await ctx.respond(chat_formatting.error("No profile found."))
                 return
 
             try:
                 await trainer.edit(start_date=start_date.isoformat())
             except ClientResponseError:
                 self.logger.exception(f"Unable to set {trainer.username}'s start date to {start_date}")
-                await ctx.send(chat_formatting.error("Unable to set start date due to an unknown error."))
+                await ctx.respond(chat_formatting.error("Unable to set start date due to an unknown error."))
             else:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.success(f"{trainer.username}'s start date set to {start_date}."),
                 )
 
@@ -211,7 +216,7 @@ class ProfileModule(Module):
             trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.error("No profile found."),
                 )
                 return
@@ -219,17 +224,17 @@ class ProfileModule(Module):
             try:
                 await trainer.edit(statistics=visible)
             except (Forbidden, NotFound, HTTPException) as e:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.error("Unable to set visibility due to an unknown error."),
                 )
                 self.logger.exception(f"Unable to set {trainer.username}'s visibility to {visible}", e)
 
             if trainer.statistics:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.success("Your profile is visible to others."),
                 )
             else:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.success("Your profile is hidden from others."),
                 )
 
@@ -239,13 +244,13 @@ class ProfileModule(Module):
             trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None:
-                await ctx.send(chat_formatting.error("No profile found."))
+                await ctx.respond(chat_formatting.error("No profile found."))
                 return
 
             if not re.match(r"(\d{4}\s?){3}", code):
-                await ctx.send(chat_formatting.error("Invalid Trainer Code."))
+                await ctx.respond(chat_formatting.error("Invalid Trainer Code."))
             else:
                 await trainer.edit(trainer_code=code.replace(" ", ""))
-                await ctx.send(
+                await ctx.respond(
                     f"Your Trainer Code was successfully set to {trainer.trainer_code}",
                 )

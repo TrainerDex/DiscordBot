@@ -19,7 +19,7 @@ class LeaderboardView(Paginator):
         leaderboard_data: BaseLeaderboard,
         *args,
         **kwargs,
-    ):
+    ) -> LeaderboardView:
         pages = await cls.get_pages(ctx, leaderboard_data)
         return cls(pages, disable_on_timeout=True)
 

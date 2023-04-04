@@ -35,7 +35,7 @@ class SettingsModule(Module):
         guild_config.assign_roles_on_join = value
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `assign_roles_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -50,7 +50,7 @@ class SettingsModule(Module):
         guild_config.set_nickname_on_join = value
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `set_nickname_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -65,7 +65,7 @@ class SettingsModule(Module):
         guild_config.set_nickname_on_update = value
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `set_nickname_on_update` to `{value}`.",
             ephemeral=True,
         )
@@ -102,14 +102,14 @@ class SettingsModule(Module):
         self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
     ):
         if action != "view" and role is None:
-            await ctx.interaction.response.send_message(
+            await ctx.respond(
                 error(
                     "If you are appending/unappending to the grant/revoke lists, you must include a role to parameter."
                 )
             )
             return
 
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
@@ -126,21 +126,21 @@ class SettingsModule(Module):
 
             message = "{} was appended to the list. The list is now: {}"
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
-            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
 
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "{} was removed from the list. The list is now: {}"
-            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = (
                 "The following roles will be modified for a user when they are granted access to the guild:\n{}"
             )
-            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
+            await ctx.respond(info(message.format(", ".join(set_of_roles))))
         if array == "grant":
             guild_config.roles_to_assign_on_approval.add = list(set(role_list))
         elif array == "revoke":
@@ -169,12 +169,12 @@ class SettingsModule(Module):
     )
     async def guild_config__mod_roles(self, ctx: ApplicationContext, action: str, role: Role | None = None):
         if action != "view" and role is None:
-            await ctx.interaction.response.send_message(
+            await ctx.respond(
                 error("If you are appending/unappending to the mod role list, you must include a role to parameter.")
             )
             return
 
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
@@ -186,19 +186,19 @@ class SettingsModule(Module):
 
             message = "{} was appended to the list. The list is now: {}"
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
-            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
 
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "{} was removed from the list. The list is now: {}"
-            await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
+            await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
             set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "The following roles are considered mods:\n{}"
-            await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
+            await ctx.respond(info(message.format(", ".join(set_of_roles))))
         guild_config.mod_role_ids = list(set(role_list))
         await self.config.set_guild(guild_config)
 
@@ -208,7 +208,7 @@ class SettingsModule(Module):
         guild_config.mystic_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `mystic_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -219,7 +219,7 @@ class SettingsModule(Module):
         guild_config.valor_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `valor_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -230,7 +230,7 @@ class SettingsModule(Module):
         guild_config.instinct_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `instinct_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -241,7 +241,7 @@ class SettingsModule(Module):
         guild_config.tl40_role = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `tl40_role` to {value.mention}.",
             ephemeral=True,
         )
@@ -254,7 +254,7 @@ class SettingsModule(Module):
         try:
             ZoneInfo(value.strip())
         except ZoneInfoNotFoundError:
-            await ctx.interaction.response.send_message(
+            await ctx.respond(
                 f"Cannot set `timezone` to `{value}`. For a list of valid timezones, please check this table: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List ",
                 ephemeral=True,
             )
@@ -263,7 +263,7 @@ class SettingsModule(Module):
         guild_config.timezone = value.strip()
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `timezone` to `{value}`.",
             ephemeral=True,
         )
@@ -274,7 +274,7 @@ class SettingsModule(Module):
         perms = value.permissions_for(ctx.me)
 
         if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
-            await ctx.interaction.response.send_message(
+            await ctx.respond(
                 "The channel must be able to be messaged and be able to create public threads. Leaderboard may not post.",
                 ephemeral=True,
             )
@@ -285,7 +285,7 @@ class SettingsModule(Module):
         guild_config.leaderboard_channel_id = value.id
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `leaderboard_channel` to {value.mention}.",
             ephemeral=True,
         )
@@ -297,7 +297,7 @@ class SettingsModule(Module):
         guild_config.post_weekly_leaderboards = value
         await self.config.set_guild(guild_config)
 
-        await ctx.interaction.response.send_message(
+        await ctx.respond(
             f"Set `post_weekly_leaderboards` to `{value}`.",
             ephemeral=True,
         )

@@ -84,7 +84,6 @@ class ProfileCard(BaseCard):
         /,
         *,
         trainer: Trainer,
-        update: Update = None,
         **kwargs,
     ):
         await super().__init__(common, ctx, **kwargs)

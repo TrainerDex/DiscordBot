@@ -2,13 +2,13 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Dict
 
-from discord import ApplicationContext, Attachment, Message, Option, slash_command
+from discord import ApplicationContext, Attachment, Option, slash_command
 from discord.utils import snowflake_time
 
 from trainerdex.api.exceptions import HTTPException
 from trainerdex.discord_bot.constants import STAT_MAP
-from trainerdex.discord_bot.embeds import ProfileCard
 from trainerdex.discord_bot.modules.base import Module
+from trainerdex.discord_bot.modules.profile import ProfileModule
 from trainerdex.discord_bot.ocr import OCRClient
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.converters import get_trainer_from_user
@@ -107,17 +107,17 @@ class PostModule(Module):
             )
             return
 
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         if image and not kwargs:
-            await ctx.send(
+            await ctx.respond(
                 content=chat_formatting.info(
                     f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`.",
                 ),
                 file=await image.to_file(),
             )
         elif image and kwargs:
-            await ctx.send(
+            await ctx.respond(
                 content=chat_formatting.info(
                     (
                         f"{ctx.interaction.user.mention} shared an image for use with "
@@ -129,7 +129,7 @@ class PostModule(Module):
                 file=await image.to_file(),
             )
         else:
-            await ctx.send(
+            await ctx.respond(
                 content=chat_formatting.info(
                     (
                         f"{ctx.interaction.user.mention} posted the following stats: "
@@ -143,19 +143,19 @@ class PostModule(Module):
             trainer: Trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.warning("You're not set up with a TrainerDex profile."),
                 )
                 return
 
             data_from_ocr = {}
             if image is not None:
-                await ctx.send("Analyzing image...", delete_after=30)
+                await ctx.respond("Analyzing image...", delete_after=30)
                 try:
                     data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(image)
                 except Exception:
                     if not kwargs:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.error(
                                 (
                                     "The OCR failed to process and you didn't provide any keywords. "
@@ -165,7 +165,7 @@ class PostModule(Module):
                         )
                         return
                     else:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.warning(
                                 (
                                     "The OCR failed to process, "
@@ -181,7 +181,7 @@ class PostModule(Module):
             }
 
             if not stats_to_update:
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.error("No stats were provided. Please provide at least one stat to update."),
                 )
                 return
@@ -196,20 +196,20 @@ class PostModule(Module):
                 except HTTPException as e:
                     r, data = e.args
                     if data is not None:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.error(
                                 f"The update failed to post because of the following error: `{data}`"
                             ),
                         )
                         raise HTTPException(None, data) from e
                     else:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
                 update = latest_update
-                await ctx.send(
+                await ctx.respond(
                     chat_formatting.success(
                         "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
                     ),
@@ -220,7 +220,7 @@ class PostModule(Module):
                     if getattr(latest_update, stat) != value:
                         break
                 else:
-                    await ctx.send(
+                    await ctx.respond(
                         chat_formatting.error(
                             (
                                 "At a quick glance, it looks like your stats haven't changed since your last update."
@@ -240,33 +240,19 @@ class PostModule(Module):
                 except HTTPException as e:
                     r, data = e.args
                     if data is not None:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.error(
                                 f"The update failed to post because of the following error: `{data}`"
                             ),
                         )
                         raise HTTPException(None, data) from e
                     else:
-                        await ctx.send(
+                        await ctx.respond(
                             chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
-            embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
-            response: Message = await ctx.send(
-                content=chat_formatting.loading("Checking progress…"),
-                embed=embed,
-            )
-            await embed.show_progress()
-            await response.edit(
-                content=chat_formatting.loading("Loading leaderboards…"),
-                embed=embed,
-            )
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await response.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-            await response.edit(content=None, embed=embed)
+            await ProfileModule.show_trainer_profile(self, ctx, trainer)
 
     # @slash_command(
     #     name="register",
@@ -345,9 +331,9 @@ class PostModule(Module):
     #             )
     #             return
 
-    #     await ctx.defer()
+    #     await ctx.interaction.response.defer()
 
-    #     await ctx.send(
+    #     await ctx.respond(
     #         content=chat_formatting.info(
     #             f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
     #         ),
@@ -369,7 +355,7 @@ class PostModule(Module):
     #     }
 
     #     if not validate_trainer_nickname(profile_data["username"]):
-    #         await ctx.send(
+    #         await ctx.respond(
     #             chat_formatting.error("Unable to create a profile. Your nickname is invalid."),
     #         )
     #         return
@@ -383,7 +369,7 @@ class PostModule(Module):
     #     }
 
     #     if not update_data.get("total_xp"):
-    #         await ctx.send(
+    #         await ctx.respond(
     #             chat_formatting.error(
     #                 "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
     #                 "Please try again specifiying it in the command or using a new screenshot."
@@ -403,7 +389,12 @@ class PostModule(Module):
     #             update_time=snowflake_time(ctx.interaction.id),
     #         )
 
-    #     message = await ctx.send(chat_formatting.success(f"Profile created for {ctx.author.mention}."))
+    #     response = await ctx.respond(chat_formatting.success(f"Profile created for {ctx.author.mention}."))
+    #     if isinstance(response, Interaction):
+    #         message = await response.original_response()
+    #     else:
+    #         message = response
+
     #     embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
 
     #     await message.edit(embed=embed)
