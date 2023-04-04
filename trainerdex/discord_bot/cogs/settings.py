@@ -13,7 +13,6 @@ from discord.role import Role
 
 from trainerdex.discord_bot.checks import check_member_privilage
 from trainerdex.discord_bot.cogs.interface import Cog
-
 from trainerdex.discord_bot.utils.chat_formatting import error, info, success
 from trainerdex.discord_bot.utils.general import send
 
@@ -30,9 +29,7 @@ class SettingsCog(Cog):
     )
 
     @guild_config.command(name="assign-roles-on-join", checks=[check_member_privilage])
-    async def guild_config__assign_roles_on_join(
-        self, ctx: ApplicationContext, value: bool
-    ) -> None:
+    async def guild_config__assign_roles_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the roles of members when they're approved.
 
         This is useful for granting users access to the rest of the server.
@@ -48,9 +45,7 @@ class SettingsCog(Cog):
         )
 
     @guild_config.command(name="set-nickname-on-join", checks=[check_member_privilage])
-    async def guild_config__set_nickname_on_join(
-        self, ctx: ApplicationContext, value: bool
-    ) -> None:
+    async def guild_config__set_nickname_on_join(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the nickname of members when they're approved.
 
         This is useful for ensuring players can be easily identified.
@@ -66,9 +61,7 @@ class SettingsCog(Cog):
         )
 
     @guild_config.command(name="set-nickname-on-update", checks=[check_member_privilage])
-    async def guild_config__set_nickname_on_update(
-        self, ctx: ApplicationContext, value: bool
-    ) -> None:
+    async def guild_config__set_nickname_on_update(self, ctx: ApplicationContext, value: bool) -> None:
         """Modify the nickname of members when they update their Total XP.
 
         This is useful for setting levels in their name.
@@ -138,25 +131,21 @@ class SettingsCog(Cog):
                 role_list.append(role.id)
 
             message = "{} was appended to the list. The list is now: {}"
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
 
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "{} was removed from the list. The list is now: {}"
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
-            message = "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
+            message = (
+                "The following roles will be modified for a user when they are granted access to the guild:\n{}"
+            )
             await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
         if array == "grant":
             guild_config.roles_to_assign_on_approval.add = list(set(role_list))
@@ -184,14 +173,10 @@ class SettingsCog(Cog):
         ],
         checks=[check_member_privilage],
     )
-    async def guild_config__mod_roles(
-        self, ctx: ApplicationContext, action: str, role: Role | None = None
-    ):
+    async def guild_config__mod_roles(self, ctx: ApplicationContext, action: str, role: Role | None = None):
         if action != "view" and role is None:
             await ctx.send(
-                error(
-                    "If you are appending/unappending to the mod role list, you must include a role to parameter."
-                )
+                error("If you are appending/unappending to the mod role list, you must include a role to parameter.")
             )
             return
 
@@ -206,24 +191,18 @@ class SettingsCog(Cog):
                 role_list.append(role.id)
 
             message = "{} was appended to the list. The list is now: {}"
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
         elif action == "unappend":
             while role.id in role_list:
                 role_list.remove(role.id)
 
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "{} was removed from the list. The list is now: {}"
             await ctx.followup.send(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
-            set_of_roles = {
-                f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list
-            }
+            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "The following roles are considered mods:\n{}"
             await ctx.followup.send(info(message.format(", ".join(set_of_roles))))
         guild_config.mod_role_ids = list(set(role_list))
@@ -301,15 +280,11 @@ class SettingsCog(Cog):
         )
 
     @guild_config.command(name="leaderboard-channel", checks=[check_member_privilage])
-    async def guild_config__leaderboard_channel(
-        self, ctx: ApplicationContext, value: TextChannel
-    ) -> None:
+    async def guild_config__leaderboard_channel(self, ctx: ApplicationContext, value: TextChannel) -> None:
         """Set a channel for the bot to post weekly leaderboard messages to."""
         perms = value.permissions_for(ctx.me)
 
-        if not (
-            perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads
-        ):
+        if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
             await send(
                 ctx,
                 "The channel must be able to be messaged and be able to create public threads. Leaderboard may not post.",
@@ -328,9 +303,7 @@ class SettingsCog(Cog):
         )
 
     @guild_config.command(name="enable-weekly-leaderboard", checks=[check_member_privilage])
-    async def guild_config__post_weekly_leaderboards(
-        self, ctx: ApplicationContext, value: bool
-    ) -> None:
+    async def guild_config__post_weekly_leaderboards(self, ctx: ApplicationContext, value: bool) -> None:
         """Post leaderboards weekly on Monday 12:00 local. (Timezone is set in the config, default is UTC)"""
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
         guild_config.post_weekly_leaderboards = value

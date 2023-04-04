@@ -77,14 +77,10 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
 
         if isinstance(exception, CheckFailure):
             await ctx.interaction.response.send_message(
-                chat_formatting.error(
-                    "You do not have permission to use this command. Sucks to be you."
-                ),
+                chat_formatting.error("You do not have permission to use this command. Sucks to be you."),
                 ephemeral=True,
             )
-            logger.warning(
-                f"{ctx.author.mention} tried to use `/{ctx.command.qualified_name}` but failed a check."
-            )
+            logger.warning(f"{ctx.author.mention} tried to use `/{ctx.command.qualified_name}` but failed a check.")
             return
 
         logger.exception(

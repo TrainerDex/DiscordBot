@@ -92,10 +92,7 @@ class LeaderboardCog(Cog):
                 enabled_guilds[guild] = guild_config
 
         gather(
-            *(
-                self._post_weekly_leaderboard(guild, guild_config)
-                for guild, guild_config in enabled_guilds.items()
-            )
+            *(self._post_weekly_leaderboard(guild, guild_config) for guild, guild_config in enabled_guilds.items())
         )
 
     @_gather_guilds_for_weekly_leaderboards.before_loop
@@ -108,12 +105,8 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if local_time.hour == 12 and (
-            local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)
-        ):
-            minuend_datetime = local_time + relativedelta(
-                hour=12, minute=0, second=0, microsecond=0
-            )
+        if local_time.hour == 12 and (local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)):
+            minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
             subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
             deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
 
@@ -131,9 +124,7 @@ class LeaderboardCog(Cog):
                     Stats.GYM_GOLD,
                 )
             }
-            combo_post = GainsLeaderboardView.format_combo_embed(
-                leaderboard_data, minuend_datetime
-            )
+            combo_post = GainsLeaderboardView.format_combo_embed(leaderboard_data, minuend_datetime)
 
             message: Message = await leaderboard_channel.send(
                 (
@@ -155,12 +146,8 @@ class LeaderboardCog(Cog):
     async def _get_gains_leaderboard_data(
         self, guild_id: int, stat: str, subtrahend_datetime: datetime, minuend_datetime: datetime
     ) -> dict:
-        async with aiohttp.ClientSession(
-            headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}
-        ) as session:
-            url = URL(
-                "https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=25"
-            )
+        async with aiohttp.ClientSession(headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}) as session:
+            url = URL("https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=25")
             url %= {
                 "guild_id": guild_id,
                 "stat": stat,

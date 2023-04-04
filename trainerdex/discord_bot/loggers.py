@@ -51,18 +51,14 @@ class DiscordLogger:
             return self._channel
 
     @promisify
-    async def _send_message(
-        self, message: str, level: LoggerLevel, *, exception: Exception = None
-    ) -> None:
+    async def _send_message(self, message: str, level: LoggerLevel, *, exception: Exception = None) -> None:
         if not self.channel:
             return
         formatted_message = message_formatters[level](message)
 
         if exception:
             file = text_to_file(
-                "".join(
-                    traceback.format_exception(type(exception), exception, exception.__traceback__)
-                ),
+                "".join(traceback.format_exception(type(exception), exception, exception.__traceback__)),
                 "traceback.txt",
             )
         else:

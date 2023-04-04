@@ -29,9 +29,7 @@ def append_twitter(text: str) -> str:
     return f"{text}\n\nIf that doesn't look right, please contact us on Twitter. {SOCIAL_TWITTER}"
 
 
-def introduction_notes(
-    ctx: ApplicationContext, member: User, trainer: Trainer, additional_message: str
-) -> str:
+def introduction_notes(ctx: ApplicationContext, member: User, trainer: Trainer, additional_message: str) -> str:
     BASE_NOTE = """**You're getting this message because you have been added to the TrainerDex database.**
 
 This would likely be in response to you joining `{server.name}` and posting your screenshots for a mod to approve.
@@ -48,9 +46,9 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
     )
 
     if additional_message:
-        ADDITIONAL_NOTE = (
-            "Additionally, you have a message from `{server.name}`:\n{note}"
-        ).format(server=ctx.guild, note=chat_formatting.quote(additional_message))
+        ADDITIONAL_NOTE = ("Additionally, you have a message from `{server.name}`:\n{note}").format(
+            server=ctx.guild, note=chat_formatting.quote(additional_message)
+        )
         return (BASE_NOTE, ADDITIONAL_NOTE)
     else:
         return (BASE_NOTE,)
@@ -136,9 +134,7 @@ async def send(
     ...
 
 
-async def send(
-    destination: ApplicationContext | Messageable, content=None, *args, **kwargs
-) -> Message:
+async def send(destination: ApplicationContext | Messageable, content=None, *args, **kwargs) -> Message:
     """A utility function to send a message to a destination.
 
     Always returning a subclass of Message."""

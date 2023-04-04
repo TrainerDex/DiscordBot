@@ -199,18 +199,12 @@ class ProfileCog(Cog):
             try:
                 await trainer.edit(start_date=start_date.isoformat())
             except ClientResponseError:
-                self.logger.exception(
-                    f"Unable to set {trainer.username}'s start date to {start_date}"
-                )
-                await send(
-                    ctx, chat_formatting.error("Unable to set start date due to an unknown error.")
-                )
+                self.logger.exception(f"Unable to set {trainer.username}'s start date to {start_date}")
+                await send(ctx, chat_formatting.error("Unable to set start date due to an unknown error."))
             else:
                 await send(
                     ctx,
-                    chat_formatting.success(
-                        f"{trainer.username}'s start date set to {start_date}."
-                    ),
+                    chat_formatting.success(f"{trainer.username}'s start date set to {start_date}."),
                 )
 
     @edit_profile.command(name="visible", options=[Option(bool, name="visible", required=True)])
@@ -238,9 +232,7 @@ class ProfileCog(Cog):
                     chat_formatting.error("Unable to set visibility due to an unknown error."),
                     ephemeral=True,
                 )
-                self.logger.exception(
-                    f"Unable to set {trainer.username}'s visibility to {visible}", e
-                )
+                self.logger.exception(f"Unable to set {trainer.username}'s visibility to {visible}", e)
 
             if trainer.statistics:
                 await send(

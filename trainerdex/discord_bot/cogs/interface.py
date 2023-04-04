@@ -26,9 +26,7 @@ class Cog(Cog_):
         self.bot: Bot = common.bot
         self.config: Config = common.config
         self.bot.loop.create_task(self.__post_init__())
-        self.logger = getLogger(
-            self.bot, f"{self.__class__.__module__}.{self.__class__.__qualname__}"
-        )
+        self.logger = getLogger(self.bot, f"{self.__class__.__module__}.{self.__class__.__qualname__}")
 
     def client(self) -> TokenClient:
         return TokenClient(loop=self.bot.loop).authenticate(token=TRAINERDEX_API_TOKEN)

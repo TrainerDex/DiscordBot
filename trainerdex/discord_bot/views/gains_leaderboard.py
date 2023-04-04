@@ -116,9 +116,7 @@ class GainsLeaderboardView:
         leaderboard: dict,
     ) -> Iterator[Embed]:
         entries: list[dict] = leaderboard.pop("entries", [])
-        filtered_entries: list[dict] = [
-            entry for entry in entries if entry.get("minuend_datetime") is not None
-        ]
+        filtered_entries: list[dict] = [entry for entry in entries if entry.get("minuend_datetime") is not None]
 
         chunk_size = 15
 

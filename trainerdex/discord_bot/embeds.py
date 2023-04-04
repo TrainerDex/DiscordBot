@@ -169,9 +169,7 @@ class ProfileCard(BaseCard):
                     guild=guild,
                     stat=stat,
                 )
-                entry: LeaderboardEntry = await leaderboard.find(
-                    lambda x: x.trainer_id == self.trainer.id
-                )
+                entry: LeaderboardEntry = await leaderboard.find(lambda x: x.trainer_id == self.trainer.id)
                 if entry:
                     entries.append(
                         "{} {}".format(
@@ -198,9 +196,7 @@ class ProfileCard(BaseCard):
         for stat in stats:
             async with TokenClient() as client:
                 leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
-                entry: LeaderboardEntry = await leaderboard.find(
-                    lambda x: x.trainer_id == self.trainer.id
-                )
+                entry: LeaderboardEntry = await leaderboard.find(lambda x: x.trainer_id == self.trainer.id)
                 if entry:
                     entries.append(
                         "{} {}".format(
@@ -233,9 +229,7 @@ class ProfileCard(BaseCard):
             if not self.description:
                 self.description = ""
             self.description += "\n\n**Next Deadline:** {} ({}) [[+]]({})".format(
-                chat_formatting.format_time(
-                    next_deadline, chat_formatting.TimeVerbosity.SHORT_DATETIME
-                ),
+                chat_formatting.format_time(next_deadline, chat_formatting.TimeVerbosity.SHORT_DATETIME),
                 chat_formatting.format_time(next_deadline, chat_formatting.TimeVerbosity.DELTA),
                 google_calendar_link_for_datetime(next_deadline),
             )
@@ -300,9 +294,7 @@ class ProfileCard(BaseCard):
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=chat_formatting.format_numbers(last_update.capture_total),
                         now=chat_formatting.format_numbers(this_update.capture_total),
-                        delta=chat_formatting.format_numbers(
-                            this_update.capture_total - last_update.capture_total
-                        ),
+                        delta=chat_formatting.format_numbers(this_update.capture_total - last_update.capture_total),
                         daily_gain="{gain}/day".format(
                             gain=chat_formatting.format_numbers(
                                 (this_update.capture_total - last_update.capture_total) / days
@@ -330,8 +322,7 @@ class ProfileCard(BaseCard):
                         ),
                         daily_gain="{gain}/day".format(
                             gain=chat_formatting.format_numbers(
-                                (this_update.pokestops_visited - last_update.pokestops_visited)
-                                / days
+                                (this_update.pokestops_visited - last_update.pokestops_visited) / days
                             )
                         ),
                     ),
@@ -351,13 +342,9 @@ class ProfileCard(BaseCard):
                     value="{then} ⇒ {now} (+{delta} | {daily_gain})".format(
                         then=chat_formatting.format_numbers(last_update.total_xp),
                         now=chat_formatting.format_numbers(this_update.total_xp),
-                        delta=chat_formatting.format_numbers(
-                            this_update.total_xp - last_update.total_xp
-                        ),
+                        delta=chat_formatting.format_numbers(this_update.total_xp - last_update.total_xp),
                         daily_gain="{gain}/day".format(
-                            gain=chat_formatting.format_numbers(
-                                (this_update.total_xp - last_update.total_xp) / days
-                            )
+                            gain=chat_formatting.format_numbers((this_update.total_xp - last_update.total_xp) / days)
                         ),
                     ),
                     inline=False,

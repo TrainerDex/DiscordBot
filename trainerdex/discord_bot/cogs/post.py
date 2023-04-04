@@ -2,13 +2,7 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Dict
 
-from discord import (
-    ApplicationContext,
-    Attachment,
-    Message,
-    Option,
-    slash_command,
-)
+from discord import ApplicationContext, Attachment, Message, Option, slash_command
 from discord.utils import snowflake_time
 from trainerdex.api.exceptions import HTTPException
 

@@ -38,9 +38,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 class Config:
     def __init__(self):
         logger.info("Initializing Config Client...")
-        self.mongo: MotorClient = MotorClient(
-            os.environ.get("MONGODB_URI", "mongodb://tdx:tdx@mongo:27017/")
-        )
+        self.mongo: MotorClient = MotorClient(os.environ.get("MONGODB_URI", "mongodb://tdx:tdx@mongo:27017/"))
         self.database: Database = self.mongo[os.environ.get("MONGODB_NAME", "trainerdex")]
 
     def _get_collection(self, collection: str) -> Collection:
@@ -72,9 +70,7 @@ class Config:
         if data is None and create:
             document: CogMeta = CogMeta(_id=cog.__name__, enabled=True, last_loaded=None)
             self._get_collection("cogs").insert_one(asdict(document))
-            data: MutableMapping = await self._get_collection("cogs").find_one(
-                {"_id": cog.__name__}
-            )
+            data: MutableMapping = await self._get_collection("cogs").find_one({"_id": cog.__name__})
         elif data is None and not create:
             raise ValueError("No entry found.")
         return CogMeta.from_mapping(data)
@@ -97,9 +93,7 @@ class Config:
             raise ValueError("No entry found.")
         return GuildConfig.from_mapping(data)
 
-    async def get_channel(
-        self, channel: TextChannel | int, *, create: bool = True
-    ) -> ChannelConfig:
+    async def get_channel(self, channel: TextChannel | int, *, create: bool = True) -> ChannelConfig:
         if isinstance(channel, TextChannel):
             channel = channel.id
         data: MutableMapping = await self._get_collection("channels").find_one({"_id": channel})
@@ -107,9 +101,7 @@ class Config:
         if data is None and create:
             document: ChannelConfig = ChannelConfig(_id=channel)
             self._get_collection("channels").insert_one(asdict(document))
-            data: MutableMapping = await self._get_collection("channels").find_one(
-                {"_id": channel}
-            )
+            data: MutableMapping = await self._get_collection("channels").find_one({"_id": channel})
         elif data is None and not create:
             raise ValueError("No entry found.")
         return ChannelConfig.from_mapping(data)
@@ -160,33 +152,23 @@ class Config:
 
     async def set_global(self, document: GlobalConfig):
         data: MutableMapping = asdict(document)
-        await self._get_collection("global").update_one(
-            {"_id": document._id}, {"$set": data}, upsert=True
-        )
+        await self._get_collection("global").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_cog_meta(self, document: CogMeta):
         data: MutableMapping = asdict(document)
-        await self._get_collection("cogs").update_one(
-            {"_id": document._id}, {"$set": data}, upsert=True
-        )
+        await self._get_collection("cogs").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_guild(self, document: GuildConfig):
         data: MutableMapping = asdict(document)
-        await self._get_collection("guilds").update_one(
-            {"_id": document._id}, {"$set": data}, upsert=True
-        )
+        await self._get_collection("guilds").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_channel(self, document: ChannelConfig):
         data: MutableMapping = asdict(document)
-        await self._get_collection("channels").update_one(
-            {"_id": document._id}, {"$set": data}, upsert=True
-        )
+        await self._get_collection("channels").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_user(self, document: UserConfig):
         data: MutableMapping = asdict(document)
-        await self._get_collection("users").update_one(
-            {"_id": document._id}, {"$set": data}, upsert=True
-        )
+        await self._get_collection("users").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_member(self, document: MemberConfig):
         data: MutableMapping = asdict(document)

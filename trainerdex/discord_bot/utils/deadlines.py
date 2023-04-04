@@ -42,7 +42,5 @@ async def get_next_deadline(
     timezone: ZoneInfo = None,
     now: datetime = None,
 ) -> datetime:
-    last_deadline = await get_last_deadline(
-        guild_id=guild_id, guild_config=guild_config, timezone=timezone, now=now
-    )
+    last_deadline = await get_last_deadline(guild_id=guild_id, guild_config=guild_config, timezone=timezone, now=now)
     return last_deadline + relativedelta(weeks=1)

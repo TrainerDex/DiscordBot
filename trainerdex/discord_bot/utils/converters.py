@@ -7,9 +7,7 @@ from trainerdex.api.trainer import Trainer
 from trainerdex.discord_bot.utils.validators import validate_trainer_nickname
 
 
-async def get_trainer_from_user(
-    client: BaseClient, user: User, *, prefetch_updates: bool = True
-) -> Trainer | None:
+async def get_trainer_from_user(client: BaseClient, user: User, *, prefetch_updates: bool = True) -> Trainer | None:
     """Retrieve a profile from a user's Discord ID.
 
     This will also fetch updates unless the prefetch_updates argument is set to False.
@@ -59,11 +57,7 @@ async def get_trainer(
 
     This will also fetch updates unless the prefetch_updates argument is set to False.
     """
-    from_nickname = (
-        await get_trainer_from_nickname(client, nickname, prefetch_updates=False)
-        if nickname
-        else None
-    )
+    from_nickname = await get_trainer_from_nickname(client, nickname, prefetch_updates=False) if nickname else None
     from_user = await get_trainer_from_user(client, user, prefetch_updates=False) if user else None
 
     trainer = from_nickname or from_user
