@@ -6,7 +6,7 @@ from enum import Enum
 
 from discord import Colour, PartialEmoji
 
-ADMIN_GUILD_ID: int = int(os.environ.get("ADMIN_GUILD", "614101299197378571"))
+ADMIN_GUILD_ID: int = int(os.environ.get("ADMIN_GUILD", "364313717720219651"))
 ADMIN_LOG_CHANNEL_ID: int = int(os.environ.get("ADMIN_LOG_CHANNEL", "393177706029776898"))
 
 DEBUG: bool = strtobool(str(os.environ.get("DEBUG", False)).lower())
