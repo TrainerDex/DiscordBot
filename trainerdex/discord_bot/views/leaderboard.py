@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from collections.abc import Iterable
 
 from aiostream import stream
 from discord import ApplicationContext, Embed, Guild, PartialEmoji
 from discord.ext.pages.pagination import Paginator
-from trainerdex.api.leaderboard import (
-    BaseLeaderboard,
-    GuildLeaderboard,
-    LeaderboardEntry,
-)
 
+from trainerdex.api.leaderboard import BaseLeaderboard, GuildLeaderboard, LeaderboardEntry
 from trainerdex.discord_bot.constants import TRAINERDEX_COLOUR, CustomEmoji, Stats
 from trainerdex.discord_bot.utils.chat_formatting import format_numbers, format_time
 
@@ -23,12 +19,12 @@ class LeaderboardView(Paginator):
         leaderboard_data: BaseLeaderboard,
         *args,
         **kwargs,
-    ):
+    ) -> LeaderboardView:
         pages = await cls.get_pages(ctx, leaderboard_data)
         return cls(pages, disable_on_timeout=True)
 
     @staticmethod
-    def get_stat_data(stat: str) -> Tuple[str, str | None, PartialEmoji | None]:
+    def get_stat_data(stat: str) -> tuple[str, str | None, PartialEmoji | None]:
         return (
             stat,
             (i.value[1] if (i := Stats.__dict__.get(stat.upper())) else None),
@@ -40,7 +36,7 @@ class LeaderboardView(Paginator):
         cls,
         ctx: ApplicationContext,
         leaderboard: BaseLeaderboard,
-        slice: List[LeaderboardEntry],
+        slice: Iterable[LeaderboardEntry],
     ) -> Embed:
         stat, stat_name, stat_emoji = cls.get_stat_data(leaderboard.stat)
 
@@ -92,7 +88,7 @@ class LeaderboardView(Paginator):
         cls,
         ctx: ApplicationContext,
         leaderboard: BaseLeaderboard,
-    ) -> List[Embed]:
+    ) -> list[Embed]:
         embeds = []
         async for chunk in stream.chunks(leaderboard, 10):
             embeds.append(cls.format_page(ctx, leaderboard, chunk))

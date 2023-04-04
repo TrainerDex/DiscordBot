@@ -6,17 +6,11 @@ from enum import Enum
 
 from discord import Colour, PartialEmoji
 
-SOCIAL_TWITTER: str = "@TrainerDexApp"
-SOCIAL_INSTAGRAM: str = "@TrainerDexApp"
-SOCIAL_REDDIT: str = "https://reddit.com/r/TrainerDex"
-
-ADMIN_GUILD_ID: int = int(os.environ.get("ADMIN_GUILD", "614101299197378571"))
+ADMIN_GUILD_ID: int = int(os.environ.get("ADMIN_GUILD", "364313717720219651"))
 ADMIN_LOG_CHANNEL_ID: int = int(os.environ.get("ADMIN_LOG_CHANNEL", "393177706029776898"))
 
 DEBUG: bool = strtobool(str(os.environ.get("DEBUG", False)).lower())
-DEBUG_GUILDS: list[int] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").split(",")] or [
-    ADMIN_GUILD_ID
-]
+DEBUG_GUILDS: list[int] = [int(x) for x in os.environ.get("DEBUG_GUILDS", "").split(",")] or [ADMIN_GUILD_ID]
 
 WEBSITE_DOMAIN: str = "https://trainerdex.app"
 

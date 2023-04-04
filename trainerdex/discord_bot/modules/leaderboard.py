@@ -13,16 +13,14 @@ from discord.commands import ApplicationContext, Option, OptionChoice, slash_com
 from discord.ext import tasks
 from yarl import URL
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN, Stats
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import format_time
-from trainerdex.discord_bot.utils.general import send
 from trainerdex.discord_bot.views.gains_leaderboard import GainsLeaderboardView
 from trainerdex.discord_bot.views.leaderboard import LeaderboardView
 
 if TYPE_CHECKING:
     from trainerdex.api.leaderboard import BaseLeaderboard
-
     from trainerdex.discord_bot.datatypes import GuildConfig
 
 
@@ -31,7 +29,12 @@ class LeaderboardType(Enum):
     GLOBAL = "global", "Global"
 
 
-class LeaderboardCog(Cog):
+class LeaderboardModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "LeaderboardCog"
+
     async def __post_init__(self) -> None:
         self._gather_guilds_for_weekly_leaderboards.start()
         return await super().__post_init__()
@@ -64,7 +67,7 @@ class LeaderboardCog(Cog):
         selection: str,
         stat: str,
     ) -> None:
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         if not ctx.guild:
             selection = LeaderboardType.GLOBAL.value[0]
@@ -76,7 +79,7 @@ class LeaderboardCog(Cog):
             )
 
             if len(leaderboard_data) < 1:
-                await send(ctx, content="No results to display!")
+                await ctx.respond("No results to display!")
             else:
                 paginator = await LeaderboardView.create(ctx, leaderboard_data)
                 await paginator.respond(ctx.interaction)
@@ -92,10 +95,7 @@ class LeaderboardCog(Cog):
                 enabled_guilds[guild] = guild_config
 
         gather(
-            *(
-                self._post_weekly_leaderboard(guild, guild_config)
-                for guild, guild_config in enabled_guilds.items()
-            )
+            *(self._post_weekly_leaderboard(guild, guild_config) for guild, guild_config in enabled_guilds.items())
         )
 
     @_gather_guilds_for_weekly_leaderboards.before_loop
@@ -108,12 +108,8 @@ class LeaderboardCog(Cog):
 
         local_time = datetime.now(tz=guild_timezone)
 
-        if local_time.hour == 12 and (
-            local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)
-        ):
-            minuend_datetime = local_time + relativedelta(
-                hour=12, minute=0, second=0, microsecond=0
-            )
+        if local_time.hour == 12 and (local_time.weekday() == 0 or local_time.date() == date(2022, 8, 10)):
+            minuend_datetime = local_time + relativedelta(hour=12, minute=0, second=0, microsecond=0)
             subtrahend_datetime = minuend_datetime - relativedelta(weeks=1)
             deadline = minuend_datetime + relativedelta(days=1, weekday=MO)
 
@@ -131,9 +127,7 @@ class LeaderboardCog(Cog):
                     Stats.GYM_GOLD,
                 )
             }
-            combo_post = GainsLeaderboardView.format_combo_embed(
-                leaderboard_data, minuend_datetime
-            )
+            combo_post = GainsLeaderboardView.format_combo_embed(leaderboard_data, minuend_datetime)
 
             message: Message = await leaderboard_channel.send(
                 (
@@ -155,12 +149,8 @@ class LeaderboardCog(Cog):
     async def _get_gains_leaderboard_data(
         self, guild_id: int, stat: str, subtrahend_datetime: datetime, minuend_datetime: datetime
     ) -> dict:
-        async with aiohttp.ClientSession(
-            headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}
-        ) as session:
-            url = URL(
-                "https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=25"
-            )
+        async with aiohttp.ClientSession(headers={"Authorization": f"Token {TRAINERDEX_API_TOKEN}"}) as session:
+            url = URL("https://trainerdex.app/api/v2/leaderboard/?mode=gain&subset=discord&limit=25")
             url %= {
                 "guild_id": guild_id,
                 "stat": stat,

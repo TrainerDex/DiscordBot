@@ -43,13 +43,13 @@ class GlobalConfig(_MongoDBDocument):
 
 
 @dataclass
-class CogMeta(_MongoDBDocument):
+class ModuleMeta(_MongoDBDocument):
     _id: str
     enabled: bool = True
     last_loaded: datetime | None = None
 
     @property
-    def cog_name(self) -> str:
+    def name(self) -> str:
         return self._id
 
 
@@ -75,9 +75,7 @@ class GuildConfig(_MongoDBDocument):
     @classmethod
     def from_mapping(cls, mapping: Mapping) -> Self:
         mapping = dict(mapping)
-        mapping["roles_to_assign_on_approval"] = StoredRoles(
-            **mapping.pop("roles_to_assign_on_approval", {})
-        )
+        mapping["roles_to_assign_on_approval"] = StoredRoles(**mapping.pop("roles_to_assign_on_approval", {}))
         return cls(**{k: v for k, v in mapping.items() if k in inspect.signature(cls).parameters})
 
     @property

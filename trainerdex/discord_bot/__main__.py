@@ -4,14 +4,14 @@ import logging
 import os
 
 from discord import ApplicationContext, Bot, CheckFailure, Intents
+from discord.errors import PrivilegedIntentsRequired
 
-from trainerdex.discord_bot.cogs.interface import Cog
 from trainerdex.discord_bot.config import Config
 from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS
 from trainerdex.discord_bot.datatypes import Common
 from trainerdex.discord_bot.loggers import DiscordLogger, getLogger
+from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting
-from trainerdex.discord_bot.utils.general import send
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -77,14 +77,10 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
 
         if isinstance(exception, CheckFailure):
             await ctx.interaction.response.send_message(
-                chat_formatting.error(
-                    "You do not have permission to use this command. Sucks to be you."
-                ),
+                chat_formatting.error("You do not have permission to use this command. Sucks to be you."),
                 ephemeral=True,
             )
-            logger.warning(
-                f"{ctx.author.mention} tried to use `/{ctx.command.qualified_name}` but failed a check."
-            )
+            logger.warning(f"{ctx.author.mention} tried to use `/{ctx.command.qualified_name}` but failed a check.")
             return
 
         logger.exception(
@@ -92,8 +88,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             exception,
         )
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             chat_formatting.error(f"An error occurred: {chat_formatting.inline(str(exception))}"),
             ephemeral=True,
         )
@@ -104,15 +99,22 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
         config=config,
     )
 
-    private_logger.info("Loading cogs...")
-    for cog in Cog.__subclasses__():
-        bot.add_cog(cog(common))
+    private_logger.info("Loading modules...")
+    for module in Module.__subclasses__():
+        bot.add_cog(module(common))
 
     try:
         private_logger.info("Running bot...")
         await bot.start(os.environ["DISCORD_TOKEN"])
     except KeyboardInterrupt:
         await bot.close()
+    except PrivilegedIntentsRequired as e:
+        required_intents = [
+            intent for intent in {"presences", "members", "message_content"} if getattr(intents, intent)
+        ]
+        if not required_intents:
+            raise e
+        raise Exception(f"The following priviledged intents are required: {required_intents}") from e
     except Exception as e:
         private_logger.exception(e)
         await bot.close()

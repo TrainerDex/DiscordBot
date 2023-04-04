@@ -7,14 +7,14 @@ name = "pypi"
 humanize = "*"
 python-dateutil = "*"
 trainerdex = ">=4.0.3"
-py-cord = "==2.2.2"
+py-cord = "~=2.4.0"
 aiostream = "*"
 motor = ">=3.0,<3.1"
 promise = "*"
 yarl = "*"
 
 [dev-packages]
-black = ">=21.11b1"
+black = "*"
 flake8 = "*"
 isort = {extras = ["black"], version = "*"}
 

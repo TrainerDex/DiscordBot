@@ -7,12 +7,7 @@ from discord import Bot, Forbidden, HTTPException, InvalidArgument, TextChannel
 from promise import promisify
 
 from trainerdex.discord_bot.constants import ADMIN_LOG_CHANNEL_ID
-from trainerdex.discord_bot.utils.chat_formatting import (
-    error,
-    info,
-    text_to_file,
-    warning,
-)
+from trainerdex.discord_bot.utils.chat_formatting import error, info, text_to_file, warning
 
 
 class LoggerLevel(int, Enum):
@@ -51,18 +46,14 @@ class DiscordLogger:
             return self._channel
 
     @promisify
-    async def _send_message(
-        self, message: str, level: LoggerLevel, *, exception: Exception = None
-    ) -> None:
+    async def _send_message(self, message: str, level: LoggerLevel, *, exception: Exception | None = None) -> None:
         if not self.channel:
             return
         formatted_message = message_formatters[level](message)
 
         if exception:
             file = text_to_file(
-                "".join(
-                    traceback.format_exception(type(exception), exception, exception.__traceback__)
-                ),
+                "".join(traceback.format_exception(type(exception), exception, exception.__traceback__)),
                 "traceback.txt",
             )
         else:

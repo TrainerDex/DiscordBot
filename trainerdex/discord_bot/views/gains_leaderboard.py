@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from datetime import datetime
-from typing import Iterator, Tuple
 
 from dateutil.parser import parse
 from discord import Embed, PartialEmoji
@@ -12,7 +12,7 @@ from trainerdex.discord_bot.utils.chat_formatting import format_numbers, format_
 
 class GainsLeaderboardView:
     @staticmethod
-    def get_stat_data(stat: str) -> Tuple[str, str | None, PartialEmoji | None]:
+    def get_stat_data(stat: str) -> tuple[str, str | None, PartialEmoji | None]:
         return (
             stat,
             (i.value[1] if (i := Stats.__dict__.get(stat.upper())) else None),
@@ -23,7 +23,7 @@ class GainsLeaderboardView:
     def format_page(
         cls,
         leaderboard: dict,
-        slice: list[dict],
+        slice: Iterable[dict],
         page_number: int,
     ) -> Embed:
         stat_slug, stat_name, stat_emoji = cls.get_stat_data(leaderboard.get("stat"))
@@ -116,9 +116,7 @@ class GainsLeaderboardView:
         leaderboard: dict,
     ) -> Iterator[Embed]:
         entries: list[dict] = leaderboard.pop("entries", [])
-        filtered_entries: list[dict] = [
-            entry for entry in entries if entry.get("minuend_datetime") is not None
-        ]
+        filtered_entries: list[dict] = [entry for entry in entries if entry.get("minuend_datetime") is not None]
 
         chunk_size = 15
 

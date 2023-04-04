@@ -2,30 +2,28 @@ import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Dict
 
-from discord import (
-    ApplicationContext,
-    Attachment,
-    Message,
-    Option,
-    slash_command,
-)
+from discord import ApplicationContext, Attachment, Option, slash_command
 from discord.utils import snowflake_time
-from trainerdex.api.exceptions import HTTPException
 
-from trainerdex.discord_bot.cogs.interface import Cog
+from trainerdex.api.exceptions import HTTPException
 from trainerdex.discord_bot.constants import STAT_MAP
-from trainerdex.discord_bot.embeds import ProfileCard
+from trainerdex.discord_bot.modules.base import Module
+from trainerdex.discord_bot.modules.profile import ProfileModule
 from trainerdex.discord_bot.ocr import OCRClient
 from trainerdex.discord_bot.utils import chat_formatting
 from trainerdex.discord_bot.utils.converters import get_trainer_from_user
-from trainerdex.discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex.api.trainer import Trainer
     from trainerdex.api.update import Update
 
 
-class PostCog(Cog):
+class PostModule(Module):
+    @classmethod
+    @property
+    def METADATA_ID(cls) -> str:
+        return "PostCog"
+
     @slash_command(
         name="update",
         description="Update your stats with an image, optionally a few other stats are included.",
@@ -101,29 +99,25 @@ class PostCog(Cog):
             image = None
 
         if not (image or kwargs):
-            await send(
-                ctx,
+            await ctx.interaction.response.send_message(
                 (
                     "You haven't provided a valid image or any stats. Sorry, nothing I can do here. "
                     "Perhaps you forgot to attach an image?"
                 ),
-                ephemeral=True,
             )
             return
 
-        await ctx.defer()
+        await ctx.interaction.response.defer()
 
         if image and not kwargs:
-            await send(
-                ctx,
+            await ctx.respond(
                 content=chat_formatting.info(
                     f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`.",
                 ),
                 file=await image.to_file(),
             )
         elif image and kwargs:
-            await send(
-                ctx,
+            await ctx.respond(
                 content=chat_formatting.info(
                     (
                         f"{ctx.interaction.user.mention} shared an image for use with "
@@ -135,8 +129,7 @@ class PostCog(Cog):
                 file=await image.to_file(),
             )
         else:
-            await send(
-                ctx,
+            await ctx.respond(
                 content=chat_formatting.info(
                     (
                         f"{ctx.interaction.user.mention} posted the following stats: "
@@ -150,22 +143,19 @@ class PostCog(Cog):
             trainer: Trainer = await get_trainer_from_user(client, ctx.interaction.user)
 
             if trainer is None:
-                await send(
-                    ctx,
+                await ctx.respond(
                     chat_formatting.warning("You're not set up with a TrainerDex profile."),
-                    ephemeral=False,
                 )
                 return
 
             data_from_ocr = {}
             if image is not None:
-                await send(ctx, "Analyzing image...", delete_after=30)
+                await ctx.respond("Analyzing image...", delete_after=30)
                 try:
                     data_from_ocr: Dict[str, float] = await OCRClient.request_activity_view_scan(image)
                 except Exception:
                     if not kwargs:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.error(
                                 (
                                     "The OCR failed to process and you didn't provide any keywords. "
@@ -175,8 +165,7 @@ class PostCog(Cog):
                         )
                         return
                     else:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.warning(
                                 (
                                     "The OCR failed to process, "
@@ -192,8 +181,7 @@ class PostCog(Cog):
             }
 
             if not stats_to_update:
-                await send(
-                    ctx,
+                await ctx.respond(
                     chat_formatting.error("No stats were provided. Please provide at least one stat to update."),
                 )
                 return
@@ -208,23 +196,20 @@ class PostCog(Cog):
                 except HTTPException as e:
                     r, data = e.args
                     if data is not None:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.error(
                                 f"The update failed to post because of the following error: `{data}`"
                             ),
                         )
                         raise HTTPException(None, data) from e
                     else:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
                 update = latest_update
-                await send(
-                    ctx,
+                await ctx.respond(
                     chat_formatting.success(
                         "It looks like you've posted in the last 30 minutes so I have updated your stats in place."
                     ),
@@ -235,8 +220,7 @@ class PostCog(Cog):
                     if getattr(latest_update, stat) != value:
                         break
                 else:
-                    await send(
-                        ctx,
+                    await ctx.respond(
                         chat_formatting.error(
                             (
                                 "At a quick glance, it looks like your stats haven't changed since your last update."
@@ -256,46 +240,29 @@ class PostCog(Cog):
                 except HTTPException as e:
                     r, data = e.args
                     if data is not None:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.error(
                                 f"The update failed to post because of the following error: `{data}`"
                             ),
                         )
                         raise HTTPException(None, data) from e
                     else:
-                        await send(
-                            ctx,
+                        await ctx.respond(
                             chat_formatting.error("The update failed to post because of an unknown error."),
                         )
                         raise HTTPException(None, data) from e
 
-            embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
-            response: Message = await send(
-                ctx,
-                content=chat_formatting.loading("Checking progress…"),
-                embed=embed,
-            )
-            await embed.show_progress()
-            await response.edit(
-                content=chat_formatting.loading("Loading leaderboards…"),
-                embed=embed,
-            )
-            await embed.add_leaderboard()
-            if ctx.guild:
-                await response.edit(embed=embed)
-                await embed.add_guild_leaderboard(ctx.guild)
-            await response.edit(content=None, embed=embed)
+            await ProfileModule.show_trainer_profile(self, ctx, trainer)
 
     # @slash_command(
     #     name="register",
     #     options=[
-    #         # Option(
-    #         #     Attachment,
-    #         #     name="image",
-    #         #     description="An image of your Pokémon Go profile.",
-    #         #     required=True,
-    #         # ),
+    #         Option(
+    #             Attachment,
+    #             name="image",
+    #             description="An image of your Pokémon Go profile.",
+    #             required=True,
+    #         ),
     #         Option(
     #             str,
     #             name="nickname",
@@ -312,18 +279,18 @@ class PostCog(Cog):
     #                 OptionChoice("Valor", 2),
     #                 OptionChoice("Instinct", 3),
     #             ],
-    #             # required=False,
+    #             required=False,
     #         ),
     #         Option(
     #             int,
     #             name="total_xp",
+    #             required=False,
+    #         ),
+    #         Option(
+    #             int,
+    #             name="level",
     #             # required=False,
     #         ),
-    #         # Option(
-    #         #     int,
-    #         #     name="level",
-    #         #     # required=False,
-    #         # ),
     #         Option(
     #             float,
     #             name="travel_km",
@@ -353,37 +320,34 @@ class PostCog(Cog):
     #     capture_total: Optional[int] = None,
     #     pokestops_visited: Optional[int] = None,
     # ):
-    #     # if not image.content_type.startswith("image/"):
-    #     #     await send(ctx, "That's not a valid image.", ephemeral=True)
-    #     #     return
+    #     if not image.content_type.startswith("image/"):
+    #         await ctx.interaction.response.send_message("That's not a valid image.")
+    #         return
 
-    #    async with self.client() as client:
-    #        if await get_trainer(client, user=ctx.author, nickname=nickname) is not None:
-    #            await send(
-    #                ctx,
-    #                chat_formatting.error("Unable to create a profile. You may already have one."),
-    #                ephemeral=True,
-    #            )
-    #            return
+    #     async with self.client() as client:
+    #         if await get_trainer(client, user=ctx.author, nickname=nickname) is not None:
+    #             ctx.interaction.response.send_message(
+    #                 chat_formatting.error("Unable to create a profile. You may already have one."),
+    #             )
+    #             return
 
-    #     await ctx.defer()
+    #     await ctx.interaction.response.defer()
 
-    #     # await send(
-    #     #     ctx,
-    #     #     content=chat_formatting.info(
-    #     #         f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
-    #     #     ),
-    #     #     file=await image.to_file(),
-    #     # )
+    #     await ctx.respond(
+    #         content=chat_formatting.info(
+    #             f"{ctx.interaction.user.mention} shared an image for use with `/{ctx.command.qualified_name}`."
+    #         ),
+    #         file=await image.to_file(),
+    #     )
 
-    #     # screenshot = await Screenshot.from_url(
-    #     #     image.url,
-    #     #     klass=ScreenshotClass.ACTIVITY_VIEW,
-    #     #     asyncronous=True,
-    #     # )
+    #     screenshot = await Screenshot.from_url(
+    #         image.url,
+    #         klass=ScreenshotClass.ACTIVITY_VIEW,
+    #         asyncronous=True,
+    #     )
 
-    #     # request = self.ocr.open_request(screenshot)
-    #     # result = self.ocr.process_ocr(request)
+    #     request = self.ocr.open_request(screenshot)
+    #     result = self.ocr.process_ocr(request)
 
     #     profile_data = {
     #         "username": nickname,  # result.username or nickname,
@@ -391,10 +355,8 @@ class PostCog(Cog):
     #     }
 
     #     if not validate_trainer_nickname(profile_data["username"]):
-    #         await send(
-    #             ctx,
+    #         await ctx.respond(
     #             chat_formatting.error("Unable to create a profile. Your nickname is invalid."),
-    #             ephemeral=True,
     #         )
     #         return
 
@@ -403,34 +365,36 @@ class PostCog(Cog):
     #         "travel_km": travel_km,  # result.travel_km or travel_km,
     #         "capture_total": capture_total,  # result.capture_total or capture_total,
     #         "pokestops_visited": pokestops_visited,  # result.pokestops_visited or pokestops_visited,
-    #         # "gold_gym_badges": gold_gym_badges,
+    #         "gold_gym_badges": gold_gym_badges,
     #     }
 
-    #     # if not update_data.get("total_xp"):
-    #     #     await send(
-    #     #         ctx,
-    #     #         chat_formatting.error(
-    #     #             "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
-    #     #             "Please try again specifiying it in the command or using a new screenshot."
-    #     #         ),
-    #     #     )
-    #     #     return
+    #     if not update_data.get("total_xp"):
+    #         await ctx.respond(
+    #             chat_formatting.error(
+    #                 "Failed to pull Total XP from your screenshot and it wasn't provided in the command. "
+    #                 "Please try again specifiying it in the command or using a new screenshot."
+    #             ),
+    #         )
+    #         return
 
-    #    async with self.client() as client:
-    #        trainer: Trainer = await client.create_trainer(**profile_data)
-    #        print(trainer)
-    #        user = await trainer.get_user()
-    #        await user.add_discord(ctx.author)
+    #     async with self.client() as client:
+    #         trainer: Trainer = await client.create_trainer(**profile_data)
+    #         print(trainer)
+    #         user = await trainer.get_user()
+    #         await user.add_discord(ctx.author)
 
-    #        update: Update = await trainer.post(
-    #            data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
-    #            stats=update_data,
-    #            update_time=snowflake_time(ctx.interaction.id),
-    #        )
+    #         update: Update = await trainer.post(
+    #             data_source="ts_registration",  # "ss_registration" is image else "ts_registration",
+    #             stats=update_data,
+    #             update_time=snowflake_time(ctx.interaction.id),
+    #         )
 
-    #    message = await send(
-    #        ctx, chat_formatting.success(f"Profile created for {ctx.author.mention}.")
-    #    )
-    #    embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
+    #     response = await ctx.respond(chat_formatting.success(f"Profile created for {ctx.author.mention}."))
+    #     if isinstance(response, Interaction):
+    #         message = await response.original_response()
+    #     else:
+    #         message = response
 
-    #    await message.edit(embed=embed)
+    #     embed: ProfileCard = await ProfileCard(self._common, ctx, trainer=trainer, update=update)
+
+    #     await message.edit(embed=embed)
