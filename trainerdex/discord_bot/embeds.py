@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from discord.channel import TextChannel
 from discord.colour import Colour
@@ -40,15 +40,15 @@ class BaseCard(Embed):
     ) -> None:
         super().__init__(**kwargs)
         global_config: GlobalConfig = await common.config.get_global()
-        self.colour: Union[Colour, int] = kwargs.get(
+        self.colour: Colour | int = kwargs.get(
             "colour",
             kwargs.get("color", TRAINERDEX_COLOUR),
         )
-        self.title: Union[str, EmptyEmbed] = kwargs.get("title", EmptyEmbed)
+        self.title: str | EmptyEmbed = kwargs.get("title", EmptyEmbed)
         self.type: str = kwargs.get("type", "rich")
-        self.url: Union[str, EmptyEmbed] = kwargs.get("url", EmptyEmbed)
-        self.description: Union[str, EmptyEmbed] = kwargs.get("description", EmptyEmbed)
-        self.timestamp: Union[datetime.datetime, EmptyEmbed] = kwargs.get("timestamp", EmptyEmbed)
+        self.url: str | EmptyEmbed = kwargs.get("url", EmptyEmbed)
+        self.description: str | EmptyEmbed = kwargs.get("description", EmptyEmbed)
+        self.timestamp: datetime.datetime | EmptyEmbed = kwargs.get("timestamp", EmptyEmbed)
 
         if notice := global_config.notice:
             notice: str = chat_formatting.info(notice)

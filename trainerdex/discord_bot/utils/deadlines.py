@@ -11,10 +11,10 @@ SHUTDOWN_DATE = datetime(2023, 7, 18, 12, 0, 0)
 
 async def get_last_deadline(
     *,
-    guild_id: int = None,
-    guild_config: GuildConfig = None,
-    timezone: ZoneInfo = None,
-    now: datetime = None,
+    guild_id: int | None = None,
+    guild_config: GuildConfig | None = None,
+    timezone: ZoneInfo | None = None,
+    now: datetime | None = None,
 ) -> datetime:
     if not timezone:
         if not guild_config:
@@ -37,10 +37,10 @@ async def get_last_deadline(
 
 async def get_next_deadline(
     *,
-    guild_id: int = None,
-    guild_config: GuildConfig = None,
-    timezone: ZoneInfo = None,
-    now: datetime = None,
+    guild_id: int | None = None,
+    guild_config: GuildConfig | None = None,
+    timezone: ZoneInfo | None = None,
+    now: datetime | None = None,
 ) -> datetime:
     last_deadline = await get_last_deadline(guild_id=guild_id, guild_config=guild_config, timezone=timezone, now=now)
     return last_deadline + relativedelta(weeks=1)

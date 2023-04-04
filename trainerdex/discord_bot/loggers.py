@@ -46,7 +46,7 @@ class DiscordLogger:
             return self._channel
 
     @promisify
-    async def _send_message(self, message: str, level: LoggerLevel, *, exception: Exception = None) -> None:
+    async def _send_message(self, message: str, level: LoggerLevel, *, exception: Exception | None = None) -> None:
         if not self.channel:
             return
         formatted_message = message_formatters[level](message)

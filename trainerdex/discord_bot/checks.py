@@ -1,5 +1,3 @@
-from typing import Optional
-
 from discord import ApplicationContext, Member
 
 from trainerdex.discord_bot.config import Config
@@ -9,7 +7,7 @@ async def check_member_privilage(
     ctx: ApplicationContext,
     /,
     *,
-    member: Optional[Member] = None,
+    member: Member | None = None,
 ) -> bool:
     """A coroutine that returns whether the user is considered a privilaged or not.
 

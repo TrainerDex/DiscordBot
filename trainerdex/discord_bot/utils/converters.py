@@ -47,8 +47,8 @@ async def get_trainer_from_nickname(
 async def get_trainer(
     client: BaseClient,
     *,
-    nickname: str = None,
-    user: User = None,
+    nickname: str | None = None,
+    user: User | None = None,
     prefetch_updates: bool = True,
 ) -> Trainer | None:
     """Retrieve a profile from a Pokémon Go nickname or user's Discord ID
