@@ -4,6 +4,7 @@ import logging
 import os
 
 from discord import ApplicationContext, Bot, CheckFailure, Intents
+from discord.errors import PrivilegedIntentsRequired
 
 from trainerdex.discord_bot.config import Config
 from trainerdex.discord_bot.constants import DEBUG, DEBUG_GUILDS
@@ -109,6 +110,13 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
         await bot.start(os.environ["DISCORD_TOKEN"])
     except KeyboardInterrupt:
         await bot.close()
+    except PrivilegedIntentsRequired as e:
+        required_intents = [
+            intent for intent in {"presences", "members", "message_content"} if getattr(intents, intent)
+        ]
+        if not required_intents:
+            raise e
+        raise Exception(f"The following priviledged intents are required: {required_intents}") from e
     except Exception as e:
         private_logger.exception(e)
         await bot.close()
