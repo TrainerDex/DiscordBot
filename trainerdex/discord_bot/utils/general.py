@@ -1,23 +1,8 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Sequence, Union, overload
 from zoneinfo import ZoneInfo
 
-from discord import (
-    AllowedMentions,
-    ApplicationContext,
-    Embed,
-    File,
-    GuildSticker,
-    HTTPException,
-    Interaction,
-    InteractionResponded,
-    Message,
-    MessageReference,
-    PartialMessage,
-    StickerItem,
-)
-from discord.abc import Messageable, User
-from discord.ui.view import View
+from discord import ApplicationContext
+from discord.abc import User
 from trainerdex.api.trainer import Trainer
 from yarl import URL
 
@@ -56,100 +41,6 @@ If you have any questions, please contact us on Twitter (<{twitter_handle}>), as
 
 AbandonQuestionException = Exception
 NoAnswerProvidedException = Exception
-
-
-@overload
-async def send(
-    destination: ApplicationContext | Messageable,
-    content: Optional[str] = ...,
-    *,
-    tts: bool = ...,
-    embed: Embed = ...,
-    file: File = ...,
-    stickers: Sequence[Union[GuildSticker, StickerItem]] = ...,
-    delete_after: float = ...,
-    nonce: Union[str, int] = ...,
-    allowed_mentions: AllowedMentions = ...,
-    reference: Union[Message, MessageReference, PartialMessage] = ...,
-    mention_author: bool = ...,
-    view: View = ...,
-) -> Message:
-    ...
-
-
-@overload
-async def send(
-    destination: ApplicationContext | Messageable,
-    content: Optional[str] = ...,
-    *,
-    tts: bool = ...,
-    embed: Embed = ...,
-    files: List[File] = ...,
-    stickers: Sequence[Union[GuildSticker, StickerItem]] = ...,
-    delete_after: float = ...,
-    nonce: Union[str, int] = ...,
-    allowed_mentions: AllowedMentions = ...,
-    reference: Union[Message, MessageReference, PartialMessage] = ...,
-    mention_author: bool = ...,
-    view: View = ...,
-) -> Message:
-    ...
-
-
-@overload
-async def send(
-    destination: ApplicationContext | Messageable,
-    content: Optional[str] = ...,
-    *,
-    tts: bool = ...,
-    embeds: List[Embed] = ...,
-    file: File = ...,
-    stickers: Sequence[Union[GuildSticker, StickerItem]] = ...,
-    delete_after: float = ...,
-    nonce: Union[str, int] = ...,
-    allowed_mentions: AllowedMentions = ...,
-    reference: Union[Message, MessageReference, PartialMessage] = ...,
-    mention_author: bool = ...,
-    view: View = ...,
-) -> Message:
-    ...
-
-
-@overload
-async def send(
-    destination: ApplicationContext | Messageable,
-    content: Optional[str] = ...,
-    *,
-    tts: bool = ...,
-    embeds: List[Embed] = ...,
-    files: List[File] = ...,
-    stickers: Sequence[Union[GuildSticker, StickerItem]] = ...,
-    delete_after: float = ...,
-    nonce: Union[str, int] = ...,
-    allowed_mentions: AllowedMentions = ...,
-    reference: Union[Message, MessageReference, PartialMessage] = ...,
-    mention_author: bool = ...,
-    view: View = ...,
-) -> Message:
-    ...
-
-
-async def send(destination: ApplicationContext | Messageable, content=None, *args, **kwargs) -> Message:
-    """A utility function to send a message to a destination.
-
-    Always returning a subclass of Message."""
-    if not isinstance(destination, ApplicationContext):
-        return await destination.send(content=content, *args, **kwargs)
-
-    try:
-        response = await destination.respond(content=content, *args, **kwargs)
-    except (HTTPException, TypeError, ValueError, InteractionResponded):
-        return await destination.followup.send(content=content, *args, **kwargs)
-
-    if isinstance(response, Message):
-        return response
-    elif isinstance(response, Interaction):
-        return await response.original_response()
 
 
 def google_calendar_link_for_datetime(dt: datetime) -> str:

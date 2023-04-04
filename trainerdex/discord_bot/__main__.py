@@ -12,7 +12,6 @@ from trainerdex.discord_bot.datatypes import Common
 from trainerdex.discord_bot.loggers import DiscordLogger, getLogger
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils import chat_formatting
-from trainerdex.discord_bot.utils.general import send
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -89,8 +88,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
             exception,
         )
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             chat_formatting.error(f"An error occurred: {chat_formatting.inline(str(exception))}"),
             ephemeral=True,
         )

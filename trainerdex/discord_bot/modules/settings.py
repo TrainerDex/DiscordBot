@@ -14,7 +14,6 @@ from discord.role import Role
 from trainerdex.discord_bot.checks import check_member_privilage
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import error, info, success
-from trainerdex.discord_bot.utils.general import send
 
 if TYPE_CHECKING:
     from trainerdex.discord_bot.datatypes import GuildConfig
@@ -43,8 +42,7 @@ class SettingsModule(Module):
         guild_config.assign_roles_on_join = value
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `assign_roles_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -59,8 +57,7 @@ class SettingsModule(Module):
         guild_config.set_nickname_on_join = value
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `set_nickname_on_join` to `{value}`.",
             ephemeral=True,
         )
@@ -75,8 +72,7 @@ class SettingsModule(Module):
         guild_config.set_nickname_on_update = value
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `set_nickname_on_update` to `{value}`.",
             ephemeral=True,
         )
@@ -113,7 +109,7 @@ class SettingsModule(Module):
         self, ctx: ApplicationContext, action: str, array: str, role: Role | None = None
     ):
         if action != "view" and role is None:
-            await ctx.send(
+            await ctx.interaction.response.send_message(
                 error(
                     "If you are appending/unappending to the grant/revoke lists, you must include a role to parameter."
                 )
@@ -180,7 +176,7 @@ class SettingsModule(Module):
     )
     async def guild_config__mod_roles(self, ctx: ApplicationContext, action: str, role: Role | None = None):
         if action != "view" and role is None:
-            await ctx.send(
+            await ctx.interaction.response.send_message(
                 error("If you are appending/unappending to the mod role list, you must include a role to parameter.")
             )
             return
@@ -219,8 +215,7 @@ class SettingsModule(Module):
         guild_config.mystic_role = value.id
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `mystic_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -231,8 +226,7 @@ class SettingsModule(Module):
         guild_config.valor_role = value.id
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `valor_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -243,8 +237,7 @@ class SettingsModule(Module):
         guild_config.instinct_role = value.id
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `instinct_role` to `{value.mention}`.",
             ephemeral=True,
         )
@@ -255,8 +248,7 @@ class SettingsModule(Module):
         guild_config.tl40_role = value.id
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `tl40_role` to {value.mention}.",
             ephemeral=True,
         )
@@ -269,17 +261,16 @@ class SettingsModule(Module):
         try:
             ZoneInfo(value.strip())
         except ZoneInfoNotFoundError:
-            await send(
-                ctx,
+            await ctx.interaction.response.send_message(
                 f"Cannot set `timezone` to `{value}`. For a list of valid timezones, please check this table: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List ",
                 ephemeral=True,
             )
+            return
 
         guild_config.timezone = value.strip()
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `timezone` to `{value}`.",
             ephemeral=True,
         )
@@ -290,19 +281,18 @@ class SettingsModule(Module):
         perms = value.permissions_for(ctx.me)
 
         if not (perms.send_messages and perms.create_public_threads and perms.send_messages_in_threads):
-            await send(
-                ctx,
+            await ctx.interaction.response.send_message(
                 "The channel must be able to be messaged and be able to create public threads. Leaderboard may not post.",
                 ephemeral=True,
             )
+            return
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
         guild_config.leaderboard_channel_id = value.id
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `leaderboard_channel` to {value.mention}.",
             ephemeral=True,
         )
@@ -314,8 +304,7 @@ class SettingsModule(Module):
         guild_config.post_weekly_leaderboards = value
         await self.config.set_guild(guild_config)
 
-        await send(
-            ctx,
+        await ctx.interaction.response.send_message(
             f"Set `post_weekly_leaderboards` to `{value}`.",
             ephemeral=True,
         )

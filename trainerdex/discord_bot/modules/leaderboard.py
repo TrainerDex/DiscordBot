@@ -16,7 +16,6 @@ from yarl import URL
 from trainerdex.discord_bot.constants import TRAINERDEX_API_TOKEN, Stats
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import format_time
-from trainerdex.discord_bot.utils.general import send
 from trainerdex.discord_bot.views.gains_leaderboard import GainsLeaderboardView
 from trainerdex.discord_bot.views.leaderboard import LeaderboardView
 
@@ -81,7 +80,7 @@ class LeaderboardModule(Module):
             )
 
             if len(leaderboard_data) < 1:
-                await send(ctx, content="No results to display!")
+                await ctx.send("No results to display!")
             else:
                 paginator = await LeaderboardView.create(ctx, leaderboard_data)
                 await paginator.respond(ctx.interaction)
