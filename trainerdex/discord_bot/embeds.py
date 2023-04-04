@@ -11,6 +11,7 @@ from discord.embeds import Embed, EmptyEmbed
 from discord.guild import Guild
 from discord.message import Message
 from trainerdex.api.client import TokenClient
+from trainerdex.api.exceptions import HTTPException
 from trainerdex.api.update import Update
 
 from trainerdex.discord_bot.constants import (
@@ -165,10 +166,13 @@ class ProfileCard(BaseCard):
         ]
         for stat in stats:
             async with TokenClient() as client:
-                leaderboard: GuildLeaderboard = await client.get_leaderboard(
-                    guild=guild,
-                    stat=stat,
-                )
+                try:
+                    leaderboard: GuildLeaderboard = await client.get_leaderboard(
+                        guild=guild,
+                        stat=stat,
+                    )
+                except HTTPException:
+                    return
                 entry: LeaderboardEntry = await leaderboard.find(lambda x: x.trainer_id == self.trainer.id)
                 if entry:
                     entries.append(
@@ -195,7 +199,10 @@ class ProfileCard(BaseCard):
         ]
         for stat in stats:
             async with TokenClient() as client:
-                leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
+                try:
+                    leaderboard: Leaderboard = await client.get_leaderboard(stat=stat)
+                except HTTPException:
+                    return
                 entry: LeaderboardEntry = await leaderboard.find(lambda x: x.trainer_id == self.trainer.id)
                 if entry:
                     entries.append(
