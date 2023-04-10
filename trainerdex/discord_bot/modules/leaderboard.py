@@ -68,6 +68,7 @@ class LeaderboardModule(Module):
         stat: str,
     ) -> None:
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
 
         if not ctx.guild:
             selection = LeaderboardType.GLOBAL.value[0]

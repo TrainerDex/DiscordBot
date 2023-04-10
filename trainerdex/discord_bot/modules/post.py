@@ -108,6 +108,7 @@ class PostModule(Module):
             return
 
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
 
         if image and not kwargs:
             await ctx.respond(
@@ -332,6 +333,7 @@ class PostModule(Module):
     #             return
 
     #     await ctx.interaction.response.defer()
+    #     ctx.interaction.response._responded = True
 
     #     await ctx.respond(
     #         content=chat_formatting.info(

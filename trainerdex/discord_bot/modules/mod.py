@@ -160,6 +160,7 @@ class ModerationModule(Module):
             return
 
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
         reason = f"{ctx.author} used the /approve command to grant {member} access to this guild."
 
         allowed_to_rename: bool = await self.allowed_to_rename(ctx)
@@ -288,7 +289,7 @@ class ModerationModule(Module):
                     actions_commited.append(f"Updated {trainer.username} with new stats; {stats_humanize}")
 
             if actions_commited:
-                response: WebhookMessage = await ctx.followup.send(
+                response: WebhookMessage = await ctx.respond(
                     f"`/approve` run on {member.mention}\n" + "\n".join(actions_commited),
                     wait=True,
                 )
