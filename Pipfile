@@ -12,6 +12,7 @@ aiostream = "*"
 motor = ">=3.0,<3.1"
 promise = "*"
 yarl = "*"
+pydantic = "*"
 
 [dev-packages]
 black = "*"

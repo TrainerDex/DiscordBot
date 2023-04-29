@@ -1,5 +1,4 @@
-from typing import TYPE_CHECKING, List
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+import contextlib
 
 from discord import ApplicationContext, Option, OptionChoice, Permissions, SlashCommandGroup, TextChannel
 from discord.role import Role
@@ -7,9 +6,6 @@ from discord.role import Role
 from trainerdex.discord_bot.checks import check_member_privilage
 from trainerdex.discord_bot.modules.base import Module
 from trainerdex.discord_bot.utils.chat_formatting import error, info, success
-
-if TYPE_CHECKING:
-    from trainerdex.discord_bot.datatypes import GuildConfig
 
 
 class SettingsModule(Module):
@@ -31,9 +27,12 @@ class SettingsModule(Module):
 
         This is useful for granting users access to the rest of the server.
         """
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
         guild_config.assign_roles_on_join = value
-        await self.config.set_guild(guild_config)
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `assign_roles_on_join` to `{value}`.",
@@ -46,9 +45,12 @@ class SettingsModule(Module):
 
         This is useful for ensuring players can be easily identified.
         """
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
         guild_config.set_nickname_on_join = value
-        await self.config.set_guild(guild_config)
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `set_nickname_on_join` to `{value}`.",
@@ -61,9 +63,12 @@ class SettingsModule(Module):
 
         This is useful for setting levels in their name.
         """
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
         guild_config.set_nickname_on_update = value
-        await self.config.set_guild(guild_config)
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `set_nickname_on_update` to `{value}`.",
@@ -77,8 +82,8 @@ class SettingsModule(Module):
                 str,
                 name="action",
                 choices=[
-                    OptionChoice(name="Add role", value="append"),
-                    OptionChoice(name="Remove role", value="unappend"),
+                    OptionChoice(name="Add role", value="add"),
+                    OptionChoice(name="Remove role", value="remove"),
                     OptionChoice(name="View roles", value="view"),
                 ],
             ),
@@ -111,41 +116,44 @@ class SettingsModule(Module):
 
         await ctx.interaction.response.defer()
 
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
 
         if array == "grant":
-            role_list: List[Role] = guild_config.roles_to_assign_on_approval.add or []
+            roles = guild_config.roles_to_append_on_approval
         elif array == "revoke":
-            role_list: List[Role] = guild_config.roles_to_assign_on_approval.remove or []
+            roles = guild_config.roles_to_remove_on_approval
         else:
             raise ValueError()
 
-        if action == "append":
-            if role.id not in role_list:
-                role_list.append(role.id)
+        if action == "add":
+            roles.add(role)
 
-            message = "{} was appended to the list. The list is now: {}"
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
+            message = "{} was added to the list. The list is now: {}"
+            set_of_roles = {repr(role) for role in roles}
             await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
-        elif action == "unappend":
-            while role.id in role_list:
-                role_list.remove(role.id)
+        elif action == "remove":
+            with contextlib.suppress(KeyError):
+                roles.remove(role)
 
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = "{} was removed from the list. The list is now: {}"
+            set_of_roles = {repr(role) for role in roles}
             await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
             message = (
                 "The following roles will be modified for a user when they are granted access to the guild:\n{}"
             )
+            set_of_roles = {repr(role) for role in roles}
             await ctx.respond(info(message.format(", ".join(set_of_roles))))
+
         if array == "grant":
-            guild_config.roles_to_assign_on_approval.add = list(set(role_list))
+            guild_config.roles_to_append_on_approval = roles
         elif array == "revoke":
-            guild_config.roles_to_assign_on_approval.remove = list(set(role_list))
-        await self.config.set_guild(guild_config)
+            guild_config.roles_to_remove_on_approval = roles
+
+        await self.config.set_guild_v2(guild_config)
 
     @guild_config.command(
         name="mod-roles",
@@ -154,8 +162,8 @@ class SettingsModule(Module):
                 str,
                 name="action",
                 choices=[
-                    OptionChoice(name="Add role", value="append"),
-                    OptionChoice(name="Remove role", value="unappend"),
+                    OptionChoice(name="Add role", value="add"),
+                    OptionChoice(name="Remove role", value="remove"),
                     OptionChoice(name="View roles", value="view"),
                 ],
             ),
@@ -176,37 +184,40 @@ class SettingsModule(Module):
 
         await ctx.interaction.response.defer()
 
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
 
-        role_list: List[Role] = guild_config.mod_role_ids or []
-
-        if action == "append":
-            if role.id not in role_list:
-                role_list.append(role.id)
+        if action == "add":
+            guild_config.mod_role_ids.add(role)
 
             message = "{} was appended to the list. The list is now: {}"
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
+            set_of_roles = {repr(role) for role in guild_config.mod_role_ids}
             await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
-        elif action == "unappend":
-            while role.id in role_list:
-                role_list.remove(role.id)
 
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
+        elif action == "remove":
+            with contextlib.suppress(KeyError):
+                guild_config.mod_role_ids.remove(role)
+
+            set_of_roles = {repr(role) for role in guild_config.mod_role_ids}
             message = "{} was removed from the list. The list is now: {}"
             await ctx.respond(success(message.format(role, ", ".join(set_of_roles))))
 
         elif action == "view":
-            set_of_roles = {f"{ctx.guild.get_role(role_id).name or ''} ({role_id})" for role_id in role_list}
+            set_of_roles = {repr(role) for role in guild_config.mod_role_ids}
             message = "The following roles are considered mods:\n{}"
             await ctx.respond(info(message.format(", ".join(set_of_roles))))
-        guild_config.mod_role_ids = list(set(role_list))
-        await self.config.set_guild(guild_config)
+
+        await self.config.set_guild_v2(guild_config)
 
     @guild_config.command(name="mystic-role", checks=[check_member_privilage])
     async def guild_config__mystic_role(self, ctx: ApplicationContext, value: Role) -> None:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        guild_config.mystic_role = value.id
-        await self.config.set_guild(guild_config)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.mystic_role = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `mystic_role` to `{value.mention}`.",
@@ -215,9 +226,12 @@ class SettingsModule(Module):
 
     @guild_config.command(name="valor-role", checks=[check_member_privilage])
     async def guild_config__valor_role(self, ctx: ApplicationContext, value: Role) -> None:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        guild_config.valor_role = value.id
-        await self.config.set_guild(guild_config)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.valor_role = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `valor_role` to `{value.mention}`.",
@@ -226,9 +240,12 @@ class SettingsModule(Module):
 
     @guild_config.command(name="instinct-role", checks=[check_member_privilage])
     async def guild_config__instinct_role(self, ctx: ApplicationContext, value: Role) -> None:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        guild_config.instinct_role = value.id
-        await self.config.set_guild(guild_config)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.instinct_role = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `instinct_role` to `{value.mention}`.",
@@ -237,31 +254,41 @@ class SettingsModule(Module):
 
     @guild_config.command(name="tl40-role", checks=[check_member_privilage])
     async def guild_config__tl40_role(self, ctx: ApplicationContext, value: Role) -> None:
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        guild_config.tl40_role = value.id
-        await self.config.set_guild(guild_config)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.tl40_role = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `tl40_role` to {value.mention}.",
             ephemeral=True,
         )
 
+    @guild_config.command(name="tl50-role", checks=[check_member_privilage])
+    async def guild_config__tl50_role(self, ctx: ApplicationContext, value: Role) -> None:
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.tl40_role = value
+        await self.config.set_guild_v2(guild_config)
+
+        await ctx.respond(
+            f"Set `tl50_role` to {value.mention}.",
+            ephemeral=True,
+        )
+
     @guild_config.command(name="timezone", checks=[check_member_privilage])
     async def guild_config__timezone(self, ctx: ApplicationContext, value: str) -> None:
         """Set the timezone for the server. This is used for the weekly leaderboard."""
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
 
-        try:
-            ZoneInfo(value.strip())
-        except ZoneInfoNotFoundError:
-            await ctx.respond(
-                f"Cannot set `timezone` to `{value}`. For a list of valid timezones, please check this table: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List ",
-                ephemeral=True,
-            )
-            return
-
-        guild_config.timezone = value.strip()
-        await self.config.set_guild(guild_config)
+        guild_config.timezone = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `timezone` to `{value}`.",
@@ -280,10 +307,12 @@ class SettingsModule(Module):
             )
             return
 
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
 
-        guild_config.leaderboard_channel_id = value.id
-        await self.config.set_guild(guild_config)
+        guild_config.leaderboard_channel = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `leaderboard_channel` to {value.mention}.",
@@ -293,9 +322,12 @@ class SettingsModule(Module):
     @guild_config.command(name="enable-weekly-leaderboard", checks=[check_member_privilage])
     async def guild_config__post_weekly_leaderboards(self, ctx: ApplicationContext, value: bool) -> None:
         """Post leaderboards weekly on Monday 12:00 local. (Timezone is set in the config, default is UTC)"""
-        guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
-        guild_config.post_weekly_leaderboards = value
-        await self.config.set_guild(guild_config)
+        guild_config = await self.config.get_guild_v2(ctx.guild)
+        if guild_config is None:
+            return await ctx.respond("No data found.")
+
+        guild_config.weekly_leaderboards_enabled = value
+        await self.config.set_guild_v2(guild_config)
 
         await ctx.respond(
             f"Set `post_weekly_leaderboards` to `{value}`.",

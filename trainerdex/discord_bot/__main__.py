@@ -17,6 +17,8 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 private_logger: logging.Logger = logging.getLogger(__name__)
 
+bot: Bot
+
 
 async def main(loop: asyncio.AbstractEventLoop) -> None:
     private_logger.info("Initializing Config...")
@@ -28,7 +30,8 @@ async def main(loop: asyncio.AbstractEventLoop) -> None:
     intents.members = True
     intents.message_content = True
 
-    bot: Bot = Bot(
+    global bot
+    bot = Bot(
         debug_guilds=DEBUG_GUILDS if DEBUG else None,
         description="TrainerDex, a Discord bot for Pokémon Go.",
         intents=intents,

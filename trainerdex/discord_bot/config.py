@@ -1,10 +1,12 @@
 from __future__ import annotations
+import json
 
 import logging
 import os
 from dataclasses import asdict
 from enum import Enum
 from typing import TYPE_CHECKING, AsyncIterator, Mapping, MutableMapping, Union
+import warnings
 
 from discord import Guild, Member, TextChannel, User
 from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
@@ -20,6 +22,7 @@ from trainerdex.discord_bot.datatypes import (
     ModuleMeta,
     UserConfig,
 )
+from trainerdex.discord_bot.preferences.guild import Guild as NewGuildModel
 
 if TYPE_CHECKING:
     from trainerdex.discord_bot.modules.base import Module
@@ -83,6 +86,7 @@ class Config:
             yield ModuleMeta.from_mapping(document)
 
     async def get_guild(self, guild: Guild | int, *, create: bool = True) -> GuildConfig:
+        warnings.warn("This function is deprecated and will be removed soon.", DeprecationWarning)
         if isinstance(guild, Guild):
             guild = guild.id
         data: MutableMapping = await self._get_collection("guilds").find_one({"_id": guild})
@@ -94,6 +98,13 @@ class Config:
         elif data is None and not create:
             raise ValueError("No entry found.")
         return GuildConfig.from_mapping(data)
+
+    async def get_guild_v2(self, guild: Guild) -> NewGuildModel | None:
+        data: MutableMapping = await self._get_collection("guilds").find_one({"_id": guild.id})
+
+        if data is None:
+            return None
+        return NewGuildModel.parse_raw({"id": guild.id, **data})
 
     async def get_channel(self, channel: TextChannel | int, *, create: bool = True) -> ChannelConfig:
         if isinstance(channel, TextChannel):
@@ -161,8 +172,16 @@ class Config:
         await self._get_collection("cogs").update_one({"_id": document._id}, {"$set": data}, upsert=True)
 
     async def set_guild(self, document: GuildConfig):
+        warnings.warn("This function is deprecated and will be removed soon.", DeprecationWarning)
         data: MutableMapping = asdict(document)
         await self._get_collection("guilds").update_one({"_id": document._id}, {"$set": data}, upsert=True)
+
+    async def set_guild_v2(self, model: NewGuildModel):
+        data = NewGuildModel.validate(model)
+
+        data = json.loads(model.json())
+        data["_id"] = model.id
+        await self._get_collection("guilds").update_one({"_id": model.id}, {"$set": data}, upsert=True)
 
     async def set_channel(self, document: ChannelConfig):
         data: MutableMapping = asdict(document)
