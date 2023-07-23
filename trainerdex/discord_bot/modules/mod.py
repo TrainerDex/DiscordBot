@@ -54,7 +54,8 @@ class ModerationModule(Module):
         return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
-        return datetime.utcnow() < SHUTDOWN_DATE
+        # return datetime.utcnow() < SHUTDOWN_DATE
+        return True
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)
