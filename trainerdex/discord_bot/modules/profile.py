@@ -37,6 +37,7 @@ class ProfileModule(Module):
     ) -> None:
         """Find a profile given a username or user mention."""
         await ctx.interaction.response.defer(invisible=False)
+        ctx.interaction.response._responded = True
 
         async with self.client() as client:
             if username or user:
@@ -57,6 +58,7 @@ class ProfileModule(Module):
         user: User,
     ) -> None:
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
 
         async with self.client() as client:
             trainer = await get_trainer_from_user(client, user)

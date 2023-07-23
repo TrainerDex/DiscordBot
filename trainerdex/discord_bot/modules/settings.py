@@ -110,6 +110,7 @@ class SettingsModule(Module):
             return
 
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 
@@ -175,6 +176,7 @@ class SettingsModule(Module):
             return
 
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
 
         guild_config: GuildConfig = await self.config.get_guild(ctx.guild)
 

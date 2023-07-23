@@ -54,7 +54,8 @@ class ModerationModule(Module):
         return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
-        return datetime.utcnow() < SHUTDOWN_DATE
+        # return datetime.utcnow() < SHUTDOWN_DATE
+        return True
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)
@@ -160,6 +161,7 @@ class ModerationModule(Module):
             return
 
         await ctx.interaction.response.defer()
+        ctx.interaction.response._responded = True
         reason = f"{ctx.author} used the /approve command to grant {member} access to this guild."
 
         allowed_to_rename: bool = await self.allowed_to_rename(ctx)
@@ -288,7 +290,7 @@ class ModerationModule(Module):
                     actions_commited.append(f"Updated {trainer.username} with new stats; {stats_humanize}")
 
             if actions_commited:
-                response: WebhookMessage = await ctx.followup.send(
+                response: WebhookMessage = await ctx.respond(
                     f"`/approve` run on {member.mention}\n" + "\n".join(actions_commited),
                     wait=True,
                 )
