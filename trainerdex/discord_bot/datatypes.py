@@ -36,8 +36,8 @@ class _MongoDBDocument:
         return cls(**{k: v for k, v in mapping.items() if k in inspect.signature(cls).parameters})
 
 
-@dataclass
-class GlobalConfig(_MongoDBDocument):
+@dataclass(frozen=True)
+class GlobalConfig:
     embed_footer: str = "Provided with ❤️ by TrainerDex"
     notice: str | None = None
 
