@@ -45,19 +45,7 @@ class Config:
         return self.database[collection]
 
     async def get_global(self, *, create: bool = True) -> GlobalConfig:
-        data: MutableMapping = await self._get_collection("global").find_one(
-            {"_id": StaticDocuments.GLOBAL_CONFIG.value}
-        )
-
-        if data is None and create:
-            document: GlobalConfig = GlobalConfig(_id=StaticDocuments.GLOBAL_CONFIG.value)
-            self._get_collection("global").insert_one(asdict(document))
-            data: MutableMapping = await self._get_collection("global").find_one(
-                {"_id": StaticDocuments.GLOBAL_CONFIG.value}
-            )
-        elif data is None and not create:
-            raise ValueError("No entry found.")
-        return GlobalConfig.from_mapping(data)
+        return GlobalConfig()
 
     async def get_module_metadata(self, module: Module | type[Module], create: bool = True) -> ModuleMeta:
         from trainerdex.discord_bot.modules.base import Module
@@ -153,8 +141,7 @@ class Config:
         return MemberConfig.from_mapping(data)
 
     async def set_global(self, document: GlobalConfig):
-        data: MutableMapping = asdict(document)
-        await self._get_collection("global").update_one({"_id": document._id}, {"$set": data}, upsert=True)
+        pass
 
     async def set_module_metadata(self, document: ModuleMeta):
         data: MutableMapping = asdict(document)
