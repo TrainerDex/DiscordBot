@@ -38,8 +38,13 @@ class _MongoDBDocument:
 
 @dataclass(frozen=True)
 class GlobalConfig:
-    embed_footer: str = "Provided with ❤️ by TrainerDex"
-    notice: str | None = None
+    embed_footer: str = "Provided with ❤️ by TrainerDex. Sunsetting on <t:1704067199:D> 💔"
+    notice: str | None = """After careful consideration, we have reached a difficult decision. We will be winding down TrainerDex, and this process will be completed on <t:1704067199:D>.
+
+If you would like to retain a copy of your data please email Jay at jay@trainerdex.app.
+
+Thank you for being part of the TrainerDex community. It's been an incredible journey, and we appreciate your support.
+""".strip()
 
 
 @dataclass
