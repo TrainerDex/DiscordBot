@@ -38,7 +38,7 @@ class _MongoDBDocument:
 
 @dataclass(frozen=True)
 class GlobalConfig:
-    embed_footer: str = "TrainerDex will be shutting down on the  <t:1704067199:D>"
+    embed_footer: str = "TrainerDex will be shutting down on the <t:1704067199:D>"
     notice: str | None = """After careful consideration, we have reached a difficult decision. We will be winding down TrainerDex, and this process will be completed on <t:1704067199:D>.
 
 If you would like to retain a copy of your data please email Jay at jay@trainerdex.app.
