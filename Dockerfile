@@ -1,6 +1,6 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-RUN pip install -U pip && pip install -U requirementslib
+RUN pip install -U pip && pip install -U "requirementslib==2.3.0"
 
 WORKDIR /opt/trainerdex
 

@@ -2,6 +2,7 @@ from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from typing import Mapping, Optional
+from zoneinfo import ZoneInfo
 
 import discord.errors
 from aiohttp import ClientResponseError
@@ -54,8 +55,7 @@ class ModerationModule(Module):
         return bool(ctx.author.guild_permissions.manage_roles)
 
     def allowed_to_create_profiles(self) -> bool:
-        # return datetime.utcnow() < SHUTDOWN_DATE
-        return True
+        return datetime.now(ZoneInfo("UTC")) < SHUTDOWN_DATE
 
     def compare_stats(self, x: Update, y: Mapping[str, int | Decimal | None], /) -> bool:
         x_, y_ = vars(x), deepcopy(y)

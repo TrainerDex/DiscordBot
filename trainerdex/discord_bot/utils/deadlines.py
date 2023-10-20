@@ -6,7 +6,9 @@ from dateutil.relativedelta import MO, relativedelta
 from trainerdex.discord_bot.config import Config
 from trainerdex.discord_bot.datatypes import GuildConfig
 
-SHUTDOWN_DATE = datetime(2023, 7, 18, 12, 0, 0)
+SHUTDOWN_DATE = datetime.fromtimestamp(
+    1704067199, tz=ZoneInfo("UTC")
+)  # on second before midnight, same time used in Daves message
 
 
 async def get_last_deadline(
