@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 RUN pip install -U pip && pip install -U "requirementslib==2.3.0"
 
